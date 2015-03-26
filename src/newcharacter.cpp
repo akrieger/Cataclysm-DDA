@@ -75,16 +75,15 @@ matype_id choose_ma_style( const character_type type, const std::vector<matype_i
     }
     uimenu menu;
     menu.text = _( "Pick your style:" );
+    menu.desc_enabled = true;
     for( auto & s : styles ) {
         auto &style = martialarts[s];
-        menu.addentry( style.name );
+        menu.addentry_desc( style.name, style.description );
     }
     menu.selected = 0;
     while( true ) {
-        menu.query();
+        menu.query(true);
         auto &selected = styles[menu.ret];
-        auto &style = martialarts[selected];
-        popup( style.description, PF_NONE );
         if( query_yn( _( "Use this style?" ) ) ) {
             return selected;
         }
@@ -1253,11 +1252,6 @@ int set_profession(WINDOW *w, player *u, int &points)
     return retval;
 }
 
-inline bool skill_display_sort(const Skill* a, const Skill* b)
-{
-    return a->name() < b->name();
-}
-
 int set_skills(WINDOW *w, player *u, int &points)
 {
     draw_tabs(w, _("SKILLS"));
@@ -1266,8 +1260,10 @@ int set_skills(WINDOW *w, player *u, int &points)
     WINDOW *w_description = newwin(iContentHeight, FULL_SCREEN_WIDTH - 35,
                                    5 + getbegy(w), 31 + getbegx(w));
 
-    std::vector<const Skill*> sorted_skills = Skill::skills;
-    std::sort(sorted_skills.begin(), sorted_skills.end(), skill_display_sort);
+    auto sorted_skills = Skill::get_skills_sorted_by([](Skill const &a, Skill const &b) {
+        return a.name() < b.name();
+    });
+
     const int num_skills = Skill::skills.size();
     int cur_pos = 0;
     const Skill* currentSkill = sorted_skills[cur_pos];
@@ -1380,14 +1376,6 @@ int set_skills(WINDOW *w, player *u, int &points)
             return 1;
         }
     } while (true);
-}
-
-inline bool skill_description_sort(const std::pair<const Skill*, int> &a,
-                                   const std::pair<const Skill*, int> &b)
-{
-    int levelA = a.second;
-    int levelB = b.second;
-    return levelA > levelB || (levelA == levelB && a.first->name() < b.first->name());
 }
 
 inline bool scenario_display_sort(const scenario *a, const scenario *b)
@@ -1685,19 +1673,12 @@ int set_description(WINDOW *w, player *u, character_type type, int &points)
             wrefresh(w_traits);
 
             mvwprintz(w_skills, 0, 0, COL_HEADER, _("Skills:"));
-            std::vector<const Skill*> skillslist;
 
-            std::vector<std::pair<const Skill*, int> > sorted;
-            int num_skills = Skill::skills.size();
-            for (int i = 0; i < num_skills; i++) {
-                const Skill* s = Skill::skills[i];
-                SkillLevel &sl = u->skillLevel(s);
-                sorted.push_back(std::pair<const Skill*, int>(s, sl.level() * 100 + sl.exercise()));
-            }
-            std::sort(sorted.begin(), sorted.end(), skill_description_sort);
-            for( auto &elem : sorted ) {
-                skillslist.push_back( ( elem ).first );
-            }
+            auto skillslist = Skill::get_skills_sorted_by([&](Skill const& a, Skill const& b) {
+                int const level_a = u->skillLevel(a).exercised_level();
+                int const level_b = u->skillLevel(b).exercised_level();
+                return level_a > level_b || (level_a == level_b && a.name() < b.name());
+            });
 
             int line = 1;
             bool has_skills = false;

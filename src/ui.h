@@ -36,6 +36,7 @@ struct uimenu_entry {
     bool enabled;         // darken, and forbid scrolling if hilight_disabled is false
     int hotkey;           // keycode from (int)getch(). -1: automagically pick first free character: 1-9 a-z A-Z
     std::string txt;      // what it says on the tin
+    std::string desc;     // optional, possibly longer, description
     nc_color hotkey_color;
     nc_color text_color;
     mvwzstr extratxt;
@@ -45,11 +46,19 @@ struct uimenu_entry {
     {
         text_color = C_UNSET_MASK;
     };
+    uimenu_entry(std::string T, std::string D) : retval(-1), enabled(true), hotkey(-1), txt(T), desc(D)
+    {
+        text_color = C_UNSET_MASK;
+    };
     uimenu_entry(std::string T, int K) : retval(-1), enabled(true), hotkey(K), txt(T)
     {
         text_color = C_UNSET_MASK;
     };
     uimenu_entry(int R, bool E, int K, std::string T) : retval(R), enabled(E), hotkey(K), txt(T)
+    {
+        text_color = C_UNSET_MASK;
+    };
+    uimenu_entry(int R, bool E, int K, std::string T, std::string D) : retval(R), enabled(E), hotkey(K), txt(T), desc(D)
     {
         text_color = C_UNSET_MASK;
     };
@@ -130,9 +139,12 @@ class uimenu: public ui_container
         int textwidth;
         int textalign;
         int max_entry_len;
+        int max_desc_len;
         std::string title;
         std::vector<uimenu_entry> entries;
         std::map<int, int> keymap;
+        bool desc_enabled;
+        int desc_lines;
         bool border;
         bool filtering;
         bool filtering_nocase;
@@ -165,7 +177,8 @@ class uimenu: public ui_container
         uimenu(); // bare init
 
         uimenu(bool cancancel, const char *message, ...);  // legacy menu()
-        uimenu(bool cancelable, const char *mes, std::vector<std::string> options); // legacy menu_vec
+        uimenu(bool cancelable, const char *mes, const std::vector<std::string> options); // legacy menu_vec
+        uimenu(bool cancelable, const char *mes, const std::vector<std::string> &options, const std::string &hotkeys);
         uimenu(bool cancelable, int startx, int width, int starty, std::string title,
                std::vector<uimenu_entry> ents);
         uimenu(int startx, int width, int starty, std::string title, std::vector<uimenu_entry> ents);
@@ -184,6 +197,8 @@ class uimenu: public ui_container
         void addentry(const char *format, ...);
         void addentry(int r, bool e, int k, std::string str);
         void addentry(int r, bool e, int k, const char *format, ...);
+        void addentry_desc(std::string str, std::string desc);
+        void addentry_desc(int r, bool e, int k, std::string str, std::string desc);
         void settext(std::string str);
         void settext(const char *format, ...);
 
@@ -198,6 +213,7 @@ class uimenu: public ui_container
         bool started;
         int last_fsize;
         int last_vshift;
+        std::string hotkeys;
 };
 
 // Callback for uimenu that pairs menu entries with points
