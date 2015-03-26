@@ -823,6 +823,13 @@
       ["purse", 40],
       ["mbag", 20],
       ["fanny", 10],
+      ["acoustic_guitar", 20],
+      ["saxophone", 15],
+      ["clarinet", 10],
+      ["flute", 10],
+      ["harmonica_holder", 10],
+      ["banjo", 5],
+      ["ukulele", 15],
       ["gobag", 5],
       ["battery", 50],
       ["bb", 8],
@@ -974,6 +981,7 @@
       ["l_lookout_9mm", 5],
       ["l_sp_9mm", 4],
       ["l_mp_9mm", 1],
+      ["rm360_carbine", 1],
       ["cx4", 1],
       ["sw_619", 4],
       ["taurus_38", 4],
@@ -2693,6 +2701,7 @@
       ["fn_p90", 7],
       ["hk_mp7", 5],
       ["needlegun", 4],
+      ["rm360_carbine", 2],
       ["rm2000_smg", 1]
     ]
   },{
@@ -2789,6 +2798,7 @@
       ["m249", 1],
       ["v29_cheap", 8],
       ["rm51_assault_rifle", 1],
+      ["rm360_carbine", 2],
       ["rm88_battle_rifle", 1],
       ["rm11b_sniper_rifle", 1],
       ["rm614_lmg", 1],
@@ -4058,6 +4068,7 @@
       ["m1911", 4],
       ["calico", 6],
       ["american_180", 4],
+      ["rm360_carbine", 2],
       ["savage_111f", 4],
       ["rm120c", 3],
       ["rm99_pistol", 3],
@@ -9162,6 +9173,7 @@
       ["primitive_axe", 50],
       ["primitive_shovel", 50],
       ["primitive_hammer", 50],
+      ["primitive_adze", 50 ],
       ["needle_bone", 50],
       ["needle_wood", 50],
       ["arrowhead", 50],
@@ -9262,7 +9274,9 @@
       { "item": "egg_reptile", "prob": 5, "count-min": 2, "count-max": 5 },
       { "item": "rhubarb", "prob": 5, "count-min": 2, "count-max": 5 },
       { "item": "wild_herbs", "prob": 10 },
-      { "item": "buckwheat", "prob": 5, "count-min": 1, "count-max": 2 }
+      { "item": "buckwheat", "prob": 5, "count-min": 1, "count-max": 2 },
+      { "item": "thyme", "prob": 5, "count-min": 1, "count-max": 2 },
+      { "item": "canola", "prob": 5, "count-min": 1, "count-max": 2 }
     ]
   },{
 "type" : "item_group",
@@ -9274,7 +9288,9 @@
       { "item": "egg_bird", "prob": 15, "count-min": 2, "count-max": 5 },
       { "item": "egg_reptile", "prob": 5, "count-min": 2, "count-max": 5 },
       { "item": "wild_herbs", "prob": 10 },
-      { "item": "buckwheat", "prob": 10, "count-min": 1, "count-max": 4 }
+      { "item": "buckwheat", "prob": 10, "count-min": 1, "count-max": 4 },
+      { "item": "thyme", "prob": 5, "count-min": 1, "count-max": 3 },
+      { "item": "canola", "prob": 10, "count-min": 1, "count-max": 3 }
     ]
   },{
 "type" : "item_group",
@@ -9286,7 +9302,9 @@
       { "item": "egg_bird", "prob": 15, "count-min": 2, "count-max": 5 },
       { "item": "egg_reptile", "prob": 5, "count-min": 2, "count-max": 5 },
       { "item": "wild_herbs", "prob": 10 },
-      { "item": "buckwheat", "prob": 15, "count-min": 2, "count-max": 4 }
+      { "item": "buckwheat", "prob": 15, "count-min": 2, "count-max": 4 },
+      { "item": "thyme", "prob": 5, "count-min": 1, "count-max": 3 },
+      { "item": "canola", "prob": 5, "count-min": 1, "count-max": 3 }
     ]
   },{
 "type" : "item_group",
@@ -9387,5 +9405,97 @@
       ["boxer_shorts", 30],
       ["briefs", 30]
     ]
+  },{
+    "type" : "item_group",
+    "id" : "army_personal_locker",
+    "items" : [
+      ["jumpsuit", 40],
+      ["pants_army", 70],
+      ["jacket_army", 70],
+      ["socks", 40],
+      ["winter_pants_army", 20],
+      ["winter_jacket_army", 20],
+      ["winter_gloves_army", 20],
+      ["army_top", 70],
+      ["battery", 40],
+      {"item": "radio", "prob": 10, "charges-min": 10, "charges-max": 95 },
+      ["boots_combat", 50],
+      {"item": "bandages", "prob": 10, "charges-min": 1, "charges-max": 3 },
+      {"item": "cig", "prob": 60, "charges-min": 1, "charges-max": 20 },
+      ["knife_combat", 30],
+      ["pockknife", 30],
+      ["glasses_safety", 45],
+      {"item": "eyedrops", "prob": 10, "charges-min": 1, "charges-max": 10 },
+      {"item": "pda", "prob": 20, "charges-min": 10, "charges-max": 95 },
+      ["screwdriver", 5],
+      ["glasses_eye", 30],
+      ["tool_belt", 20],
+      ["bra", 40],
+      ["undershirt", 50],
+      ["boxer_shorts", 50],
+      ["briefs", 50],
+      ["canteen", 40],
+      ["2lcanteen", 20],
+      ["rucksack", 30],
+      ["heatpack", 30],
+      ["sleeping_bag", 20],
+      ["duffelbag", 25],
+      ["mil_mess_kit", 50],
+      ["flashlight", 50],
+      ["mag_comic", 20],
+      ["mag_guns", 20]
+    ]
+  },{
+    "type" : "item_group",
+    "id" : "army_bed",
+    "items" : [
+      ["blanket", 70],
+      ["pillow", 70],
+      ["sheet", 70],
+      ["mag_porn", 40],
+      ["mag_comic", 10],
+      ["mag_guns", 10],
+      ["manual_brawl", 5],
+      ["manual_melee", 5],
+      ["manual_knives", 5],
+      ["manual_gun", 5],
+      ["manual_shotgun", 5],
+      ["manual_rifle", 5],
+      ["manual_pistol", 5],
+      ["mag_pistol", 10],
+      ["mag_rifle", 10]
+    ]
+  },{
+    "type" : "item_group",
+    "id" : "army_pistols",
+    "items" : [
+      ["m9", 50],
+      ["9mm", 50]
+    ]
+  },{
+    "type" : "item_group",
+    "id" : "army_rifles",
+    "items" : [
+      ["m4a1", 50],
+      ["m249", 10],
+      ["556", 50]
+    ]
+  },{
+    "type" : "item_group",
+    "id" : "hospital_incubator",
+    "items" : [
+      ["blanket", 90],
+      ["child_book", 10]
+    ]
+  },{
+    "type" : "item_group",
+    "id" : "tailor",
+    "items" : [
+      ["sewing_kit", 30],
+      ["tailors_kit", 20],
+      ["thread", 80],
+      ["scissors", 50]
+    ]
   }
 ]
+

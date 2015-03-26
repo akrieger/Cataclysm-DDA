@@ -1,5 +1,6 @@
 #include "character.h"
 #include "game.h"
+#include "mission.h"
 
 Character::Character()
 {
@@ -217,7 +218,7 @@ void Character::recalc_sight_limits()
     sight_boost_cap = 0;
 
     // Set sight_max.
-    if (has_effect("blind")) {
+    if (has_effect("blind") || worn_with_flag("BLIND")) {
         sight_max = 0;
     } else if (has_effect("in_pit") ||
             (has_effect("boomered") && (!(has_trait("PER_SLIME_OK")))) ||
@@ -474,11 +475,15 @@ int Character::volume_capacity() const
     return ret;
 }
 
-bool Character::can_pickVolume(int volume) const
+bool Character::can_pickVolume( int volume, bool safe ) const
 {
-    return (volume_carried() + volume <= volume_capacity());
+    if( !safe ) {
+        return volume_carried() + volume <= volume_capacity();
+    } else {
+        return volume_carried() + volume <= volume_capacity() - 2;
+    }
 }
-bool Character::can_pickWeight(int weight, bool safe) const
+bool Character::can_pickWeight( int weight, bool safe ) const
 {
     if (!safe)
     {
@@ -546,17 +551,29 @@ SkillLevel& Character::skillLevel(const Skill* _skill)
     return _skills[_skill];
 }
 
-SkillLevel Character::get_skill_level(const Skill* _skill) const
+SkillLevel& Character::skillLevel(Skill const &_skill)
+{
+    return skillLevel(&_skill);
+}
+
+SkillLevel const& Character::get_skill_level(const Skill* _skill) const
 {
     for( const auto &elem : _skills ) {
         if( elem.first == _skill ) {
             return elem.second;
         }
     }
-    return SkillLevel();
+
+    static SkillLevel const dummy_result;
+    return dummy_result;
 }
 
-SkillLevel Character::get_skill_level(const std::string &ident) const
+SkillLevel const& Character::get_skill_level(const Skill &_skill) const
+{
+    return get_skill_level(&_skill);
+}
+
+SkillLevel const& Character::get_skill_level(const std::string &ident) const
 {
     const Skill* sk = Skill::skill(ident);
     return get_skill_level(sk);
@@ -588,6 +605,7 @@ void Character::die(Creature* nkiller)
     if( has_effect( "beartrap" ) ) {
         inv.add_item( item( "beartrap", 0 ) );
     }
+    mission::on_creature_death( *this );
 }
 
 void Character::reset_stats()
