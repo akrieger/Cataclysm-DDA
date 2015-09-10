@@ -1994,7 +1994,7 @@ input_context game::get_player_input(std::string &action)
                     wmove( w_terrain, location.y - offset_y, location.x - offset_x );
                     if( !m.apply_vision_effects( w_terrain, lighting, cache ) ) {
                         m.drawsq( w_terrain, u, location, false, true,
-                                  u.posx() + u.view_offset.x, u.posy() + u.view_offset.y,
+                                  u.pos() + u.view_offset,
                                   lighting == LL_LOW, lighting == LL_BRIGHT );
                     }
                 }
@@ -2031,7 +2031,7 @@ input_context game::get_player_input(std::string &action)
                                 wmove( w_terrain, location.y - offset_y, location.x - offset_x );
                                 if( !m.apply_vision_effects( w_terrain, lighting, cache ) ) {
                                     m.drawsq( w_terrain, u, location, false, true,
-                                              u.posx() + u.view_offset.x, u.posy() + u.view_offset.y,
+                                              u.pos() + u.view_offset,
                                               lighting == LL_LOW, lighting == LL_BRIGHT );
                                 }
                             }
@@ -3715,7 +3715,7 @@ void game::debug()
     case 2:
     {
         if( u.in_vehicle ) {
-            m.unboard_vehicle( u.pos3() );
+            m.unboard_vehicle( u.pos() );
         }
 
         auto pt = look_around();
@@ -3725,16 +3725,23 @@ void game::debug()
             pt = u.pos();
             add_msg( _("You teleport to point (%d,%d,%d)"), pt.x, pt.y, pt.z );
         }
+
+        if( m.veh_at( u.pos() ) != nullptr ) {
+            m.board_vehicle( u.pos(), &u );
+        }
     }
         break;
 
     case 3: {
         tripoint tmp = overmap::draw_overmap();
-        if (tmp != overmap::invalid_tripoint) {
+        if( tmp != overmap::invalid_tripoint ) {
             //First offload the active npcs.
             active_npc.clear();
             while( num_zombies() > 0 ) {
                 despawn_monster( 0 );
+            }
+            if( u.in_vehicle ) {
+                m.unboard_vehicle( u.pos3() );
             }
             const int minz = m.has_zlevels() ? -OVERMAP_DEPTH : get_levz();
             const int maxz = m.has_zlevels() ? OVERMAP_HEIGHT : get_levz();
@@ -6969,36 +6976,36 @@ bool game::swap_critters( Creature &a, Creature &b )
 
         critter_tracker->swap_positions( *m1, *m2 );
         return true;
-    } else if( second.is_monster() ) {
-        // TODO: Remove the ugly casts when Creature::setpos exists
-        player *u_or_npc = dynamic_cast< player* >( &first );
-        monster *mon = dynamic_cast< monster* >( &second );
-        if( u_or_npc == nullptr || mon == nullptr ) {
-            debugmsg( "Couldn't swap the player or an npc with a monster" );
-            return false;
-        }
+    }
 
-        tripoint temp = mon->pos();
-        mon->setpos( u_or_npc->pos() );
-        u_or_npc->setpos( temp );
-        if( u_or_npc->is_player() ) {
-            update_map( u_or_npc );
-        }
-    } else {
-        // TODO: Also remove casts
-        player *u_or_npc = dynamic_cast< player* >( &first );
-        player *other_npc = dynamic_cast< player* >( &second );
-        if( u_or_npc == nullptr || other_npc == nullptr ) {
-            debugmsg( "Couldn't swap the player or an npc with an npc" );
-            return false;
-        }
+    player *u_or_npc = dynamic_cast< player* >( &first );
+    player *other_npc = dynamic_cast< player* >( &second );
 
-        tripoint temp = u_or_npc->pos();
-        u_or_npc->setpos( second.pos() );
-        other_npc->setpos( temp );
-        if( first.is_player() ) {
-            update_map( u_or_npc );
-        }
+    if( u_or_npc->in_vehicle ) {
+        g->m.unboard_vehicle( u_or_npc->pos() );
+    }
+
+    if( other_npc->in_vehicle ) {
+        g->m.unboard_vehicle( other_npc->pos() );
+    }
+
+    tripoint temp = second.pos();
+    second.setpos( first.pos() );
+    first.setpos( temp );
+
+    int part = -1;
+    vehicle *veh = g->m.veh_at( u_or_npc->pos(), part );
+    if( veh != nullptr && veh->part_with_feature( part, VPFLAG_BOARDABLE ) >= 0 ) {
+        g->m.board_vehicle( u_or_npc->pos(), u_or_npc );
+    }
+
+    vehicle *oveh = g->m.veh_at( other_npc->pos(), part );
+    if( oveh != nullptr && oveh->part_with_feature( part, VPFLAG_BOARDABLE ) >= 0 ) {
+        g->m.board_vehicle( other_npc->pos(), other_npc );
+    }
+
+    if( first.is_player() ) {
+        update_map( u_or_npc );
     }
 
     return true;
@@ -8000,7 +8007,10 @@ bool npc_menu( npc &who )
         who.body_window( precise );
     } else if( choice == attack ) {
         //The NPC knows we started the fight, used for morale penalty.
-        who.hit_by_player = true;
+        if( !who.is_enemy() ) {
+            who.hit_by_player = true;
+        }
+
         g->u.melee_attack( who, true );
         who.make_angry();
     }
@@ -8198,6 +8208,22 @@ void game::print_terrain_info( const tripoint &lp, WINDOW *w_look, int column, i
         mvwprintw(w_look, ++line, column, _("Sign: %s..."), signage.substr(0, 32).c_str());
     }
 
+    if( m.has_zlevels() && lp.z > -OVERMAP_DEPTH && m.has_flag( TFLAG_NO_FLOOR, lp ) ) {
+        // Print info about stuff below
+        tripoint below( lp.x, lp.y, lp.z - 1 );
+        std::string tile_below = m.tername( below );
+        if( m.has_furn( below ) ) {
+            furn_t furn = m.furn_at( below );
+            tile_below += "; " + furn.name;
+        }
+
+        if( m.valid_move( lp, below, false, true ) ) {
+            mvwprintw(w_look, ++line, column, _("Below: %s; No support"), tile_below.c_str() );
+        } else {
+            mvwprintw(w_look, ++line, column, _("Below: %s; Walkable"), tile_below.c_str() );
+        }
+    }
+
     mvwprintw(w_look, ++line, column, "%s", m.features( lp ).c_str());
     if (line < ending_line) {
         line = ending_line;
@@ -8238,10 +8264,10 @@ void game::print_object_info( const tripoint &lp, WINDOW *w_look, const int colu
         mvwprintw(w_look, line++, column, _("There is a %s there. Parts:"), veh->name.c_str());
         line = veh->print_part_desc(w_look, line, (mouse_hover) ? getmaxx(w_look) : 48, veh_part);
         if (!mouse_hover) {
-            m.drawsq( w_terrain, u, lp, true, true, lp.x, lp.y );
+            m.drawsq( w_terrain, u, lp, true, true, lp );
         }
     } else if (!mouse_hover) {
-        m.drawsq(w_terrain, u, lp, true, true, lp.x, lp.y );
+        m.drawsq(w_terrain, u, lp, true, true, lp );
     }
     handle_multi_item_info( lp, w_look, column, line, mouse_hover );
 }
@@ -8635,8 +8661,7 @@ void game::zones_manager()
                                          tripoint( iX, iY, u.posz() + u.view_offset.z ),
                                          false,
                                          false,
-                                         u.posx() + u.view_offset.x,
-                                         u.posy() + u.view_offset.y );
+                                         u.pos() + u.view_offset );
                             } else {
                                 if (u.has_effect("boomered")) {
                                     mvwputch(w_terrain, iY - offset_y, iX - offset_x, c_magenta, '#');
@@ -8800,8 +8825,7 @@ tripoint game::look_around( WINDOW *w_info, const tripoint &start_point,
                                              tripoint( iX, iY, lp.z ),
                                              false,
                                              false,
-                                             lx,
-                                             ly);
+                                             tripoint( lx, ly, u.posz() ) );
                                 } else {
                                     if (u.has_effect("boomered")) {
                                         mvwputch(w_terrain, iY - offset_y - ly + u.posy(), iX - offset_x - lx + u.posx(), c_magenta, '#');
@@ -11834,11 +11858,6 @@ bool game::plmove(int dx, int dy)
     // If not a monster, maybe there's an NPC there
     if( npcdex != -1 ) {
         npc &np = *active_npc[npcdex];
-        if( !np.is_enemy() ) {
-            npc_menu( np );
-            return false;
-        }
-
         if( u.has_destination() ) {
             add_msg(_("NPC in the way, Auto-move canceled."));
             add_msg(m_info, _("Click directly on NPC to attack."));
@@ -11846,7 +11865,11 @@ bool game::plmove(int dx, int dy)
             return false;
         }
 
-        np.hit_by_player = true;
+        if( !np.is_enemy() ) {
+            npc_menu( np );
+            return false;
+        }
+
         u.melee_attack( np, true );
         np.make_angry();
         return false;
@@ -11926,7 +11949,7 @@ bool game::plmove(int dx, int dy)
             }
             plswim(x, y);
         }
-    } else if (m.move_cost(x, y) > 0 || pushing_furniture || shifting_furniture || pushing_vehicle) {
+    } else if (m.move_cost( dest_loc ) > 0 || pushing_furniture || shifting_furniture || pushing_vehicle) {
         // move_cost() of 0 = impassible (e.g. a wall)
         u.set_underwater(false);
 
@@ -12074,24 +12097,21 @@ bool game::plmove(int dx, int dy)
                             u.grab_point.y = dyVeh * (-1);
                         }
 
+                        tripoint dp_veh( dxVeh, dyVeh, 0 );
                         mdir.init(dxVeh, dyVeh);
                         mdir.advance(1);
                         grabbed_vehicle->turn(mdir.dir() - grabbed_vehicle->face.dir());
                         grabbed_vehicle->face = grabbed_vehicle->turn_dir;
                         grabbed_vehicle->precalc_mounts(1, mdir.dir());
-                        int imp = 0;
-                        std::vector<veh_collision> veh_veh_colls;
-                        std::vector<veh_collision> veh_misc_colls;
-                        bool can_move = true;
+                        std::vector<veh_collision> colls;
                         // Set player location to illegal value so it can't collide with vehicle.
                         int player_prev_x = u.posx();
                         int player_prev_y = u.posy();
                         u.setx( 0 );
                         u.sety( 0 );
-                        if (grabbed_vehicle->collision(veh_veh_colls, veh_misc_colls, dxVeh, dyVeh,
-                                                       can_move, imp, true)) {
-                            // TODO: figure out what we collided with.
-                            add_msg(_("The %s collides with something."), grabbed_vehicle->name.c_str());
+                        if( grabbed_vehicle->collision( colls, dp_veh, true ) ) {
+                            add_msg( _("The %s collides with %s."),
+                                grabbed_vehicle->name.c_str(), colls[0].target_name.c_str() );
                             u.moves -= 10;
                             u.setx( player_prev_x );
                             u.sety( player_prev_y );
@@ -12103,8 +12123,8 @@ bool game::plmove(int dx, int dy)
                         u.sety( player_prev_y );
 
                         tripoint gp = grabbed_vehicle->global_pos3();
-                        std::vector<int> wheel_indices =
-                            grabbed_vehicle->all_parts_with_feature( "WHEEL", false );
+                        const auto &wheel_indices =
+                            grabbed_vehicle->wheelcache;
                         for( auto p : wheel_indices ) {
                             if( one_in(2) ) {
                                 tripoint wheel_p(
@@ -12114,8 +12134,7 @@ bool game::plmove(int dx, int dy)
                                 grabbed_vehicle->handle_trap( wheel_p, p );
                             }
                         }
-                        tripoint gpd( dxVeh, dyVeh, 0 );
-                        m.displace_vehicle( gp, gpd );
+                        m.displace_vehicle( gp, dp_veh );
                     } else {
                         //We are moving around the veh
                         u.grab_point.x = (dx + dxVeh) * (-1);
@@ -12871,7 +12890,8 @@ void game::vertical_move(int movez, bool force)
 
         std::vector<tripoint> pts;
         for( const auto &pt : m.points_in_radius( stairs, 1 ) ) {
-            if( m.move_cost( pt ) > 0 && !m.has_flag( TFLAG_NO_FLOOR, pt ) ) {
+            if( m.move_cost( pt ) > 0 &&
+                !m.valid_move( pt, tripoint( pt.x, pt.y, pt.z - 1 ), false, true ) ) {
                 pts.push_back( pt );
             }
         }
