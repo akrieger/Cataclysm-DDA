@@ -7153,7 +7153,7 @@ int iuse::unfold_generic(player *p, item *it, bool, const tripoint& )
         g->m.destroy_vehicle(veh);
         return 0;
     }
-    g->m.update_vehicle_cache(veh, true);
+    g->m.add_vehicle_to_cache( veh );
 
     std::string unfold_msg = it->get_var( "unfold_msg" );
     if (unfold_msg.size() == 0) {
@@ -9528,4 +9528,27 @@ int iuse::capture_monster_act( player *p, item *it, bool, const tripoint &pos )
         }
     }
     return 0;
+}
+
+int iuse::ladder( player *p, item *, bool, const tripoint& )
+{
+    if( !g->m.has_zlevels() ) {
+        debugmsg( "Ladder can't be used used in non-z-level mode" );
+        return 0;
+    }
+
+    tripoint dirp;
+    if( !choose_adjacent( _("Put the ladder where?"), dirp ) ) {
+        return 0;
+    }
+
+    if( !g->is_empty( dirp ) || g->m.has_furn( dirp ) ) {
+        p->add_msg_if_player( m_bad, _("Can't place it there."));
+        return 0;
+    }
+
+    p->add_msg_if_player(_("You set down the ladder."));
+    p->moves -= 500;
+    g->m.furn_set( dirp, "f_ladder" );
+    return 1;
 }
