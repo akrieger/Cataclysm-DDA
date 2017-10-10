@@ -216,7 +216,7 @@ float player::hit_roll() const
     return normal_roll( hit * 5, 25.0f );
 }
 
-void player::add_miss_reason(const char *reason, unsigned int weight)
+void player::add_miss_reason( const std::string reason, const unsigned int weight )
 {
     melee_miss_reasons.add(reason, weight);
 
@@ -227,7 +227,7 @@ void player::clear_miss_reasons()
     melee_miss_reasons.clear();
 }
 
-const char *player::get_miss_reason()
+std::string player::get_miss_reason()
 {
     // everything that lowers accuracy in player::hit_roll()
     // adding it in hit_roll() might not be safe if it's called multiple times
@@ -243,9 +243,9 @@ const char *player::get_miss_reason()
         _("You can't hit reliably due to your farsightedness."),
         farsightedness);
 
-    const char** reason = melee_miss_reasons.pick();
+    const std::string *const reason = melee_miss_reasons.pick();
     if(reason == NULL) {
-        return NULL;
+        return std::string();
     }
     return *reason;
 }
@@ -300,9 +300,10 @@ void player::melee_attack(Creature &t, bool allow_special, const matec_id &force
         if( is_player() ) { // Only display messages if this is the player
 
             if( one_in(2) ) {
-                const char* reason_for_miss = get_miss_reason();
-                if (reason_for_miss != NULL)
-                    add_msg(reason_for_miss);
+                const std::string reason_for_miss = get_miss_reason();
+                if( !reason_for_miss.empty() ) {
+                    add_msg( "%s", reason_for_miss.c_str() );
+                }
             }
 
             if( has_miss_recovery_tec( cur_weapon ) ) {
@@ -965,13 +966,13 @@ bool player::valid_aoe_technique( Creature &t, const ma_technique &technique,
         tripoint left = pos() + tripoint( offset_a[lookup], offset_b[lookup], 0 );
         tripoint right = pos() + tripoint( offset_b[lookup], -offset_a[lookup], 0 );
 
-        int mondex_l = g->mon_at( left );
-        int mondex_r = g->mon_at( right );
-        if (mondex_l != -1 && g->zombie(mondex_l).friendly == 0) {
-            targets.push_back( &g->zombie( mondex_l ) );
+        monster *const mon_l = g->critter_at<monster>( left );
+        if( mon_l && mon_l->friendly == 0 ) {
+            targets.push_back( mon_l );
         }
-        if (mondex_r != -1 && g->zombie(mondex_r).friendly == 0) {
-            targets.push_back( &g->zombie( mondex_r ) );
+        monster *const mon_r = g->critter_at<monster>( right );
+        if( mon_r && mon_r->friendly == 0 ) {
+            targets.push_back( mon_r );
         }
 
         npc * const npc_l = g->critter_at<npc>( left );
@@ -1001,17 +1002,17 @@ bool player::valid_aoe_technique( Creature &t, const ma_technique &technique,
         tripoint target_pos = t.pos() + (t.pos() - pos());
         tripoint right = t.pos() + tripoint( offset_b[lookup], -offset_b[lookup], 0 );
 
-        int mondex_l = g->mon_at( left );
-        int mondex_t = g->mon_at( target_pos );
-        int mondex_r = g->mon_at( right );
-        if (mondex_l != -1 && g->zombie(mondex_l).friendly == 0) {
-            targets.push_back( &g->zombie( mondex_l ) );
+        monster *const mon_l = g->critter_at<monster>( left );
+        monster *const mon_t = g->critter_at<monster>( target_pos );
+        monster *const mon_r = g->critter_at<monster>( right );
+        if( mon_l && mon_l->friendly == 0 ) {
+            targets.push_back( mon_l );
         }
-        if (mondex_t != -1 && g->zombie(mondex_t).friendly == 0) {
-            targets.push_back( &g->zombie( mondex_t ) );
+        if( mon_t && mon_t->friendly == 0 ) {
+            targets.push_back( mon_t );
         }
-        if (mondex_r != -1 && g->zombie(mondex_r).friendly == 0) {
-            targets.push_back( &g->zombie( mondex_r ) );
+        if( mon_r && mon_r->friendly == 0 ) {
+            targets.push_back( mon_r );
         }
 
         npc * const npc_l = g->critter_at<npc>( left );
@@ -1039,9 +1040,9 @@ bool player::valid_aoe_technique( Creature &t, const ma_technique &technique,
                 if( tmp == t.pos() ) {
                     continue;
                 }
-                int mondex = g->mon_at( tmp );
-                if (mondex != -1 && g->zombie(mondex).friendly == 0) {
-                    targets.push_back( &g->zombie( mondex ) );
+                monster *const mon = g->critter_at<monster>( tmp );
+                if( mon && mon->friendly == 0 ) {
+                    targets.push_back( mon );
                 }
                 npc * const np = g->critter_at<npc>( tmp );
                 if( np && np->attitude == NPCATT_KILL) {

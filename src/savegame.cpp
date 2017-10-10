@@ -76,7 +76,7 @@ void game::serialize(std::ostream & fout) {
                 json.member( "last_target_type", +1 );
             } else if( const monster * const mon = dynamic_cast<const monster*>( lt_ptr.get() ) ) {
                 // monsters don't have IDs, so get its index in the Creature_tracker instead
-                json.member( "last_target", mon_at( mon->pos() ) );
+                json.member( "last_target", critter_tracker->temporary_id( *mon ) );
                 json.member( "last_target_type", -1 );
             }
         }
@@ -142,23 +142,6 @@ std::string scent_map::serialize() const
     rle_out << rle_count;
     return rle_out.str();
 }
-
-
-/*
- * Properly reuse a stringstream object for line by line parsing
- */
-inline std::stringstream & stream_line(std::istream & f, std::stringstream & s, std::string & buf) {
-    s.clear();
-    s.str("");
-    getline(f, buf);
-    s.str(buf);
-    return s;
-}
-
-/*
- * Convenience macro for the above
- */
-#define parseline() stream_line(fin,linein,linebuf)
 
 void chkversion(std::istream & fin) {
    if ( fin.peek() == '#' ) {
@@ -243,7 +226,7 @@ void game::unserialize(std::istream & fin)
             last_target = overmap_buffer.find_npc( tmptar );
         } else if( tmptartyp == -1 ) {
             // Need to do this *after* the monsters have been loaded!
-            last_target = critter_tracker->find( tmptar );
+            last_target = critter_tracker->from_temporary_id( tmptar );
         }
 
         vdata = data.get_array("stair_monsters");

@@ -3848,8 +3848,7 @@ dealt_damage_instance player::deal_damage( Creature* source, body_part bp,
         }
         for( int i = 0; i < snakes && !valid.empty(); i++ ) {
             const tripoint target = random_entry_removed( valid );
-            if( g->summon_mon( mon_shadow_snake, target ) ) {
-                monster *snake = g->monster_at( target );
+            if( monster * const snake = g->summon_mon( mon_shadow_snake, target ) ) {
                 snake->friendly = -1;
             }
         }
@@ -3870,8 +3869,7 @@ dealt_damage_instance player::deal_damage( Creature* source, body_part bp,
         int numslime = 1;
         for( int i = 0; i < numslime && !valid.empty(); i++ ) {
             const tripoint target = random_entry_removed( valid );
-            if( g->summon_mon( mon_player_blob, target ) ) {
-                monster *slime = g->monster_at( target );
+            if( monster * const slime = g->summon_mon( mon_player_blob, target ) ) {
                 slime->friendly = -1;
             }
         }
@@ -7045,24 +7043,6 @@ std::list<item> player::use_charges( const itype_id& what, long qty )
     return res;
 }
 
-item* player::pick_usb()
-{
-    std::vector<std::pair<item*, int> > drives = inv.all_items_by_type("usb_drive");
-
-    if (drives.empty()) {
-        return nullptr; // None available!
-    }
-
-    std::vector<std::string> selections;
-    for (size_t i = 0; i < drives.size() && i < 9; i++) {
-        selections.push_back( drives[i].first->tname() );
-    }
-
-    int select = menu_vec(false, _("Choose drive:"), selections);
-
-    return drives[ select - 1 ].first;
-}
-
 bool player::covered_with_flag( const std::string &flag, const std::bitset<num_bp> &parts ) const
 {
     std::bitset<num_bp> covered = 0;
@@ -7444,7 +7424,7 @@ item::reload_option player::select_ammo( const item &base, const std::vector<ite
                            last_key( _last_key ), default_to( _default_to )
             {}
 
-            bool key( const input_event &event, int idx, uimenu * menu ) override {
+            bool key( const input_context &, const input_event &event, int idx, uimenu * menu ) override {
                 auto cur_key = event.get_first_input();
                 //Prevent double RETURN '\n' to default to the first entry
                 if( default_to != -1 && cur_key == last_key && cur_key != '\n' ) {
@@ -7805,14 +7785,16 @@ class ma_style_callback : public uimenu_callback
 private:
     size_t offset;
     const std::vector<matype_id> &styles;
+
 public:
     ma_style_callback( int style_offset, const std::vector<matype_id> &selectable_styles )
         : offset( style_offset )
         , styles( selectable_styles )
     {}
 
-    bool key(const input_event &event, int entnum, uimenu *menu) override {
-        if( event.get_first_input() != '?' ) {
+    bool key(const input_context &ctxt, const input_event &event, int entnum, uimenu *menu) override {
+        const std::string action = ctxt.input_to_action( event );
+        if( action != "SHOW_DESCRIPTION" ) {
             return false;
         }
         matype_id style_selected;
@@ -7866,11 +7848,16 @@ bool player::pick_style() // Style selection menu
     const std::vector<matype_id> &real_styles = has_active_bionic( bio_cqb ) ? bio_cqb_styles : ma_styles;
     selectable_styles.insert( selectable_styles.end(), real_styles.begin(), real_styles.end() );
 
+    input_context ctxt( "MELEE_STYLE_PICKER" );
+    ctxt.register_action( "SHOW_DESCRIPTION" );
+
     uimenu kmenu;
     kmenu.return_invalid = true;
-    kmenu.text = _("Select a style (press ? for more info)");
+    kmenu.text = string_format( _( "Select a style. (press %s for more info)" ), ctxt.get_desc( "SHOW_DESCRIPTION" ).c_str() );
     ma_style_callback callback( ( size_t )STYLE_OFFSET, selectable_styles );
     kmenu.callback = &callback;
+    kmenu.input_category = "MELEE_STYLE_PICKER";
+    kmenu.additional_actions.emplace_back( "SHOW_DESCRIPTION", "" );
     kmenu.desc_enabled = true;
     kmenu.addentry_desc( KEEP_HANDS_FREE, true, 'h', keep_hands_free ? _( "Keep hands free (on)" ) : _( "Keep hands free (off)" ),
                          _( "When this is enabled, player won't wield things unless explicitly told to." ) );
@@ -8954,25 +8941,26 @@ void player::gunmod_add( item &gun, item &mod )
     activity.values.push_back( qty ); // tool charges
 }
 
-void player::toolmod_add( item &tool, item &mod )
+void player::toolmod_add( item_location tool, item_location mod )
 {
-    if( !has_item( tool ) && !has_item( mod ) ) {
-        debugmsg( "Tried toolmod installation but mod/tool not in player possession" );
+    if( !tool && !mod ) {
+        debugmsg( "Tried toolmod installation but mod/tool not available" );
         return;
     }
     // first check at least the minimum requirements are met
-    if( !has_trait( trait_DEBUG_HS ) && !can_use( mod, tool ) ) {
+    if( !has_trait( trait_DEBUG_HS ) && !can_use( *mod, *tool ) ) {
         return;
     }
 
-    if( !query_yn( _( "Permanently install your %1$s in your %2$s?" ), mod.tname().c_str(),
-                    tool.tname().c_str() ) ) {
+    if( !query_yn( _( "Permanently install your %1$s in your %2$s?" ), mod->tname().c_str(),
+                    tool->tname().c_str() ) ) {
         add_msg_if_player( _( "Never mind." ) );
         return; // player cancelled installation
     }
 
-    assign_activity( activity_id( "ACT_TOOLMOD_ADD" ), 1, -1, get_item_position( &tool ) );
-    activity.values.push_back( get_item_position( &mod ) );
+    assign_activity( activity_id( "ACT_TOOLMOD_ADD" ), 1, -1 );
+    activity.targets.emplace_back( std::move( tool ) );
+    activity.targets.emplace_back( std::move( mod ) );
 }
 
 hint_rating player::rate_action_read( const item &it ) const
@@ -9393,7 +9381,9 @@ void player::do_read( item *book )
             }
         }
 
-        add_msg(m_info, _("Requires intelligence of %d to easily read."), reading->intel);
+        if (reading->intel != 0) {
+            add_msg(m_info, _("Requires intelligence of %d to easily read."), reading->intel);
+        }
         if (reading->fun != 0) {
             add_msg(m_info, _("Reading this book affects your morale by %d"), reading->fun);
         }
@@ -9753,7 +9743,7 @@ void player::try_to_sleep()
         add_msg_if_player( ter_at_pos.obj().movecost <= 2 ?
                  _("It's a little hard to get to sleep on this %s.") :
                  _("It's hard to get to sleep on this %s."),
-                 ter_at_pos.obj().name.c_str() );
+                 ter_at_pos.obj().name().c_str() );
     }
     add_effect( effect_lying_down, 300);
 }
