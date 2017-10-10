@@ -10,7 +10,6 @@
 #include "line.h"
 #include "skill.h"
 #include "rng.h"
-#include "creature_tracker.h"
 #include "item.h"
 #include "options.h"
 #include "action.h"
@@ -1015,17 +1014,8 @@ std::vector<tripoint> target_handler::target_ui( player &pc, target_mode mode,
     }
 
     const auto set_last_target = []( const tripoint &dst ) {
-        for( const auto &guy : g->active_npc ) {
-            if( guy->pos() == dst ) {
-                g->last_target = guy;
-                return;
-            }
-        }
-        const int mondex = g->mon_at( dst, true );
-        if( mondex >= 0 ) {
-            // @todo add and use a function in game that returns a
-            // shared_ptr<Creature>, as not to expose the Creature_tracker
-            g->last_target = g->critter_tracker->find( mondex );
+        if( const Creature *const critter_ptr = g->critter_at( dst, true ) ) {
+            g->last_target = g->shared_from( *critter_ptr );
         }
     };
 
@@ -1451,7 +1441,6 @@ static void cycle_action( item& weap, const tripoint &pos ) {
     if( weap.ammo_data() && weap.ammo_data()->ammo->casing != "null" ) {
         if( weap.has_flag( "RELOAD_EJECT" ) || weap.gunmod_find( "brass_catcher" ) ) {
             weap.contents.push_back( item( weap.ammo_data()->ammo->casing ).set_flag( "CASING" ) );
-
         } else {
             if( cargo.empty() ) {
                 g->m.add_item_or_charges( eject, item( weap.ammo_data()->ammo->casing ) );
@@ -1468,7 +1457,11 @@ static void cycle_action( item& weap, const tripoint &pos ) {
     const auto mag = weap.magazine_current();
     if( mag && mag->type->magazine->linkage != "NULL" ) {
         item linkage( mag->type->magazine->linkage, calendar::turn, 1 );
-        if( cargo.empty() ) {
+        if( weap.gunmod_find( "brass_catcher" ) ) {
+            linkage.set_flag( "CASING" );
+            weap.contents.push_back( linkage );
+        }
+        else if( cargo.empty() ) {
             g->m.add_item_or_charges( eject, linkage );
         } else {
             veh->add_item( *cargo.front(), linkage );
