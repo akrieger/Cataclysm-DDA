@@ -2578,7 +2578,7 @@ bool game::handle_action()
             // auto-move destinations. Since initializing an auto-move with
             // the mouse may span across multiple actions, we do not clear the
             // auto-move destination if the action is only a timeout, as this
-            // would require the user to double click quicker quicker than the
+            // would require the user to double click quicker than the
             // timeout delay.
             u.clear_destination();
             destination_preview.clear();
@@ -3166,7 +3166,7 @@ bool game::handle_action()
                         continue;
                     }
 
-                    // bio_alarm is usefull for waking up during sleeping
+                    // bio_alarm is useful for waking up during sleeping
                     // turning off bio_leukocyte has 'unpleasant side effects'
                     if( bio.id == bionic_id( "bio_alarm" ) || bio.id == bionic_id( "bio_leukocyte" ) ) {
                         continue;
@@ -4137,7 +4137,7 @@ void game::debug()
         break;
 
         case 14:
-            debug_menu::npc_edit_menu();
+            debug_menu::character_edit_menu();
             break;
 
         case 15: {
@@ -5052,6 +5052,8 @@ void game::draw_ter( const tripoint &center, const bool looking, const bool draw
 
     // Place the cursor over the player as is expected by screen readers.
     wmove( w_terrain, POSY + g->u.pos().y - center.y, POSX + g->u.pos().x - center.x );
+
+    wrefresh( w_terrain);
 }
 
 tripoint game::get_veh_dir_indicator_location( bool next ) const
@@ -7294,7 +7296,7 @@ bool pet_menu(monster *z)
 
         g->u.moves -= 30;
 
-        ///\EFFECT_STR increases chance to successfuly push your pet
+        ///\EFFECT_STR increases chance to successfully push your pet
         if (!one_in(g->u.str_cur)) {
             add_msg(_("You pushed the %s."), pet_name.c_str());
         } else {
@@ -7825,7 +7827,7 @@ void game::print_terrain_info( const tripoint &lp, const catacurses::window &w_l
         }
     }
 
-    mvwprintw( w_look, ++line, column, m.features( lp ) );
+    fold_and_print( w_look, ++line, column, max_width, c_light_gray, m.features( lp ) );
     if (line < ending_line) {
         line = ending_line;
     }
@@ -11751,7 +11753,7 @@ void game::place_player( const tripoint &dest_loc )
         m.unboard_vehicle( u.pos() );
     }
     // Move the player
-    // Start with z-level, to make make it less likely that old functions (2D ones) freak out
+    // Start with z-level, to make it less likely that old functions (2D ones) freak out
     if( m.has_zlevels() && dest_loc.z != get_levz() ) {
         vertical_shift( dest_loc.z );
     }
@@ -11825,77 +11827,80 @@ void game::place_player( const tripoint &dest_loc )
 
     // List items here
     if( !m.has_flag( "SEALED", u.pos() ) ) {
-        if( u.is_blind() && !m.i_at( u.pos() ).empty() ) {
-            add_msg(_("There's something here, but you can't see what it is."));
-        } else if( m.has_items(u.pos()) ) {
-            std::vector<std::string> names;
-            std::vector<size_t> counts;
-            std::vector<item> items;
-            for( auto &tmpitem : m.i_at( u.pos() ) ) {
+        if( get_option<bool>( "NO_AUTO_PICKUP_ZONES_LIST_ITEMS" ) ||
+            !g->check_zone( "NO_AUTO_PICKUP", u.pos() )) {
+            if( u.is_blind() && !m.i_at( u.pos() ).empty() ) {
+                add_msg(_("There's something here, but you can't see what it is."));
+            } else if( m.has_items(u.pos()) ) {
+                std::vector<std::string> names;
+                std::vector<size_t> counts;
+                std::vector<item> items;
+                for( auto &tmpitem : m.i_at( u.pos() ) ) {
 
-                std::string next_tname = tmpitem.tname();
-                std::string next_dname = tmpitem.display_name();
-                bool by_charges = tmpitem.count_by_charges();
-                bool got_it = false;
-                for (size_t i = 0; i < names.size(); ++i) {
-                    if (by_charges && next_tname == names[i]) {
-                        counts[i] += tmpitem.charges;
-                        got_it = true;
-                        break;
-                    } else if (next_dname == names[i]) {
-                        counts[i] += 1;
-                        got_it = true;
+                    std::string next_tname = tmpitem.tname();
+                    std::string next_dname = tmpitem.display_name();
+                    bool by_charges = tmpitem.count_by_charges();
+                    bool got_it = false;
+                    for (size_t i = 0; i < names.size(); ++i) {
+                        if (by_charges && next_tname == names[i]) {
+                            counts[i] += tmpitem.charges;
+                            got_it = true;
+                            break;
+                        } else if (next_dname == names[i]) {
+                            counts[i] += 1;
+                            got_it = true;
+                            break;
+                        }
+                    }
+                    if (!got_it) {
+                        if (by_charges) {
+                            names.push_back(tmpitem.tname(tmpitem.charges));
+                            counts.push_back(tmpitem.charges);
+                        } else {
+                            names.push_back(tmpitem.display_name(1));
+                            counts.push_back(1);
+                        }
+                        items.push_back(tmpitem);
+                    }
+                    if (names.size() > 10) {
                         break;
                     }
                 }
-                if (!got_it) {
-                    if (by_charges) {
-                        names.push_back(tmpitem.tname(tmpitem.charges));
-                        counts.push_back(tmpitem.charges);
+                for( size_t i = 0; i < names.size(); ++i ) {
+                    if (!items[i].count_by_charges()) {
+                        names[i] = items[i].display_name(counts[i]);
                     } else {
-                        names.push_back(tmpitem.display_name(1));
-                        counts.push_back(1);
+                        names[i] = items[i].tname(counts[i]);
                     }
-                    items.push_back(tmpitem);
                 }
-                if (names.size() > 10) {
-                    break;
+                int and_the_rest = 0;
+                for (size_t i = 0; i < names.size(); ++i) {
+                    std::string fmt;
+                    //~ number of items: "<number> <item>"
+                    fmt = ngettext("%1$d %2$s", "%1$d %2$s", counts[i]);
+                    names[i] = string_format(fmt, counts[i], names[i].c_str());
+                    // Skip the first two.
+                    if( i > 1 ) {
+                        and_the_rest += counts[i];
+                    }
                 }
-            }
-            for( size_t i = 0; i < names.size(); ++i ) {
-                if (!items[i].count_by_charges()) {
-                    names[i] = items[i].display_name(counts[i]);
+                if( names.size() == 1 ) {
+                    add_msg(_("You see here %s."), names[0].c_str());
+                } else if( names.size() == 2 ) {
+                    add_msg(_("You see here %s and %s."),
+                            names[0].c_str(), names[1].c_str());
+                } else if( names.size() == 3 ) {
+                    add_msg(_("You see here %s, %s, and %s."), names[0].c_str(),
+                            names[1].c_str(), names[2].c_str());
+                } else if( and_the_rest < 7 ) {
+                    add_msg(ngettext("You see here %s, %s and %d more item.",
+                                    "You see here %s, %s and %d more items.",
+                                    and_the_rest),
+                            names[0].c_str(), names[1].c_str(), and_the_rest);
                 } else {
-                    names[i] = items[i].tname(counts[i]);
+                    add_msg(_("You see here %s and many more items."),
+                            names[0].c_str());
                 }
-            }
-            int and_the_rest = 0;
-            for (size_t i = 0; i < names.size(); ++i) {
-                std::string fmt;
-                //~ number of items: "<number> <item>"
-                fmt = ngettext("%1$d %2$s", "%1$d %2$s", counts[i]);
-                names[i] = string_format(fmt, counts[i], names[i].c_str());
-                // Skip the first two.
-                if( i > 1 ) {
-                    and_the_rest += counts[i];
-                }
-            }
-            if( names.size() == 1 ) {
-                add_msg(_("You see here %s."), names[0].c_str());
-            } else if( names.size() == 2 ) {
-                add_msg(_("You see here %s and %s."),
-                        names[0].c_str(), names[1].c_str());
-            } else if( names.size() == 3 ) {
-                add_msg(_("You see here %s, %s, and %s."), names[0].c_str(),
-                        names[1].c_str(), names[2].c_str());
-            } else if( and_the_rest < 7 ) {
-                add_msg(ngettext("You see here %s, %s and %d more item.",
-                                 "You see here %s, %s and %d more items.",
-                                 and_the_rest),
-                        names[0].c_str(), names[1].c_str(), and_the_rest);
-            } else {
-                add_msg(_("You see here %s and many more items."),
-                        names[0].c_str());
             }
         }
     }
@@ -12587,7 +12592,7 @@ void game::vertical_move(int movez, bool force)
         return;
     }
 
-    // Becase get_levz takes z-value from the map, it will change when vertical_shift (m.has_zlevels() == true)
+    // Because get_levz takes z-value from the map, it will change when vertical_shift (m.has_zlevels() == true)
     // is called or when the map is loaded on new z-level (== false).
     // This caches the z-level we start the movement on (current) and the level we're want to end.
     const int z_before = get_levz();

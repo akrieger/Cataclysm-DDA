@@ -67,7 +67,8 @@ const std::map< activity_id, std::function<void( player_activity *, player *)> >
     { activity_id( "ACT_REPAIR_ITEM" ), repair_item_do_turn },
     { activity_id( "ACT_BUTCHER" ), butcher_do_turn },
     { activity_id( "ACT_HACKSAW" ), hacksaw_do_turn },
-    { activity_id( "ACT_CHOP_TREE" ), chop_tree_do_turn }
+    { activity_id( "ACT_CHOP_TREE" ), chop_tree_do_turn },
+    { activity_id( "ACT_JACKHAMMER" ), jackhammer_do_turn }
 };
 
 const std::map< activity_id, std::function<void( player_activity *, player *)> > activity_handlers::finish_functions =
@@ -110,7 +111,8 @@ const std::map< activity_id, std::function<void( player_activity *, player *)> >
     { activity_id( "ACT_AIM" ), aim_finish },
     { activity_id( "ACT_WASH" ), washing_finish },
     { activity_id( "ACT_HACKSAW" ), hacksaw_finish },
-    { activity_id( "ACT_CHOP_TREE" ), chop_tree_finish }
+    { activity_id( "ACT_CHOP_TREE" ), chop_tree_finish },
+    { activity_id( "ACT_JACKHAMMER" ), jackhammer_finish }
 };
 
 void messages_in_process( const player_activity &act, const player &p ) {
@@ -949,7 +951,7 @@ void activity_handlers::forage_finish( player_activity *act, player *p )
 
     g->m.ter_set( act->placement, next_ter );
 
-    // Survival gives a bigger boost, and Peception is leveled a bit.
+    // Survival gives a bigger boost, and Perception is leveled a bit.
     // Both survival and perception affect time to forage
     ///\EFFECT_SURVIVAL increases forage success chance
 
@@ -1093,7 +1095,7 @@ void activity_handlers::make_zlave_finish( player_activity *act, player *p )
         p->practice( skill_survival, rng(2, 5) );
 
         p->add_msg_if_player(m_good,
-                             _("You slice muscles and tendons, and remove body parts until you're confident the zombie won't be able to attack you when it reainmates."));
+                             _("You slice muscles and tendons, and remove body parts until you're confident the zombie won't be able to attack you when it reanimates."));
 
         body->set_var( "zlave", "zlave" );
         //take into account the chance that the body yet can regenerate not as we need.
@@ -2115,6 +2117,27 @@ void activity_handlers::chop_tree_finish( player_activity *act, player *p ) {
     p->mod_thirst( 5 );
     p->mod_fatigue( 10 );
     p->add_msg_if_player( m_good, _( "You finish chopping down a tree." ) );
+
+    act->set_to_null();
+}
+
+void activity_handlers::jackhammer_do_turn( player_activity *act, player *p ) {
+    if( calendar::once_every( 1_minutes ) ) {
+        //~ Sound of a jackhammer at work!
+        sounds::sound( act->placement, 15, _( "TATATATATATATAT!" ) );
+        messages_in_process( *act, *p );
+    }
+}
+
+void activity_handlers::jackhammer_finish( player_activity *act, player *p ) {
+    const tripoint &pos = act->placement;
+
+    g->m.destroy( pos, true );
+
+    p->mod_hunger( 5 );
+    p->mod_thirst( 5 );
+    p->mod_fatigue( 10 );
+    p->add_msg_if_player( m_good, _( "You finish drilling." ) );
 
     act->set_to_null();
 }

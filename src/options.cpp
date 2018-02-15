@@ -823,6 +823,11 @@ void options_manager::init()
         false
         );
 
+    add( "NO_AUTO_PICKUP_ZONES_LIST_ITEMS", "general", translate_marker( "List items within no auto pickup zones" ),
+        translate_marker( "If false, you will not see messages about items, you step on, within no auto pickup zones." ),
+        true
+        );
+
     mOptionsSort["general"]++;
 
     add( "AUTO_PULP_BUTCHER", "general", translate_marker( "Auto pulp or butcher" ),
@@ -860,7 +865,7 @@ void options_manager::init()
         );
 
     add( "SAFEMODEPROXIMITY", "general", translate_marker( "Safe Mode proximity distance" ),
-        translate_marker( "If safe mode is enabled, distance to hostiles at which safe mode should show a warning.  0 = Max player viewdistance." ),
+        translate_marker( "If safe mode is enabled, distance to hostiles at which safe mode should show a warning.  0 = Max player view distance." ),
         0, MAX_VIEW_DISTANCE, 0
         );
 
@@ -1194,7 +1199,7 @@ void options_manager::init()
         );
 
     add( "PIXEL_MINIMAP_BRIGHTNESS", "graphics", translate_marker( "Pixel Minimap brightness" ),
-        translate_marker( "Overal brightness of pixel-detail minimap." ),
+        translate_marker( "Overall brightness of pixel-detail minimap." ),
         10, 300, 100, COPT_CURSES_HIDE
         );
 
