@@ -77,7 +77,8 @@
       [ "months_old_newspaper", 1 ],
       [ "weeks_old_newspaper", 2 ],
       [ "newest_newspaper", 3 ],
-      { "group": "ammo_casings", "prob": 10 }
+      { "group": "ammo_casings", "prob": 10 },
+      { "group": "everyday_corpse", "prob": 10 }
     ]
   },
   {
@@ -117,7 +118,8 @@
       [ "bottle_glass", 1 ],
       [ "syringe", 1 ],
       [ "cig_butt", 1 ],
-      { "group": "ammo_casings", "prob": 20 }
+      { "group": "ammo_casings", "prob": 20 },
+      { "group": "everyday_corpse", "prob": 10 }
     ]
   },
   {
@@ -146,6 +148,7 @@
     "id": "road",
     "items": [
       { "group": "ammo_casings", "prob": 20 },
+      { "group": "everyday_corpse", "prob": 10 },
       [ "jumper_cable", 5 ],
       [ "muffler", 5 ],
       [ "pipe", 20 ],
@@ -423,6 +426,7 @@
       [ "aluminum_foil", 25 ],
       [ "chips", 65 ],
       [ "fried_seeds", 15 ],
+      [ "rolling_pin", 25 ],
       [ "cereal", 50 ],
       [ "cereal2", 60 ],
       [ "cereal3", 45 ],
@@ -439,7 +443,6 @@
       [ "pot_canning", 15 ],
       [ "pressure_cooker", 5 ],
       [ "thermometer", 5 ],
-      [ "bowl_pewter", 25 ],
       [ "teapot", 15 ],
       [ "pan", 25 ],
       [ "waffleiron", 25 ],
@@ -831,6 +834,7 @@
     "id": "oven",
     "items": [
       [ "pan", 80 ],
+      [ "rolling_pin", 25 ],
       [ "waffleiron", 25 ],
       [ "teapot", 25 ],
       [ "pot", 80 ],
@@ -1210,7 +1214,8 @@
       [ "glass", 90 ],
       [ "glass_bowl", 90 ],
       [ "glass_plate", 90 ],
-      [ "bottle_glass", 10 ]
+      [ "bottle_glass", 10 ],
+      { "group": "tinware", "prob": 10 }
     ]
   },
   {
@@ -2135,6 +2140,7 @@
     "ammo": 75,
     "magazine": 100,
     "items": [
+      [ "daypack", 20 ],
       [ "rope_30", 35 ],
       [ "hatchet", 10 ],
       [ "misc_repairkit", 5 ],
@@ -2143,7 +2149,6 @@
       [ "inflatable_boat", 25 ],
       [ "hand_pump", 5 ],
       [ "pot_copper", 5 ],
-      [ "bowl_pewter", 25 ],
       [ "teapot", 5 ],
       [ "pan", 20 ],
       [ "waffleiron", 25 ],
@@ -2152,7 +2157,7 @@
       [ "hotplate", 10 ],
       [ "popcan_stove", 10 ],
       [ "coffeemaker", 5 ],
-      [ "tin_plate", 10 ],
+      { "group": "tinware", "prob": 10 },
       [ "kukri", 4 ],
       [ "knife_hunting", 18 ],
       [ "knife_rambo", 20 ],
@@ -2291,7 +2296,8 @@
       [ "whistle_multitool", 5 ],
       [ "esbit_stove", 10 ],
       [ "bottle_folding", 10 ],
-      [ "mess_tin", 10 ]
+      [ "mess_tin", 10 ],
+      [ "survival_kit", 30 ]
     ]
   },
   {
@@ -2301,6 +2307,8 @@
     "magazine": 100,
     "items": [
       [ "aspirin", 85 ],
+      [ "daypack", 30 ],
+      [ "ski_jacket", 5 ],
       [ "sports_drink", 20 ],
       [ "bat", 60 ],
       [ "bat_metal", 60 ],
@@ -2693,7 +2701,8 @@
       [ "eclipse_glasses", 1 ],
       [ "plastic_sheet", 5 ],
       [ "box_medium", 5 ],
-      [ "thermos", 30 ]
+      [ "thermos", 30 ],
+      { "group": "tinware", "prob": 15 }
     ]
   },
   {
@@ -2703,6 +2712,7 @@
       [ "bottle_plastic", 5 ],
       [ "bottle_plastic_small", 15 ],
       [ "bottle_glass", 2 ],
+      { "group": "tinware", "prob": 2 },
       [ "can_drink_unsealed", 5 ],
       [ "plastic_shopping_bag", 13 ],
       [ "bag_plastic", 15 ],
@@ -2838,6 +2848,7 @@
     "items": [
       [ "coat_winter", 50 ],
       [ "peacoat", 30 ],
+      [ "ski_jacket", 40 ],
       [ "greatcoat", 15 ],
       [ "gloves_light", 35 ],
       [ "mittens", 30 ],
@@ -3025,6 +3036,7 @@
       [ "pants_checkered", 5 ],
       [ "shorts", 70 ],
       [ "shorts_denim", 35 ],
+      [ "ski_jacket", 40 ],
       [ "pants", 75 ],
       [ "breeches", 10 ],
       [ "leather_belt", 30 ],
@@ -3184,6 +3196,7 @@
     "type": "item_group",
     "id": "traveler",
     "items": [
+      [ "daypack", 20 ],
       [ "roadmap", 6 ],
       [ "trailmap", 6 ],
       [ "touristmap", 4 ],
@@ -3225,6 +3238,7 @@
       [ "knife_folding", 6 ],
       [ "knife_swissarmy", 6 ],
       [ "multitool", 8 ],
+      [ "survival_kit", 3 ],
       [ "touring_suit", 20 ],
       [ "helmet_motor", 14 ],
       [ "motorbike_armor", 10 ],
@@ -3707,6 +3721,7 @@
       [ "coffee_raw", 15 ],
       [ "usb_drive", 5 ],
       [ "software_useless", 10 ],
+      [ "software_electronics_reference", 2 ],
       [ "umbrella", 5 ],
       [ "teleumbrella", 2 ],
       [ "gum", 10 ],
@@ -4107,6 +4122,7 @@
       [ "spiral_stone", 20 ],
       [ "cane", 10 ],
       [ "candlestick", 20 ],
+      { "group": "tinware", "prob": 5 },
       [ "heels", 50 ],
       [ "coat_fur_sf", 1 ],
       [ "tricorne", 3 ],
@@ -4227,7 +4243,8 @@
       [ "flint_steel", 7 ],
       [ "canteen_wood", 5 ],
       [ "apron_leather", 1 ],
-      [ "pot_copper", 3 ]
+      [ "pot_copper", 3 ],
+      { "group": "tinware", "prob": 10 }
     ]
   },
   {
@@ -4256,6 +4273,8 @@
       [ "moss_brownie", 5 ],
       [ "cop_38", 5 ],
       [ "cigar", 5 ],
+      [ "sword_cane", 5 ],
+      [ "hollow_cane", 5 ],
       [ "advanced_ecig", 5 ],
       [ "television", 10 ],
       [ "microwave", 5 ],
@@ -4642,7 +4661,8 @@
       [ "coin_quarter", 2 ],
       [ "bronze_medal", 3 ],
       [ "silver_medal", 2 ],
-      [ "gold_medal", 1 ]
+      [ "gold_medal", 1 ],
+      { "group": "tinware", "prob": 10 }
     ]
   },
   {
@@ -4700,6 +4720,7 @@
       [ "recipe_arrows", 7 ],
       [ "flashlight", 40 ],
       [ "heavy_flashlight", 30 ],
+      [ "survival_kit", 35 ],
       [ "mess_kit", 9 ],
       [ "popcan_stove", 2 ],
       [ "denat_alcohol", 2 ],
@@ -4743,6 +4764,8 @@
     "type": "item_group",
     "id": "shelter",
     "items": [
+      [ "daypack", 10 ],
+      [ "ski_jacket", 40 ],
       [ "water_clean", 90 ],
       [ "water_mineral", 5 ],
       [ "soup_veggy", 15 ],
@@ -4776,6 +4799,7 @@
       [ "bandages", 50 ],
       [ "cotton_ball", 50 ],
       [ "1st_aid", 35 ],
+      [ "survival_kit", 35 ],
       [ "saline", 10 ],
       [ "vitamins", 75 ],
       [ "gummy_vitamins", 25 ],
@@ -4851,6 +4875,7 @@
       [ "rollmat", 40 ],
       [ "tent_kit", 17 ],
       [ "large_tent_kit", 17 ],
+      [ "survival_kit", 10 ],
       [ "canteen", 15 ],
       [ "2lcanteen", 10 ],
       [ "camelbak", 5 ],
@@ -4962,10 +4987,14 @@
       [ "eyedrops", 15 ],
       [ "charcoal", 10 ],
       [ "magnesium", 10 ],
+      [ "tin", 10 ],
       [ "chem_hydrogen_peroxide", 10 ],
+      [ "chem_muriatic_acid", 5 ],
       [ "chem_sulphur", 10 ],
       [ "chem_aluminium_powder", 5 ],
       [ "chem_zinc_powder", 10 ],
+      [ "chem_zinc", 5 ],
+      [ "chem_manganese_dioxide", 10 ],
       [ "chem_saltpetre", 10 ],
       [ "chem_carbide", 10 ],
       [ "denat_alcohol", 10 ]
@@ -5006,9 +5035,13 @@
       [ "sm_extinguisher", 20 ],
       [ "eyedrops", 25 ],
       [ "charcoal", 15 ],
+      [ "tin", 15 ],
       [ "chem_hydrogen_peroxide", 15 ],
       [ "chem_carbide", 10 ],
       [ "chem_zinc_powder", 10 ],
+      [ "chem_manganese_dioxide", 5 ],
+      [ "chem_potassium_chloride", 5 ],
+      [ "chem_muriatic_acid", 15 ],
       [ "denat_alcohol", 10 ]
     ]
   },
@@ -5054,6 +5087,7 @@
       [ "lye_powder", 10 ],
       [ "oxy_powder", 12 ],
       [ "magnesium", 12 ],
+      [ "tin", 12 ],
       [ "chemistry_set", 5 ],
       [ "sm_extinguisher", 10 ],
       [ "charcoal", 10 ],
@@ -5066,8 +5100,13 @@
       [ "chem_hexamine", 10 ],
       [ "chem_saltpetre", 15 ],
       [ "chem_nitric_acid", 15 ],
+      [ "chem_muriatic_acid", 20 ],
+      [ "chem_potassium_chloride", 5 ],
+      [ "chem_potassium_hydroxide", 10 ],
+      [ "chem_zinc", 10 ],
       [ "chem_chromium_oxide", 10 ],
       [ "chem_zinc_powder", 10 ],
+      [ "chem_manganese_dioxide", 5 ],
       [ "denat_alcohol", 10 ]
     ]
   },
@@ -5138,6 +5177,47 @@
   },
   {
     "type": "item_group",
+    "id": "mutagens",
+    "items": [
+      [ "mutagen", 8 ],
+      [ "mutagen_plant", 2 ],
+      [ "mutagen_insect", 2 ],
+      [ "mutagen_spider", 2 ],
+      [ "mutagen_fish", 2 ],
+      [ "mutagen_slime", 2 ],
+      [ "mutagen_rat", 2 ],
+      [ "mutagen_beast", 2 ],
+      [ "mutagen_cattle", 2 ],
+      [ "mutagen_cephalopod", 2 ],
+      [ "mutagen_bird", 2 ],
+      [ "mutagen_lizard", 2 ],
+      [ "mutagen_troglobite", 2 ],
+      [ "mutagen_ursine", 2 ],
+      [ "mutagen_feline", 2 ],
+      [ "mutagen_lupine", 2 ],
+      [ "iv_mutagen", 6 ],
+      [ "iv_mutagen_plant", 2 ],
+      [ "iv_mutagen_insect", 2 ],
+      [ "iv_mutagen_spider", 2 ],
+      [ "iv_mutagen_fish", 2 ],
+      [ "iv_mutagen_slime", 2 ],
+      [ "iv_mutagen_rat", 2 ],
+      [ "iv_mutagen_beast", 2 ],
+      [ "iv_mutagen_cattle", 2 ],
+      [ "iv_mutagen_cephalopod", 2 ],
+      [ "iv_mutagen_bird", 2 ],
+      [ "iv_mutagen_lizard", 2 ],
+      [ "iv_mutagen_troglobite", 2 ],
+      [ "iv_mutagen_ursine", 2 ],
+      [ "iv_mutagen_feline", 2 ],
+      [ "iv_mutagen_lupine", 2 ],
+      [ "purifier", 10 ],
+      [ "iv_purifier", 8 ],
+      [ "syringe", 8 ]
+    ]
+  },
+  {
+    "type": "item_group",
     "id": "mut_iv",
     "items": [
       [ "iv_mutagen", 10 ],
@@ -5174,8 +5254,10 @@
       [ "wrapped_rad_badge", 15 ],
       [ "glasses_safety", 40 ],
       [ "goggles_welding", 70 ],
+      [ "textbook_atomic_lab", 7 ],
       [ "recipe_lab_elec", 15 ],
-      [ "recipe_lab_cvd", 15 ],
+      [ "software_electronics_reference", 2 ],
+      [ "recipe_lab_cvd", 8 ],
       [ "recipe_mininuke_launch", 5 ],
       [ "teleporter", 10 ],
       [ "antiparasitic", 5 ],
@@ -5671,10 +5753,8 @@
       [ "bot_grenade_hack", 2 ],
       [ "bot_flashbang_hack", 2 ],
       [ "bot_gasbomb_hack", 2 ],
-      [ "bot_turret", 2 ],
       [ "bot_rifleturret", 2 ],
-      [ "556", 2 ],
-      [ "9mm", 2 ]
+      [ "bot_antimateriel", 2 ]
     ]
   },
   {
@@ -5828,7 +5908,8 @@
       [ "solarpack", 5 ],
       [ "chem_hexamine", 3 ],
       [ "esbit_stove", 6 ],
-      [ "mess_tin", 4 ]
+      [ "mess_tin", 4 ],
+      [ "survival_kit", 4 ]
     ]
   },
   {
@@ -6984,6 +7065,7 @@
       [ "legrig", 10 ],
       [ "rucksack", 20 ],
       [ "gobag", 2 ],
+      [ "survival_kit", 3 ],
       [ "recipe_raptor", 2 ],
       [ "tac_helmet", 5 ],
       [ "tac_fullhelmet", 2 ],
@@ -7332,6 +7414,10 @@
       [ "pocket_firearms", 2 ],
       [ "SICP", 3 ],
       [ "textbook_robots", 1 ],
+      [ "reference_cooking", 1 ],
+      [ "reference_fabrication1", 1 ],
+      [ "reference_firstaid1", 1 ],
+      [ "reference_firstaid2", 1 ],
       [ "recipe_elfa", 1 ],
       [ "recipe_maiar", 1 ],
       [ "recipe_caseless", 1 ],
@@ -7366,6 +7452,7 @@
       [ "bio_soporific", 5 ],
       [ "bio_surgical_razor", 5 ],
       [ "bio_syringe", 8 ],
+      [ "software_electronics_reference", 10 ],
       [ "software_useless", 10 ],
       [ "canteen", 15 ],
       [ "2lcanteen", 10 ],
@@ -7384,8 +7471,10 @@
       [ "magnifying_glass", 1 ],
       [ "material_quicklime", 10 ],
       [ "bio_meteorologist", 10 ],
+      [ "tin", 5 ],
       [ "chem_nitric_acid", 1 ],
       [ "chem_sulphuric_acid", 1 ],
+      [ "chem_muriatic_acid", 2 ],
       [ "chem_hexamine", 2 ],
       [ "denat_alcohol", 1 ],
       [ "remotevehcontrol", 5 ]
@@ -7473,6 +7562,7 @@
     "magazine": 100,
     "ammo": 50,
     "items": [
+      [ "daypack", 20 ],
       [ "energy_drink", 55 ],
       [ "energy_drink_atomic", 8 ],
       [ "knuckle_brass", 30 ],
@@ -7678,6 +7768,7 @@
       [ "sm_extinguisher", 7 ],
       [ "extinguisher", 2 ],
       [ "1st_aid", 5 ],
+      [ "survival_kit", 3 ],
       { "item": "duct_tape", "prob": 13, "charges-min": 20, "charges-max": 200 },
       [ "screwdriver", 8 ],
       [ "screwdriver_set", 2 ],
@@ -8130,6 +8221,7 @@
     "type": "item_group",
     "id": "survivorzed_extra",
     "items": [
+      [ "daypack", 4 ],
       [ "mask_lsurvivor", 10 ],
       [ "mask_survivor", 8 ],
       [ "mask_hsurvivor", 6 ],
@@ -8204,7 +8296,7 @@
       [ "small_repairkit", 14 ],
       [ "grapnel", 6 ],
       [ "misc_repairkit", 8 ],
-      { "item": "flamethrower_simple", "prob": 2, "charges-min": 0, "charges-max": 500 },
+      [ "survival_kit", 3 ],
       [ "toolbox", 1 ],
       [ "survivor_belt", 2 ],
       [ "survivor_machete", 2 ],
@@ -8263,6 +8355,7 @@
       [ "bag_canvas_small", 1 ],
       [ "cup_plastic_unsealed", 3 ],
       [ "bottle_glass", 1 ],
+      { "group": "tinware", "prob": 3 },
       [ "can_drink_unsealed", 2 ],
       [ "can_food_unsealed", 1 ],
       [ "box_small", 2 ],
@@ -8559,6 +8652,8 @@
       [ "cow_bell", 15 ],
       [ "sickle", 2 ],
       [ "scythe", 2 ],
+      [ "hollow_cane", 2 ],
+      [ "sword_cane", 2 ],
       [ "pipe_tobacco", 10 ],
       [ "talking_doll", 10 ],
       [ "brazier", 12 ],
@@ -8576,11 +8671,11 @@
       [ "ceramic_cup", 15 ],
       [ "ceramic_bowl", 15 ],
       [ "ceramic_plate", 15 ],
+      { "group": "tinware", "prob": 25 },
       [ "bowling_ball", 12 ],
       [ "spiral_stone", 1 ],
       [ "petrified_eye", 1 ],
       [ "teapot", 15 ],
-      [ "bowl_pewter", 15 ],
       [ "briefcase", 10 ],
       [ "gold_watch", 5 ],
       [ "silver_watch", 10 ],
@@ -8858,6 +8953,8 @@
     "id": "museum_melee",
     "items": [
       [ "katana", 2 ],
+      [ "hollow_cane", 2 ],
+      [ "sword_cane", 2 ],
       [ "katana_fake", 8 ],
       [ "katana_inferior", 10 ],
       [ "cutlass", 3 ],
@@ -8954,6 +9051,7 @@
       [ "ceramic_bowl", 90 ],
       [ "clay_hydria", 50 ],
       [ "ceramic_cup", 90 ],
+      { "group": "tinware", "prob": 50 },
       [ "crown_golden", 10 ],
       [ "fluid_preserved_brain", 20 ]
     ]
@@ -9171,6 +9269,7 @@
     "ammo": 50,
     "magazine": 100,
     "items": [
+      [ "daypack", 75 ],
       [ "rope_30", 10 ],
       [ "hatchet", 50 ],
       [ "iceaxe", 20 ],
@@ -9178,7 +9277,6 @@
       [ "teapot", 50 ],
       [ "binoculars", 30 ],
       [ "firecracker_pack", 20 ],
-      [ "tin_plate", 50 ],
       [ "knife_hunting", 50 ],
       [ "glock_19", 5 ],
       [ "backpack", 100 ],
@@ -9191,6 +9289,7 @@
       [ "rollmat", 60 ],
       [ "tent_kit", 10 ],
       [ "large_tent_kit", 5 ],
+      [ "survival_kit", 5 ],
       [ "canteen", 100 ],
       [ "2lcanteen", 50 ],
       [ "camelbak", 25 ],
@@ -9484,7 +9583,6 @@
       [ "alarmclock", 25 ],
       [ "circuit", 25 ],
       { "item": "cell_phone", "prob": 35, "charges-min": 0, "charges-max": 15 },
-      { "item": "cell_phone_flashlight", "prob": 25, "charges-min": 0, "charges-max": 15 },
       [ "e_scrap", 55 ],
       [ "amplifier", 25 ],
       [ "reading_light", 10 ]
@@ -9756,7 +9854,8 @@
       [ "lighter", 25 ],
       [ "pockknife", 15 ],
       [ "metal_file", 15 ],
-      [ "pin_reamer", 10 ]
+      [ "pin_reamer", 10 ],
+      [ "survival_kit", 5 ]
     ]
   },
   {
@@ -9764,6 +9863,7 @@
     "type": "item_group",
     "items": [
       [ "cup_plastic", 20 ],
+      [ "rolling_pin", 20 ],
       [ "bowl_plastic", 20 ],
       [ "canteen", 10 ],
       [ "flask_hip", 15 ],
@@ -9773,7 +9873,8 @@
       [ "knife_butter", 25 ],
       [ "pan", 15 ],
       [ "pot", 15 ],
-      [ "teapot", 15 ]
+      [ "teapot", 15 ],
+      { "group": "tinware", "prob": 8 }
     ]
   },
   {
