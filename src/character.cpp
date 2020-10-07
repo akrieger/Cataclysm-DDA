@@ -10,6 +10,7 @@
 #include <memory>
 #include <numeric>
 #include <ostream>
+#include <tuple>
 #include <type_traits>
 
 #include "action.h"
@@ -5029,20 +5030,21 @@ std::pair<std::string, nc_color> Character::get_thirst_description() const
 
 std::pair<std::string, nc_color> Character::get_hunger_description() const
 {
-    std::map<efftype_id, std::pair<std::string, nc_color> > hunger_states = {
-        { effect_hunger_engorged, std::make_pair( translate_marker( "Engorged" ), c_red ) },
-        { effect_hunger_full, std::make_pair( translate_marker( "Full" ), c_yellow ) },
-        { effect_hunger_satisfied, std::make_pair( translate_marker( "Satisfied" ), c_green ) },
-        { effect_hunger_blank, std::make_pair( "", c_white ) },
-        { effect_hunger_hungry, std::make_pair( translate_marker( "Hungry" ), c_yellow ) },
-        { effect_hunger_very_hungry, std::make_pair( translate_marker( "Very Hungry" ), c_yellow ) },
-        { effect_hunger_near_starving, std::make_pair( translate_marker( "Near starving" ), c_red ) },
-        { effect_hunger_starving, std::make_pair( translate_marker( "Starving!" ), c_red ) },
-        { effect_hunger_famished, std::make_pair( translate_marker( "Famished" ), c_light_red ) }
+    static const std::array<const std::tuple<efftype_id, const char*, nc_color>, 9> hunger_states = { {
+            { effect_hunger_engorged, translate_marker( "Engorged" ), c_red },
+            { effect_hunger_full, translate_marker( "Full" ), c_yellow },
+            { effect_hunger_satisfied, translate_marker( "Satisfied" ), c_green },
+            { effect_hunger_blank, "", c_white },
+            { effect_hunger_hungry, translate_marker( "Hungry" ), c_yellow },
+            { effect_hunger_very_hungry, translate_marker( "Very Hungry" ), c_yellow },
+            { effect_hunger_near_starving, translate_marker( "Near starving" ), c_red },
+            { effect_hunger_starving, translate_marker( "Starving!" ), c_red },
+            { effect_hunger_famished, translate_marker( "Famished" ), c_light_red }
+        }
     };
     for( auto &hunger_state : hunger_states ) {
-        if( has_effect( hunger_state.first ) ) {
-            return std::make_pair( _( hunger_state.second.first ), hunger_state.second.second );
+        if( has_effect( std::get<0>( hunger_state ) ) ) {
+            return std::make_pair( _( std::get<1>( hunger_state ) ), std::get<2>( hunger_state ) );
         }
     }
     return std::make_pair( _( "ERROR!" ), c_light_red );
