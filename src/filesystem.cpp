@@ -107,6 +107,69 @@ bool rename_file( const std::string &old_path, const std::string &new_path )
 }
 #endif
 
+#if defined(_WIN32)
+std::string abs_path( const std::string &path )
+{
+    std::string absolute_path;
+    size_t wide_path_len = MultiByteToWideChar(
+                               CP_UTF8,
+                               0,
+                               path.c_str(),
+                               -1,
+                               NULL,
+                               0
+                           );
+    if( wide_path_len == 0 ) {
+        // Error expanding path
+        return absolute_path;
+    }
+    std::vector<wchar_t> wide_path = std::vector<wchar_t>( wide_path_len, L'\0' );
+    wide_path_len = MultiByteToWideChar(
+                        CP_UTF8,
+                        0,
+                        path.c_str(),
+                        -1,
+                        wide_path.data(),
+                        wide_path_len
+                    );
+    std::vector<wchar_t> wide_absolute_path = std::vector<wchar_t>( 0, L'\0' );
+    size_t wide_absolute_path_len = GetFullPathNameW( wide_path.data(), 0, wide_absolute_path.data(),
+                                    NULL );
+    wide_absolute_path.resize( wide_absolute_path_len );
+    GetFullPathNameW( wide_path.data(), wide_absolute_path_len, wide_absolute_path.data(), NULL );
+    size_t abs_path_len = WideCharToMultiByte(
+                              CP_UTF8,
+                              0,
+                              wide_absolute_path.data(),
+                              -1,
+                              NULL,
+                              0,
+                              NULL,
+                              NULL
+                          );
+    absolute_path.resize( abs_path_len );
+    WideCharToMultiByte(
+        CP_UTF8,
+        0,
+        wide_absolute_path.data(),
+        -1,
+        &absolute_path.front(),
+        absolute_path.size(),
+        NULL,
+        NULL
+    );
+    // len includes trailing NUL
+    absolute_path.resize( abs_path_len - 1 );
+    return absolute_path;
+}
+#else
+std::string abs_path( const std::string &path )
+{
+    static_assert( false, "Not implemented" );
+    return std::string{};
+}
+#endif
+
 bool remove_directory( const std::string &path )
 {
 #if defined(_WIN32)
