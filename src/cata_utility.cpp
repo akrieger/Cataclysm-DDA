@@ -15,6 +15,7 @@
 #include "catacharset.h"
 #include "debug.h"
 #include "filesystem.h"
+#include "flexbuffer_json.h"
 #include "json.h"
 #include "ofstream_wrapper.h"
 #include "options.h"
@@ -362,15 +363,27 @@ bool read_from_file( const std::string &path, const std::function<void( std::ist
 bool read_from_file_json( const std::string &path, const std::function<void( JsonIn & )> &reader )
 {
     return read_from_file( path, [&]( std::istream & fin ) {
+        FlexBufferCache::global_cache().parse_and_cache( path );
         JsonIn jsin( fin, path );
         reader( jsin );
     } );
 }
 
-bool read_from_file( const std::string &path, JsonDeserializer &reader )
+bool read_from_file_json( const std::string &path,
+                          const std::function<void( FlexJsonObject & )> &reader )
 {
-    return read_from_file_json( path, [&reader]( JsonIn & jsin ) {
-        reader.deserialize( jsin );
+    return read_from_file( path, [&]( std::istream & fin ) {
+        FlexJsonObject jsin = FlexJsonValue::from( path );
+        reader( jsin );
+    } );
+}
+
+bool read_from_file_json( const std::string &path,
+                          const std::function<void( FlexJsonArray & )> &reader )
+{
+    return read_from_file( path, [&]( std::istream & fin ) {
+        FlexJsonArray jsin = FlexJsonValue::from( path );
+        reader( jsin );
     } );
 }
 
@@ -387,6 +400,7 @@ bool read_from_file_optional_json( const std::string &path,
                                    const std::function<void( JsonIn & )> &reader )
 {
     return read_from_file_optional( path, [&]( std::istream & fin ) {
+        FlexBufferCache::global_cache().parse_and_cache( path );
         JsonIn jsin( fin, path );
         reader( jsin );
     } );

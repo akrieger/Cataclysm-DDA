@@ -38,6 +38,7 @@
 #include "field_type.h"
 #include "filesystem.h"
 #include "flag.h"
+#include "flexbuffer_cache.h"
 #include "gates.h"
 #include "harvest.h"
 #include "item_action.h"
@@ -221,6 +222,42 @@ void DynamicDataLoader::add( const std::string &type,
                              const std::function<void( const JsonObject & )> &f )
 {
     const auto pair = type_function_map.emplace( type, [f]( const JsonObject & obj, const std::string &,
+    const std::string &, const std::string & ) {
+        f( obj );
+    } );
+    if( !pair.second ) {
+        debugmsg( "tried to insert a second handler for type %s into the DynamicDataLoader", type.c_str() );
+    }
+}
+
+void DynamicDataLoader::add( const std::string &type,
+                             const std::function<void( const FlexJsonObject &, const std::string &, const std::string &, const std::string & )>
+                             &f )
+{
+    const auto pair = type_new_function_map.emplace( type, f );
+    if( !pair.second ) {
+        debugmsg( "tried to insert a second handler for type %s into the DynamicDataLoader", type.c_str() );
+    }
+}
+
+void DynamicDataLoader::add( const std::string &type,
+                             const std::function<void( const FlexJsonObject &, const std::string & )> &f )
+{
+    const auto pair = type_new_function_map.emplace( type, [f]( const FlexJsonObject & obj,
+                      const std::string & src,
+    const std::string &, const std::string & ) {
+        f( obj, src );
+    } );
+    if( !pair.second ) {
+        debugmsg( "tried to insert a second handler for type %s into the DynamicDataLoader", type.c_str() );
+    }
+}
+
+void DynamicDataLoader::add( const std::string &type,
+                             const std::function<void( const FlexJsonObject & )> &f )
+{
+    const auto pair = type_new_function_map.emplace( type, [f]( const FlexJsonObject & obj,
+                      const std::string &,
     const std::string &, const std::string & ) {
         f( obj );
     } );
@@ -472,6 +509,7 @@ void DynamicDataLoader::load_data_from_path( const std::string &path, const std:
         // and stuff it into ram
         std::istringstream iss( read_entire_file( file ) );
         try {
+            FlexBufferCache::global_cache().parse_and_cache( file );
             // parse it
             JsonIn jsin( iss, file );
             load_all_from_json( jsin, src, ui, path, file );

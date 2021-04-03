@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <utility>
 
+#include "optional.h"
 #include "cata_utility.h"
 #include "catacharset.h"
 #include "char_validity_check.h"
@@ -20,6 +21,7 @@
 #include "debug.h"
 #include "enums.h"
 #include "filesystem.h"
+#include "flexbuffer_json.h"
 #include "game.h"
 #include "input.h"
 #include "json.h"
@@ -624,10 +626,14 @@ void worldfactory::load_last_world_info()
         return;
     }
 
-    JsonIn jsin( file );
-    JsonObject data = jsin.get_object();
-    last_world_name = data.get_string( "world_name" );
-    last_character_name = data.get_string( "character_name" );
+    cata::optional<FlexJsonValue> data_opt = FlexJsonValue::from( PATH_INFO::lastworld() );
+    if( data_opt.has_value() ) {
+        FlexJsonObject data = *data_opt;
+        last_world_name = data.get_string( "world_name" );
+        last_character_name = data.get_string( "character_name" );
+    } else {
+        throw std::runtime_error( "Couldn't load last world json" );
+    }
 }
 
 void worldfactory::save_last_world_info()

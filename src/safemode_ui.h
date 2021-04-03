@@ -11,6 +11,7 @@
 #include "creature.h"
 #include "enums.h"
 
+class FlexJsonObject;
 class JsonIn;
 class JsonOut;
 
@@ -110,7 +111,7 @@ class safemode
         bool empty() const;
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( FlexJsonObject const &fj );
 };
 
 safemode &get_safemode();

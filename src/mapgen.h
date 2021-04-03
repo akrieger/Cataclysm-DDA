@@ -416,7 +416,7 @@ std::shared_ptr<mapgen_function> load_mapgen_function( const JsonObject &jio,
  * Load the above directly from a file via init, as opposed to riders attached to overmap_terrain. Added check
  * for oter_mapgen / oter_mapgen_weights key, multiple possible ( i.e., [ "house_w_1", "duplex" ] )
  */
-void load_mapgen( const JsonObject &jo );
+void load_mapgen( const JsonObject&jo );
 void reset_mapgens();
 /**
  * Attempts to register the build-in function @p key as mapgen for the overmap terrain @p key.

@@ -30,6 +30,7 @@
 #include "drawing_primitives.h"
 #include "enums.h"
 #include "field_type.h"
+#include "flexbuffer_json.h"
 #include "game.h"
 #include "game_constants.h"
 #include "generic_factory.h"
@@ -474,7 +475,7 @@ static void load_nested_mapgen( const JsonObject &jio, const std::string &id_bas
     }
 }
 
-static void load_update_mapgen( const JsonObject &jio, const std::string &id_base )
+static void load_update_mapgen( const JsonObject&jio, const std::string &id_base )
 {
     const std::string mgtype = jio.get_string( "method" );
     if( mgtype == "json" ) {
@@ -502,7 +503,7 @@ void load_mapgen( const JsonObject &jo )
 {
     if( jo.has_array( "om_terrain" ) ) {
         JsonArray ja = jo.get_array( "om_terrain" );
-        if( ja.test_array() ) {
+        if( ja.size() > 0 ) {
             point offset;
             for( JsonArray row_items : ja ) {
                 for( const std::string mapgenid : row_items ) {
