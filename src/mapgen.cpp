@@ -30,6 +30,7 @@
 #include "drawing_primitives.h"
 #include "enums.h"
 #include "field_type.h"
+#include "flexbuffer_json.h"
 #include "game.h"
 #include "game_constants.h"
 #include "generic_factory.h"

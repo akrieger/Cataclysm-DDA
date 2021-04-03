@@ -15,6 +15,7 @@
 #include "cursesdef.h"
 #include "debug.h"
 #include "filesystem.h"
+#include "flexbuffer_json.h"
 #include "input.h"
 #include "json.h"
 #include "monstergenerator.h"
@@ -842,8 +843,8 @@ void safemode::load( const bool is_character_in )
 
     if( fin.good() ) {
         try {
-            JsonIn jsin( fin );
-            deserialize( jsin );
+            FlexJsonObject fj = FlexJsonValue::from( file );
+            deserialize( fj );
         } catch( const JsonError &e ) {
             debugmsg( "Error while loading safemode settings: %s", e.what() );
         }
@@ -874,15 +875,12 @@ void safemode::serialize( JsonOut &json ) const
     json.end_array();
 }
 
-void safemode::deserialize( JsonIn &jsin )
+void safemode::deserialize( FlexJsonObject const &fj )
 {
     auto &temp_rules = ( is_character ) ? character_rules : global_rules;
     temp_rules.clear();
 
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        JsonObject jo = jsin.get_object();
-
+    for( FlexJsonObject jo : fj ) {
         const std::string rule = jo.get_string( "rule" );
         const bool active = jo.get_bool( "active" );
         const bool whitelist = jo.get_bool( "whitelist" );

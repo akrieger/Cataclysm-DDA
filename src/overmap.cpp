@@ -23,6 +23,7 @@
 #include "coordinates.h"
 #include "cuboid_rectangle.h"
 #include "debug.h"
+#include "flexbuffer_json.h"
 #include "flood_fill.h"
 #include "game.h"
 #include "generic_factory.h"

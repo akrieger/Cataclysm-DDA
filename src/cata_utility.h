@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+class FlexJsonArray;
+class FlexJsonObject;
 class JsonIn;
 class JsonOut;
 class translation;
@@ -328,7 +330,10 @@ class JsonDeserializer;
 /**@{*/
 bool read_from_file( const std::string &path, const std::function<void( std::istream & )> &reader );
 bool read_from_file_json( const std::string &path, const std::function<void( JsonIn & )> &reader );
-bool read_from_file( const std::string &path, JsonDeserializer &reader );
+bool read_from_file_json( const std::string &path,
+                          const std::function<void( FlexJsonObject & )> &reader );
+bool read_from_file_json( const std::string &path,
+                          const std::function<void( FlexJsonArray & )> &reader );
 
 bool read_from_file_optional( const std::string &path,
                               const std::function<void( std::istream & )> &reader );

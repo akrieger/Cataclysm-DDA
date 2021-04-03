@@ -77,6 +77,7 @@
 #include "field_type.h"
 #include "filesystem.h"
 #include "flag.h"
+#include "flexbuffer_cache.h"
 #include "game_constants.h"
 #include "game_inventory.h"
 #include "game_ui.h"
@@ -2965,6 +2966,8 @@ bool game::load( const save_t &name )
     zone_manager::get_manager().load_zones(); // Load character world zones
     read_from_file_optional( PATH_INFO::world_base_save_path() + "/uistate.json", [](
     std::istream & stream ) {
+        FlexBufferCache::global_cache().parse_and_cache( PATH_INFO::world_base_save_path() +
+                "/uistate.json" );
         JsonIn jsin( stream );
         uistate.deserialize( jsin );
     } );

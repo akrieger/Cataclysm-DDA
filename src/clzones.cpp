@@ -18,6 +18,7 @@
 #include "cursesdef.h"
 #include "debug.h"
 #include "faction.h"
+#include "flexbuffer_cache.h"
 #include "generic_factory.h"
 #include "iexamine.h"
 #include "item.h"
@@ -1218,6 +1219,7 @@ void zone_manager::load_zones()
     std::string savefile = PATH_INFO::player_base_save_path() + ".zones.json";
 
     read_from_file_optional( savefile, [&]( std::istream & fin ) {
+        FlexBufferCache::global_cache().parse_and_cache( savefile );
         JsonIn jsin( fin );
         deserialize( jsin );
     } );

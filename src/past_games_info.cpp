@@ -13,6 +13,7 @@
 #include "debug.h"
 #include "event.h"
 #include "filesystem.h"
+#include "flexbuffer_cache.h"
 #include "json.h"
 #include "memorial_logger.h"
 #include "output.h"
@@ -115,6 +116,7 @@ void past_games_info::ensure_loaded()
         const std::string &filename = filename_pair.second;
         std::istringstream iss( read_entire_file( filename ) );
         try {
+            FlexBufferCache::global_cache().parse_and_cache( filename );
             JsonIn jsin( iss );
             info_.push_back( past_game_info( jsin ) );
         } catch( const JsonError &err ) {

@@ -9,6 +9,7 @@
 
 #include "cata_utility.h"
 #include "enum_traits.h"
+#include "flexbuffer_json.h"
 #include "json.h"
 #include "rng.h"
 #include "string_formatter.h"
@@ -61,13 +62,9 @@ static nameFlags gender_flag( const std::string &gender )
 // Nick
 // City
 // World
-static void load( JsonIn &jsin )
+static void load( FlexJsonArray &jsin )
 {
-    jsin.start_array();
-
-    while( !jsin.end_array() ) {
-        JsonObject jo = jsin.get_object();
-
+    for( FlexJsonObject jo : jsin ) {
         // get flags of name.
         const nameFlags type =
             usage_flag( jo.get_string( "usage" ) )

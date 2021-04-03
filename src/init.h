@@ -13,6 +13,7 @@
 
 #include "memory_fast.h"
 
+class FlexJsonObject;
 class JsonIn;
 class JsonObject;
 class loading_ui;
@@ -60,6 +61,8 @@ class DynamicDataLoader
         using type_string = std::string;
         using t_type_function_map =
             std::map<type_string, std::function<void( const JsonObject &, const std::string &, const std::string &, const std::string & )>>;
+        using t_type_new_function_map =
+            std::map<type_string, std::function<void( const FlexJsonObject &, const std::string &, const std::string &, const std::string & )>>;
         using str_vec = std::vector<std::string>;
 
         /**
@@ -86,6 +89,14 @@ class DynamicDataLoader
                   const std::function<void( const JsonObject &, const std::string & )> &f );
         void add( const std::string &type,
                   const std::function<void( const JsonObject &, const std::string &, const std::string &, const std::string & )>
+                  &f );
+
+        t_type_new_function_map type_new_function_map;
+        void add( const std::string &type, const std::function<void( const FlexJsonObject & )> &f );
+        void add( const std::string &type,
+                  const std::function<void( const FlexJsonObject &, const std::string & )> &f );
+        void add( const std::string &type,
+                  const std::function<void( const FlexJsonObject &, const std::string &, const std::string &, const std::string & )>
                   &f );
         /**
          * Load all the types from that json data.

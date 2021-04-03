@@ -10,6 +10,7 @@
 
 #include "debug.h"
 #include "filesystem.h"
+#include "flexbuffer_cache.h"
 #include "json.h"
 #include "path_info.h"
 #include "cata_utility.h"
@@ -42,6 +43,7 @@ class font_loader
     private:
         void load_throws( const std::string &path ) {
             try {
+                FlexBufferCache::global_cache().parse_and_cache( path );
                 std::ifstream stream( path.c_str(), std::ifstream::binary );
                 JsonIn json( stream );
                 JsonObject config = json.get_object();

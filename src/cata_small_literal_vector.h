@@ -8,18 +8,25 @@
 
 #include "cata_scope_exit.h"
 
-template<typename T, size_t kInlineCount = 4>
+/**
+ * A vector type that is specialized for storing trivial types in contiguous
+ * storage with a statically predetermined amount of inline storage.
+ *
+ * Because this is intended to be *small*, the internal capacity and size variables
+ * default to uint8_t for minimal overhead over the inline storage.
+ */
+template<typename T, size_t kInlineCount = 4, typename SizeT = uint8_t>
 struct SmallLiteralVector {
         // To avoid having to invoke constructors and destructors when copying Elements
         // around or inserting new ones, we enforce it is a literal type.
         static_assert( std::is_literal_type<T>::value, "T must be literal." );
 
-        SmallLiteralVector() {}
-        SmallLiteralVector( SmallLiteralVector const &other ) {
-            copy_init_with_capacity( other, other.capacity_ );
+        SmallLiteralVector() : len_( 0 ), capacity_( kInlineCount ) {}
+        SmallLiteralVector( SmallLiteralVector const &other ) : len_( 0 ), capacity_( kInlineCount ) {
+            copy_init( other );
         }
         SmallLiteralVector &operator=( SmallLiteralVector const &rhs ) {
-            copy_init_with_capacity( rhs, rhs.capacity_ );
+            copy_init( rhs );
             return *this;
         }
 
@@ -113,34 +120,70 @@ struct SmallLiteralVector {
         }
 
         void ensure_capacity_for( size_t count ) {
+            check_capacity( count );
+
             if( count <= capacity_ ) {
                 return;
             }
 
+            // 1.5x resize factor allows for reuse of earlier allocations at larger sizes.
+            // That works best if we tracked explicit capacity, but it's better than nothing.
+            // https://stackoverflow.com/a/1100426
             size_t new_capacity = capacity_;
-            while( new_capacity < count ) {
-                capacity_ *= 2;
+            size_t next_capacity = capacity_ * 1.5;
+            // Prevent overflow by testing before multiplying
+            while( next_capacity > new_capacity && next_capacity < count ) {
+                new_capacity = next_capacity;
+                next_capacity *= 1.5;
             }
+            if( new_capacity < count ) {
+                new_capacity = std::numeric_limits<SizeT>::max();
+            }
+            reserve_exact( new_capacity );
+        }
+
+        void resize( size_t count ) {
+            check_capacity( count );
+            reserve_exact( count );
+            len_ = count;
+        }
+
+    private:
+
+        void check_capacity( size_t count ) const {
+            if( count > std::numeric_limits<SizeT>::max() ) {
+                throw std::runtime_error(
+                    "Attempted to use small_literal_vector for " +
+                    std::to_string( count ) +
+                    " elements items when there is only tracking space for " +
+                    std::to_string( std::numeric_limits<SizeT>::max() ) );
+            }
+        }
+
+        // 'exact' rounds up to kInlineCount
+        void reserve_exact( size_t new_capacity ) {
             T *heap = nullptr;
-            if( capacity_ == kInlineCount ) {
-                cata_scope_exit heap_guard( [heap] { free( heap ); } );
+            if( capacity_ <= kInlineCount ) {
+                if( new_capacity <= kInlineCount ) {
+                    return;
+                }
+                cata_scope_exit heap_guard( [&heap] { free( heap ); } );
                 heap = ( T * )std::malloc( sizeof( T ) * new_capacity );
                 std::uninitialized_copy_n( inline_, size(), heap );
                 heap_ = heap;
-                capacity_ = new_capacity;
                 heap_guard.dismiss();
             } else {
+                // Don't bother 'unheapifying', but do shrink allocation.
                 heap = ( T * )std::realloc( heap_, sizeof( T ) * new_capacity );
                 if( heap ) {
                     heap_ = heap;
                 } else {
                     throw std::runtime_error( "realloc failed." );
                 }
-                capacity_ = new_capacity;
             }
-        }
 
-    private:
+            capacity_ = new_capacity;
+        }
 
         template<typename I, typename ...Insertables>
         static size_t capacity_needed_for( I &&i, Insertables &&...is ) {
@@ -187,37 +230,43 @@ struct SmallLiteralVector {
             concat_unsafe( std::forward < Insertables && > ( is )... );
         }
 
-        void copy_init_with_capacity( SmallLiteralVector const &other, size_t capacity ) {
-            ensure_capacity_for( std::max( other.len_, capacity ) );
-            std::uninitialized_copy_n( other.data(), other.size(), data() );
-            len_ = other.len_;
+        void copy_init( SmallLiteralVector const &other ) {
+            if( this != &other ) {
+                ensure_capacity_for( other.capacity_ );
+                len_ = other.size();
+                std::memcpy( data(), other.data(), len_ );
+            }
         }
 
         void steal_init( SmallLiteralVector &&other ) noexcept {
-            if( other.on_heap() ) {
-                // Optimization: steal the heap pointer.
-                heap_ = other.heap_;
-                other.heap_ = nullptr;
-            } else {
-                // Skip the ensure_capacity_for call cause we know it has to be inline.
-                std::uninitialized_copy_n( other.inline_, other.len_, inline_ );
+            if( this != &other ) {
+                if( other.on_heap() ) {
+                    // Optimization: steal the heap pointer.
+                    heap_ = other.heap_;
+                    capacity_ = other.capacity_;
+                    other.heap_ = nullptr;
+                    other.capacity_ = kInlineCount;
+                } else {
+                    // Skip the ensure_capacity_for call cause we know it has to be inline.
+                    std::memcpy( inline_, other.inline_, other.len_ );
+                    capacity_ = kInlineCount;
+                }
+                len_ = other.len_;
+                other.len_ = 0;
             }
-            len_ = other.len_;
-            capacity_ = other.capacity_;
-            other.capacity_ = kInlineCount;
         }
 
         bool on_heap() const {
             return capacity_ > kInlineCount;
         }
-        // kInlineCount = 4 means this is 80 bytes big. Not bad.
-        size_t len_ = 0;
-        // capacity_ > kInlineCount => storage_ on heap.
-        size_t capacity_ = kInlineCount;
+
         union {
             T *heap_;
             T inline_[ kInlineCount ];
         };
+        // capacity_ > kInlineCount => on heap.
+        SizeT capacity_;
+        SizeT len_;
 };
 
 #endif
