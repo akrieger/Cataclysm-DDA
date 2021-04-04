@@ -10,7 +10,8 @@
 #include "point.h"
 #include "type_id.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class nc_color;
 
 struct shrapnel_data {

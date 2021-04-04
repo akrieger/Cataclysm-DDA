@@ -24,7 +24,8 @@
 #include "type_id.h"
 #include "units.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class player;
 class vehicle;
 

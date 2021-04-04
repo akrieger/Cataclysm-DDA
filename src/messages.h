@@ -13,8 +13,10 @@
 #include "string_formatter.h"
 
 class Creature;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class translation;
 struct tripoint;
 

@@ -38,8 +38,10 @@ namespace catacurses
 class window;
 } // namespace catacurses
 class Character;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class anatomy;
 class avatar;
 class field;

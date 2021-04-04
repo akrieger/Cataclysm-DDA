@@ -21,7 +21,8 @@ struct ter_t;
 
 using ter_str_id = string_id<ter_t>;
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class player;
 struct furn_t;
 struct itype;

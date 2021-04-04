@@ -1,8 +1,10 @@
 #ifndef CATA_TOOLS_FORMAT_H
 #define CATA_TOOLS_FORMAT_H
 
-class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 
 namespace formatter
 {

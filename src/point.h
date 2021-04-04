@@ -28,8 +28,10 @@ class ostream;
 
 #endif // CATA_NO_STL
 
-class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 
 // NOLINTNEXTLINE(cata-xy)
 struct point {

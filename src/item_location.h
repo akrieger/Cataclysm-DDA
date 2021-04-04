@@ -8,8 +8,10 @@
 #include "units_fwd.h"
 
 class Character;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class item;
 class map_cursor;
 class vehicle_cursor;

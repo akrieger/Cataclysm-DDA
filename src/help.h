@@ -7,7 +7,8 @@
 #include <utility>
 #include <vector>
 
-class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
 class translation;
 namespace catacurses
 {

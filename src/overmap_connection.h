@@ -11,8 +11,10 @@
 #include "omdata.h"
 #include "string_id.h"
 
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 struct overmap_location;
 
 class overmap_connection

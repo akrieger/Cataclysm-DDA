@@ -14,7 +14,8 @@
 #include "point.h"
 #include "type_id.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 
 static constexpr int SCENT_MAP_Z_REACH = 1;
 

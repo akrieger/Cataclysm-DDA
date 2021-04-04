@@ -203,7 +203,8 @@ std::string locale_dir();
 void select_language();
 void set_language();
 
-class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
 
 /**
  * Class for storing translation context and raw string for deferred translation

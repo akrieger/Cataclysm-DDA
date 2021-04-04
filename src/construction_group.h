@@ -9,7 +9,8 @@
 #include "translations.h"
 #include "type_id.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 
 struct construction_group {
         void load( const JsonObject &jo, const std::string &src );

@@ -5,7 +5,8 @@
 #include <iosfwd>
 #include <vector>
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class recipe;
 
 const recipe *select_crafting_recipe( int &batch_size_out );

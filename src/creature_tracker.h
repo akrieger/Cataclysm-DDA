@@ -13,8 +13,10 @@
 #include "point.h"
 #include "type_id.h"
 
-class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class monster;
 
 class Creature_tracker

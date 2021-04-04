@@ -25,6 +25,14 @@ inline FlexJsonValue::operator bool() const
     throw_error( "Expected a bool, got a " + std::to_string( json_.GetType() ) );
 }
 
+inline FlexJsonValue::operator float() const
+{
+    if( json_.IsNumeric() ) {
+        return json_.AsFloat();
+    }
+    throw_error( "Expected a float, got a " + std::to_string( json_.GetType() ) );
+}
+
 inline FlexJsonValue::operator double() const
 {
     if( json_.IsNumeric() ) {
@@ -32,6 +40,7 @@ inline FlexJsonValue::operator double() const
     }
     throw_error( "Expected a double, got a " + std::to_string( json_.GetType() ) );
 }
+
 inline FlexJsonValue::operator FlexJsonObject() const
 {
     if( json_.IsMap() ) {

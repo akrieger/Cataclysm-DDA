@@ -10,10 +10,14 @@
 #include "calendar.h"
 #include "type_id.h"
 
-class FlexJsonArray; using JsonArray = FlexJsonArray;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class FlexJsonArray;
+using JsonArray = FlexJsonArray;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class item;
 class monster;
 template<typename T> struct enum_traits;

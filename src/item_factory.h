@@ -34,9 +34,12 @@ using item_action_id = std::string;
 using Item_list = std::vector<item>;
 
 class Item_factory;
-class FlexJsonArray; using JsonArray = FlexJsonArray;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonArray;
+using JsonArray = FlexJsonArray;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 
 extern std::unique_ptr<Item_factory> item_controller;
 

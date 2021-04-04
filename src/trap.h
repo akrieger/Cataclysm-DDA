@@ -18,7 +18,8 @@
 
 class Character;
 class Creature;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class item;
 class map;
 struct tripoint;

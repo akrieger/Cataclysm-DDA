@@ -13,8 +13,10 @@
 #include "weather_gen.h"
 #include "weather_type.h"
 
-class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class translation;
 
 /**

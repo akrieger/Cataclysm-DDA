@@ -24,9 +24,12 @@
 #include "ret_val.h"
 #include "type_id.h"
 
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class nc_color;
 class profession;
 class time_duration;

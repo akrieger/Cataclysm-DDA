@@ -8,7 +8,8 @@
 #include "flat_set.h"
 #include "type_id.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 struct oter_t;
 
 struct overmap_location {

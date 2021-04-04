@@ -12,7 +12,8 @@
 #include "string_id.h"
 #include "translations.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class map;
 struct tripoint;
 template<typename T> class generic_factory;

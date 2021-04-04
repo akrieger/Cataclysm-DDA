@@ -32,8 +32,10 @@
 #include "value_ptr.h"
 
 class Item_factory;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class item;
 class player;
 struct tripoint;

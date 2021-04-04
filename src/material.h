@@ -16,11 +16,13 @@
 #include "translations.h"
 #include "type_id.h"
 
-class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
 class material_type;
 
 enum class damage_type : int;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 
 using mat_burn_products = std::vector<std::pair<itype_id, float>>;
 using mat_compacts_into = std::vector<itype_id>;

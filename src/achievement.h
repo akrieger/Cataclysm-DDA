@@ -17,9 +17,12 @@
 #include "translations.h"
 #include "type_id.h"
 
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class achievements_tracker;
 struct achievement_requirement;
 template <typename E> struct enum_traits;

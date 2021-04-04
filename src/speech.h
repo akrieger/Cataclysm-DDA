@@ -6,7 +6,8 @@
 
 #include "translations.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 
 struct SpeechBubble {
     translation text;

@@ -14,8 +14,10 @@
 #include "memory_fast.h"
 
 class FlexJsonObject;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class loading_ui;
 struct json_source_location;
 

@@ -26,7 +26,8 @@
 #include "units.h"
 
 class Character;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class item;
 class item_location;
 class npc_template;

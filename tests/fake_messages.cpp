@@ -8,8 +8,10 @@
 #include "messages.h"
 
 class Creature;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 struct tripoint;
 
 namespace catacurses

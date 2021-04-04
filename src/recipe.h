@@ -22,8 +22,10 @@
 #include "value_ptr.h"
 
 class Character;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class item;
 template <typename E> struct enum_traits;
 

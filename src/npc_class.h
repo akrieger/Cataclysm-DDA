@@ -10,7 +10,8 @@
 #include "translations.h"
 #include "type_id.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class Trait_group;
 
 namespace trait_group

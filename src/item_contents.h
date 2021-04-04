@@ -20,8 +20,10 @@
 #include "visitable.h"
 
 class Character;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class item;
 class item_location;
 class iteminfo_query;

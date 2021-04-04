@@ -9,8 +9,10 @@
 #include "damage.h"
 
 class Character;
-class FlexJsonArray; using JsonArray = FlexJsonArray;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonArray;
+using JsonArray = FlexJsonArray;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 
 enum scaling_stat : int {
     STAT_NULL = 0,

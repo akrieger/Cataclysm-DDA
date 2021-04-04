@@ -14,7 +14,8 @@
 #include "units_fwd.h"
 #include "weighted_list.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class VehicleGroup;
 class VehicleSpawn;
 class map;

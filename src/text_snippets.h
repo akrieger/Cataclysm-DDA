@@ -12,8 +12,10 @@
 #include "translations.h"
 #include "type_id.h"
 
-class FlexJsonArray; using JsonArray = FlexJsonArray;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonArray;
+using JsonArray = FlexJsonArray;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 
 class snippet_library
 {

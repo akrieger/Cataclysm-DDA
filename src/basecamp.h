@@ -22,8 +22,10 @@
 #include "translations.h"
 #include "type_id.h"
 
-class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class character_id;
 class npc;
 class time_duration;

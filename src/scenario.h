@@ -11,7 +11,8 @@
 #include "translations.h"
 #include "type_id.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class profession;
 template<typename T>
 class generic_factory;

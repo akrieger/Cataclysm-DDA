@@ -9,7 +9,8 @@
 
 #include "translations.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class item;
 class item_action;
 class player;

@@ -184,11 +184,17 @@ class FlexJsonValue : FlexJson
         // NOLINTNEXTLINE(google-explicit-constructor)
         inline operator bool() const;
         // NOLINTNEXTLINE(google-explicit-constructor)
+        inline operator float() const;
+        // NOLINTNEXTLINE(google-explicit-constructor)
         inline operator double() const;
         // NOLINTNEXTLINE(google-explicit-constructor)
         inline operator FlexJsonObject() const;
         // NOLINTNEXTLINE(google-explicit-constructor)
         inline operator FlexJsonArray() const;
+
+        std::string get_string() const {
+            return *this;
+        }
 
         // optionally-fatal reading into values by reference
         // returns true if the data was read successfully, false otherwise
@@ -242,6 +248,11 @@ class FlexJsonObject : FlexJson
         mutable TinyBitSet visited_fields_bitset_;
 
     public:
+
+        FlexJsonObject get_object() const {
+            allow_omitted_members();
+            return *this;
+        }
 
         FlexJsonObject(
             FlexBuffer &&json,
@@ -299,6 +310,13 @@ class FlexJsonObject : FlexJson
             return get_member( key );
         }
 
+        float get_float(std::string const& key) const {
+            return get_member(key.c_str());
+        }
+        float get_float(const char* key) const {
+            return get_member(key);
+        }
+
         bool get_bool( std::string const &key ) const {
             return get_member( key.c_str() );
         }
@@ -331,6 +349,21 @@ class FlexJsonObject : FlexJson
             return ref.IsNumeric();
         }
 
+        bool has_int(const std::string& key) const {
+            return has_number(key.c_str());
+        }
+        bool has_int(const char* key) const {
+            return has_number(key);
+        }
+
+        bool has_float(const char* key) const {
+            return has_number(key);
+        }
+
+        bool has_double(const char* key) const {
+            return has_number(key);
+        }
+
         bool has_string( std::string const &key ) const {
             return has_string( key.c_str() );
         }
@@ -338,6 +371,15 @@ class FlexJsonObject : FlexJson
         bool has_string( const char *key ) const {
             auto ref = find_value_ref( key );
             return ref.IsString();
+        }
+
+        bool has_null(const char* key) const {
+            size_t idx = 0;
+            bool found = find_map_key_idx(key, keys_, idx);
+            if (found) {
+                return values_[idx].IsNull();
+            }
+            return false;
         }
 
         bool has_array( std::string const &key ) const {
@@ -349,6 +391,9 @@ class FlexJsonObject : FlexJson
             return ref.IsAnyVector() && !ref.IsMap();
         }
 
+        bool has_object(std::string const& key) const {
+            return has_object(key.c_str());
+        }
         bool has_object( const char *key ) const {
             auto ref = find_value_ref( key );
             return ref.IsMap();
@@ -655,6 +700,9 @@ class FlexJsonArray : FlexJson
 
         int get_int( size_t idx ) const {
             return ( *this )[ idx ];
+        }
+        std::string get_string(size_t idx) const {
+            return (*this)[idx];
         }
 
         size_t size() const {

@@ -10,7 +10,8 @@
 
 #include "string_id.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 
 namespace behavior
 {

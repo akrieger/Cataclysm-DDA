@@ -7,11 +7,11 @@
 using JsonError = TextJsonError;
 using JsonSerializer = TextJsonSerializer;
 using JsonDeserializer = TextJsonDeserializer;
-using JsonIn = TextJsonIn;
 using JsonOut = TextJsonOut;
 
 #include "flexbuffer_json.h"
 
+using JsonIn = FlexJsonObject;
 using JsonObject = FlexJsonObject;
 using JsonArray = FlexJsonArray;
 using JsonValue = FlexJsonValue;

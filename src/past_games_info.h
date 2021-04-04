@@ -12,7 +12,8 @@
 #include "stats_tracker.h"
 #include "type_id.h"
 
-class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
 class score;
 
 class past_game_info

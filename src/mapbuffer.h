@@ -9,7 +9,8 @@
 
 #include "point.h"
 
-class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
 class submap;
 
 /**

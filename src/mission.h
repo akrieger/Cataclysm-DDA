@@ -24,10 +24,14 @@
 #include "type_id.h"
 
 class Creature;
-class FlexJsonArray; using JsonArray = FlexJsonArray;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class FlexJsonArray;
+using JsonArray = FlexJsonArray;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class avatar;
 class item;
 class mission;

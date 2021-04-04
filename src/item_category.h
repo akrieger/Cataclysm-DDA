@@ -11,8 +11,10 @@
 #include "translations.h"
 #include "type_id.h"
 
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class item;
 
 // this is a helper struct with rules for picking a zone

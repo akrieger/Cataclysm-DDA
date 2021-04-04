@@ -17,7 +17,8 @@
 struct WORLD;
 
 using WORLDPTR = WORLD *;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class dependency_tree;
 class mod_manager;
 

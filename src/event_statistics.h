@@ -17,7 +17,8 @@ enum class cata_variant_type : int;
 class event_multiset;
 
 enum class event_type : int;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 
 enum class monotonically : int;
 class stats_tracker;

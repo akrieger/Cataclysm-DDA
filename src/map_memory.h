@@ -7,9 +7,12 @@
 #include "lru_cache.h"
 #include "point.h" // IWYU pragma: keep
 
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 
 struct memorized_terrain_tile {
     std::string tile;

@@ -19,11 +19,16 @@
 #include "type_id.h"
 
 class Character;
-class FlexJsonArray; using JsonArray = FlexJsonArray;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
-class TextJsonOut; using JsonOut = TextJsonOut;
-class FlexJsonValue; using JsonValue = FlexJsonValue;
+class FlexJsonArray;
+using JsonArray = FlexJsonArray;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
+class FlexJsonValue;
+using JsonValue = FlexJsonValue;
 class item;
 class nc_color;
 class read_only_visitable;

@@ -19,7 +19,8 @@
 #include "weighted_list.h"
 
 class Creature;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class monster;
 
 class leap_actor : public mattack_actor

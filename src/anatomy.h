@@ -8,7 +8,8 @@
 #include "bodypart.h"
 #include "string_id.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class anatomy;
 
 using anatomy_id = string_id<anatomy>;

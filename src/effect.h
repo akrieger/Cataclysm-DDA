@@ -22,9 +22,12 @@ class effect_type;
 class player;
 
 enum game_message_type : int;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 
 /** Handles the large variety of weed messages. */
 void weed_msg( player &p );

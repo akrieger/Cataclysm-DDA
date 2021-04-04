@@ -162,7 +162,7 @@ void TextJsonObject::copy_visited_members( const TextJsonObject &rhs ) const
 }
 
 int TextJsonObject::verify_position( const std::string &name,
-                                 const bool throw_exception ) const
+                                     const bool throw_exception ) const
 {
     if( !jsin ) {
         if( throw_exception ) {
@@ -242,7 +242,7 @@ void TextJsonArray::throw_error( const std::string &err, int idx )
 }
 
 void TextJsonArray::string_error( const std::string &err, const int idx,
-                              const int offset )
+                                  const int offset )
 {
     if( jsin && idx >= 0 && static_cast<size_t>( idx ) < positions.size() ) {
         jsin->seek( positions[idx] );
@@ -740,7 +740,8 @@ bool TextJsonArray::has_object( const size_t i ) const
     return jsin->test_object();
 }
 
-void add_array_to_set( std::set<std::string> &s, const TextJsonObject &json, const std::string &name )
+void add_array_to_set( std::set<std::string> &s, const TextJsonObject &json,
+                       const std::string &name )
 {
     for( const std::string line : json.get_array( name ) ) {
         s.insert( line );

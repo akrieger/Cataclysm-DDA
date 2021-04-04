@@ -12,7 +12,8 @@
 #include "optional.h"
 #include "type_id.h"
 
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 class monfaction;
 template <typename E> struct enum_traits;
 template <typename T> class generic_factory;

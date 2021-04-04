@@ -26,8 +26,10 @@
 #include "visitable.h"
 
 class Character;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class item_stack;
 class map;
 class npc;

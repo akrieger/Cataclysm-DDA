@@ -11,8 +11,10 @@
 #include "type_id.h"
 
 class Character;
-class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonIn;
+using JsonIn = TextJsonIn;
+class TextJsonOut;
+using JsonOut = TextJsonOut;
 class player_activity;
 
 class activity_actor

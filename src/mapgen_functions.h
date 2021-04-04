@@ -17,7 +17,8 @@ struct point;
 struct tripoint;
 
 using mapgen_update_func = std::function<void( const tripoint_abs_omt &map_pos3, mission *miss )>;
-class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonObject;
+using JsonObject = FlexJsonObject;
 
 /**
  * Calculates the coordinates of a rotated point.

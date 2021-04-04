@@ -1476,7 +1476,8 @@ Res TextJsonObject::get_tags( const std::string &name ) const
  * Get an array member from TextJson with name name.  For each element of that
  * array (which should be a string) add it to the given set.
  */
-void add_array_to_set( std::set<std::string> &, const TextJsonObject &TextJson, const std::string &name );
+void add_array_to_set( std::set<std::string> &, const TextJsonObject &TextJson,
+                       const std::string &name );
 
 /* TextJsonSerializer
  * ==============
