@@ -12,7 +12,7 @@
 #include "string_id.h"
 
 class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 struct overmap_location;
 
 class overmap_connection

@@ -10,7 +10,9 @@
 
 #include <cstdio>
 
-#include "json.h"
+#include "text_json.h"
+
+using JsonError = TextJsonError;
 
 #define FLATBUFFERS_ASSERT(expression) \
     do { \

@@ -23,9 +23,9 @@
 #include "type_id.h"
 #include "value_ptr.h"
 
-class TextJsonArray; using JsonArray = TextJsonArray;
+class FlexJsonArray; using JsonArray = FlexJsonArray;
 class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class Trait_group;
 class item;
 class nc_color;

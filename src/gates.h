@@ -6,7 +6,7 @@
 
 class Character;
 class Creature;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class map;
 struct tripoint;
 

@@ -27,7 +27,7 @@
 #include "weighted_list.h"
 
 class Character;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class pixel_minimap;
 
 extern void set_displaybuffer_rendertarget();

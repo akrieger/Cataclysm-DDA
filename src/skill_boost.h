@@ -8,7 +8,7 @@
 #include "optional.h"
 #include "string_id.h"
 
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 template<typename T>
 class generic_factory;
 

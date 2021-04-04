@@ -23,7 +23,7 @@ class player;
 
 enum game_message_type : int;
 class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class TextJsonOut; using JsonOut = TextJsonOut;
 
 /** Handles the large variety of weed messages. */

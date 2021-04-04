@@ -8,8 +8,8 @@
 
 #include "type_id.h"
 
-class TextJsonObject; using JsonObject = TextJsonObject;
-class TextJsonValue; using JsonValue = TextJsonValue;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonValue; using JsonValue = FlexJsonValue;
 class Trait_group;
 
 namespace trait_group

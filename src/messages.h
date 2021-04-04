@@ -13,7 +13,7 @@
 #include "string_formatter.h"
 
 class Creature;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class TextJsonOut; using JsonOut = TextJsonOut;
 class translation;
 struct tripoint;

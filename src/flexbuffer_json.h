@@ -10,7 +10,7 @@
 #include "cata_bitset.h"
 #include "cata_small_literal_vector.h"
 #include "flexbuffer_cache.h"
-#include "json.h"
+#include "text_json.h"
 #include "int_id.h"
 #include "optional.h"
 #include "string_id.h"

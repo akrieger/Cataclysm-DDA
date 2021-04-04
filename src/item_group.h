@@ -16,8 +16,8 @@
 #include "type_id.h"
 #include "value_ptr.h"
 
-class TextJsonObject; using JsonObject = TextJsonObject;
-class TextJsonValue; using JsonValue = TextJsonValue;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
+class FlexJsonValue; using JsonValue = FlexJsonValue;
 class time_point;
 struct itype;
 template <typename E> struct enum_traits;

@@ -7,7 +7,7 @@
 #include "translations.h"
 #include "type_id.h"
 
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 struct itype;
 
 class morale_type_data

@@ -9,7 +9,7 @@
 #include "calendar.h"
 
 class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class TextJsonOut; using JsonOut = TextJsonOut;
 
 enum computer_action {

@@ -13,7 +13,7 @@
 #include "units_fwd.h"
 
 class Character;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class item;
 class monster;
 class player;

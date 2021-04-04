@@ -32,8 +32,8 @@ using mon_action_death  = void ( * )( monster & );
 using mon_action_attack = bool ( * )( monster * );
 using mon_action_defend = void ( * )( monster &, Creature *, dealt_projectile_attack const * );
 using bodytype_id = std::string;
-class TextJsonArray; using JsonArray = TextJsonArray;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonArray; using JsonArray = FlexJsonArray;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 
 // These are triggers which may affect the monster's anger or morale.
 // They are handled in monster::check_triggers(), in monster.cpp

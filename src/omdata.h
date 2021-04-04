@@ -31,7 +31,7 @@ template <typename E> struct enum_traits;
 
 using overmap_land_use_code_id = string_id<overmap_land_use_code>;
 class FlexJsonObject;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class overmap_connection;
 class overmap_special;
 class overmap_special_batch;

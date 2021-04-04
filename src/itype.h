@@ -33,7 +33,7 @@
 
 class Item_factory;
 class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class item;
 class player;
 struct tripoint;

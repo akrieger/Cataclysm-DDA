@@ -5,7 +5,7 @@
 #include <string> // IWYU pragma: keep
 #include <vector>
 
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class mod_tileset;
 
 extern std::vector<mod_tileset> all_mod_tilesets;

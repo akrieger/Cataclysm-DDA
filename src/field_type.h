@@ -24,7 +24,7 @@
 #include "translations.h"
 #include "type_id.h"
 
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 template <typename E> struct enum_traits;
 
 class field_entry;

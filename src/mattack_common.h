@@ -8,7 +8,7 @@
 
 #include "clone_ptr.h"
 
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class monster;
 
 using mattack_id = std::string;

@@ -20,7 +20,7 @@ struct input_event;
 
 enum class damage_type : int;
 class Character;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class effect;
 class item;
 struct itype;

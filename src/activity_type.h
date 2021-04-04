@@ -8,7 +8,7 @@
 #include "string_id.h"
 #include "translations.h"
 
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class activity_type;
 class player;
 class player_activity;

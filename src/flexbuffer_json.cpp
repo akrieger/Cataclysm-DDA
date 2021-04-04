@@ -9,11 +9,11 @@ static void advance_jsin( JsonIn *jsin, JsonPath const &path )
 {
     for( JsonPath::Element const &path_elem : path ) {
         if( path_elem.is_string() ) {
-            JsonObject jo = jsin->get_object();
+            TextJsonObject jo = jsin->get_object();
             jo.allow_omitted_members();
             jo.get_raw( path_elem.as_string() );
         } else {
-            JsonArray ja = jsin->get_array();
+            TextJsonArray ja = jsin->get_array();
             for( size_t i = 0; i < path_elem.as_index(); ++i ) {
                 ja.skip_value();
             }
@@ -45,7 +45,7 @@ void FlexJsonObject::error_no_member( std::string const &member ) const
 
     advance_jsin( &jsin, path_ );
 
-    JsonObject jo = jsin.get_object();
+    TextJsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
     jo.get_member( member );
     // Just to make sure the compiler understands we will error earlier.
@@ -59,7 +59,7 @@ void FlexJsonObject::error_skipped_members( std::vector<size_t> const &skipped_m
 
     advance_jsin( &jsin, path_ );
 
-    JsonObject jo = jsin.get_object();
+    TextJsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
     for( size_t skipped_member_idx : skipped_members ) {
         flexbuffers::String name = keys_[ skipped_member_idx ].AsString();

@@ -11,7 +11,7 @@
 #include "optional.h"
 #include "type_id.h"
 
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 
 class disease_type
 {

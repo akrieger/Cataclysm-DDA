@@ -15,7 +15,7 @@
 
 class FlexJsonObject;
 class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class loading_ui;
 struct json_source_location;
 

@@ -17,7 +17,7 @@
 
 class Character;
 class Creature;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class TextJsonOut; using JsonOut = TextJsonOut;
 class item;
 

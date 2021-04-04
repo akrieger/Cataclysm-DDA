@@ -23,7 +23,7 @@
 
 class Character;
 class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class item;
 template <typename E> struct enum_traits;
 

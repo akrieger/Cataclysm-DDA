@@ -12,8 +12,8 @@
 #include "translations.h"
 #include "type_id.h"
 
-class TextJsonArray; using JsonArray = TextJsonArray;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonArray; using JsonArray = FlexJsonArray;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 
 class snippet_library
 {

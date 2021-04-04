@@ -17,7 +17,7 @@
 enum class special_game_type;
 
 class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 
 namespace catacurses
 {

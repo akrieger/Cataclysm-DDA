@@ -26,7 +26,7 @@ namespace catacurses
 {
 class window;
 } // namespace catacurses
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class nc_color;
 struct tripoint;
 

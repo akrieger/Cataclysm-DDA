@@ -8,7 +8,7 @@
 #include "point.h" // IWYU pragma: keep
 
 class TextJsonIn; using JsonIn = TextJsonIn;
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 class TextJsonOut; using JsonOut = TextJsonOut;
 
 struct memorized_terrain_tile {

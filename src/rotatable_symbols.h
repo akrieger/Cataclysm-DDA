@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <iosfwd>
 
-class TextJsonObject; using JsonObject = TextJsonObject;
+class FlexJsonObject; using JsonObject = FlexJsonObject;
 
 namespace rotatable_symbols
 {
