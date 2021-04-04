@@ -8,8 +8,8 @@
 #include "messages.h"
 
 class Creature;
-class JsonObject;
-class JsonOut;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 struct tripoint;
 
 namespace catacurses

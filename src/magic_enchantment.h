@@ -17,8 +17,8 @@
 
 class Character;
 class Creature;
-class JsonObject;
-class JsonOut;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class item;
 
 namespace enchant_vals

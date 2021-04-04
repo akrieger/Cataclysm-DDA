@@ -17,7 +17,7 @@
 struct WORLD;
 
 using WORLDPTR = WORLD *;
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class dependency_tree;
 class mod_manager;
 

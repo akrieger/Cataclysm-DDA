@@ -13,10 +13,10 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonArray;
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonArray; using JsonArray = TextJsonArray;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 struct display_proficiency;
 struct learning_proficiency;
 template<typename T>

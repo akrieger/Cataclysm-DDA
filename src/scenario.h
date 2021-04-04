@@ -11,7 +11,7 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class profession;
 template<typename T>
 class generic_factory;

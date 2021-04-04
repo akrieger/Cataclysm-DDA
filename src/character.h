@@ -55,9 +55,9 @@
 #include "weighted_list.h"
 
 class Character;
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class SkillLevel;
 class SkillLevelMap;
 class basecamp;

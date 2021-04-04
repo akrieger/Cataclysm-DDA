@@ -13,7 +13,7 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 
 struct mending_method {
     std::string id;

@@ -15,8 +15,8 @@
 #include "optional.h"
 #include "translations.h"
 
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 
 class options_manager
 {

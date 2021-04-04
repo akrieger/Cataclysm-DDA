@@ -11,8 +11,8 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonIn;
-class JsonObject;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class item;
 
 // this is a helper struct with rules for picking a zone

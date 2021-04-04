@@ -16,8 +16,8 @@ namespace cata
 {
 class event;
 }  // namespace cata
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 
 class memorial_log_entry
 {

@@ -34,9 +34,9 @@ using item_action_id = std::string;
 using Item_list = std::vector<item>;
 
 class Item_factory;
-class JsonArray;
-class JsonIn;
-class JsonObject;
+class TextJsonArray; using JsonArray = TextJsonArray;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
 
 extern std::unique_ptr<Item_factory> item_controller;
 

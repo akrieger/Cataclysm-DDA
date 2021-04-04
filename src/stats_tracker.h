@@ -16,8 +16,8 @@
 #include "optional.h"
 #include "string_id.h"
 
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class event_statistic;
 class event_transformation;
 namespace cata

@@ -9,8 +9,8 @@
 #include "units.h"
 
 class Character;
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 struct needs_rates;
 
 // Separate struct for nutrients so that we can easily perform arithmetic on

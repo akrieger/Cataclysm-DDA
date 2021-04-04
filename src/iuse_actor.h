@@ -26,7 +26,7 @@
 #include "units.h"
 
 class Character;
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class item;
 class item_location;
 class npc_template;

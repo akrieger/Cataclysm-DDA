@@ -9,7 +9,7 @@
 
 #include "translations.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class item;
 class item_action;
 class player;

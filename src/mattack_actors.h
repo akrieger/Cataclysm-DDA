@@ -19,7 +19,7 @@
 #include "weighted_list.h"
 
 class Creature;
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class monster;
 
 class leap_actor : public mattack_actor

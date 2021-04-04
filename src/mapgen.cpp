@@ -503,7 +503,7 @@ void load_mapgen( const JsonObject &jo )
 {
     if( jo.has_array( "om_terrain" ) ) {
         JsonArray ja = jo.get_array( "om_terrain" );
-        if( ja.size() > 0 ) {
+        if( ja.test_array() ) {
             point offset;
             for( JsonArray row_items : ja ) {
                 for( const std::string mapgenid : row_items ) {

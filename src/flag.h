@@ -10,7 +10,7 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 template <typename T> class generic_factory;
 
 extern const flag_id flag_NULL;

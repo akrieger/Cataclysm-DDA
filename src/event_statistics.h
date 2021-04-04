@@ -17,7 +17,7 @@ enum class cata_variant_type : int;
 class event_multiset;
 
 enum class event_type : int;
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 
 enum class monotonically : int;
 class stats_tracker;

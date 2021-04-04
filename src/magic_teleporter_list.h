@@ -10,8 +10,8 @@
 #include "optional.h"
 
 class Character;
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 struct tripoint;
 
 class teleporter_list

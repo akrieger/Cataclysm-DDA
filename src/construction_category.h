@@ -9,7 +9,7 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 
 struct construction_category {
         void load( const JsonObject &jo, const std::string &src );

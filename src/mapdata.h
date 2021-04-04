@@ -21,7 +21,7 @@ struct ter_t;
 
 using ter_str_id = string_id<ter_t>;
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class player;
 struct furn_t;
 struct itype;

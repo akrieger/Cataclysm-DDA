@@ -14,7 +14,7 @@
 #include "point.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 
 static constexpr int SCENT_MAP_Z_REACH = 1;
 

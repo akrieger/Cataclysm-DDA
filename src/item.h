@@ -34,9 +34,9 @@
 #include "visitable.h"
 
 class Character;
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class book_proficiency_bonuses;
 class enchantment;
 class faction;

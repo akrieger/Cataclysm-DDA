@@ -18,7 +18,7 @@
 
 class Character;
 class Creature;
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class item;
 class map;
 struct tripoint;

@@ -8,7 +8,7 @@
 #include "string_id.h"
 #include "translations.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class activity_type;
 class player;
 class player_activity;

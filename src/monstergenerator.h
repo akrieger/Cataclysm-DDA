@@ -19,7 +19,7 @@
 #include "type_id.h"
 
 class Creature;
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class monster;
 struct dealt_projectile_attack;
 

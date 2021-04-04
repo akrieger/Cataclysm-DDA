@@ -10,10 +10,10 @@
 #include "calendar.h"
 #include "type_id.h"
 
-class JsonArray;
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonArray; using JsonArray = TextJsonArray;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class item;
 class monster;
 template<typename T> struct enum_traits;

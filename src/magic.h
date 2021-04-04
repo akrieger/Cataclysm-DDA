@@ -24,9 +24,9 @@
 
 class Character;
 class Creature;
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class nc_color;
 class spell;
 class time_duration;

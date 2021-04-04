@@ -326,8 +326,8 @@ enum color_id {
     num_colors
 };
 
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 
 void init_colors();
 

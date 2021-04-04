@@ -9,8 +9,8 @@
 #include "event_subscriber.h"
 #include "type_id.h"
 
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 
 namespace cata
 {

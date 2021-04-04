@@ -5,7 +5,7 @@
 #include <iosfwd>
 #include <vector>
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class recipe;
 
 const recipe *select_crafting_recipe( int &batch_size_out );

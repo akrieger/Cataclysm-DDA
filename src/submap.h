@@ -23,8 +23,8 @@
 #include "point.h"
 #include "type_id.h"
 
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class basecamp;
 class map;
 class vehicle;

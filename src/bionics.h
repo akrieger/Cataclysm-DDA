@@ -20,9 +20,9 @@
 #include "value_ptr.h"
 
 class Character;
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 
 enum class character_stat : char;
 

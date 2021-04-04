@@ -32,8 +32,8 @@
 #include "value_ptr.h"
 
 class Item_factory;
-class JsonIn;
-class JsonObject;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class item;
 class player;
 struct tripoint;

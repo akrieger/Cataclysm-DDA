@@ -7,7 +7,7 @@
 
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class translation;
 
 namespace recipe_group

@@ -24,9 +24,9 @@
 #include "ret_val.h"
 #include "type_id.h"
 
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class nc_color;
 class profession;
 class time_duration;

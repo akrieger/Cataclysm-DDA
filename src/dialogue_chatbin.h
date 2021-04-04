@@ -7,8 +7,8 @@
 
 #include "type_id.h"
 
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class mission;
 
 struct dialogue_chatbin {

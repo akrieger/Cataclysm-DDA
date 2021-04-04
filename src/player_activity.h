@@ -20,8 +20,8 @@
 #include "type_id.h"
 
 class Character;
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class avatar;
 class monster;
 class player;

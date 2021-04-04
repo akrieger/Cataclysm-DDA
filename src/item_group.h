@@ -16,8 +16,8 @@
 #include "type_id.h"
 #include "value_ptr.h"
 
-class JsonObject;
-class JsonValue;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonValue; using JsonValue = TextJsonValue;
 class time_point;
 struct itype;
 template <typename E> struct enum_traits;

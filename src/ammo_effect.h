@@ -11,7 +11,7 @@
 #include "field_type.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 
 struct ammo_effect {
     public:

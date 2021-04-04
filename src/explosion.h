@@ -10,7 +10,7 @@
 #include "point.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class nc_color;
 
 struct shrapnel_data {

@@ -8,7 +8,7 @@
 
 #include "clone_ptr.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class monster;
 
 using mattack_id = std::string;

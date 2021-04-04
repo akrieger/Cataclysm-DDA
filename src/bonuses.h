@@ -9,8 +9,8 @@
 #include "damage.h"
 
 class Character;
-class JsonArray;
-class JsonObject;
+class TextJsonArray; using JsonArray = TextJsonArray;
+class TextJsonObject; using JsonObject = TextJsonObject;
 
 enum scaling_stat : int {
     STAT_NULL = 0,

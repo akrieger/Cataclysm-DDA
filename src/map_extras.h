@@ -12,7 +12,7 @@
 #include "string_id.h"
 #include "translations.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class map;
 struct tripoint;
 template<typename T> class generic_factory;

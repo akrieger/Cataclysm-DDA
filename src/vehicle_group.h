@@ -14,7 +14,7 @@
 #include "units_fwd.h"
 #include "weighted_list.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class VehicleGroup;
 class VehicleSpawn;
 class map;

@@ -10,7 +10,7 @@
 #include "dialogue.h"
 #include "mission.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 
 namespace dialogue_data
 {

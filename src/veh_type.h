@@ -24,7 +24,7 @@
 #include "type_id.h"
 #include "units.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class player;
 class vehicle;
 

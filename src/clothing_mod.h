@@ -10,7 +10,7 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class item;
 template<typename T> struct enum_traits;
 

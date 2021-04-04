@@ -8,9 +8,9 @@
 
 #include "calendar.h"
 
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 
 enum computer_action {
     COMPACT_NULL = 0,

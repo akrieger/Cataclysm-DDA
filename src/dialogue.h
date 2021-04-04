@@ -17,8 +17,8 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonArray;
-class JsonObject;
+class TextJsonArray; using JsonArray = TextJsonArray;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class martialart;
 class mission;
 struct dialogue;

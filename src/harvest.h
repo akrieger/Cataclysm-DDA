@@ -13,7 +13,7 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class butchery_requirements;
 
 using butchery_requirements_id = string_id<butchery_requirements>;

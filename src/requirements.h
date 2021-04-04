@@ -19,11 +19,11 @@
 #include "type_id.h"
 
 class Character;
-class JsonArray;
-class JsonIn;
-class JsonObject;
-class JsonOut;
-class JsonValue;
+class TextJsonArray; using JsonArray = TextJsonArray;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
+class TextJsonValue; using JsonValue = TextJsonValue;
 class item;
 class nc_color;
 class read_only_visitable;

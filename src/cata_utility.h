@@ -14,8 +14,8 @@
 
 class FlexJsonArray;
 class FlexJsonObject;
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class translation;
 
 /**
@@ -306,7 +306,7 @@ bool write_to_file( const std::string &path, const std::function<void( std::ostr
 void write_to_file( const std::string &path, const std::function<void( std::ostream & )> &writer );
 ///@}
 
-class JsonDeserializer;
+class TextJsonDeserializer; using JsonDeserializer = TextJsonDeserializer;
 
 /**
  * Try to open and read from given file using the given callback.

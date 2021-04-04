@@ -27,8 +27,8 @@
 
 class Character;
 class Creature;
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class avatar;
 class player_activity;
 

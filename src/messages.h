@@ -13,8 +13,8 @@
 #include "string_formatter.h"
 
 class Creature;
-class JsonObject;
-class JsonOut;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class translation;
 struct tripoint;
 

@@ -18,7 +18,7 @@
 #include "weather_gen.h"
 #include "weighted_list.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 
 class building_bin
 {

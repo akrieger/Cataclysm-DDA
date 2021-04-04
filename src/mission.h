@@ -24,10 +24,10 @@
 #include "type_id.h"
 
 class Creature;
-class JsonArray;
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonArray; using JsonArray = TextJsonArray;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class avatar;
 class item;
 class mission;

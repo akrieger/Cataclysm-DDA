@@ -6,8 +6,8 @@
 #include <utility>
 #include <vector>
 
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class time_duration;
 class time_point;
 template<typename T> struct enum_traits;

@@ -22,8 +22,8 @@
 #include "value_ptr.h"
 
 class Character;
-class JsonIn;
-class JsonObject;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class item;
 template <typename E> struct enum_traits;
 

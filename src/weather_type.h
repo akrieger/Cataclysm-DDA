@@ -17,7 +17,7 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 template <typename E> struct enum_traits;
 template<typename T>
 class generic_factory;

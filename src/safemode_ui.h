@@ -12,8 +12,8 @@
 #include "enums.h"
 
 class FlexJsonObject;
-class JsonIn;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonOut; using JsonOut = TextJsonOut;
 
 class safemode
 {

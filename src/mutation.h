@@ -23,9 +23,9 @@
 #include "type_id.h"
 #include "value_ptr.h"
 
-class JsonArray;
-class JsonIn;
-class JsonObject;
+class TextJsonArray; using JsonArray = TextJsonArray;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class Trait_group;
 class item;
 class nc_color;

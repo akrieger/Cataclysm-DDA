@@ -45,9 +45,9 @@
 #include "type_id.h"
 #include "units_fwd.h"
 
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class mission;
 class monfaction;
 class monster;

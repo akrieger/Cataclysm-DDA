@@ -8,7 +8,7 @@
 #include "bodypart.h"
 #include "string_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class anatomy;
 
 using anatomy_id = string_id<anatomy>;

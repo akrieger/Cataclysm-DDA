@@ -6,7 +6,7 @@
 
 #include "translations.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 
 struct SpeechBubble {
     translation text;

@@ -18,9 +18,9 @@
 
 class Character;
 class Creature;
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 class relic;
 class relic_procgen_data;
 struct relic_charge_info;

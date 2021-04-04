@@ -9,7 +9,7 @@
 #include "calendar.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 struct tripoint;
 
 struct w_point {

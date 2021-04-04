@@ -11,8 +11,8 @@
 #include "omdata.h"
 #include "string_id.h"
 
-class JsonIn;
-class JsonObject;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
 struct overmap_location;
 
 class overmap_connection

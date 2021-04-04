@@ -8,8 +8,8 @@
 
 #include "type_id.h"
 
-class JsonObject;
-class JsonValue;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonValue; using JsonValue = TextJsonValue;
 class Trait_group;
 
 namespace trait_group

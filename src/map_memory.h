@@ -7,9 +7,9 @@
 #include "lru_cache.h"
 #include "point.h" // IWYU pragma: keep
 
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 
 struct memorized_terrain_tile {
     std::string tile;

@@ -16,9 +16,9 @@
 #include "string_id.h"
 #include "translations.h"
 
-class JsonIn;
-class JsonObject;
-class JsonOut;
+class TextJsonIn; using JsonIn = TextJsonIn;
+class TextJsonObject; using JsonObject = TextJsonObject;
+class TextJsonOut; using JsonOut = TextJsonOut;
 struct body_part_type;
 template <typename E> struct enum_traits;
 

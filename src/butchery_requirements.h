@@ -10,7 +10,7 @@
 #include "creature.h"
 #include "type_id.h"
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 class read_only_visitable;
 
 enum class butcher_type : int;

@@ -10,7 +10,7 @@
 #include "weighted_list.h"
 
 class Creature;
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 struct tripoint;
 
 // this is a small class that contains the "results" of a terrain transform.

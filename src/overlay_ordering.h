@@ -5,7 +5,7 @@
 #include <iosfwd>
 #include <map>
 
-class JsonObject;
+class TextJsonObject; using JsonObject = TextJsonObject;
 
 extern std::map<std::string, int> base_mutation_overlay_ordering;
 extern std::map<std::string, int> tileset_mutation_overlay_ordering;
