@@ -140,7 +140,7 @@ static units::volume string_to_ml( const std::string &str )
     return units::from_milliliter( std::stoi( str.substr( 0, str.size() - 3 ) ) );
 }
 
-void stomach_contents::deserialize( JsonIn &json )
+void stomach_contents::deserialize( JsonIn json )
 {
     JsonObject jo = json.get_object();
     jo.read( "vitamins", nutr.vitamins );

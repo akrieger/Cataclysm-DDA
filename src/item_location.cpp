@@ -744,7 +744,7 @@ void item_location::serialize( JsonOut &js ) const
     ptr->serialize( js );
 }
 
-void item_location::deserialize( JsonIn &js )
+void item_location::deserialize( JsonIn js )
 {
     JsonObject obj = js.get_object();
     auto type = obj.get_string( "type" );

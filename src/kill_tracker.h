@@ -41,7 +41,7 @@ class kill_tracker : public event_subscriber
         void notify( const cata::event & ) override;
 
         void serialize( JsonOut & ) const;
-        void deserialize( JsonIn & );
+        void deserialize( JsonIn  );
     private:
         std::map<mtype_id, int> kills;         // Player's kill count
         std::vector<std::string> npc_kills;    // names of NPCs the player killed

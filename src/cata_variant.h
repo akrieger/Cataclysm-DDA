@@ -436,7 +436,7 @@ class cata_variant
         }
 
         void serialize( JsonOut & ) const;
-        void deserialize( JsonIn & );
+        void deserialize( JsonIn  );
 
 #define CATA_VARIANT_OPERATOR(op) \
     friend bool operator op( const cata_variant &l, const cata_variant &r ) { \

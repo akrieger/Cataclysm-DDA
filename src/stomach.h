@@ -150,7 +150,7 @@ class stomach_contents
         void ate();
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &json );
+        void deserialize( JsonIn json );
 
     private:
 

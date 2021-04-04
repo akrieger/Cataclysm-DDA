@@ -93,7 +93,7 @@ struct damage_instance {
     void add( const damage_unit &added_du );
     /*@}*/
 
-    void deserialize( JsonIn & );
+    void deserialize( JsonIn  );
 };
 
 class damage_over_time_data
@@ -109,7 +109,7 @@ class damage_over_time_data
         void load( const JsonObject &obj );
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 struct dealt_damage_instance {

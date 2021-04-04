@@ -160,7 +160,7 @@ struct mongroup {
     void io( Archive & );
     using archive_type_tag = io::object_archive_tag;
 
-    void deserialize( JsonIn &data );
+    void deserialize( JsonIn data );
     void deserialize_legacy( JsonIn &json );
     void serialize( JsonOut &json ) const;
 };

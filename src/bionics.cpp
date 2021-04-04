@@ -2971,7 +2971,7 @@ void bionic::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void bionic::deserialize( JsonIn &jsin )
+void bionic::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     id = bionic_id( jo.get_string( "id" ) );

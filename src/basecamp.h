@@ -339,7 +339,7 @@ class basecamp
         std::vector<npc_ptr> get_npcs_assigned();
         // Save/load
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
         void load_data( const std::string &data );
 
         static constexpr int inv_range = 20;

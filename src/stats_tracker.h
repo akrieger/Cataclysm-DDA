@@ -52,7 +52,7 @@ struct event_summary {
     void add( const event_summary & );
 
     void serialize( JsonOut & ) const;
-    void deserialize( JsonIn & );
+    void deserialize( JsonIn  );
 };
 
 class event_multiset
@@ -99,7 +99,7 @@ class event_multiset
         void add( const summaries_type::value_type & );
 
         void serialize( JsonOut & ) const;
-        void deserialize( JsonIn & );
+        void deserialize( JsonIn  );
     private:
         event_type type_;
         summaries_type summaries_;
@@ -216,7 +216,7 @@ class stats_tracker : public event_subscriber
         void notify( const cata::event & ) override;
 
         void serialize( JsonOut & ) const;
-        void deserialize( JsonIn & );
+        void deserialize( JsonIn  );
     private:
         void unwatch_all();
 

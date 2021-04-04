@@ -377,7 +377,7 @@ class nc_color
         bool is_blink() const;
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 
         friend bool operator==( const nc_color &l, const nc_color &r ) {
             return l.attribute_value == r.attribute_value;
@@ -461,7 +461,7 @@ class color_manager
         void show_gui();
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 color_manager &get_all_colors();

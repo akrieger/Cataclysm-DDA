@@ -74,7 +74,7 @@ class avatar : public player
         void store( JsonOut &json ) const;
         void load( const JsonObject &data );
         void serialize( JsonOut &json ) const override;
-        void deserialize( JsonIn &jsin ) override;
+        void deserialize( JsonIn jsin ) override;
         void serialize_map_memory( JsonOut &jsout ) const;
         void deserialize_map_memory( JsonIn &jsin );
 
@@ -274,7 +274,7 @@ class avatar : public player
 
                 json.end_object();
             }
-            void deserialize( JsonIn &jsin ) {
+            void deserialize( JsonIn jsin ) {
                 JsonObject data = jsin.get_object();
 
                 data.read( "spent", spent );

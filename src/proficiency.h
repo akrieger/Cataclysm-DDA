@@ -96,7 +96,7 @@ class proficiency_set
         std::vector<proficiency_id> learning_profs() const;
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
         void deserialize_legacy( const JsonArray &jo );
 };
 
@@ -111,7 +111,7 @@ struct learning_proficiency {
         practiced( practiced ) {}
 
     void serialize( JsonOut &jsout ) const;
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 struct display_proficiency {
@@ -139,7 +139,7 @@ struct book_proficiency_bonus {
         bool include_prereqs = default_include_prereqs;
 
         bool was_loaded = false;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 
         book_proficiency_bonus &operator+=( const book_proficiency_bonus &rhs );
 

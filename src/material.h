@@ -40,7 +40,7 @@ struct fuel_explosion_data {
 
     bool was_loaded = false;
     void load( const JsonObject &jsobj );
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 struct fuel_data {
@@ -53,7 +53,7 @@ struct fuel_data {
 
         bool was_loaded = false;
         void load( const JsonObject &jsobj );
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 class material_type

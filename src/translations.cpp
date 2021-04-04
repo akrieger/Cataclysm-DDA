@@ -522,7 +522,7 @@ void translation::make_plural()
     cached_translation = nullptr;
 }
 
-void translation::deserialize( JsonIn &jsin )
+void translation::deserialize( JsonIn jsin )
 {
     // reset the cache
     cached_language_version = INVALID_LANGUAGE_VERSION;

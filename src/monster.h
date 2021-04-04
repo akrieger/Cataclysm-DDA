@@ -173,7 +173,7 @@ class monster : public Creature
         bool avoid_trap( const tripoint &pos, const trap &tr ) const override;
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 
         tripoint move_target(); // Returns point at the end of the monster's current plans
         Creature *attack_target(); // Returns the creature at the end of plans (if hostile)

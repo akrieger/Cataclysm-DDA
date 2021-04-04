@@ -192,6 +192,6 @@ class recipe_subset
 };
 
 void serialize( const recipe_subset &value, JsonOut &jsout );
-void deserialize( recipe_subset &value, JsonIn &jsin );
+void deserialize( recipe_subset &value, JsonIn jsin );
 
 #endif // CATA_SRC_RECIPE_DICTIONARY_H

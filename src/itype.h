@@ -209,7 +209,7 @@ struct islot_brewable {
     bool was_loaded = false;
 
     void load( const JsonObject &jo );
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 struct armor_portion_data {
@@ -278,7 +278,7 @@ struct islot_armor {
     bool was_loaded = false;
 
     void load( const JsonObject &jo );
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 struct islot_pet_armor {
@@ -314,7 +314,7 @@ struct islot_pet_armor {
     bool was_loaded = false;
 
     void load( const JsonObject &jo );
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 struct islot_book {
@@ -386,7 +386,7 @@ struct islot_book {
     bool was_loaded = false;
 
     void load( const JsonObject &jo );
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 struct islot_mod {
@@ -443,7 +443,7 @@ struct islot_engine {
         bool was_loaded = false;
 
         void load( const JsonObject &jo );
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 struct islot_wheel {
@@ -457,7 +457,7 @@ struct islot_wheel {
         bool was_loaded = false;
 
         void load( const JsonObject &jo );
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 // TODO: this shares a lot with the ammo item type, merge into a separate slot type?
@@ -674,7 +674,7 @@ struct islot_battery {
     bool was_loaded = false;
 
     void load( const JsonObject &jo );
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 struct islot_ammo : common_ranged_data {
@@ -743,7 +743,7 @@ struct islot_ammo : common_ranged_data {
     bool was_loaded = false;
 
     void load( const JsonObject &jo );
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 struct islot_bionic {
@@ -771,7 +771,7 @@ struct islot_seed {
     bool was_loaded = false;
 
     void load( const JsonObject &jo );
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 
     /**
      * Time it takes for a seed to grow (based of off a season length of 91 days).
@@ -832,7 +832,7 @@ class islot_milling
         bool was_loaded = false;
 
         void load( const JsonObject &jo );
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 struct itype {

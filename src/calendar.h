@@ -188,7 +188,7 @@ class time_duration
         time_duration() : turns_( 0 ) {}
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 
         /**
          * Named constructors to get a duration representing a multiple of the named time
@@ -453,7 +453,7 @@ class time_point
         }
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 
         // TODO: try to get rid of this
         template<typename T>

@@ -44,7 +44,7 @@ class item_location
         item_location( const item_location &container, item *which );
 
         void serialize( JsonOut &js ) const;
-        void deserialize( JsonIn &js );
+        void deserialize( JsonIn js );
 
         bool operator==( const item_location &rhs ) const;
         bool operator!=( const item_location &rhs ) const;

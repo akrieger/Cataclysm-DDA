@@ -1526,7 +1526,7 @@ class TextJsonSerializer
  *
  *     class point : public TextJsonDeserializer {
  *         int x, y;
- *         void deserialize(TextJsonIn &jsin) {
+ *         void deserialize(TextJsonIn jsin) {
  *             TextJsonArray ja = jsin.get_array();
  *             x = ja.get_int(0);
  *             y = ja.get_int(1);
@@ -1537,7 +1537,7 @@ class TextJsonDeserializer
 {
     public:
         virtual ~TextJsonDeserializer() = default;
-        virtual void deserialize( TextJsonIn &jsin ) = 0;
+        virtual void deserialize( TextJsonIn jsin ) = 0;
         TextJsonDeserializer() = default;
         TextJsonDeserializer( TextJsonDeserializer && ) = default;
         TextJsonDeserializer( const TextJsonDeserializer & ) = default;
@@ -1558,7 +1558,7 @@ void serialize( const cata::optional<T> &obj, TextJsonOut &jsout )
 }
 
 template<typename T>
-void deserialize( cata::optional<T> &obj, TextJsonIn &jsin )
+void deserialize( cata::optional<T> &obj, TextJsonIn jsin )
 {
     if( jsin.test_null() ) {
         obj.reset();

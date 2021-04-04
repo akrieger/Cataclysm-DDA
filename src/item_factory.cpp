@@ -1606,7 +1606,7 @@ void load_optional_enum_array( std::vector<E> &vec, const JsonObject &jo,
         jo.throw_error( "expected array", member );
     }
 
-    JsonIn &stream = *jo.get_raw( member );
+    JsonIn &stream = jo.get_member( member );
     stream.start_array();
     while( !stream.end_array() ) {
         vec.push_back( stream.get_enum_value<E>() );
@@ -1654,7 +1654,7 @@ void islot_milling::load( const JsonObject &jo )
     optional( jo, was_loaded, "conversion_rate", conversion_rate_ );
 }
 
-void islot_milling::deserialize( JsonIn &jsin )
+void islot_milling::deserialize( JsonIn jsin )
 {
     const JsonObject jo = jsin.get_object();
     load( jo );
@@ -1681,7 +1681,7 @@ void islot_ammo::load( const JsonObject &jo )
     optional( jo, was_loaded, "show_stats", force_stat_display, false );
 }
 
-void islot_ammo::deserialize( JsonIn &jsin )
+void islot_ammo::deserialize( JsonIn jsin )
 {
     const JsonObject jo = jsin.get_object();
     load( jo );
@@ -1712,7 +1712,7 @@ void islot_engine::load( const JsonObject &jo )
     optional( jo, was_loaded, "displacement", displacement );
 }
 
-void islot_engine::deserialize( JsonIn &jsin )
+void islot_engine::deserialize( JsonIn jsin )
 {
     const JsonObject jo = jsin.get_object();
     load( jo );
@@ -1743,7 +1743,7 @@ void islot_wheel::load( const JsonObject &jo )
     optional( jo, was_loaded, "width", width );
 }
 
-void islot_wheel::deserialize( JsonIn &jsin )
+void islot_wheel::deserialize( JsonIn jsin )
 {
     const JsonObject jo = jsin.get_object();
     load( jo );
@@ -2016,7 +2016,7 @@ void islot_armor::load( const JsonObject &jo )
     optional( jo, was_loaded, "valid_mods", valid_mods );
 }
 
-void islot_armor::deserialize( JsonIn &jsin )
+void islot_armor::deserialize( JsonIn jsin )
 {
     const JsonObject jo = jsin.get_object();
     load( jo );
@@ -2033,7 +2033,7 @@ void islot_pet_armor::load( const JsonObject &jo )
     optional( jo, was_loaded, "power_armor", power_armor, false );
 }
 
-void islot_pet_armor::deserialize( JsonIn &jsin )
+void islot_pet_armor::deserialize( JsonIn jsin )
 {
     const JsonObject jo = jsin.get_object();
     load( jo );
@@ -2160,7 +2160,7 @@ void islot_book::load( const JsonObject &jo )
     if( jo.has_int( "time" ) ) {
         time = jo.get_int( "time" );
     } else if( jo.has_string( "time" ) ) {
-        time = to_minutes<int>( read_from_json_string<time_duration>( *jo.get_raw( "time" ),
+        time = to_minutes<int>( read_from_json_string<time_duration>( jo.get_member( "time" ),
                                 time_duration::units ) );
     }
 
@@ -2170,7 +2170,7 @@ void islot_book::load( const JsonObject &jo )
     optional( jo, was_loaded, "proficiencies", proficiencies );
 }
 
-void islot_book::deserialize( JsonIn &jsin )
+void islot_book::deserialize( JsonIn jsin )
 {
     const JsonObject jo = jsin.get_object();
     load( jo );
@@ -2321,7 +2321,7 @@ void islot_brewable::load( const JsonObject &jo )
     mandatory( jo, was_loaded, "results", results );
 }
 
-void islot_brewable::deserialize( JsonIn &jsin )
+void islot_brewable::deserialize( JsonIn jsin )
 {
     const JsonObject jo = jsin.get_object();
     load( jo );
@@ -2347,7 +2347,7 @@ void islot_seed::load( const JsonObject &jo )
     optional( jo, was_loaded, "byproducts", byproducts );
 }
 
-void islot_seed::deserialize( JsonIn &jsin )
+void islot_seed::deserialize( JsonIn jsin )
 {
     const JsonObject jo = jsin.get_object();
     load( jo );
@@ -2379,7 +2379,7 @@ void Item_factory::load( islot_gunmod &slot, const JsonObject &jo, const std::st
         slot.install_time = jo.get_int( "install_time" );
     } else if( jo.has_string( "install_time" ) ) {
         slot.install_time = to_moves<int>( read_from_json_string<time_duration>
-                                           ( *jo.get_raw( "install_time" ),
+                                           ( jo.get_member( "install_time" ),
                                              time_duration::units ) );
     }
 
@@ -2437,7 +2437,7 @@ void islot_battery::load( const JsonObject &jo )
     mandatory( jo, was_loaded, "max_capacity", max_capacity );
 }
 
-void islot_battery::deserialize( JsonIn &jsin )
+void islot_battery::deserialize( JsonIn jsin )
 {
     const JsonObject jo = jsin.get_object();
     load( jo );
@@ -2811,11 +2811,11 @@ struct acc_data {
         return acc_offset + static_cast<int>( grip ) + static_cast<int>( length ) +
                static_cast<int>( surface ) + static_cast<int>( balance );
     }
-    void deserialize( JsonIn &ji );
+    void deserialize( JsonIn ji );
     void load( const JsonObject &jo );
 };
 
-void acc_data::deserialize( JsonIn &ji )
+void acc_data::deserialize( JsonIn ji )
 {
     load( ji.get_object() );
 }
@@ -3163,7 +3163,7 @@ bool migration::content::operator==( const content &rhs ) const
     return id == rhs.id && count == rhs.count;
 }
 
-void migration::content::deserialize( JsonIn &jsin )
+void migration::content::deserialize( JsonIn jsin )
 {
     const JsonObject jsobj = jsin.get_object();
     jsobj.get_member( "id" ).read( id );

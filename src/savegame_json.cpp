@@ -165,7 +165,7 @@ static void serialize( const weak_ptr_fast<monster> &obj, JsonOut &jsout )
     }
 }
 
-static void deserialize( weak_ptr_fast<monster> &obj, JsonIn &jsin )
+static void deserialize( weak_ptr_fast<monster> &obj, JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -201,7 +201,7 @@ void item_contents::serialize( JsonOut &json ) const
     }
 }
 
-void item_contents::deserialize( JsonIn &jsin )
+void item_contents::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -220,7 +220,7 @@ void item_pocket::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void item_pocket::deserialize( JsonIn &jsin )
+void item_pocket::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -248,7 +248,7 @@ void item_pocket::favorite_settings::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void item_pocket::favorite_settings::deserialize( JsonIn &jsin )
+void item_pocket::favorite_settings::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -259,14 +259,14 @@ void item_pocket::favorite_settings::deserialize( JsonIn &jsin )
     data.read( "category_blacklist", category_blacklist );
 }
 
-void pocket_data::deserialize( JsonIn &jsin )
+void pocket_data::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
     load( data );
 }
 
-void sealable_data::deserialize( JsonIn &jsin )
+void sealable_data::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -299,7 +299,7 @@ void player_activity::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void player_activity::deserialize( JsonIn &jsin )
+void player_activity::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -375,7 +375,7 @@ void requirement_data::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void requirement_data::deserialize( JsonIn &jsin )
+void requirement_data::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -401,7 +401,7 @@ void SkillLevel::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void SkillLevel::deserialize( JsonIn &jsin )
+void SkillLevel::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -426,7 +426,7 @@ void character_id::serialize( JsonOut &jsout ) const
     jsout.write( value );
 }
 
-void character_id::deserialize( JsonIn &jsin )
+void character_id::deserialize( JsonIn jsin )
 {
     value = jsin.get_int();
 }
@@ -445,7 +445,7 @@ void effect_source::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void effect_source::deserialize( JsonIn &jsin )
+void effect_source::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -469,7 +469,7 @@ void Character::trait_data::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void Character::trait_data::deserialize( JsonIn &jsin )
+void Character::trait_data::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -487,7 +487,7 @@ void consumption_event::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void consumption_event::deserialize( JsonIn &jsin )
+void consumption_event::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -513,7 +513,7 @@ void activity_tracker::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void activity_tracker::deserialize( JsonIn &jsin )
+void activity_tracker::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
 
@@ -1305,7 +1305,7 @@ void avatar::store( JsonOut &json ) const
     json.member( "preferred_aiming_mode", preferred_aiming_mode );
 }
 
-void avatar::deserialize( JsonIn &jsin )
+void avatar::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -1478,7 +1478,7 @@ void npc_follower_rules::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void npc_follower_rules::deserialize( JsonIn &jsin )
+void npc_follower_rules::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -1569,7 +1569,7 @@ void dialogue_chatbin::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void dialogue_chatbin::deserialize( JsonIn &jsin )
+void dialogue_chatbin::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -1599,7 +1599,7 @@ void dialogue_chatbin::deserialize( JsonIn &jsin )
     }
 }
 
-void npc_personality::deserialize( JsonIn &jsin )
+void npc_personality::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -1630,7 +1630,7 @@ void npc_personality::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void npc_opinion::deserialize( JsonIn &jsin )
+void npc_opinion::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -1652,7 +1652,7 @@ void npc_opinion::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void npc_favor::deserialize( JsonIn &jsin )
+void npc_favor::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -1684,7 +1684,7 @@ void job_data::serialize( JsonOut &json ) const
     json.member( "task_priorities", task_priorities );
     json.end_object();
 }
-void job_data::deserialize( JsonIn &jsin )
+void job_data::deserialize( JsonIn jsin )
 {
     if( jsin.test_object() ) {
         JsonObject jo = jsin.get_object();
@@ -1696,7 +1696,7 @@ void job_data::deserialize( JsonIn &jsin )
 /*
  * load npc
  */
-void npc::deserialize( JsonIn &jsin )
+void npc::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     load( data );
@@ -2075,7 +2075,7 @@ void inventory::json_load_items( JsonIn &jsin )
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// monster.h
 
-void monster::deserialize( JsonIn &jsin )
+void monster::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -2325,7 +2325,7 @@ void time_point::serialize( JsonOut &jsout ) const
     jsout.write( turn_ );
 }
 
-void time_point::deserialize( JsonIn &jsin )
+void time_point::deserialize( JsonIn jsin )
 {
     turn_ = jsin.get_int();
 }
@@ -2335,7 +2335,7 @@ void time_duration::serialize( JsonOut &jsout ) const
     jsout.write( turns_ );
 }
 
-void time_duration::deserialize( JsonIn &jsin )
+void time_duration::deserialize( JsonIn jsin )
 {
     if( jsin.test_string() ) {
         *this = read_from_json_string<time_duration>( jsin, time_duration::units );
@@ -2359,7 +2359,7 @@ void item::craft_data::serialize( JsonOut &jsout ) const
     jsout.end_object();
 }
 
-void item::craft_data::deserialize( JsonIn &jsin )
+void item::craft_data::deserialize( JsonIn jsin )
 {
     deserialize( jsin.get_object() );
 }
@@ -2610,7 +2610,7 @@ void item::migrate_content_item( const item &contained )
     }
 }
 
-void item::deserialize( JsonIn &jsin )
+void item::deserialize( JsonIn jsin )
 {
     const JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -2696,7 +2696,7 @@ void item::serialize( JsonOut &json ) const
 /*
  * vehicle_part
  */
-void vehicle_part::deserialize( JsonIn &jsin )
+void vehicle_part::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -2868,7 +2868,7 @@ void vehicle_part::serialize( JsonOut &json ) const
 /*
  * label
  */
-void label::deserialize( JsonIn &jsin )
+void label::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -2886,7 +2886,7 @@ void label::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void smart_controller_config::deserialize( JsonIn &jsin )
+void smart_controller_config::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -2905,7 +2905,7 @@ void smart_controller_config::serialize( JsonOut &json ) const
 /*
  * Load vehicle from a json blob that might just exceed player in size.
  */
-void vehicle::deserialize( JsonIn &jsin )
+void vehicle::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -3122,7 +3122,7 @@ void vehicle::serialize( JsonOut &json ) const
 
 ////////////////// mission.h
 ////
-void mission::deserialize( JsonIn &jsin )
+void mission::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -3236,7 +3236,7 @@ void mission::serialize( JsonOut &json ) const
 
 ////////////////// faction.h
 ////
-void faction::deserialize( JsonIn &jsin )
+void faction::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -3404,7 +3404,7 @@ void Creature::load( const JsonObject &jsin )
     on_stat_change( "pain", pain );
 }
 
-void player_morale::morale_point::deserialize( JsonIn &jsin )
+void player_morale::morale_point::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -3538,7 +3538,7 @@ void map_memory::load( const JsonObject &jsin )
     }
 }
 
-void point::deserialize( JsonIn &jsin )
+void point::deserialize( JsonIn jsin )
 {
     jsin.start_array();
     x = jsin.get_int();
@@ -3554,7 +3554,7 @@ void point::serialize( JsonOut &jsout ) const
     jsout.end_array();
 }
 
-void tripoint::deserialize( JsonIn &jsin )
+void tripoint::deserialize( JsonIn jsin )
 {
     jsin.start_array();
     x = jsin.get_int();
@@ -3581,7 +3581,7 @@ void addiction::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void addiction::deserialize( JsonIn &jsin )
+void addiction::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -3599,7 +3599,7 @@ void serialize( const recipe_subset &value, JsonOut &jsout )
     jsout.end_array();
 }
 
-void deserialize( recipe_subset &value, JsonIn &jsin )
+void deserialize( recipe_subset &value, JsonIn jsin )
 {
     value.clear();
     jsin.start_array();
@@ -3630,7 +3630,7 @@ static void serialize( const tool_comp &value, JsonOut &jsout )
     jsout.end_object();
 }
 
-static void deserialize( item_comp &value, JsonIn &jsin )
+static void deserialize( item_comp &value, JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -3639,7 +3639,7 @@ static void deserialize( item_comp &value, JsonIn &jsin )
     jo.read( "recoverable", value.recoverable );
 }
 
-static void deserialize( tool_comp &value, JsonIn &jsin )
+static void deserialize( tool_comp &value, JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -3659,7 +3659,7 @@ static void serialize( const quality_requirement &value, JsonOut &jsout )
     jsout.end_object();
 }
 
-static void deserialize( quality_requirement &value, JsonIn &jsin )
+static void deserialize( quality_requirement &value, JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -3718,7 +3718,7 @@ void basecamp::serialize( JsonOut &json ) const
     }
 }
 
-void basecamp::deserialize( JsonIn &jsin )
+void basecamp::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -3793,7 +3793,7 @@ void kill_tracker::serialize( JsonOut &jsout ) const
     jsout.end_object();
 }
 
-void kill_tracker::deserialize( JsonIn &jsin )
+void kill_tracker::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
@@ -3814,7 +3814,7 @@ void cata_variant::serialize( JsonOut &jsout ) const
     jsout.end_array();
 }
 
-void cata_variant::deserialize( JsonIn &jsin )
+void cata_variant::deserialize( JsonIn jsin )
 {
     if( jsin.test_int() ) {
         *this = cata_variant::make<cata_variant_type::int_>( jsin.get_int() );
@@ -3837,7 +3837,7 @@ void event_multiset::serialize( JsonOut &jsout ) const
     jsout.end_object();
 }
 
-void event_multiset::deserialize( JsonIn &jsin )
+void event_multiset::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -3868,7 +3868,7 @@ void stats_tracker::serialize( JsonOut &jsout ) const
     jsout.end_object();
 }
 
-void stats_tracker::deserialize( JsonIn &jsin )
+void stats_tracker::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();

@@ -23,7 +23,7 @@ bool string_id<item_category>::is_valid() const
     return item_category_factory.is_valid( *this );
 }
 
-void zone_priority_data::deserialize( JsonIn &jsin )
+void zone_priority_data::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     load( data );

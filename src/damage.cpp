@@ -179,7 +179,7 @@ bool damage_instance::operator==( const damage_instance &other ) const
     return damage_units == other.damage_units;
 }
 
-void damage_instance::deserialize( JsonIn &jsin )
+void damage_instance::deserialize( JsonIn jsin )
 {
     // TODO: Clean up
     if( jsin.test_object() ) {
@@ -485,7 +485,7 @@ void damage_over_time_data::serialize( JsonOut &jsout ) const
     jsout.end_object();
 }
 
-void damage_over_time_data::deserialize( JsonIn &jsin )
+void damage_over_time_data::deserialize( JsonIn jsin )
 {
     const JsonObject &jo = jsin.get_object();
     std::string tmp_string = jo.get_string( "damage_type" );

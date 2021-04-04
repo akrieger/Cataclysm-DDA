@@ -38,7 +38,7 @@ class teleporter_list
         void translocate( const std::set<tripoint> &targets );
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 #endif // CATA_SRC_MAGIC_TELEPORTER_LIST_H

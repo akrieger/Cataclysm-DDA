@@ -81,7 +81,7 @@ void comp_selection<CompType>::serialize( JsonOut &jsout ) const
 }
 
 template<typename CompType>
-void comp_selection<CompType>::deserialize( JsonIn &jsin )
+void comp_selection<CompType>::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
 
@@ -94,8 +94,8 @@ void comp_selection<CompType>::deserialize( JsonIn &jsin )
 
 template void comp_selection<tool_comp>::serialize( JsonOut &jsout ) const;
 template void comp_selection<item_comp>::serialize( JsonOut &jsout ) const;
-template void comp_selection<tool_comp>::deserialize( JsonIn &jsin );
-template void comp_selection<item_comp>::deserialize( JsonIn &jsin );
+template void comp_selection<tool_comp>::deserialize( JsonIn jsin );
+template void comp_selection<item_comp>::deserialize( JsonIn jsin );
 
 void craft_command::execute( const cata::optional<tripoint> &new_loc )
 {

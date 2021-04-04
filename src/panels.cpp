@@ -2581,7 +2581,7 @@ void panel_manager::serialize( JsonOut &json )
     json.end_array();
 }
 
-void panel_manager::deserialize( JsonIn &jsin )
+void panel_manager::deserialize( JsonIn jsin )
 {
     jsin.start_array();
     JsonObject joLayouts( jsin.get_object() );

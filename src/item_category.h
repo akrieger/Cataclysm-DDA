@@ -24,7 +24,7 @@ struct zone_priority_data {
     bool filthy = false;
     cata::flat_set<flag_id> flags;
 
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
     void load( JsonObject &jo );
 };
 /**

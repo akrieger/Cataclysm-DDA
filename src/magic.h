@@ -174,7 +174,7 @@ struct fake_spell {
 
     void load( const JsonObject &jo );
     void serialize( JsonOut &json ) const;
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 class spell_events : public event_subscriber
@@ -607,7 +607,7 @@ class known_magic
         void on_mutation_loss( const trait_id &mid );
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 
         // returns false if invlet is already used
         bool set_invlet( const spell_id &sp, int invlet, const std::set<int> &used_invlets );

@@ -32,7 +32,7 @@ void computer_option::serialize( JsonOut &jout ) const
     jout.end_object();
 }
 
-void computer_option::deserialize( JsonIn &jin )
+void computer_option::deserialize( JsonIn jin )
 {
     const JsonObject jo = jin.get_object();
     name = jo.get_string( "name" );
@@ -53,7 +53,7 @@ void computer_failure::serialize( JsonOut &jout ) const
     jout.end_object();
 }
 
-void computer_failure::deserialize( JsonIn &jin )
+void computer_failure::deserialize( JsonIn jin )
 {
     const JsonObject jo = jin.get_object();
     type = jo.get_enum_value<computer_failure_type>( "action" );
@@ -171,7 +171,7 @@ void computer::serialize( JsonOut &jout ) const
     jout.end_object();
 }
 
-void computer::deserialize( JsonIn &jin )
+void computer::deserialize( JsonIn jin )
 {
     if( jin.test_string() ) {
         load_legacy_data( jin.get_string() );

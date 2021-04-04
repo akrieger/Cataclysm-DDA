@@ -22,6 +22,14 @@ inline FlexJsonValue::operator std::string() const
     throw_error( "Expected a string, got a " + std::to_string( json_.GetType() ) );
 }
 
+inline FlexJsonValue::operator flexbuffers::String() const
+{
+    if (json_.IsString()) {
+        return json_.AsString();
+    }
+    throw_error("Expected a string, got a " + std::to_string(json_.GetType()));
+}
+
 inline FlexJsonValue::operator int() const
 {
     if( json_.IsNumeric() ) {

@@ -52,7 +52,7 @@ struct comp_selection {
     std::string nname() const;
 
     void serialize( JsonOut &jsout ) const;
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 /**

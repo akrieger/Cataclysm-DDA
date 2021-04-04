@@ -336,7 +336,7 @@ class zone_data
                    p.z >= start.z && p.z <= end.z;
         }
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 class zone_manager
@@ -437,7 +437,7 @@ class zone_manager
         void zone_edited( zone_data &zone );
         void revert_vzones();
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 #endif // CATA_SRC_CLZONES_H

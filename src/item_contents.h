@@ -274,7 +274,7 @@ class item_contents
         void combine( const item_contents &read_input, bool convert = false );
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
     private:
         // finds the pocket the item will fit in, given the pocket type.
         // this will be where the algorithm picks the best pocket in the contents

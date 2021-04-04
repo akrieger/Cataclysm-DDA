@@ -32,7 +32,7 @@ struct npc_favor {
     }
 
     void serialize( JsonOut &json ) const;
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 #endif // CATA_SRC_NPC_FAVOR_H

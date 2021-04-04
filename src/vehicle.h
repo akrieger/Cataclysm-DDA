@@ -123,7 +123,7 @@ struct smart_controller_config {
     int battery_lo = 25;
     int battery_hi = 90;
 
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
     void serialize( JsonOut &json ) const;
 };
 
@@ -481,7 +481,7 @@ struct vehicle_part {
         const vpart_info &info() const;
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 
         const item &get_base() const;
         void set_base( const item &new_base );
@@ -605,7 +605,7 @@ struct label : public point {
 
     std::string text;
 
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
     void serialize( JsonOut &json ) const;
 };
 
@@ -804,7 +804,7 @@ class vehicle
                     float percent_of_parts_to_affect = 1.0f, point damage_origin = point_zero, float damage_size = 0 );
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
         // Vehicle parts list - all the parts on a single tile
         int print_part_list( const catacurses::window &win, int y1, int max_y, int width, int p,
                              int hl = -1, bool detail = false ) const;

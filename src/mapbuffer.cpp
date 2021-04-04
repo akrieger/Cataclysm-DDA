@@ -275,7 +275,7 @@ submap *mapbuffer::unserialize_submaps( const tripoint &p )
     return submaps[ p ];
 }
 
-void mapbuffer::deserialize( JsonIn &jsin )
+void mapbuffer::deserialize( JsonIn jsin )
 {
     jsin.start_array();
     while( !jsin.end_array() ) {

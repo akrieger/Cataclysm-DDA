@@ -116,7 +116,7 @@ void relic_procgen_data::enchantment_value_passive<T>::load( const JsonObject &j
 }
 
 template<typename T>
-void relic_procgen_data::enchantment_value_passive<T>::deserialize( JsonIn &jsin )
+void relic_procgen_data::enchantment_value_passive<T>::deserialize( JsonIn jsin )
 {
     JsonObject jobj = jsin.get_object();
     load( jobj );
@@ -132,7 +132,7 @@ void relic_procgen_data::enchantment_active::load( const JsonObject &jo )
     optional( jo, was_loaded, "max_level", max_level, 0 );
 }
 
-void relic_procgen_data::enchantment_active::deserialize( JsonIn &jsin )
+void relic_procgen_data::enchantment_active::deserialize( JsonIn jsin )
 {
     JsonObject jobj = jsin.get_object();
     load( jobj );
@@ -202,19 +202,19 @@ void relic_procgen_data::generation_rules::load( const JsonObject &jo )
     optional( jo, was_loaded, "max_negative_power", max_negative_power, 0 );
 }
 
-void relic_procgen_data::generation_rules::deserialize( JsonIn &jsin )
+void relic_procgen_data::generation_rules::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     load( jo );
 }
 
-void relic_procgen_data::deserialize( JsonIn &jsin )
+void relic_procgen_data::deserialize( JsonIn jsin )
 {
     JsonObject jobj = jsin.get_object();
     load( jobj );
 }
 
-void relic_charge_template::deserialize( JsonIn &jsin )
+void relic_charge_template::deserialize( JsonIn jsin )
 {
     load( jsin.get_object() );
 }
@@ -254,7 +254,7 @@ relic_charge_info relic_charge_template::generate() const
     return ret;
 }
 
-void relic_charge_info::deserialize( JsonIn &jsin )
+void relic_charge_info::deserialize( JsonIn jsin )
 {
     load( jsin.get_object() );
 }
@@ -339,7 +339,7 @@ void relic::load( const JsonObject &jo )
     moves = jo.get_int( "moves", 100 );
 }
 
-void relic::deserialize( JsonIn &jsin )
+void relic::deserialize( JsonIn jsin )
 {
     JsonObject jobj = jsin.get_object();
     load( jobj );

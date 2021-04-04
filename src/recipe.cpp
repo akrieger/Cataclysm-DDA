@@ -164,7 +164,7 @@ void recipe::load( const JsonObject &jo, const std::string &src )
         // so we can specify moves that is not a multiple of 100
         time = jo.get_int( "time" );
     } else if( jo.has_string( "time" ) ) {
-        time = to_moves<int>( read_from_json_string<time_duration>( *jo.get_raw( "time" ),
+        time = to_moves<int>( read_from_json_string<time_duration>( jo.get_member( "time" ),
                               time_duration::units ) );
     }
     assign( jo, "difficulty", difficulty, strict, 0, MAX_SKILL );
@@ -1073,7 +1073,7 @@ void recipe::incorporate_build_reqs()
     reqs_internal.emplace_back( req_id, 1 );
 }
 
-void recipe_proficiency::deserialize( JsonIn &jsin )
+void recipe_proficiency::deserialize( JsonIn jsin )
 {
     load( jsin.get_object() );
 }
@@ -1088,7 +1088,7 @@ void recipe_proficiency::load( const JsonObject &jo )
     jo.read( "max_experience", max_experience );
 }
 
-void book_recipe_data::deserialize( JsonIn &jsin )
+void book_recipe_data::deserialize( JsonIn jsin )
 {
     load( jsin.get_object() );
 }

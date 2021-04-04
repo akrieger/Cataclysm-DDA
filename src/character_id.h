@@ -31,7 +31,7 @@ class character_id
         }
 
         void serialize( JsonOut & ) const;
-        void deserialize( JsonIn & );
+        void deserialize( JsonIn  );
 
     private:
         int value;

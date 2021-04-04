@@ -42,7 +42,7 @@ class effect_source
         Creature *resolve_creature() const;
 
         void serialize( JsonOut & ) const;
-        void deserialize( JsonIn & );
+        void deserialize( JsonIn  );
 
     private:
         cata::optional<character_id> character = character_id();

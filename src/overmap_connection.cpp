@@ -58,7 +58,7 @@ void overmap_connection::subtype::load( const JsonObject &jo )
     optional( jo, false, "flags", flags, flag_reader );
 }
 
-void overmap_connection::subtype::deserialize( JsonIn &jsin )
+void overmap_connection::subtype::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     load( jo );

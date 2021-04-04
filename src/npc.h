@@ -186,7 +186,7 @@ class job_data
             return ret;
         }
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 enum npc_mission : int {
@@ -247,7 +247,7 @@ struct npc_personality {
     }
 
     void serialize( JsonOut &json ) const;
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 struct npc_opinion {
@@ -283,7 +283,7 @@ struct npc_opinion {
     }
 
     void serialize( JsonOut &json ) const;
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 enum class combat_engagement : int {
@@ -514,7 +514,7 @@ struct npc_follower_rules {
     npc_follower_rules();
 
     void serialize( JsonOut &json ) const;
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 
     bool has_flag( ally_rule test, bool check_override = true ) const;
     void set_flag( ally_rule setit );
@@ -812,7 +812,7 @@ class npc : public player
         void starting_weapon( const npc_class_id &type );
 
         // Save & load
-        void deserialize( JsonIn &jsin ) override;
+        void deserialize( JsonIn jsin ) override;
         void serialize( JsonOut &json ) const override;
 
         // Display

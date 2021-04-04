@@ -92,7 +92,7 @@ struct computer_option {
     computer_option( const std::string &N, computer_action A, int S );
     // Save to/load from saves
     void serialize( JsonOut &jout ) const;
-    void deserialize( JsonIn &jin );
+    void deserialize( JsonIn jin );
     // Load from data files
     static computer_option from_json( const JsonObject &jo );
 };
@@ -105,7 +105,7 @@ struct computer_failure {
     }
     // Save to/load from saves
     void serialize( JsonOut &jout ) const;
-    void deserialize( JsonIn &jin );
+    void deserialize( JsonIn jin );
     // Load from data files
     static computer_failure from_json( const JsonObject &jo );
 };
@@ -126,7 +126,7 @@ class computer
         // Save/load
         void load_legacy_data( const std::string &data );
         void serialize( JsonOut &jout ) const;
-        void deserialize( JsonIn &jin );
+        void deserialize( JsonIn jin );
 
         friend class computer_session;
     private:

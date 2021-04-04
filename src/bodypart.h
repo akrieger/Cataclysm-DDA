@@ -105,7 +105,7 @@ struct stat_hp_mods {
 
     bool was_loaded = false;
     void load( const JsonObject &jsobj );
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 struct body_part_type {
@@ -302,7 +302,7 @@ class bodypart
         void mod_frostbite_timer( int mod );
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 class body_part_set

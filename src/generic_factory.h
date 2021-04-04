@@ -855,15 +855,13 @@ class generic_typed_reader
             if( !jo.has_member( member_name ) ) {
                 return;
             }
-            JsonIn &jin = *jo.get_raw( member_name );
             // Same as for inserting: either an array or a single value, same caveat applies.
-            if( jin.test_array() ) {
-                jin.start_array();
-                while( !jin.end_array() ) {
-                    derived.erase_next( jin, container );
+            if( jo.has_array(member_name) ) {
+                for (auto jv : jo.get_array(member_name)) {
+                    derived.erase_next( jv, container );
                 }
             } else {
-                derived.erase_next( jin, container );
+                derived.erase_next( jo.get_member(member_name), container );
             }
         }
         template<typename C>
@@ -920,7 +918,7 @@ class generic_typed_reader
             if( !jo.has_member( member_name ) ) {
                 return false;
             }
-            member = derived.get_next( *jo.get_raw( member_name ) );
+            member = derived.get_next( jo.get_member( member_name ) );
             return true;
         }
 };
@@ -956,7 +954,7 @@ class volume_reader : public generic_typed_reader<units::volume>
             if( !jo.has_member( member_name ) ) {
                 return false;
             }
-            member = read_from_json_string<units::volume>( *jo.get_raw( member_name ), units::volume_units );
+            member = read_from_json_string<units::volume>(jo.get_member(member_name), units::volume_units );
             return true;
         }
         units::volume get_next( JsonIn &jin ) const {
@@ -972,7 +970,7 @@ class mass_reader : public generic_typed_reader<units::mass>
             if( !jo.has_member( member_name ) ) {
                 return false;
             }
-            member = read_from_json_string<units::mass>( *jo.get_raw( member_name ), units::mass_units );
+            member = read_from_json_string<units::mass>( jo.get_member(member_name), units::mass_units );
             return true;
         }
         units::mass get_next( JsonIn &jin ) const {
@@ -1041,12 +1039,10 @@ class enum_flags_reader : public generic_typed_reader<enum_flags_reader<E>>
         }
 
         E get_next( JsonIn &jin ) const {
-            const int position = jin.tell();
             const std::string flag = jin.get_string();
             try {
                 return io::string_to_enum<E>( flag );
             } catch( const io::InvalidEnumString & ) {
-                jin.seek( position );
                 jin.error( string_format( "invalid %s: \"%s\"", flag_type, flag ) );
                 throw; // ^^ throws already
             }

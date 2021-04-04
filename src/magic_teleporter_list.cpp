@@ -143,7 +143,7 @@ void teleporter_list::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void teleporter_list::deserialize( JsonIn &jsin )
+void teleporter_list::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
 

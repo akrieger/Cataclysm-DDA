@@ -100,7 +100,7 @@ class achievement
                     last
                 };
 
-                void deserialize( JsonIn & );
+                void deserialize( JsonIn  );
                 void check( const achievement_id & ) const;
 
                 time_point target() const;
@@ -149,7 +149,7 @@ struct achievement_state {
     std::string ui_text( const achievement * ) const;
 
     void serialize( JsonOut & ) const;
-    void deserialize( JsonIn & );
+    void deserialize( JsonIn  );
 };
 
 class achievement_tracker
@@ -218,7 +218,7 @@ class achievements_tracker : public event_subscriber
         void notify( const cata::event & ) override;
 
         void serialize( JsonOut & ) const;
-        void deserialize( JsonIn & );
+        void deserialize( JsonIn  );
     private:
         void init_watchers();
 

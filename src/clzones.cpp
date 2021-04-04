@@ -1134,7 +1134,7 @@ void zone_manager::serialize( JsonOut &json ) const
     json.write( zones );
 }
 
-void zone_manager::deserialize( JsonIn &jsin )
+void zone_manager::deserialize( JsonIn jsin )
 {
     jsin.read( zones );
     for( auto it = zones.begin(); it != zones.end(); ++it ) {
@@ -1161,7 +1161,7 @@ void zone_data::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void zone_data::deserialize( JsonIn &jsin )
+void zone_data::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();

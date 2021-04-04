@@ -27,7 +27,7 @@ void mass::serialize( JsonOut &jsout ) const
 }
 
 template<>
-void length::deserialize( JsonIn &jsin )
+void length::deserialize( JsonIn jsin )
 {
     *this = read_from_json_string( jsin, units::length_units );
 }
@@ -45,7 +45,7 @@ void energy::serialize( JsonOut &jsout ) const
 }
 
 template<>
-void energy::deserialize( JsonIn &jsin )
+void energy::deserialize( JsonIn jsin )
 {
     *this = read_from_json_string( jsin, units::energy_units );
 }
@@ -57,7 +57,7 @@ void angle::serialize( JsonOut &jsout ) const
 }
 
 template<>
-void angle::deserialize( JsonIn &jsin )
+void angle::deserialize( JsonIn jsin )
 {
     *this = read_from_json_string( jsin, units::angle_units );
 }

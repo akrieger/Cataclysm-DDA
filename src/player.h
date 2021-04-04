@@ -108,7 +108,7 @@ class player : public Character
         }
 
         // populate variables, inventory items, and misc from json object
-        virtual void deserialize( JsonIn &jsin ) = 0;
+        virtual void deserialize( JsonIn jsin ) = 0;
 
         // by default save all contained info
         virtual void serialize( JsonOut &jsout ) const = 0;

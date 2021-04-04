@@ -816,7 +816,7 @@ void rule_list::serialize( JsonOut &jsout ) const
     jsout.end_array();
 }
 
-void rule::deserialize( JsonIn &jsin )
+void rule::deserialize( JsonIn jsin )
 {
     JsonObject jo = jsin.get_object();
     sRule = jo.get_string( "rule" );
@@ -824,7 +824,7 @@ void rule::deserialize( JsonIn &jsin )
     bExclude = jo.get_bool( "exclude" );
 }
 
-void rule_list::deserialize( JsonIn &jsin )
+void rule_list::deserialize( JsonIn jsin )
 {
     clear();
 
@@ -854,7 +854,7 @@ void npc_settings::serialize( JsonOut &jsout ) const
     rules.serialize( jsout );
 }
 
-void npc_settings::deserialize( JsonIn &jsin )
+void npc_settings::deserialize( JsonIn jsin )
 {
     rules.deserialize( jsin );
 }

@@ -93,13 +93,6 @@ class DynamicDataLoader
                   const std::function<void( const JsonObject &, const std::string &, const std::string &, const std::string & )>
                   &f );
 
-        t_type_new_function_map type_new_function_map;
-        void add( const std::string &type, const std::function<void( const FlexJsonObject & )> &f );
-        void add( const std::string &type,
-                  const std::function<void( const FlexJsonObject &, const std::string & )> &f );
-        void add( const std::string &type,
-                  const std::function<void( const FlexJsonObject &, const std::string &, const std::string &, const std::string & )>
-                  &f );
         /**
          * Load all the types from that json data.
          * @param jsin Might contain single object,

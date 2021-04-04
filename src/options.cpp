@@ -3058,7 +3058,7 @@ void options_manager::serialize( JsonOut &json ) const
     json.end_array();
 }
 
-void options_manager::deserialize( JsonIn &jsin )
+void options_manager::deserialize( JsonIn jsin )
 {
     jsin.start_array();
     while( !jsin.end_array() ) {

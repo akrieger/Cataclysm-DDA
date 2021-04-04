@@ -97,7 +97,7 @@ class player_morale
                     decay_start( std::max( decay_start, 0_turns ) ),
                     age( 0_turns ) {}
 
-                void deserialize( JsonIn &jsin );
+                void deserialize( JsonIn jsin );
                 void serialize( JsonOut &json ) const;
 
                 std::string get_name() const;

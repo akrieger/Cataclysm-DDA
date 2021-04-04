@@ -312,7 +312,7 @@ class effect
         const effect_source &get_source() const;
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 
     protected:
         const effect_type *eff_type;

@@ -88,7 +88,7 @@ class Creature_tracker
         }
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 
         const decltype( monster_faction_map_ ) &factions() const {
             return monster_faction_map_;

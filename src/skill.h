@@ -205,7 +205,7 @@ class SkillLevel
         }
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 class SkillLevelMap : public std::map<skill_id, SkillLevel>

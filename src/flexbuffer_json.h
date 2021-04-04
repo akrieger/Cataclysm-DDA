@@ -167,7 +167,7 @@ class FlexJsonValue : FlexJson
         static FlexJsonValue from( std::string source_file ) noexcept( false ) {
             std::shared_ptr<FlexBuffer> buffer = FlexBufferCache::global_cache().parse_and_cache( source_file );
             if( !buffer ) {
-                throw JsonError( "Didn't get a flexbuffer but didn't get an exception either." );
+                throw TextJsonError( "Didn't get a flexbuffer but didn't get an exception either." );
             }
             return FlexJsonValue( std::move( *buffer ), std::move( source_file ) );
         }
@@ -182,6 +182,8 @@ class FlexJsonValue : FlexJson
         inline operator const char*() const;
         // NOLINTNEXTLINE(google-explicit-constructor)
         inline operator std::string() const;
+        // NOLINTNEXTLINE(google-explicit-constructor)
+        inline operator flexbuffers::String() const;
         // NOLINTNEXTLINE(google-explicit-constructor)
         inline operator int() const;
         // NOLINTNEXTLINE(google-explicit-constructor)
@@ -202,30 +204,336 @@ class FlexJsonValue : FlexJson
             throw_error("Expected a string, got a " + std::to_string(json_.GetType()));
         }
 
+        bool is_null() const {
+            return json_.IsNull();
+        }
+
+        bool test_null() const {
+            return json_.IsNull();
+        }
+
+        bool is_array() const {
+            return json_.IsAnyVector() && !json_.IsMap();
+        }
+
+        bool is_string() const {
+            return json_.IsString();
+        }
+
         std::string get_string() const {
             return *this;
         }
 
         FlexJsonObject get_object() const;
 
-        // optionally-fatal reading into values by reference
-        // returns true if the data was read successfully, false otherwise
-        // if throw_on_error then throws JsonError rather than returning false.
-        bool read( bool &b, bool throw_on_error = false ) const;
-        bool read( char &c, bool throw_on_error = false ) const;
-        bool read( signed char &c, bool throw_on_error = false ) const;
-        bool read( unsigned char &c, bool throw_on_error = false ) const;
-        bool read( short unsigned int &s, bool throw_on_error = false ) const;
-        bool read( short int &s, bool throw_on_error = false ) const;
-        bool read( int &i, bool throw_on_error = false ) const;
-        bool read( int64_t &i, bool throw_on_error = false ) const;
-        bool read( uint64_t &i, bool throw_on_error = false ) const;
-        bool read( unsigned int &u, bool throw_on_error = false ) const;
-        bool read( float &f, bool throw_on_error = false ) const;
-        bool read( double &d, bool throw_on_error = false ) const;
-        bool read( std::string &s, bool throw_on_error = false ) const;
+        bool read(bool& b, bool throw_on_error = false);
+        bool read(char& c, bool throw_on_error = false);
+        bool read(signed char& c, bool throw_on_error = false);
+        bool read(unsigned char& c, bool throw_on_error = false);
+        bool read(short unsigned int& s, bool throw_on_error = false);
+        bool read(short int& s, bool throw_on_error = false);
+        bool read(int& i, bool throw_on_error = false);
+        bool read(int64_t& i, bool throw_on_error = false);
+        bool read(uint64_t& i, bool throw_on_error = false);
+        bool read(unsigned int& u, bool throw_on_error = false);
+        bool read(float& f, bool throw_on_error = false);
+        bool read(double& d, bool throw_on_error = false);
+        bool read(std::string& s, bool throw_on_error = false);
         template<size_t N>
-        bool read( std::bitset<N> &b, bool throw_on_error = false );
+        bool read(std::bitset<N>& b, bool throw_on_error = false);
+        bool read(TextJsonDeserializer& j, bool throw_on_error = false);
+        // This is for the string_id type
+        template <typename T>
+        auto read(T& thing, bool throw_on_error = false) -> decltype(thing.str(), true) {
+            std::string tmp;
+            if (!read(tmp, throw_on_error)) {
+                return false;
+            }
+            thing = T(tmp);
+            return true;
+        }
+
+        // This is for the int_id type
+        template <typename T>
+        auto read(int_id<T>& thing, bool throw_on_error = false) -> bool {
+            std::string tmp;
+            if (!read(tmp, throw_on_error)) {
+                return false;
+            }
+            thing = int_id<T>(tmp);
+            return true;
+        }
+
+        /// Overload that calls a global function `deserialize(T&,TextJsonIn&)`, if available.
+        template<typename T>
+        auto read(T& v, bool throw_on_error = false) ->
+            decltype(deserialize(v, *this), true) {
+            try {
+                deserialize(v, *this);
+                return true;
+            } catch (const TextJsonError&) {
+                if (throw_on_error) {
+                    throw;
+                }
+                return false;
+            }
+        }
+
+        /// Overload that calls a member function `T::deserialize(TextJsonIn&)`, if available.
+        template<typename T>
+        auto read(T& v, bool throw_on_error = false) -> decltype(v.deserialize(*this), true) {
+            try {
+                v.deserialize(*this);
+                return true;
+            } catch (const TextJsonError&) {
+                if (throw_on_error) {
+                    throw;
+                }
+                return false;
+            }
+        }
+
+        template<typename T, std::enable_if_t<std::is_enum<T>::value, int> = 0>
+        bool read(T& val, bool throw_on_error = false) {
+            int i;
+            if (read(i, false)) {
+                val = static_cast<T>(i);
+                return true;
+            }
+            std::string s;
+            if (read(s, throw_on_error)) {
+                val = io::string_to_enum<T>(s);
+                return true;
+            }
+            return false;
+        }
+
+        /// Overload for std::pair
+        template<typename T, typename U>
+        bool read(std::pair<T, U>& p, bool throw_on_error = false) {
+            if (!test_array()) {
+                return error_or_false(throw_on_error, "Expected json array encoding pair");
+            }
+            try {
+                JsonArray ja = *this;
+#error wtf
+                bool result =
+                    ja[0].read(p.first, throw_on_error) &&
+                    !end_array() &&
+                    read(p.second, throw_on_error) &&
+                    end_array();
+                if (!result && throw_on_error) {
+                    error("Array had wrong number of elements for pair");
+                }
+                return result;
+            } catch (const TextJsonError&) {
+                if (throw_on_error) {
+                    throw;
+                }
+                return false;
+            }
+        }
+
+        // array ~> vector, deque, list
+        template < typename T, typename std::enable_if <
+            !std::is_same<void, typename T::value_type>::value >::type* = nullptr
+        >
+            auto read(T& v, bool throw_on_error = false) -> decltype(v.front(), true) {
+            if (!test_array()) {
+                return error_or_false(throw_on_error, "Expected json array");
+            }
+            try {
+                start_array();
+                v.clear();
+                while (!end_array()) {
+                    typename T::value_type element;
+                    if (read(element, throw_on_error)) {
+                        v.push_back(std::move(element));
+                    } else {
+                        skip_value();
+                    }
+                }
+            } catch (const TextJsonError&) {
+                if (throw_on_error) {
+                    throw;
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        // array ~> array
+        template <typename T, size_t N>
+        bool read(std::array<T, N>& v, bool throw_on_error = false) {
+            if (!test_array()) {
+                return error_or_false(throw_on_error, "Expected json array");
+            }
+            try {
+                start_array();
+                for (size_t i = 0; i < N; ++i) {
+                    if (end_array()) {
+                        if (throw_on_error) {
+                            error("json array is too short");
+                        }
+                        return false; // json array is too small
+                    }
+                    if (!read(v[i], throw_on_error)) {
+                        return false; // invalid entry
+                    }
+                }
+                bool result = end_array();
+                if (!result && throw_on_error) {
+                    error("Array had too many elements");
+                }
+                return result;
+            } catch (const TextJsonError&) {
+                if (throw_on_error) {
+                    throw;
+                }
+                return false;
+            }
+        }
+
+        // object ~> containers with matching key_type and value_type
+        // set, unordered_set ~> object
+        template <typename T, typename std::enable_if<
+            std::is_same<typename T::key_type, typename T::value_type>::value>::type* = nullptr
+        >
+            bool read(T& v, bool throw_on_error = false) {
+            if (!test_array()) {
+                return error_or_false(throw_on_error, "Expected json array");
+            }
+            try {
+                start_array();
+                v.clear();
+                while (!end_array()) {
+                    typename T::value_type element;
+                    if (read(element, throw_on_error)) {
+                        v.insert(std::move(element));
+                    } else {
+                        skip_value();
+                    }
+                }
+            } catch (const TextJsonError&) {
+                if (throw_on_error) {
+                    throw;
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        // special case for colony<item> as it supports RLE
+        // see corresponding `write` for details
+        template <typename T, std::enable_if_t<std::is_same<T, item>::value>* = nullptr >
+        bool read(cata::colony<T>& v, bool throw_on_error = false) {
+            if (!test_array()) {
+                return error_or_false(throw_on_error, "Expected json array");
+            }
+            try {
+                v.clear();
+
+                while (!end_array()) {
+                    T element;
+                    const int prev_pos = tell();
+                    if (test_array()) {
+                        start_array();
+                        int run_l;
+                        if (read(element, throw_on_error) &&
+                            read(run_l, throw_on_error) &&
+                            end_array()
+                            ) { // all is good
+                              // first insert (run_l-1) elements
+                            for (int i = 0; i < run_l - 1; i++) {
+                                v.insert(element);
+                            }
+                            // micro-optimization, move last element
+                            v.insert(std::move(element));
+                        } else { // array is malformed, skipping it entirely
+                            error_or_false(throw_on_error, "Expected end of array");
+                            seek(prev_pos);
+                            skip_array();
+                        }
+                    } else {
+                        if (read(element, throw_on_error)) {
+                            v.insert(std::move(element));
+                        } else {
+                            skip_value();
+                        }
+                    }
+                }
+            } catch (const TextJsonError&) {
+                if (throw_on_error) {
+                    throw;
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        // special case for colony as it uses `insert()` instead of `push_back()`
+        // and therefore doesn't fit with vector/deque/list
+        // for colony of items there is another specialization with RLE
+        template < typename T, std::enable_if_t < !std::is_same<T, item>::value >* = nullptr >
+        bool read(cata::colony<T>& v, bool throw_on_error = false) {
+            if (!test_array()) {
+                return error_or_false(throw_on_error, "Expected json array");
+            }
+            try {
+                start_array();
+                v.clear();
+                while (!end_array()) {
+                    T element;
+                    if (read(element, throw_on_error)) {
+                        v.insert(std::move(element));
+                    } else {
+                        skip_value();
+                    }
+                }
+            } catch (const TextJsonError&) {
+                if (throw_on_error) {
+                    throw;
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        // object ~> containers with unmatching key_type and value_type
+        // map, unordered_map ~> object
+        template < typename T, typename std::enable_if <
+            !std::is_same<typename T::key_type, typename T::value_type>::value >::type* = nullptr
+        >
+            bool read(T& m, bool throw_on_error = true) {
+            if (!test_object()) {
+                return error_or_false(throw_on_error, "Expected json object");
+            }
+            try {
+                start_object();
+                m.clear();
+                while (!end_object()) {
+                    using key_type = typename T::key_type;
+                    key_type key = key_from_json_string<key_type>()(get_member_name());
+                    typename T::mapped_type element;
+                    if (read(element, throw_on_error)) {
+                        m[std::move(key)] = std::move(element);
+                    } else {
+                        skip_value();
+                    }
+                }
+            } catch (const TextJsonError&) {
+                if (throw_on_error) {
+                    throw;
+                }
+                return false;
+            }
+
+            return true;
+        }
 
         using FlexJson::throw_error;
 
@@ -455,6 +763,10 @@ class FlexJsonObject : FlexJson
             return cata::nullopt;
         }
 
+        FlexJsonValue get_member(std::string const& key) const {
+            return get_member(key.c_str());
+        }
+
         FlexJsonValue get_member( const char *key ) const {
             // Manually bsearch for the key idx to store in visited_fields_bitset_.
             // flexbuffers::Map::operator[] will probably be faster but won't give us the idx,
@@ -467,6 +779,30 @@ class FlexJsonObject : FlexJson
             }
             error_no_member( key );
             return ( *this )[key];
+        }
+
+        template <typename T = std::string, typename Res = std::set<T>>
+        Res get_tags(const std::string& name) const
+        {
+            Res res;
+            auto member_opt = get_member_opt(name.c_str());
+            if (member_opt.has_value()) {
+                return res;
+            }
+            FlexJsonMember& member = member_opt.value();
+
+            // allow single string as tag
+            if (member.is_string()) {
+                res.insert(T(member.get_string()));
+                return res;
+            }
+
+            // otherwise assume it's an array and error if it isn't.
+            for (flexbuffers::String line : (FlexJsonArray)member) {
+                res.insert(T(line.str()));
+            }
+
+            return res;
         }
 
         FlexJsonValue operator[]( const char *key ) const {
@@ -729,41 +1065,41 @@ class FlexJsonArray : FlexJson
             return size_;
         }
 
+        FlexJsonValue operator[](size_t idx) const {
+            // Manually bsearch for the key idx to store in visited_fields_bitset_.
+            // flexbuffers::Map::operator[] will probably be faster but won't give us the idx,
+            // which we need to track visited fields.
+
+            if (idx < size_) {
+                mark_visited(idx);
+                flexbuffers::Reference value;
+                if (json_.IsFixedTypedVector()) {
+                    value = json_.AsFixedTypedVector()[idx];
+                } else if (json_.IsTypedVector()) {
+                    value = json_.AsTypedVector()[idx];
+                } else {
+                    value = json_.AsVector()[idx];
+                }
+                return FlexJsonValue{ std::move(value), std::string(source_file_), path_ + idx };
+            }
+            throw_error(std::to_string(idx) + " index is out of bounds.");
+        }
+
     private:
         size_t size_;
 
-        void init( FlexBuffer const &json ) {
-            if( json.IsFixedTypedVector() ) {
+        void init(FlexBuffer const& json) {
+            if (json.IsFixedTypedVector()) {
                 auto json_vec = json.AsFixedTypedVector();
                 size_ = json_vec.size();
-            } else if( json.IsTypedVector() ) {
+            } else if (json.IsTypedVector()) {
                 auto json_vec = json.AsTypedVector();
                 size_ = json_vec.size();
             } else {
                 auto json_vec = json.AsVector();
                 size_ = json_vec.size();
             }
-            visited_fields_bitset_.resize( size_ );
-        }
-
-        FlexJsonValue operator[]( size_t idx ) const {
-            // Manually bsearch for the key idx to store in visited_fields_bitset_.
-            // flexbuffers::Map::operator[] will probably be faster but won't give us the idx,
-            // which we need to track visited fields.
-
-            if( idx < size_ ) {
-                mark_visited( idx );
-                flexbuffers::Reference value;
-                if( json_.IsFixedTypedVector() ) {
-                    value = json_.AsFixedTypedVector()[idx];
-                } else if( json_.IsTypedVector() ) {
-                    value = json_.AsTypedVector()[idx];
-                } else {
-                    value = json_.AsVector()[idx];
-                }
-                return FlexJsonValue{ std::move( value ), std::string( source_file_ ), path_ + idx };
-            }
-            throw_error( std::to_string( idx ) + " index is out of bounds." );
+            visited_fields_bitset_.resize(size_);
         }
 
         mutable TinyBitSet visited_fields_bitset_;

@@ -135,7 +135,7 @@ class quantity
         }
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 
     private:
         value_type value_;
@@ -899,7 +899,7 @@ static const std::vector<std::pair<std::string, angle>> angle_units = { {
 } // namespace units
 
 template<typename T>
-T read_from_json_string( JsonIn &jsin, const std::vector<std::pair<std::string, T>> &units )
+T read_from_json_string( JsonIn jsin, const std::vector<std::pair<std::string, T>> &units )
 {
     size_t i = 0;
     const auto error = [&]( const char *const msg ) {

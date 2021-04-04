@@ -1436,7 +1436,7 @@ void known_magic::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void known_magic::deserialize( JsonIn &jsin )
+void known_magic::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     data.read( "mana", mana );
@@ -2292,7 +2292,7 @@ void fake_spell::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void fake_spell::deserialize( JsonIn &jsin )
+void fake_spell::deserialize( JsonIn jsin )
 {
     JsonObject data = jsin.get_object();
     load( data );

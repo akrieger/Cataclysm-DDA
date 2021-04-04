@@ -50,7 +50,7 @@ class activity_tracker
         std::string debug_weary_info() const;
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
+        void deserialize( JsonIn jsin );
 };
 
 #endif // CATA_SRC_ACTIVITY_TRACKER_H

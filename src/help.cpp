@@ -40,7 +40,7 @@ void help::load()
     } );
 }
 
-void help::deserialize( JsonIn &jsin )
+void help::deserialize( JsonIn jsin )
 {
     jsin.start_array();
     while( !jsin.end_array() ) {

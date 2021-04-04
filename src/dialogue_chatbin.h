@@ -63,7 +63,7 @@ struct dialogue_chatbin {
 
     void clear_all();
     void serialize( JsonOut &json ) const;
-    void deserialize( JsonIn &jsin );
+    void deserialize( JsonIn jsin );
 };
 
 #endif // CATA_SRC_DIALOGUE_CHATBIN_H

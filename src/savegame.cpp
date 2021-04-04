@@ -1070,7 +1070,7 @@ void mongroup::io( Archive &archive )
     archive.io( "monsters", monsters, io::empty_default_tag() );
 }
 
-void mongroup::deserialize( JsonIn &data )
+void mongroup::deserialize( JsonIn data )
 {
     JsonObject jo = data.get_object();
     jo.allow_omitted_members();
@@ -1229,7 +1229,7 @@ void faction_manager::serialize( JsonOut &jsout ) const
     jsout.write( local_facs );
 }
 
-void faction_manager::deserialize( JsonIn &jsin )
+void faction_manager::deserialize( JsonIn jsin )
 {
     if( jsin.test_object() ) {
         // whoops - this recovers factions saved under the wrong format.
@@ -1265,7 +1265,7 @@ void faction_manager::deserialize( JsonIn &jsin )
     }
 }
 
-void Creature_tracker::deserialize( JsonIn &jsin )
+void Creature_tracker::deserialize( JsonIn jsin )
 {
     monsters_list.clear();
     monsters_by_location.clear();
