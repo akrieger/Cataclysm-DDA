@@ -17,7 +17,7 @@
 enum class special_game_type;
 
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class FlexJsonObject;
 using JsonObject = FlexJsonObject;
 

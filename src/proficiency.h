@@ -16,7 +16,7 @@
 class FlexJsonArray;
 using JsonArray = FlexJsonArray;
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class FlexJsonObject;
 using JsonObject = FlexJsonObject;
 class TextJsonOut;

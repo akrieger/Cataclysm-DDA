@@ -14,7 +14,7 @@
 
 class Character;
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class TextJsonOut;
 using JsonOut = TextJsonOut;
 class item;

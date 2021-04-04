@@ -17,7 +17,7 @@
 #include "type_id.h"
 
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class material_type;
 
 enum class damage_type : int;

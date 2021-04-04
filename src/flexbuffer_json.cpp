@@ -5,7 +5,7 @@
 #include "json.h"
 
 // Advances the given jsin according to the passed JsonPath
-static void advance_jsin( JsonIn *jsin, JsonPath const &path )
+static void advance_jsin( TextJsonIn *jsin, JsonPath const &path )
 {
     for( JsonPath::Element const &path_elem : path ) {
         if( path_elem.is_string() ) {
@@ -24,7 +24,7 @@ static void advance_jsin( JsonIn *jsin, JsonPath const &path )
 void FlexJson::throw_error( std::string const &message ) const
 {
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
-    JsonIn jsin( original_json );
+    TextJsonIn jsin( original_json );
 
     advance_jsin( &jsin, path_ );
 
@@ -41,7 +41,7 @@ std::string FlexJson::str() const
 void FlexJsonObject::error_no_member( std::string const &member ) const
 {
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
-    JsonIn jsin( original_json );
+    TextJsonIn jsin( original_json );
 
     advance_jsin( &jsin, path_ );
 
@@ -55,7 +55,7 @@ void FlexJsonObject::error_no_member( std::string const &member ) const
 void FlexJsonObject::error_skipped_members( std::vector<size_t> const &skipped_members ) const
 {
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
-    JsonIn jsin( original_json );
+    TextJsonIn jsin( original_json );
 
     advance_jsin( &jsin, path_ );
 
@@ -80,7 +80,7 @@ json_source_location FlexJsonObject::get_source_location() const
     }
 
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
-    JsonIn jsin( original_json );
+    TextJsonIn jsin( original_json );
 
     advance_jsin( &jsin, path_ );
 

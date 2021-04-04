@@ -10,7 +10,7 @@
 #include "point.h"
 
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class submap;
 
 /**

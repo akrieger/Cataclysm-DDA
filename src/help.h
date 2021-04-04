@@ -8,7 +8,7 @@
 #include <vector>
 
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class translation;
 namespace catacurses
 {

@@ -31,7 +31,7 @@ std::string fac_wealth_text( int val, int size );
 std::string fac_combat_ability_text( int val );
 
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class FlexJsonObject;
 using JsonObject = FlexJsonObject;
 class TextJsonOut;

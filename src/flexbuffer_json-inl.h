@@ -2,6 +2,18 @@
 #ifndef CATA_SRC_FLEXBUFFER_JSON_INL_H
 #define CATA_SRC_FLEXBUFFER_JSON_INL_H
 
+inline FlexJsonObject FlexJsonValue::get_object() const {
+    return *this;
+}
+
+inline FlexJsonValue::operator const char*() const
+{
+    if (json_.IsString()) {
+        return json_.AsString().c_str();
+    }
+    throw_error("Expected a string, got a " + std::to_string(json_.GetType()));
+}
+
 inline FlexJsonValue::operator std::string() const
 {
     if( json_.IsString() ) {

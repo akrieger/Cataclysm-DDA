@@ -832,16 +832,15 @@ class generic_typed_reader
             if( !jo.has_member( member_name ) ) {
                 return;
             }
-            JsonIn &jin = *jo.get_raw( member_name );
             // We allow either a single value or an array of values. Note that this will not work
             // correctly if the thing we load from JSON is itself an array.
-            if( jin.test_array() ) {
-                jin.start_array();
-                while( !jin.end_array() ) {
-                    derived.insert_next( jin, container );
+            if( jo.has_array(member_name)) {
+                JsonArray ja = jo.get_array(member_name);
+                for ( auto v : ja) {
+                    derived.insert_next( v, container );
                 }
             } else {
-                derived.insert_next( jin, container );
+                derived.insert_next( jo.get_member(member_name), container );
             }
         }
         template<typename C>
@@ -1015,7 +1014,6 @@ class typed_flag_reader : public generic_typed_reader<typed_flag_reader<T>>
             const auto iter = flag_map.find( flag );
 
             if( iter == flag_map.cend() ) {
-                jin.seek( jin.tell() );
                 jin.error( string_format( "invalid %s: \"%s\"", flag_type, flag ) );
             }
 

@@ -8,7 +8,7 @@
 #include "point.h" // IWYU pragma: keep
 
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class FlexJsonObject;
 using JsonObject = FlexJsonObject;
 class TextJsonOut;

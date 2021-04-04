@@ -11,7 +11,7 @@ using JsonOut = TextJsonOut;
 
 #include "flexbuffer_json.h"
 
-using JsonIn = FlexJsonObject;
+using JsonIn = FlexJsonValue;
 using JsonObject = FlexJsonObject;
 using JsonArray = FlexJsonArray;
 using JsonValue = FlexJsonValue;

@@ -13,7 +13,7 @@
 #include "type_id.h"
 
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class score;
 
 class past_game_info

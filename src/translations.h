@@ -204,7 +204,7 @@ void select_language();
 void set_language();
 
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 
 /**
  * Class for storing translation context and raw string for deferred translation

@@ -10,7 +10,7 @@
 #include "type_id.h"
 
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class TextJsonOut;
 using JsonOut = TextJsonOut;
 

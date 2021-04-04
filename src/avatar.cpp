@@ -1735,7 +1735,9 @@ void avatar::daily_calories::read_activity( JsonObject &data )
 {
     if( data.has_array( "activity" ) ) {
         for( JsonArray ja : data.get_array( "activity" ) ) {
-            activity_levels[ ja.next_float() ] = ja.next_int();
+            double d = ja[0];
+            int i = ja[1];
+            activity_levels[d] = i;
         }
         return;
     }

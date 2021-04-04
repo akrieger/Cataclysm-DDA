@@ -15,7 +15,7 @@
 
 class FlexJsonObject;
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class FlexJsonObject;
 using JsonObject = FlexJsonObject;
 class loading_ui;

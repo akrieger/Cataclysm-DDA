@@ -67,27 +67,22 @@ void auto_note_settings::load()
     clear();
 
     const auto parseJson = [&]( JsonIn & jin ) {
-        jin.start_object();
+        JsonObject jo = jin;
 
-        while( !jin.end_object() ) {
-            const std::string name = jin.get_member_name();
+        for (auto member: jo) {
+            const std::string name = member.name();
 
             if( name == "enabled" ) {
-                jin.start_array();
-                while( !jin.end_array() ) {
-                    const std::string entry = jin.get_string();
+                for (auto v : (JsonArray)member) {
+                    const std::string entry = v;
                     autoNoteEnabled.insert( string_id<map_extra> {entry} );
                 }
             } else if( name == "discovered" ) {
-                jin.start_array();
-                while( !jin.end_array() ) {
+                for (auto v : (JsonArray)member) {
                     const std::string entry = jin.get_string();
                     discovered.insert( string_id<map_extra> {entry} );
                 }
-            } else {
-                jin.skip_value();
             }
-
         }
     };
 

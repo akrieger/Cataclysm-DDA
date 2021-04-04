@@ -828,10 +828,10 @@ void rule_list::deserialize( JsonIn &jsin )
 {
     clear();
 
-    jsin.start_array();
-    while( !jsin.end_array() ) {
+    JsonArray ja = jsin;
+    for (auto jv : ja) {
         rule tmp;
-        tmp.deserialize( jsin );
+        tmp.deserialize( jv );
         push_back( tmp );
     }
 }

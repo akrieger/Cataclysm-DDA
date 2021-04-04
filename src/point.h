@@ -29,7 +29,7 @@ class ostream;
 #endif // CATA_NO_STL
 
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class TextJsonOut;
 using JsonOut = TextJsonOut;
 

@@ -901,10 +901,8 @@ static const std::vector<std::pair<std::string, angle>> angle_units = { {
 template<typename T>
 T read_from_json_string( JsonIn &jsin, const std::vector<std::pair<std::string, T>> &units )
 {
-    const size_t pos = jsin.tell();
     size_t i = 0;
     const auto error = [&]( const char *const msg ) {
-        jsin.seek( pos + i );
         jsin.error( msg );
     };
 

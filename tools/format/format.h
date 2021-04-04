@@ -2,7 +2,7 @@
 #define CATA_TOOLS_FORMAT_H
 
 class TextJsonIn;
-using JsonIn = TextJsonIn;
+class FlexJsonValue; using JsonIn = FlexJsonValue;
 class TextJsonOut;
 using JsonOut = TextJsonOut;
 

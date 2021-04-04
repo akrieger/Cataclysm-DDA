@@ -177,6 +177,9 @@ class FlexJsonValue : FlexJson
         FlexJsonValue( FlexBuffer &&json, std::string &&source_file,
                        JsonPath &&path ) : FlexJson( std::move( json ), std::move( source_file ), std::move( path ) ) {}
 
+
+        // NOLINTNEXTLINE(google-explicit-constructor)
+        inline operator const char*() const;
         // NOLINTNEXTLINE(google-explicit-constructor)
         inline operator std::string() const;
         // NOLINTNEXTLINE(google-explicit-constructor)
@@ -192,9 +195,18 @@ class FlexJsonValue : FlexJson
         // NOLINTNEXTLINE(google-explicit-constructor)
         inline operator FlexJsonArray() const;
 
+        flexbuffers::String get_flex_string() const {
+            if (json_.IsString()) {
+                return json_.AsString();
+            }
+            throw_error("Expected a string, got a " + std::to_string(json_.GetType()));
+        }
+
         std::string get_string() const {
             return *this;
         }
+
+        FlexJsonObject get_object() const;
 
         // optionally-fatal reading into values by reference
         // returns true if the data was read successfully, false otherwise
@@ -216,6 +228,14 @@ class FlexJsonValue : FlexJson
         bool read( std::bitset<N> &b, bool throw_on_error = false );
 
         using FlexJson::throw_error;
+
+        void seek(std::make_signed_t<size_t>) {
+            // lol
+        }
+
+        [[noreturn]] void error(const std::string& message, std::make_signed_t<size_t> offset = 0) {
+            throw_error(message);
+        }
 };
 
 class FlexJsonMember : public FlexJsonValue
