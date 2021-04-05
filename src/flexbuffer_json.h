@@ -239,6 +239,7 @@ class FlexJsonValue : FlexJson
             throw_error("Expected a string, got a " + std::to_string(json_.GetType()));
         }
 
+        FlexJsonArray get_array() const;
         FlexJsonObject get_object() const;
 
         template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
@@ -336,15 +337,15 @@ class FlexJsonValue : FlexJson
         template<typename T, typename U>
         bool read(std::pair<T, U>& p, bool throw_on_error = false) const;
 
+        // array ~> array
+        template <typename T, size_t N>
+        bool read(std::array<T, N>& v, bool throw_on_error = false) const;
+
         // array ~> vector, deque, list
         template < typename T, typename std::enable_if <
             !std::is_same<void, typename T::value_type>::value >::type* = nullptr
         >
         auto read(T& v, bool throw_on_error = false) -> decltype(v.front(), true) const;
-
-        // array ~> array
-        template <typename T, size_t N>
-        bool read(std::array<T, N>& v, bool throw_on_error = false) const;
 
         // object ~> containers with matching key_type and value_type
         // set, unordered_set ~> object
@@ -587,6 +588,19 @@ class FlexJsonObject : FlexJson
             }
             return fallback;
         }
+
+        double get_float(const std::string& key, double fallback) const {
+            return get_float(key.c_str(), fallback);
+        }
+        double get_float(const char* key, double fallback) const {
+            auto member_opt = get_member_opt(key);
+            if (member_opt.has_value()) {
+                return *member_opt;
+            }
+            return fallback;
+        }
+
+        std::vector<std::string> get_string_array(const std::string& name) const;
 
         // Tries to get the member, and if found, calls it visited.
         cata::optional<FlexJsonValue> get_member_opt( const char *key ) const {
@@ -850,7 +864,7 @@ class FlexJsonArray : FlexJson
                         v.emplace_back( std::move( element ) );
                     }
                 }
-            } catch( const JsonError & ) {
+            } catch( const TextJsonError & ) {
                 if( throw_on_error ) {
                     throw;
                 }
@@ -969,6 +983,17 @@ void deserialize(cata::optional<T>& obj, FlexJsonValue jv)
     }
 }
 
+class FlexJsonDeserializer
+{
+public:
+    virtual ~FlexJsonDeserializer() = default;
+    virtual void deserialize(FlexJsonValue jsin) = 0;
+    FlexJsonDeserializer() = default;
+    FlexJsonDeserializer(FlexJsonDeserializer&&) = default;
+    FlexJsonDeserializer(const FlexJsonDeserializer&) = default;
+    FlexJsonDeserializer& operator=(FlexJsonDeserializer&&) = default;
+    FlexJsonDeserializer& operator=(const FlexJsonDeserializer&) = default;
+};
 
 #include "flexbuffer_json-inl.h"
 

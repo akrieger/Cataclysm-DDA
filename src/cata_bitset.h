@@ -70,6 +70,7 @@ class TinyBitSet
                 resize( rhs.capacity() );
                 memcpy( bits(), rhs.bits(), rhs.size() / kBitsPerBlock );
             }
+            return *this;
         }
 
         inline TinyBitSet( TinyBitSet &&rhs ) noexcept {

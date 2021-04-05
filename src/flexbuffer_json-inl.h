@@ -2,8 +2,20 @@
 #ifndef CATA_SRC_FLEXBUFFER_JSON_INL_H
 #define CATA_SRC_FLEXBUFFER_JSON_INL_H
 
+inline FlexJsonArray FlexJsonValue::get_array() const {
+    return *this;
+}
+
 inline FlexJsonObject FlexJsonValue::get_object() const {
     return *this;
+}
+
+inline std::vector<std::string> FlexJsonObject::get_string_array(const std::string& name) const {
+    std::vector<std::string> ret;
+    for (FlexJsonValue entry : get_array(name)) {
+        ret.push_back(entry.get_string());
+    }
+    return ret;
 }
 
 inline FlexJsonValue::operator const char*() const
@@ -110,32 +122,6 @@ inline bool FlexJsonValue::read(std::pair<T, U>& p, bool throw_on_error) const {
     }
 }
 
-// array ~> vector, deque, list
-template < typename T, typename std::enable_if <
-    !std::is_same<void, typename T::value_type>::value >::type*
->
-inline auto FlexJsonValue::read(T& v, bool throw_on_error) -> decltype(v.front(), true) const {
-    if (!test_array()) {
-        return error_or_false(throw_on_error, "Expected json array");
-    }
-    try {
-        v.clear();
-        for (FlexJsonValue jv : (FlexJsonArray)*this) {
-            typename T::value_type element;
-            if (jv.read(element, throw_on_error)) {
-                v.push_back(std::move(element));
-            }
-        }
-    } catch (const TextJsonError&) {
-        if (throw_on_error) {
-            throw;
-        }
-        return false;
-    }
-
-    return true;
-}
-
 // array ~> array
 template <typename T, size_t N>
 inline bool FlexJsonValue::read(std::array<T, N>& v, bool throw_on_error) const {
@@ -162,6 +148,32 @@ inline bool FlexJsonValue::read(std::array<T, N>& v, bool throw_on_error) const 
         }
         return false;
     }
+}
+
+// array ~> vector, deque, list
+template < typename T, typename std::enable_if <
+    !std::is_same<void, typename T::value_type>::value >::type*
+>
+inline auto FlexJsonValue::read(T& v, bool throw_on_error) -> decltype(v.front(), true) const {
+    if (!test_array()) {
+        return error_or_false(throw_on_error, "Expected json array");
+    }
+    try {
+        v.clear();
+        for (FlexJsonValue jv : (FlexJsonArray)*this) {
+            typename T::value_type element;
+            if (jv.read(element, throw_on_error)) {
+                v.push_back(std::move(element));
+            }
+        }
+    } catch (const TextJsonError&) {
+        if (throw_on_error) {
+            throw;
+        }
+        return false;
+    }
+
+    return true;
 }
 
 // object ~> containers with matching key_type and value_type

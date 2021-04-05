@@ -308,8 +308,8 @@ bool write_to_file( const std::string &path, const std::function<void( std::ostr
 void write_to_file( const std::string &path, const std::function<void( std::ostream & )> &writer );
 ///@}
 
-class TextJsonDeserializer;
-using JsonDeserializer = TextJsonDeserializer;
+class FlexJsonDeserializer;
+using JsonDeserializer = FlexJsonDeserializer;
 
 /**
  * Try to open and read from given file using the given callback.

@@ -2994,8 +2994,8 @@ void bionic::deserialize( JsonIn jsin )
         safe_fuel_threshold = jo.get_float( "safe_fuel_threshold" );
     }
     if( jo.has_array( "bionic_tags" ) ) {
-        for( const std::string line : jo.get_array( "bionic_tags" ) ) {
-            bionic_tags.insert( line );
+        for( FlexJsonValue line : jo.get_array( "bionic_tags" ) ) {
+            bionic_tags.insert( line.get_string() );
         }
     }
 

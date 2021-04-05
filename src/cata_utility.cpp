@@ -400,9 +400,8 @@ bool read_from_file_optional_json( const std::string &path,
                                    const std::function<void( JsonIn & )> &reader )
 {
     return read_from_file_optional( path, [&]( std::istream & fin ) {
-        FlexBufferCache::global_cache().parse_and_cache( path );
-        JsonIn jsin( fin, path );
-        reader( jsin );
+        auto jv = FlexJsonValue::from(path);
+        reader(jv);
     } );
 }
 

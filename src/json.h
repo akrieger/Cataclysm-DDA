@@ -6,7 +6,6 @@
 
 using JsonError = TextJsonError;
 using JsonSerializer = TextJsonSerializer;
-using JsonDeserializer = TextJsonDeserializer;
 using JsonOut = TextJsonOut;
 
 #include "flexbuffer_json.h"
@@ -16,5 +15,6 @@ using JsonObject = FlexJsonObject;
 using JsonArray = FlexJsonArray;
 using JsonValue = FlexJsonValue;
 using JsonMember = FlexJsonMember;
+using JsonDeserializer = FlexJsonDeserializer;
 
 #endif // CATA_SRC_JSON_H

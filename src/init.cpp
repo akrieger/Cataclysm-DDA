@@ -230,42 +230,6 @@ void DynamicDataLoader::add( const std::string &type,
     }
 }
 
-void DynamicDataLoader::add( const std::string &type,
-                             const std::function<void( const FlexJsonObject &, const std::string &, const std::string &, const std::string & )>
-                             &f )
-{
-    const auto pair = type_new_function_map.emplace( type, f );
-    if( !pair.second ) {
-        debugmsg( "tried to insert a second handler for type %s into the DynamicDataLoader", type.c_str() );
-    }
-}
-
-void DynamicDataLoader::add( const std::string &type,
-                             const std::function<void( const FlexJsonObject &, const std::string & )> &f )
-{
-    const auto pair = type_new_function_map.emplace( type, [f]( const FlexJsonObject & obj,
-                      const std::string & src,
-    const std::string &, const std::string & ) {
-        f( obj, src );
-    } );
-    if( !pair.second ) {
-        debugmsg( "tried to insert a second handler for type %s into the DynamicDataLoader", type.c_str() );
-    }
-}
-
-void DynamicDataLoader::add( const std::string &type,
-                             const std::function<void( const FlexJsonObject & )> &f )
-{
-    const auto pair = type_new_function_map.emplace( type, [f]( const FlexJsonObject & obj,
-                      const std::string &,
-    const std::string &, const std::string & ) {
-        f( obj );
-    } );
-    if( !pair.second ) {
-        debugmsg( "tried to insert a second handler for type %s into the DynamicDataLoader", type.c_str() );
-    }
-}
-
 void DynamicDataLoader::initialize()
 {
     // all of the applicable types that can be loaded, along with their loading functions
