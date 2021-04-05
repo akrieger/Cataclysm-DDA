@@ -59,31 +59,31 @@ class TextJsonError : public std::runtime_error
 };
 
 template<typename T, typename Enable = void>
-struct key_from_TextJson_string;
+struct key_from_json_string;
 
 template<>
-struct key_from_TextJson_string<std::string, void> {
+struct key_from_json_string<std::string, void> {
     std::string operator()( const std::string &s ) {
         return s;
     }
 };
 
 template<typename T>
-struct key_from_TextJson_string<string_id<T>, void> {
+struct key_from_json_string<string_id<T>, void> {
     string_id<T> operator()( const std::string &s ) {
         return string_id<T>( s );
     }
 };
 
 template<typename T>
-struct key_from_TextJson_string<int_id<T>, void> {
+struct key_from_json_string<int_id<T>, void> {
     int_id<T> operator()( const std::string &s ) {
         return int_id<T>( s );
     }
 };
 
 template<typename Enum>
-struct key_from_TextJson_string<Enum, std::enable_if_t<std::is_enum<Enum>::value>> {
+struct key_from_json_string<Enum, std::enable_if_t<std::is_enum<Enum>::value>> {
     Enum operator()( const std::string &s ) {
         return io::string_to_enum<Enum>( s );
     }
@@ -573,7 +573,7 @@ class TextJsonIn
                 m.clear();
                 while( !end_object() ) {
                     using key_type = typename T::key_type;
-                    key_type key = key_from_TextJson_string<key_type>()( get_member_name() );
+                    key_type key = key_from_json_string<key_type>()( get_member_name() );
                     typename T::mapped_type element;
                     if( read( element, throw_on_error ) ) {
                         m[std::move( key )] = std::move( element );

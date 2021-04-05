@@ -123,7 +123,7 @@ namespace activity_actors
 {
 
 // defined in activity_actor.cpp
-extern const std::unordered_map<activity_id, std::unique_ptr<activity_actor>( * )( JsonIn & )>
+extern const std::unordered_map<activity_id, std::unique_ptr<activity_actor>( * )( JsonIn )>
 deserialize_functions;
 
 } // namespace activity_actors

@@ -282,7 +282,7 @@ class generic_factory
                     if( !handle_inheritance( def, jo, src ) ) {
                         break;
                     }
-                    def.id = string_id<T>( e );
+                    def.id = string_id<T>( e.get_string() );
                     def.load( jo, src );
                     insert( def );
                 }
@@ -312,7 +312,7 @@ class generic_factory
                     if( !handle_inheritance( def, jo, src ) ) {
                         break;
                     }
-                    def.id = string_id<T>( e );
+                    def.id = string_id<T>( e.get_string() );
                     def.load( jo, src );
                     insert( def );
                 }

@@ -74,7 +74,7 @@ void auto_note_settings::load()
 
             if( name == "enabled" ) {
                 for (auto v : (JsonArray)member) {
-                    const std::string entry = v;
+                    const std::string entry = v.get_string();
                     autoNoteEnabled.insert( string_id<map_extra> {entry} );
                 }
             } else if( name == "discovered" ) {
