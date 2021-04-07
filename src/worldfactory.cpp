@@ -1546,9 +1546,7 @@ void WORLD::load_options( JsonIn &jsin )
 
     auto &opts = get_options();
 
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        JsonObject jo = jsin.get_object();
+    for (FlexJsonObject jo : (FlexJsonArray)jsin) {
         jo.allow_omitted_members();
         const std::string name = opts.migrateOptionName( jo.get_string( "name" ) );
         const std::string value = opts.migrateOptionValue( jo.get_string( "name" ),
@@ -1585,11 +1583,11 @@ bool WORLD::load_options()
 void load_world_option( const JsonObject &jo )
 {
     JsonArray arr = jo.get_array( "options" );
-    if( arr.empty() ) {
+    if( arr.size() == 0 ) {
         jo.throw_error( "no options specified", "options" );
     }
-    for( const std::string line : arr ) {
-        get_options().get_option( line ).setValue( "true" );
+    for( FlexJsonValue line : arr ) {
+        get_options().get_option( line.get_string() ).setValue( "true" );
     }
 }
 

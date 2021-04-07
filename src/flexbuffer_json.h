@@ -657,6 +657,14 @@ class FlexJsonObject : FlexJson
 
         template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
         E get_enum_value(const std::string& name, const E fallback) const {
+            auto member_opt = get_member_opt(name.c_str());
+            if (member_opt.has_value()) {
+                return fallback;
+            }
+            return (*member_opt).get_enum_value<E>();
+        }
+        template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
+        E get_enum_value(const char* name, const E fallback) const {
             auto member_opt = get_member_opt(name);
             if (member_opt.has_value()) {
                 return fallback;
