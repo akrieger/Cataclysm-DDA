@@ -134,6 +134,10 @@ struct FlexJsonPath {
             }
         }
 
+        uint16_t size() const {
+            return path_.size();
+        }
+
         inline void pop_back() {
             path_.pop_back();
         }
@@ -147,6 +151,12 @@ struct FlexJsonPath {
         }
         uint16_t const *end() const {
             return path_.end();
+        }
+
+        friend FlexJsonPath operator+(FlexJsonPath const& lhs, size_t idx) {
+            FlexJsonPath ret(lhs);
+            ret.push_back(idx);
+            return ret;
         }
 
     private:
@@ -165,6 +175,7 @@ class FlexJsonIn
         std::shared_ptr<FlexBuffer> root_;
         // The parent of the value pointed to by path_. Empty path -> root reference.
         // Unfortunately popping out of an object requires re-traversing from the root.
+        // This must always be a Vector (or a Map, which is a Vector), aka a keyed type.
         flexbuffers::Reference parent_;
         // WHy inline a string when you can outline it for a saved pointer in size?
         shared_ptr_fast<std::string> source_file_;
@@ -174,6 +185,10 @@ class FlexJsonIn
         uint16_t values_in_parent_;
 
     public:
+
+        FlexJsonIn( std::shared_ptr<FlexBuffer> root, shared_ptr_fast<std::string> source_file ) : root_{ std::move( root ) },
+            parent_{ *root }, source_file_{ std::move( source_file ) }, values_in_parent_{ 0 } {}
+
 #define THROW_UNIMPLEMENTED throw std::runtime_error("unimplemented")
         shared_ptr_fast<std::string> get_path() const {
             return source_file_;
@@ -238,53 +253,162 @@ class FlexJsonIn
         }
 
         size_t count_values_in_parent() {
-            if( parent_.IsVector() ) {
-                return parent_.AsVector().size();
-            }
-            throw std::runtime_error( "Parent is not keyed type." );
+            return parent_.AsVector().size();
         }
 
         void advance() {
-            if( path_.last() + 1 == values_in_parent_ ) {
-                end_iterable();
+            if( path_.size() == 0 ) {
+                throw std::runtime_error( "Cannot advance root array/object." );
             }
+            if( path_.last() >= count_values_in_parent() ) {
+                throw std::runtime_error( "Cannot advance past end of array/object." );
+            }
+            ++path_.last();
+        }
 
+        void enter_iterable() {
+            if( path_.size() > 0 ) {
+                parent_ = parent_.AsVector()[ path_.last() ];
+            }
+            values_in_parent_ = count_values_in_parent();
+            path_.push_back( 0 );
         }
 
         void end_iterable() {
             path_.pop_back();
             parent_ = *root_;
+            values_in_parent_ = 0;
             for( uint16_t idx : path_ ) {
-                if( parent_.IsMap() ) {
-                    parent_ = parent_.AsVector()[ idx ];
-                }
+                parent_ = parent_.AsVector()[ idx ];
+                values_in_parent_ = count_values_in_parent();
+            }
+        }
+
+        void check_idx_before_deref() {
+            if( path_.size() == 0 ) {
+                throw std::runtime_error("Did not enter root");
+            }
+            if( path_.last() >= values_in_parent_ ) {
+                throw std::runtime_error("Out of values in array/object");
             }
         }
 
         // data parsing
         // get the next value as a string
         std::string get_string() {
-            auto idx = path_.last();
-            if( parent_.IsAnyVector() && !parent_.IsMap() ) {
+            check_idx_before_deref();
+            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            if( value.IsString() ) {
+                advance();
+                return value.AsString().str();
             }
+            throw std::runtime_error("Not a string.");
         }
-        // get the next value as an int
-        int get_int();
-        // get the next value as an unsigned int
-        unsigned int get_uint();
-        // get the next value as an int64
-        int64_t get_int64();
-        // get the next value as a uint64
-        uint64_t get_uint64();
-        // get the next value as a bool
-        bool get_bool();
-        // get the next value as a double
-        double get_float();
-        // also strips the ':'
-        std::string get_member_name();
 
-        JsonObject get_object();
-        JsonArray get_array();
+        // get the next value as an int
+        int get_int() {
+            check_idx_before_deref();
+            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            if( value.IsNumeric() ) {
+                advance();
+                return static_cast<int>(value.AsInt64());
+            }
+            throw std::runtime_error("Not a number.");
+        }
+
+        // get the next value as an unsigned int
+        unsigned int get_uint() {
+            check_idx_before_deref();
+            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            if( value.IsNumeric() ) {
+                // These are always stored as signed ints.
+                int64_t signed_value = value.AsInt64();
+                if( signed_value >= 0 ) {
+                    advance();
+                    return static_cast<unsigned int>(signed_value);
+                }
+                throw std::runtime_error("Unsigned value was negative");
+            }
+            throw std::runtime_error("Not a number.");
+        }
+
+        // get the next value as an int64
+        int64_t get_int64() {
+            check_idx_before_deref();
+            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            if( value.IsNumeric() ) {
+                advance();
+                return value.AsInt64();
+            }
+            throw std::runtime_error("Not a number.");
+        }
+
+        // get the next value as a uint64
+        uint64_t get_uint64() {
+            check_idx_before_deref();
+            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            if( value.IsNumeric() ) {
+                // These are always stored as signed ints.
+                int64_t signed_value = value.AsInt64();
+                if( signed_value >= 0 ) {
+                    advance();
+                    return static_cast<uint64_t>(signed_value);
+                }
+                throw std::runtime_error("Unsigned value was negative");
+            }
+            throw std::runtime_error("Not a number.");
+        }
+
+        // get the next value as a bool
+        bool get_bool() {
+            check_idx_before_deref();
+            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            if( value.IsBool() ) {
+                advance();
+                return value.AsBool();
+            }
+            throw std::runtime_error("Not a bool.");
+        }
+
+        // get the next value as a double
+        double get_float() {
+            check_idx_before_deref();
+            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            if( value.IsNumeric() ) {
+                advance();
+                return value.AsFloat();
+            }
+            throw std::runtime_error("Not a number.");
+        }
+
+        // also strips the ':'
+        std::string get_member_name() {
+            check_idx_before_deref();
+            if( parent_.IsMap() ) {
+                return parent_.AsMap().Keys()[ path_.last() ].AsString().str();
+            }
+            throw std::runtime_error("Not in an object");
+        }
+
+        FlexJsonObject get_object() {
+            check_idx_before_deref();
+            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            if( value.IsMap() ) {
+                advance();
+                return FlexJsonObject(value, source_file_, path_);
+            }
+            throw std::runtime_error("Not an object");
+        }
+
+        FlexJsonArray get_array() {
+            check_idx_before_deref();
+            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            if( value.IsVector() && !value.IsMap()) {
+                advance();
+                return FlexJsonArray(value, source_file_, path_);
+            }
+            throw std::runtime_error("Not an object");
+        }
 
         template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
         E get_enum_value() {
@@ -298,7 +422,14 @@ class FlexJsonIn
         }
 
         // container control and iteration
-        void start_array(); // verify array start
+        // verify array start
+        void start_array() {
+            flexbuffers::Reference current = parent_.AsVector()[ path_.last() ];
+            if( current.IsVector() && !current.IsMap() ) {
+                enter_iterable();
+            }
+            throw std::runtime_error( "Expected an array, got a " + current.GetType() );
+        }
         bool end_array(); // returns false if it's not the end
         void start_object();
         bool end_object(); // returns false if it's not the end
@@ -655,7 +786,7 @@ class FlexJson
 
     protected:
         FlexJson( FlexBuffer &&json, std::string &&source_file ) : json_{ std::move( json ) }, source_file_{ std::move( source_file ) } {}
-        FlexJson( FlexBuffer &&json, std::string &&source_file, JsonPath &&path ) : json_{std::move( json )},
+        FlexJson( FlexBuffer &&json, std::string &&source_file, FlexJsonPath &&path ) : json_{std::move( json )},
             source_file_{ std::move( source_file ) },
             path_{ std::move( path ) } {}
 
@@ -664,7 +795,7 @@ class FlexJson
         // All flexbuffer subclasses must keep the backing flexbuffer alive.
         FlexBuffer json_;
         std::string source_file_;
-        JsonPath path_;
+        FlexJsonPath path_;
 
         flexbuffers::Reference error_or_null( bool throw_on_error,
                                               std::string const &message ) const noexcept( false ) {
@@ -708,7 +839,7 @@ class FlexJsonValue : FlexJson
         FlexJsonValue( FlexBuffer &&json, std::string &&source_file ) : FlexJson( std::move( json ),
                     std::move( source_file ) ) {}
         FlexJsonValue( FlexBuffer &&json, std::string &&source_file,
-                       JsonPath &&path ) : FlexJson( std::move( json ), std::move( source_file ), std::move( path ) ) {}
+            FlexJsonPath&&path ) : FlexJson( std::move( json ), std::move( source_file ), std::move( path ) ) {}
 
         // NOLINTNEXTLINE(google-explicit-constructor)
         inline operator std::string() const;
@@ -786,7 +917,7 @@ class FlexJsonObject : FlexJson
         FlexJsonObject(
             FlexBuffer &&json,
             std::string source_file,
-            JsonPath &&path )
+            FlexJsonPath &&path )
             : FlexJson( std::move( json ), std::move( source_file )
             , std::move( path ) ) {
             init( json_ );
@@ -918,7 +1049,7 @@ class FlexJsonObject : FlexJson
             bool found = find_map_key_idx( key, keys_, idx );
             if( found ) {
                 mark_visited( idx );
-                return FlexJsonValue{ values_[idx], std::string( source_file_ ), path_ + key };
+                return FlexJsonValue{ values_[idx], std::string( source_file_ ), path_ + idx };
             }
             return cata::nullopt;
         }
@@ -931,7 +1062,7 @@ class FlexJsonObject : FlexJson
             bool found = find_map_key_idx( key, keys_, idx );
             if( found ) {
                 mark_visited( idx );
-                return FlexJsonValue{ values_[idx], std::string( source_file_ ), path_ + key };
+                return FlexJsonValue{ values_[idx], std::string( source_file_ ), path_ + idx };
             }
             error_no_member( key );
             return ( *this )[key];
@@ -1024,7 +1155,7 @@ class FlexJsonObject : FlexJson
         FlexJsonValue operator[]( size_t idx ) const {
             mark_visited( idx );
             const char *key = keys_[idx].AsKey();
-            return FlexJsonValue{ values_[idx], std::string( source_file_ ), path_ + key };
+            return FlexJsonValue{ values_[idx], std::string( source_file_ ), path_ + idx };
         }
 
         flexbuffers::Reference find_value_ref( const char *key ) const {
@@ -1114,7 +1245,7 @@ class FlexJsonArray : FlexJson
         FlexJsonArray(
             FlexBuffer &&json,
             std::string source_file,
-            JsonPath &&path )
+            FlexJsonPath &&path )
             : FlexJson( std::move( json ), std::move( source_file )
             , std::move( path ) ) {
             init( json_ );
