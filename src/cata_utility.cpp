@@ -373,8 +373,9 @@ bool read_from_file_json( const std::string &path,
                           const std::function<void( FlexJsonObject & )> &reader )
 {
     return read_from_file( path, [&]( std::istream & fin ) {
-        FlexJsonObject jsin = FlexJsonValue::from( path );
-        reader( jsin );
+        FlexJsonIn jsin = FlexJsonIn::from( path );
+        FlexJsonObject jo = jsin.get_object();
+        reader( jo );
     } );
 }
 
@@ -382,8 +383,9 @@ bool read_from_file_json( const std::string &path,
                           const std::function<void( FlexJsonArray & )> &reader )
 {
     return read_from_file( path, [&]( std::istream & fin ) {
-        FlexJsonArray jsin = FlexJsonValue::from( path );
-        reader( jsin );
+        FlexJsonIn jsin = FlexJsonIn::from( path );
+        FlexJsonArray ja = jsin.get_array();
+        reader( ja );
     } );
 }
 

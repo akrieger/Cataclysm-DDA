@@ -12,6 +12,7 @@
 #include "flexbuffer_cache.h"
 #include "json.h"
 #include "int_id.h"
+#include "memory_fast.h"
 #include "optional.h"
 #include "string_id.h"
 
@@ -132,6 +133,7 @@ struct FlexJsonPath {
             } else {
                 throw std::runtime_error( "Json index out of range of uint16_t" );
             }
+            return *this;
         }
 
         uint16_t size() const {
@@ -153,9 +155,9 @@ struct FlexJsonPath {
             return path_.end();
         }
 
-        friend FlexJsonPath operator+(FlexJsonPath const& lhs, size_t idx) {
-            FlexJsonPath ret(lhs);
-            ret.push_back(idx);
+        friend FlexJsonPath operator+( FlexJsonPath const &lhs, size_t idx ) {
+            FlexJsonPath ret( lhs );
+            ret.push_back( idx );
             return ret;
         }
 
@@ -163,6 +165,9 @@ struct FlexJsonPath {
         static constexpr size_t kInlinePathSegments = 7;
         SmallLiteralVector<uint16_t, kInlinePathSegments> path_;
 };
+
+class FlexJsonObject;
+class FlexJsonArray;
 
 // A replacement for JsonIn that operates on a FlexBuffer, storing position with a FlexJsonPath.
 // We leverage the current design of JsonIn & friends to maximize efficiency of the Flex equivalents.
@@ -173,11 +178,13 @@ class FlexJsonIn
         // Keeps the backing memory for the flexbuffer alive, whether in builder memory or an mmap'd file.
         // We need this to interpret path_ when throwing an error.
         std::shared_ptr<FlexBuffer> root_;
+        // A cached JsonIn for this FlexJsonIn, used to fulfill get_raw calls.
+        std::unique_ptr<JsonIn> raw_;
         // The parent of the value pointed to by path_. Empty path -> root reference.
         // Unfortunately popping out of an object requires re-traversing from the root.
         // This must always be a Vector (or a Map, which is a Vector), aka a keyed type.
         flexbuffers::Reference parent_;
-        // WHy inline a string when you can outline it for a saved pointer in size?
+        // Why inline a string when you can outline it for a saved pointer in size?
         shared_ptr_fast<std::string> source_file_;
         // Path to the current element.
         FlexJsonPath path_;
@@ -185,9 +192,25 @@ class FlexJsonIn
         uint16_t values_in_parent_;
 
     public:
+        static cata::optional<FlexJsonIn> fromOpt( std::string source_file ) noexcept( false ) {
+            std::shared_ptr<FlexBuffer> buffer = FlexBufferCache::global_cache().parse_and_cache( source_file );
+            if( !buffer ) {
+                return cata::nullopt;
+            }
+            return FlexJsonIn( std::move( buffer ), make_shared_fast<std::string>( std::move( source_file ) ) );
+        }
+
+        static FlexJsonIn from( std::string source_file ) noexcept( false ) {
+            std::shared_ptr<FlexBuffer> buffer = FlexBufferCache::global_cache().parse_and_cache( source_file );
+            if( !buffer ) {
+                throw JsonError( "Didn't get a flexbuffer but didn't get an exception either." );
+            }
+            return FlexJsonIn( std::move( buffer ), make_shared_fast<std::string>( std::move( source_file ) ) );
+        }
 
         FlexJsonIn( std::shared_ptr<FlexBuffer> root, shared_ptr_fast<std::string> source_file ) : root_{ std::move( root ) },
-            parent_{ *root }, source_file_{ std::move( source_file ) }, values_in_parent_{ 0 } {}
+            parent_{ *root_ }, source_file_{ std::move( source_file ) }, values_in_parent_{ 0 } {
+        }
 
 #define THROW_UNIMPLEMENTED throw std::runtime_error("unimplemented")
         shared_ptr_fast<std::string> get_path() const {
@@ -228,37 +251,93 @@ class FlexJsonIn
             THROW_UNIMPLEMENTED;
         }
         void skip_string() {
-            THROW_UNIMPLEMENTED;
+            if( test_string() ) {
+                advance();
+            } else {
+                error( "Tried to skip a string, but it was a " + get_current_type() );
+            }
         }
         void skip_value() {
-            THROW_UNIMPLEMENTED;
+            if( path_.last() < values_in_parent_ ) {
+                advance();
+            } else {
+                error( "Tried to skip any value but there was none to skip." );
+            }
         }
         void skip_object() {
-            THROW_UNIMPLEMENTED;
+            if( test_object() ) {
+                advance();
+            } else {
+                error( "Tried to skip an object, but it was a " + get_current_type() );
+            };
         }
         void skip_array() {
-            THROW_UNIMPLEMENTED;
+            if( test_array() ) {
+                advance();
+            } else {
+                error( "Tried to skip an array, but it was a " + get_current_type() );
+            };
         }
         void skip_true() {
-            THROW_UNIMPLEMENTED;
+            auto current = get_current();
+            if( current.IsBool() && current.AsBool() == true ) {
+                advance();
+            } else {
+                error( "Tried to skip a true, but it was a " + get_current_type() );
+            }
         }
         void skip_false() {
-            THROW_UNIMPLEMENTED;
+            auto current = get_current();
+            if( current.IsBool() && current.AsBool() == false ) {
+                advance();
+            } else {
+                error( "Tried to skip a false, but it was a " + get_current_type() );
+            };
         }
         void skip_null() {
-            THROW_UNIMPLEMENTED;
+            if( test_null() ) {
+                advance();
+            } else {
+                error( "Tried to skip a null, but it was a " + get_current_type() );
+            }
         }
         void skip_number() {
-            THROW_UNIMPLEMENTED;
+            if( test_number() ) {
+                advance();
+            } else {
+                error( "Tried to skip a number, but it was a " + get_current_type() );
+            };
         }
 
         size_t count_values_in_parent() {
             return parent_.AsVector().size();
         }
 
+        flexbuffers::Reference get_current() {
+            if( path_.size() > 0 ) {
+                return parent_.AsVector()[path_.last()];
+            }
+            return *root_;
+        }
+
+        std::string const &get_current_type() {
+            return flexbuffer_type_to_string( get_current().GetType() );
+        }
+
+        void rewind() {
+            if( path_.size() == 0 ) {
+                throw std::runtime_error( "Cannot rewind root array/object." );
+            }
+            if( path_.last() == 0 ) {
+                throw std::runtime_error( "Cannot rewind past beginning of array/object." );
+            }
+            --path_.last();
+        }
+
         void advance() {
             if( path_.size() == 0 ) {
-                throw std::runtime_error( "Cannot advance root array/object." );
+                // Happens when getting root as array/object.
+                return;
             }
             if( path_.last() >= count_values_in_parent() ) {
                 throw std::runtime_error( "Cannot advance past end of array/object." );
@@ -285,11 +364,10 @@ class FlexJsonIn
         }
 
         void check_idx_before_deref() {
-            if( path_.size() == 0 ) {
-                throw std::runtime_error("Did not enter root");
-            }
-            if( path_.last() >= values_in_parent_ ) {
-                throw std::runtime_error("Out of values in array/object");
+            if( path_.size() > 0 ) {
+                if( path_.last() >= values_in_parent_ ) {
+                    throw std::runtime_error( "Out of values in array/object" );
+                }
             }
         }
 
@@ -297,88 +375,88 @@ class FlexJsonIn
         // get the next value as a string
         std::string get_string() {
             check_idx_before_deref();
-            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            flexbuffers::Reference value = get_current();
             if( value.IsString() ) {
                 advance();
                 return value.AsString().str();
             }
-            throw std::runtime_error("Not a string.");
+            throw std::runtime_error( "Not a string." );
         }
 
         // get the next value as an int
         int get_int() {
             check_idx_before_deref();
-            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            flexbuffers::Reference value = get_current();
             if( value.IsNumeric() ) {
                 advance();
-                return static_cast<int>(value.AsInt64());
+                return static_cast<int>( value.AsInt64() );
             }
-            throw std::runtime_error("Not a number.");
+            throw std::runtime_error( "Not a number." );
         }
 
         // get the next value as an unsigned int
         unsigned int get_uint() {
             check_idx_before_deref();
-            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            flexbuffers::Reference value = get_current();
             if( value.IsNumeric() ) {
                 // These are always stored as signed ints.
                 int64_t signed_value = value.AsInt64();
                 if( signed_value >= 0 ) {
                     advance();
-                    return static_cast<unsigned int>(signed_value);
+                    return static_cast<unsigned int>( signed_value );
                 }
-                throw std::runtime_error("Unsigned value was negative");
+                throw std::runtime_error( "Unsigned value was negative" );
             }
-            throw std::runtime_error("Not a number.");
+            throw std::runtime_error( "Not a number." );
         }
 
         // get the next value as an int64
         int64_t get_int64() {
             check_idx_before_deref();
-            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            flexbuffers::Reference value = get_current();
             if( value.IsNumeric() ) {
                 advance();
                 return value.AsInt64();
             }
-            throw std::runtime_error("Not a number.");
+            throw std::runtime_error( "Not a number." );
         }
 
         // get the next value as a uint64
         uint64_t get_uint64() {
             check_idx_before_deref();
-            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            flexbuffers::Reference value = get_current();
             if( value.IsNumeric() ) {
                 // These are always stored as signed ints.
                 int64_t signed_value = value.AsInt64();
                 if( signed_value >= 0 ) {
                     advance();
-                    return static_cast<uint64_t>(signed_value);
+                    return static_cast<uint64_t>( signed_value );
                 }
-                throw std::runtime_error("Unsigned value was negative");
+                throw std::runtime_error( "Unsigned value was negative" );
             }
-            throw std::runtime_error("Not a number.");
+            throw std::runtime_error( "Not a number." );
         }
 
         // get the next value as a bool
         bool get_bool() {
             check_idx_before_deref();
-            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            flexbuffers::Reference value = get_current();
             if( value.IsBool() ) {
                 advance();
                 return value.AsBool();
             }
-            throw std::runtime_error("Not a bool.");
+            throw std::runtime_error( "Not a bool." );
         }
 
         // get the next value as a double
         double get_float() {
             check_idx_before_deref();
-            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
+            flexbuffers::Reference value = get_current();
             if( value.IsNumeric() ) {
                 advance();
                 return value.AsFloat();
             }
-            throw std::runtime_error("Not a number.");
+            throw std::runtime_error( "Not a number." );
         }
 
         // also strips the ':'
@@ -387,36 +465,18 @@ class FlexJsonIn
             if( parent_.IsMap() ) {
                 return parent_.AsMap().Keys()[ path_.last() ].AsString().str();
             }
-            throw std::runtime_error("Not in an object");
+            throw std::runtime_error( "Not in an object" );
         }
 
-        FlexJsonObject get_object() {
-            check_idx_before_deref();
-            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
-            if( value.IsMap() ) {
-                advance();
-                return FlexJsonObject(value, source_file_, path_);
-            }
-            throw std::runtime_error("Not an object");
-        }
-
-        FlexJsonArray get_array() {
-            check_idx_before_deref();
-            flexbuffers::Reference value = parent_.AsVector()[ path_.last() ];
-            if( value.IsVector() && !value.IsMap()) {
-                advance();
-                return FlexJsonArray(value, source_file_, path_);
-            }
-            throw std::runtime_error("Not an object");
-        }
+        inline FlexJsonObject get_object();
+        inline FlexJsonArray get_array();
 
         template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
         E get_enum_value() {
-            const int old_offset = tell();
             try {
                 return io::string_to_enum<E>( get_string() );
             } catch( const io::InvalidEnumString & ) {
-                seek( old_offset ); // so the error message points to the correct place.
+                --path_.last();
                 error( "invalid enumeration value" );
             }
         }
@@ -424,30 +484,60 @@ class FlexJsonIn
         // container control and iteration
         // verify array start
         void start_array() {
-            flexbuffers::Reference current = parent_.AsVector()[ path_.last() ];
+            flexbuffers::Reference current = get_current();
             if( current.IsVector() && !current.IsMap() ) {
                 enter_iterable();
             }
-            throw std::runtime_error( "Expected an array, got a " + current.GetType() );
+            throw std::runtime_error( "Expected an array, got a " + get_current_type() );
         }
-        bool end_array(); // returns false if it's not the end
-        void start_object();
-        bool end_object(); // returns false if it's not the end
+        // returns false if it's not the end
+        bool end_array() {
+            return path_.last() == values_in_parent_;
+        }
+        void start_object() {
+            flexbuffers::Reference current = get_current();
+            if( current.IsMap() ) {
+                enter_iterable();
+            }
+            throw std::runtime_error( "Expected an object, got a " + get_current_type() );
+        }
+        // returns false if it's not the end
+        bool end_object() {
+            return path_.last() == values_in_parent_;
+        }
 
         // type testing
-        bool test_null();
-        bool test_bool();
-        bool test_number();
+        // These are slightly stricter than the text json implementations in that they require the iterator to be
+        // at a valid value position.
+        bool test_null() {
+            return get_current().IsNull();
+        }
+        bool test_bool() {
+            return get_current().IsBool();
+        }
+        bool test_number() {
+            return get_current().IsNumeric();
+        }
         bool test_int() {
             return test_number();
         }
         bool test_float() {
             return test_number();
         }
-        bool test_string();
-        bool test_bitset();
-        bool test_array();
-        bool test_object();
+        bool test_string() {
+            return get_current().IsString();
+        }
+        bool test_bitset() {
+            // text json assumes a string
+            return test_string();
+        }
+        bool test_array() {
+            auto current = get_current();
+            return current.IsVector() && !current.IsMap();
+        }
+        bool test_object() {
+            return get_current().IsMap();
+        }
 
         // optionally-fatal reading into values by reference
         // returns true if the data was read successfully, false otherwise
@@ -761,7 +851,6 @@ class FlexJsonIn
         }
 
         // error messages
-        std::string line_number( int offset_modifier = 0 ); // for occasional use only
         [[noreturn]] void error( const std::string &message, int offset = 0 ); // ditto
         // if the next element is a string, throw error after the `offset`th unicode
         // character in the parsed string. if `offset` is 0, throw error right after
@@ -770,9 +859,16 @@ class FlexJsonIn
 
         // If throw_, then call error( message, offset ), otherwise return
         // false
-        bool error_or_false( bool throw_, const std::string &message, int offset = 0 );
-        void rewind( int max_lines = -1, int max_chars = -1 );
-        std::string substr( size_t pos, size_t len = std::string::npos );
+        bool error_or_false( bool do_throw, const std::string &message, int offset = 0 ) {
+            if( do_throw ) {
+                error( message, offset );
+            }
+            return false;
+        }
+
+        //std::string substr( size_t pos, size_t len = std::string::npos );
+
+        static inline std::string const &flexbuffer_type_to_string( flexbuffers::Type t );
 };
 
 class FlexJson
@@ -785,14 +881,17 @@ class FlexJson
         [[noreturn]] void throw_error( std::string const &message ) const;
 
     protected:
-        FlexJson( FlexBuffer &&json, std::string &&source_file ) : json_{ std::move( json ) }, source_file_{ std::move( source_file ) } {}
-        FlexJson( FlexBuffer &&json, std::string &&source_file, FlexJsonPath &&path ) : json_{std::move( json )},
+        FlexJson( FlexJsonIn &jsin, FlexBuffer &&json, std::string &&source_file ) : jsin_{ jsin }, json_{ std::move( json ) },
+            source_file_{ std::move( source_file ) } {}
+        FlexJson( FlexJsonIn &jsin, FlexBuffer &&json, std::string &&source_file,
+                  FlexJsonPath &&path ) : jsin_{jsin}, json_{ std::move( json ) },
             source_file_{ std::move( source_file ) },
             path_{ std::move( path ) } {}
 
         virtual ~FlexJson() = default;
 
-        // All flexbuffer subclasses must keep the backing flexbuffer alive.
+        // FlexJsonIn keeps the backing memory alive, and other things besides, like the root reference.
+        FlexJsonIn &jsin_;
         FlexBuffer json_;
         std::string source_file_;
         FlexJsonPath path_;
@@ -813,33 +912,16 @@ class FlexJson
         }
 };
 
-class FlexJsonObject;
-class FlexJsonArray;
-
 // A single value wrapper. Convertible to any actual value or array/object..
 class FlexJsonValue : FlexJson
 {
     public:
-        static cata::optional<FlexJsonValue> fromOpt( std::string source_file ) noexcept( false ) {
-            std::shared_ptr<FlexBuffer> buffer = FlexBufferCache::global_cache().parse_and_cache( source_file );
-            if( !buffer ) {
-                return cata::nullopt;
-            }
-            return FlexJsonValue( std::move( *buffer ), std::move( source_file ) );
-        }
-
-        static FlexJsonValue from( std::string source_file ) noexcept( false ) {
-            std::shared_ptr<FlexBuffer> buffer = FlexBufferCache::global_cache().parse_and_cache( source_file );
-            if( !buffer ) {
-                throw JsonError( "Didn't get a flexbuffer but didn't get an exception either." );
-            }
-            return FlexJsonValue( std::move( *buffer ), std::move( source_file ) );
-        }
-
-        FlexJsonValue( FlexBuffer &&json, std::string &&source_file ) : FlexJson( std::move( json ),
+        FlexJsonValue( FlexJsonIn &jsin, FlexBuffer &&json, std::string &&source_file ) : FlexJson( jsin,
+                    std::move( json ),
                     std::move( source_file ) ) {}
-        FlexJsonValue( FlexBuffer &&json, std::string &&source_file,
-            FlexJsonPath&&path ) : FlexJson( std::move( json ), std::move( source_file ), std::move( path ) ) {}
+        FlexJsonValue( FlexJsonIn &jsin, FlexBuffer &&json, std::string &&source_file,
+                       FlexJsonPath &&path ) : FlexJson( jsin, std::move( json ), std::move( source_file ),
+                                   std::move( path ) ) {}
 
         // NOLINTNEXTLINE(google-explicit-constructor)
         inline operator std::string() const;
@@ -910,7 +992,7 @@ class FlexJsonObject : FlexJson
         FlexJsonObject(
             FlexBuffer &&json,
             std::string source_file )
-            : FlexJson( std::move( json ), std::move( source_file ) ) {
+            : FlexJson( jsin_, std::move( json ), std::move( source_file ) ) {
             init( json_ );
         }
 
@@ -918,7 +1000,7 @@ class FlexJsonObject : FlexJson
             FlexBuffer &&json,
             std::string source_file,
             FlexJsonPath &&path )
-            : FlexJson( std::move( json ), std::move( source_file )
+            : FlexJson( jsin_, std::move( json ), std::move( source_file )
             , std::move( path ) ) {
             init( json_ );
         }
@@ -1049,7 +1131,7 @@ class FlexJsonObject : FlexJson
             bool found = find_map_key_idx( key, keys_, idx );
             if( found ) {
                 mark_visited( idx );
-                return FlexJsonValue{ values_[idx], std::string( source_file_ ), path_ + idx };
+                return FlexJsonValue{ jsin_, values_[idx], std::string( source_file_ ), path_ + idx };
             }
             return cata::nullopt;
         }
@@ -1062,7 +1144,7 @@ class FlexJsonObject : FlexJson
             bool found = find_map_key_idx( key, keys_, idx );
             if( found ) {
                 mark_visited( idx );
-                return FlexJsonValue{ values_[idx], std::string( source_file_ ), path_ + idx };
+                return FlexJsonValue{ jsin_, values_[idx], std::string( source_file_ ), path_ + idx };
             }
             error_no_member( key );
             return ( *this )[key];
@@ -1155,7 +1237,7 @@ class FlexJsonObject : FlexJson
         FlexJsonValue operator[]( size_t idx ) const {
             mark_visited( idx );
             const char *key = keys_[idx].AsKey();
-            return FlexJsonValue{ values_[idx], std::string( source_file_ ), path_ + idx };
+            return FlexJsonValue{ jsin_, values_[idx], std::string( source_file_ ), path_ + idx };
         }
 
         flexbuffers::Reference find_value_ref( const char *key ) const {
@@ -1238,7 +1320,7 @@ class FlexJsonArray : FlexJson
         FlexJsonArray(
             FlexBuffer &&json,
             std::string source_file )
-            : FlexJson( std::move( json ), std::move( source_file ) ) {
+            : FlexJson( jsin_,   std::move( json ), std::move( source_file ) ) {
             init( json_ );
         }
 
@@ -1246,7 +1328,7 @@ class FlexJsonArray : FlexJson
             FlexBuffer &&json,
             std::string source_file,
             FlexJsonPath &&path )
-            : FlexJson( std::move( json ), std::move( source_file )
+            : FlexJson( jsin_, std::move( json ), std::move( source_file )
             , std::move( path ) ) {
             init( json_ );
         }
@@ -1357,7 +1439,7 @@ class FlexJsonArray : FlexJson
                 } else {
                     value = json_.AsVector()[idx];
                 }
-                return FlexJsonValue{ std::move( value ), std::string( source_file_ ), path_ + idx };
+                return FlexJsonValue{ jsin_, std::move( value ), std::string( source_file_ ), path_ + idx };
             }
             throw_error( std::to_string( idx ) + " index is out of bounds." );
         }

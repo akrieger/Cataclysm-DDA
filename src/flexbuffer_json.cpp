@@ -26,12 +26,32 @@ static void advance_jsin( JsonIn *jsin, flexbuffers::Reference root, FlexJsonPat
     }
 }
 
+void FlexJsonIn::error( const std::string &message, int offset )
+{
+    std::ifstream original_json( *source_file_, std::ifstream::in | std::ifstream::binary );
+    JsonIn jsin( original_json );
+
+    advance_jsin( &jsin, *root_, path_ );
+
+    jsin.error( message, offset );
+}
+
+void FlexJsonIn::string_error( const std::string &message, int offset )
+{
+    std::ifstream original_json( *source_file_, std::ifstream::in | std::ifstream::binary );
+    JsonIn jsin( original_json );
+
+    advance_jsin( &jsin, *root_, path_ );
+
+    jsin.string_error( message, offset );
+}
+
 void FlexJson::throw_error( std::string const &message ) const
 {
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
     JsonIn jsin( original_json );
 
-    advance_jsin( &jsin, /*root_*/, path_ );
+    advance_jsin( &jsin, /*root_*/flexbuffers::Reference(), path_ );
 
     jsin.error( message );
 }
@@ -48,7 +68,7 @@ void FlexJsonObject::error_no_member( std::string const &member ) const
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
     JsonIn jsin( original_json );
 
-    advance_jsin( &jsin, /*root_*/, path_ );
+    advance_jsin( &jsin, /*root_*/ flexbuffers::Reference(), path_ );
 
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -62,7 +82,7 @@ void FlexJsonObject::error_skipped_members( std::vector<size_t> const &skipped_m
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
     JsonIn jsin( original_json );
 
-    advance_jsin( &jsin, /*root_*/, path_ );
+    advance_jsin( &jsin, /*root_*/flexbuffers::Reference(), path_ );
 
     JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
@@ -87,7 +107,7 @@ json_source_location FlexJsonObject::get_source_location() const
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
     JsonIn jsin( original_json );
 
-    advance_jsin( &jsin, /*root_*/, path_ );
+    advance_jsin( &jsin, /*root_*/flexbuffers::Reference(), path_ );
 
     json_source_location loc;
     loc.path = make_shared_fast<std::string>( source_file_ );
