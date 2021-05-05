@@ -987,7 +987,8 @@ class JsonObject
         bool has_member( const std::string &name ) const; // true iff named member exists
         std::string str() const; // copy object json as string
         [[noreturn]] void throw_error( const std::string &err ) const;
-        [[noreturn]] void throw_error( const std::string &err, const std::string &name ) const;
+        [[noreturn]] void throw_error( const std::string &err, const std::string &name,
+                                       int offset = 0 ) const;
         // seek to a value and return a pointer to the JsonIn (member must exist)
         JsonIn *get_raw( const std::string &name ) const;
         JsonValue get_member( const std::string &name ) const;
@@ -1298,8 +1299,8 @@ class JsonValue
             return seek().test_array();
         }
 
-        [[noreturn]] void throw_error( const std::string &err ) const {
-            seek().error( err );
+        [[noreturn]] void throw_error( const std::string &err, int offset = 0 ) const {
+            seek().error( err, offset );
         }
 
         std::string get_string() const {
