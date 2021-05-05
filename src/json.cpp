@@ -209,7 +209,7 @@ std::string JsonObject::str() const
     }
 }
 
-void JsonObject::throw_error( const std::string &err, const std::string &name ) const
+void JsonObject::throw_error( const std::string &err, const std::string &name, int offset ) const
 {
     mark_visited( name );
     if( !jsin ) {
@@ -219,7 +219,7 @@ void JsonObject::throw_error( const std::string &err, const std::string &name ) 
     if( pos ) {
         jsin->seek( pos );
     }
-    jsin->error( err );
+    jsin->error( err, offset );
 }
 
 void JsonArray::throw_error( const std::string &err )
