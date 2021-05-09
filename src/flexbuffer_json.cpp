@@ -5,7 +5,7 @@
 #include "json.h"
 
 // Advances the given jsin according to the passed JsonPath
-static void advance_jsin( JsonIn *jsin, flexbuffers::Reference root, FlexJsonPath const &path )
+static void advance_jsin( TextJsonIn *jsin, flexbuffers::Reference root, JsonPath const &path )
 {
     for( auto idx : path ) {
         if( root.IsMap() ) {
@@ -26,65 +26,65 @@ static void advance_jsin( JsonIn *jsin, flexbuffers::Reference root, FlexJsonPat
     }
 }
 
-void FlexJsonIn::error( const std::string &message, int offset )
+void JsonIn::error( const std::string &message, int offset )
 {
     std::ifstream original_json( *source_file_, std::ifstream::in | std::ifstream::binary );
-    JsonIn jsin( original_json );
+    TextJsonIn jsin( original_json );
 
     advance_jsin( &jsin, *root_, path_ );
 
     jsin.error( message, offset );
 }
 
-void FlexJsonIn::string_error( const std::string &message, int offset )
+void JsonIn::string_error( const std::string &message, int offset )
 {
     std::ifstream original_json( *source_file_, std::ifstream::in | std::ifstream::binary );
-    JsonIn jsin( original_json );
+    TextJsonIn jsin( original_json );
 
     advance_jsin( &jsin, *root_, path_ );
 
     jsin.string_error( message, offset );
 }
 
-void FlexJson::throw_error( std::string const &message ) const
+void Json::throw_error( std::string const &message, int offset ) const
 {
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
-    JsonIn jsin( original_json );
+    TextJsonIn jsin( original_json );
 
     advance_jsin( &jsin, /*root_*/flexbuffers::Reference(), path_ );
 
-    jsin.error( message );
+    jsin.error( message, offset );
 }
 
-std::string FlexJson::str() const
+std::string Json::str() const
 {
     std::string ret;
     json_.ToString( false, true, ret );
     return ret;
 }
 
-void FlexJsonObject::error_no_member( std::string const &member ) const
+void JsonObject::error_no_member( std::string const &member ) const
 {
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
-    JsonIn jsin( original_json );
+    TextJsonIn jsin( original_json );
 
     advance_jsin( &jsin, /*root_*/ flexbuffers::Reference(), path_ );
 
-    JsonObject jo = jsin.get_object();
+    TextJsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
     jo.get_member( member );
     // Just to make sure the compiler understands we will error earlier.
     jo.throw_error( "Failed to report missing member " + member );
 }
 
-void FlexJsonObject::error_skipped_members( std::vector<size_t> const &skipped_members ) const
+void JsonObject::error_skipped_members( std::vector<size_t> const &skipped_members ) const
 {
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
-    JsonIn jsin( original_json );
+    TextJsonIn jsin( original_json );
 
     advance_jsin( &jsin, /*root_*/flexbuffers::Reference(), path_ );
 
-    JsonObject jo = jsin.get_object();
+    TextJsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
     for( size_t skipped_member_idx : skipped_members ) {
         flexbuffers::String name = keys_[ skipped_member_idx ].AsString();
@@ -98,14 +98,14 @@ void FlexJsonObject::error_skipped_members( std::vector<size_t> const &skipped_m
     }
 }
 
-json_source_location FlexJsonObject::get_source_location() const
+json_source_location JsonObject::get_source_location() const
 {
     if( source_file_.empty() ) {
         throw_error( "JsonObject::get_source_location called but the path is unknown" );
     }
 
     std::ifstream original_json( source_file_, std::ifstream::in | std::ifstream::binary );
-    JsonIn jsin( original_json );
+    TextJsonIn jsin( original_json );
 
     advance_jsin( &jsin, /*root_*/flexbuffers::Reference(), path_ );
 

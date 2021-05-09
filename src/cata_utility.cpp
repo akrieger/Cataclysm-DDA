@@ -363,29 +363,8 @@ bool read_from_file( const std::string &path, const std::function<void( std::ist
 bool read_from_file_json( const std::string &path, const std::function<void( JsonIn & )> &reader )
 {
     return read_from_file( path, [&]( std::istream & fin ) {
-        FlexBufferCache::global_cache().parse_and_cache( path );
-        JsonIn jsin( fin, path );
+        JsonIn jsin = JsonIn::from( path );
         reader( jsin );
-    } );
-}
-
-bool read_from_file_json( const std::string &path,
-                          const std::function<void( FlexJsonObject & )> &reader )
-{
-    return read_from_file( path, [&]( std::istream & fin ) {
-        FlexJsonIn jsin = FlexJsonIn::from( path );
-        FlexJsonObject jo = jsin.get_object();
-        reader( jo );
-    } );
-}
-
-bool read_from_file_json( const std::string &path,
-                          const std::function<void( FlexJsonArray & )> &reader )
-{
-    return read_from_file( path, [&]( std::istream & fin ) {
-        FlexJsonIn jsin = FlexJsonIn::from( path );
-        FlexJsonArray ja = jsin.get_array();
-        reader( ja );
     } );
 }
 
@@ -402,8 +381,7 @@ bool read_from_file_optional_json( const std::string &path,
                                    const std::function<void( JsonIn & )> &reader )
 {
     return read_from_file_optional( path, [&]( std::istream & fin ) {
-        FlexBufferCache::global_cache().parse_and_cache( path );
-        JsonIn jsin( fin, path );
+        JsonIn jsin = JsonIn::from( path );
         reader( jsin );
     } );
 }

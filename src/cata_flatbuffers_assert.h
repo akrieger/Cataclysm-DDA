@@ -10,7 +10,7 @@
 
 #include <cstdio>
 
-#include "json.h"
+#include "json_error.h"
 
 #define FLATBUFFERS_ASSERT(expression) \
     do { \
