@@ -155,7 +155,7 @@ class JsonIn
             THROW_UNIMPLEMENTED;
         }
 
-        void seek( JsonPath const &path ) {
+        JsonIn& seek( JsonPath const &path ) {
             path_ = path;
             parent_ = *root_;
             values_in_parent_ = 0;
@@ -163,6 +163,7 @@ class JsonIn
                 parent_ = parent_.AsVector()[ idx ];
                 values_in_parent_ = count_values_in_parent();
             }
+            return *this;
         }
 
         // what's the next char gonna be?
@@ -875,7 +876,7 @@ class JsonValue : Json
 
         template<typename T>
         bool read( T &t, bool throw_on_error = false ) const {
-            return jsin_.seek(path_).read(t, throw_on_error);
+            return jsin_->seek(path_).read(t, throw_on_error);
         }
 
         bool test_string() const {
@@ -896,6 +897,16 @@ class JsonValue : Json
         bool test_array() const {
             return json_.IsVector() && !json_.IsMap();
         }
+
+        std::string get_string() const {
+            return (std::string)( *this );
+        }
+        double get_float() const {
+            return (double)(*this);
+        }
+        JsonObject get_object() const;
+        JsonArray get_array() const;
+
 
         using Json::throw_error;
 };
@@ -957,6 +968,10 @@ class JsonObject : Json
             visited_fields_bitset_.resize( keys_.size() );
         }
     public:
+        size_t size() const {
+            return keys_.size();
+        }
+
         std::string get_string( std::string const &key ) const {
             return get_string( key.c_str() );
         }
@@ -994,7 +1009,6 @@ class JsonObject : Json
             return get_member( key );
         }
 
-
         bool get_bool( std::string const &key ) const {
             return get_member( key.c_str() );
         }
@@ -1012,6 +1026,9 @@ class JsonObject : Json
         JsonObject get_object( const char *key ) const {
             return get_member( key );
         }
+
+        // Sigh.
+        std::vector<std::string> get_string_array(const std::string& name) const;
 
         bool has_member( std::string const &key ) const {
             return has_member( key.c_str() );
@@ -1037,6 +1054,13 @@ class JsonObject : Json
             return has_number( key );
         }
 
+        bool has_float(const char* key) const {
+            return has_number(key);
+        }
+        bool has_float(const std::string& key) const {
+            return has_number(key);
+        }
+
         bool has_number( const char *key ) const {
             auto ref = find_value_ref( key );
             return ref.IsNumeric();
@@ -1052,6 +1076,14 @@ class JsonObject : Json
         bool has_string( const char *key ) const {
             auto ref = find_value_ref( key );
             return ref.IsString();
+        }
+
+        bool has_bool(const std::string& key) const {
+            return has_bool(key.c_str());
+        }
+        bool has_bool(const char* key) const {
+            auto ref = find_value_ref(key);
+            return ref.IsBool();
         }
 
         bool has_array( std::string const &key ) const {
@@ -1079,6 +1111,17 @@ class JsonObject : Json
         }
         int get_int( const char *key, int fallback ) const {
             auto member_opt = get_member_opt( key );
+            if( member_opt.has_value() ) {
+                return *member_opt;
+            }
+            return fallback;
+        }
+
+        double get_float(std::string const& key, double fallback) const {
+            return get_float(key.c_str(), fallback);
+        }
+        double get_float(const char* key, double fallback) const {
+            auto member_opt = get_member_opt(key);
             if( member_opt.has_value() ) {
                 return *member_opt;
             }
@@ -1139,8 +1182,13 @@ class JsonObject : Json
             return read( name.c_str(), t, throw_on_error );
         }
 
-        template <typename T, typename Res>
-        Res get_tags( const std::string &name ) const {
+        template <typename T = std::string, typename Res = std::set<T>>
+        Res get_tags(const std::string& name) const {
+            return get_tags<T, Res>(name.c_str());
+        }
+
+        template <typename T = std::string, typename Res = std::set<T>>
+        Res get_tags( const char* name ) const {
             Res res;
             cata::optional<JsonMember> member_opt = get_member_opt( name );
             if( !member_opt.has_value() ) {
@@ -1403,6 +1451,46 @@ class JsonArray : Json
             return size_;
         }
 
+        bool empty() const {
+            return size() == 0;
+        }
+
+        JsonValue operator[](size_t idx) const {
+            // Manually bsearch for the key idx to store in visited_fields_bitset_.
+            // flexbuffers::Map::operator[] will probably be faster but won't give us the idx,
+            // which we need to track visited fields.
+
+            if( idx < size_ ) {
+                mark_visited(idx);
+                flexbuffers::Reference value;
+                if( json_.IsFixedTypedVector() ) {
+                    value = json_.AsFixedTypedVector()[ idx ];
+                } else if( json_.IsTypedVector() ) {
+                    value = json_.AsTypedVector()[ idx ];
+                } else {
+                    value = json_.AsVector()[ idx ];
+                }
+                return JsonValue{ std::move(value), std::string(source_file_), path_ + idx };
+            }
+            throw_error(std::to_string(idx) + " index is out of bounds.");
+        }
+
+        std::string get_string(size_t idx) {
+            return ( *this )[ idx ];
+        }
+
+        double get_float(size_t idx) {
+            return ( *this )[ idx ];
+        }
+
+        bool has_string(size_t idx) {
+            return ( *this )[ idx ].test_string();
+        }
+
+        bool has_array(size_t idx) {
+            return ( *this )[ idx ].test_array();
+        }
+
     private:
         size_t size_;
 
@@ -1418,26 +1506,6 @@ class JsonArray : Json
                 size_ = json_vec.size();
             }
             visited_fields_bitset_.resize( size_ );
-        }
-
-        JsonValue operator[]( size_t idx ) const {
-            // Manually bsearch for the key idx to store in visited_fields_bitset_.
-            // flexbuffers::Map::operator[] will probably be faster but won't give us the idx,
-            // which we need to track visited fields.
-
-            if( idx < size_ ) {
-                mark_visited( idx );
-                flexbuffers::Reference value;
-                if( json_.IsFixedTypedVector() ) {
-                    value = json_.AsFixedTypedVector()[idx];
-                } else if( json_.IsTypedVector() ) {
-                    value = json_.AsTypedVector()[idx];
-                } else {
-                    value = json_.AsVector()[idx];
-                }
-                return JsonValue{ std::move( value ), std::string( source_file_ ), path_ + idx };
-            }
-            throw_error( std::to_string( idx ) + " index is out of bounds." );
         }
 
         mutable TinyBitSet visited_fields_bitset_;

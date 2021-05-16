@@ -506,12 +506,9 @@ void DynamicDataLoader::load_data_from_path( const std::string &path, const std:
     }
     // iterate over each file
     for( const std::string &file : files ) {
-        // and stuff it into ram
-        std::istringstream iss( read_entire_file( file ) );
         try {
-            FlexBufferCache::global_cache().parse_and_cache( file );
             // parse it
-            JsonIn jsin( iss, file );
+            JsonIn jsin = JsonIn::from(file);
             load_all_from_json( jsin, src, ui, path, file );
         } catch( const JsonError &err ) {
             throw std::runtime_error( err.what() );
@@ -524,21 +521,19 @@ void DynamicDataLoader::load_all_from_json( JsonIn &jsin, const std::string &src
 {
     if( jsin.test_object() ) {
         // find type and dispatch single object
-        JsonObject jo = jsin.get_object();
-        load_object( jo, src, base_path, full_path );
-        jo.finish();
+        {
+            JsonObject jo = jsin.get_object();
+            load_object(jo, src, base_path, full_path);
+        }
         // if there's anything else in the file, it's an error.
         jsin.eat_whitespace();
         if( jsin.good() ) {
             jsin.error( string_format( "expected single-object file but found '%c'", jsin.peek() ) );
         }
     } else if( jsin.test_array() ) {
-        jsin.start_array();
-        // find type and dispatch each object until array close
-        while( !jsin.end_array() ) {
-            JsonObject jo = jsin.get_object();
+        for (JsonObject jo : jsin.get_array()) {
+            // find type and dispatch each object until array close
             load_object( jo, src, base_path, full_path );
-            jo.finish();
         }
     } else {
         // not an object or an array?

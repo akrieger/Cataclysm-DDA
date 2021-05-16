@@ -62,9 +62,9 @@ static nameFlags gender_flag( const std::string &gender )
 // Nick
 // City
 // World
-static void load( FlexJsonArray &jsin )
+static void load( JsonIn &jsin )
 {
-    for( FlexJsonObject jo : jsin ) {
+    for( JsonObject jo : jsin.get_array() ) {
         // get flags of name.
         const nameFlags type =
             usage_flag( jo.get_string( "usage" ) )

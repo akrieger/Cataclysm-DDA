@@ -1219,8 +1219,7 @@ void zone_manager::load_zones()
     std::string savefile = PATH_INFO::player_base_save_path() + ".zones.json";
 
     read_from_file_optional( savefile, [&]( std::istream & fin ) {
-        FlexBufferCache::global_cache().parse_and_cache( savefile );
-        JsonIn jsin( fin );
+        JsonIn jsin = JsonIn::from(savefile);
         deserialize( jsin );
     } );
     revert_vzones();

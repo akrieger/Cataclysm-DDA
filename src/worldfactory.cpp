@@ -626,9 +626,9 @@ void worldfactory::load_last_world_info()
         return;
     }
 
-    cata::optional<FlexJsonIn> data_opt = FlexJsonIn::from( PATH_INFO::lastworld() );
+    cata::optional<JsonIn> data_opt = JsonIn::from( PATH_INFO::lastworld() );
     if( data_opt.has_value() ) {
-        FlexJsonObject data = data_opt->get_object();
+        JsonObject data = data_opt->get_object();
         last_world_name = data.get_string( "world_name" );
         last_character_name = data.get_string( "character_name" );
     } else {

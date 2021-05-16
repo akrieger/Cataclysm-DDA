@@ -333,7 +333,7 @@ void bionic_data::load( const JsonObject &jsobj, const std::string & )
         // clear data first so that copy-from can override it
         stat_bonus.clear();
         for( JsonArray ja : jsobj.get_array( "stat_bonus" ) ) {
-            stat_bonus.emplace( io::string_to_enum<character_stat>( ja.get_string( 0 ) ),
+            stat_bonus.emplace( io::string_to_enum<character_stat>( ja[ 0 ].get_string() ),
                                 ja.get_int( 1 ) );
         }
     }
@@ -341,7 +341,7 @@ void bionic_data::load( const JsonObject &jsobj, const std::string & )
         // clear data first so that copy-from can override it
         encumbrance.clear();
         for( JsonArray ja : jsobj.get_array( "encumbrance" ) ) {
-            encumbrance.emplace( bodypart_str_id( ja.get_string( 0 ) ),
+            encumbrance.emplace( bodypart_str_id( ja[ 0 ].get_string() ),
                                  ja.get_int( 1 ) );
         }
     }
@@ -349,7 +349,7 @@ void bionic_data::load( const JsonObject &jsobj, const std::string & )
         // clear data first so that copy-from can override it
         occupied_bodyparts.clear();
         for( JsonArray ja : jsobj.get_array( "occupied_bodyparts" ) ) {
-            occupied_bodyparts.emplace( bodypart_str_id( ja.get_string( 0 ) ),
+            occupied_bodyparts.emplace( bodypart_str_id( ja[ 0 ].get_string() ),
                                         ja.get_int( 1 ) );
         }
     }
@@ -357,14 +357,14 @@ void bionic_data::load( const JsonObject &jsobj, const std::string & )
         // clear data first so that copy-from can override it
         env_protec.clear();
         for( JsonArray ja : jsobj.get_array( "env_protec" ) ) {
-            env_protec.emplace( bodypart_str_id( ja.get_string( 0 ) ), ja.get_int( 1 ) );
+            env_protec.emplace( bodypart_str_id( ja[ 0 ].get_string() ), ja.get_int( 1 ) );
         }
     }
     if( jsobj.has_array( "bash_protec" ) ) {
         // clear data first so that copy-from can override it
         bash_protec.clear();
         for( JsonArray ja : jsobj.get_array( "bash_protec" ) ) {
-            bash_protec.emplace( bodypart_str_id( ja.get_string( 0 ) ),
+            bash_protec.emplace( bodypart_str_id( ja[ 0 ].get_string() ),
                                  ja.get_int( 1 ) );
         }
     }
@@ -372,7 +372,7 @@ void bionic_data::load( const JsonObject &jsobj, const std::string & )
         // clear data first so that copy-from can override it
         cut_protec.clear();
         for( JsonArray ja : jsobj.get_array( "cut_protec" ) ) {
-            cut_protec.emplace( bodypart_str_id( ja.get_string( 0 ) ),
+            cut_protec.emplace( bodypart_str_id(ja[ 0 ].get_string()),
                                 ja.get_int( 1 ) );
         }
     }
@@ -380,7 +380,7 @@ void bionic_data::load( const JsonObject &jsobj, const std::string & )
         // clear data first so that copy-from can override it
         bullet_protec.clear();
         for( JsonArray ja : jsobj.get_array( "bullet_protec" ) ) {
-            bullet_protec.emplace( bodypart_str_id( ja.get_string( 0 ) ),
+            bullet_protec.emplace( bodypart_str_id(ja[ 0 ].get_string()),
                                    ja.get_int( 1 ) );
         }
     }

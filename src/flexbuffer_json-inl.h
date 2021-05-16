@@ -106,6 +106,24 @@ inline JsonValue::operator JsonArray() const
     throw_error( "Expected an array, got a " + std::to_string( json_.GetType() ) );
 }
 
+inline JsonObject JsonValue::get_object() const {
+    return (JsonObject)( *this );
+}
+
+inline std::vector<std::string> JsonObject::get_string_array(const std::string& name) const {
+    std::vector<std::string> ret;
+    JsonArray ja = get_array(name);
+    ret.reserve(ja.size());
+    for( JsonValue jv : get_array(name) ) {
+        ret.emplace_back(jv);
+    }
+    return ret;
+}
+
+inline JsonArray JsonValue::get_array() const {
+    return (JsonArray)( *this );
+}
+
 inline JsonArray JsonObject::get_array( std::string const &key ) const
 {
     return get_array( key.c_str() );

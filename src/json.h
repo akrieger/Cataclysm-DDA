@@ -44,6 +44,8 @@ class JsonSerializer;
 class TextJsonValue;
 class item;
 
+class JsonObject;
+
 namespace cata
 {
 template<typename T>
@@ -1470,7 +1472,7 @@ Res TextJsonObject::get_tags( const std::string &name ) const
  * Get an array member from json with name name.  For each element of that
  * array (which should be a string) add it to the given set.
  */
-void add_array_to_set( std::set<std::string> &, const TextJsonObject &json, const std::string &name );
+void add_array_to_set( std::set<std::string> &, const JsonObject &json, const std::string &name );
 
 /* JsonSerializer
  * ==============
@@ -1530,7 +1532,7 @@ class JsonDeserializer
 {
     public:
         virtual ~JsonDeserializer() = default;
-        virtual void deserialize( TextJsonIn &jsin ) = 0;
+        virtual void deserialize( JsonIn &jsin ) = 0;
         JsonDeserializer() = default;
         JsonDeserializer( JsonDeserializer && ) = default;
         JsonDeserializer( const JsonDeserializer & ) = default;

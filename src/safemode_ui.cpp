@@ -843,7 +843,7 @@ void safemode::load( const bool is_character_in )
 
     if( fin.good() ) {
         try {
-            FlexJsonIn jsin = FlexJsonIn::from( file );
+            JsonIn jsin = JsonIn::from( file );
             deserialize( jsin );
         } catch( const JsonError &e ) {
             debugmsg( "Error while loading safemode settings: %s", e.what() );
@@ -875,12 +875,12 @@ void safemode::serialize( JsonOut &json ) const
     json.end_array();
 }
 
-void safemode::deserialize( FlexJsonIn &jsin )
+void safemode::deserialize( JsonIn &jsin )
 {
     auto &temp_rules = ( is_character ) ? character_rules : global_rules;
     temp_rules.clear();
 
-    for( FlexJsonObject jo : jsin.get_array() ) {
+    for( JsonObject jo : jsin.get_array() ) {
         const std::string rule = jo.get_string( "rule" );
         const bool active = jo.get_bool( "active" );
         const bool whitelist = jo.get_bool( "whitelist" );

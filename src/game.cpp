@@ -2966,9 +2966,8 @@ bool game::load( const save_t &name )
     zone_manager::get_manager().load_zones(); // Load character world zones
     read_from_file_optional( PATH_INFO::world_base_save_path() + "/uistate.json", [](
     std::istream & stream ) {
-        FlexBufferCache::global_cache().parse_and_cache( PATH_INFO::world_base_save_path() +
-                "/uistate.json" );
-        JsonIn jsin( stream );
+        JsonIn jsin = JsonIn::from(PATH_INFO::world_base_save_path() +
+            "/uistate.json");
         uistate.deserialize( jsin );
     } );
     reload_npcs();

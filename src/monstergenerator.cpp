@@ -831,15 +831,14 @@ void mtype::load( const JsonObject &jo, const std::string &src )
 
     if( jo.has_array( "emit_fields" ) ) {
         JsonArray jar = jo.get_array( "emit_fields" );
-        if( jar.has_string( 0 ) ) { // TEMPORARY until 0.F
+        if( jar[ 0 ].test_string() ) { // TEMPORARY until 0.F
             for( const std::string id : jar ) {
                 emit_fields.emplace( emit_id( id ), 1_seconds );
             }
         } else {
-            while( jar.has_more() ) {
-                JsonObject obj = jar.next_object();
-                emit_fields.emplace( emit_id( obj.get_string( "emit_id" ) ),
-                                     read_from_json_string<time_duration>( obj.get_member( "delay" ), time_duration::units ) );
+            for( JsonObject obj : jar ) {
+                emit_fields.emplace(emit_id(obj.get_string("emit_id")),
+                    read_from_json_string<time_duration>(obj.get_member("delay"), time_duration::units));
             }
         }
     }

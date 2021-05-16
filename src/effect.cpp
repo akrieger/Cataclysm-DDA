@@ -501,7 +501,7 @@ bool effect_type::load_miss_msgs( const JsonObject &jo, const std::string &membe
 bool effect_type::load_decay_msgs( const JsonObject &jo, const std::string &member )
 {
     if( jo.has_array( member ) ) {
-        for( JsonArray inner : jo.get_array( member ) ) {
+        for( TextJsonArray inner : jo.get_array( member ) ) {
             translation msg;
             inner.read( 0, msg );
             std::string r = inner.get_string( 1 );

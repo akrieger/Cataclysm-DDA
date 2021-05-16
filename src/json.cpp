@@ -741,7 +741,7 @@ bool TextJsonArray::has_object( const size_t i ) const
     return jsin->test_object();
 }
 
-void add_array_to_set( std::set<std::string> &s, const TextJsonObject &json,
+void add_array_to_set( std::set<std::string> &s, const JsonObject &json,
                        const std::string &name )
 {
     for( const std::string line : json.get_array( name ) ) {
