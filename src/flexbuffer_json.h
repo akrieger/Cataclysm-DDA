@@ -106,8 +106,6 @@ class JsonIn
         // Keeps the backing memory for the flexbuffer alive, whether in builder memory or an mmap'd file.
         // We need this to interpret path_ when throwing an error.
         std::shared_ptr<FlexBuffer> root_;
-        // A cached JsonIn for this JsonIn, used to fulfill get_raw calls.
-        std::unique_ptr<JsonIn> raw_;
         // The parent of the value pointed to by path_. Empty path -> root reference.
         // Unfortunately popping out of an object requires re-traversing from the root.
         // This must always be a Vector (or a Map, which is a Vector), aka a keyed type.
@@ -1027,6 +1025,48 @@ class JsonObject : Json
             return get_member( key );
         }
 
+        /*template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
+        E get_enum_value(const std::string& name, const E fallback) const {
+            if( !has_member(name) ) {
+                return fallback;
+            }
+            mark_visited(name);
+            jsin->seek(verify_position(name));
+            return jsin->get_enum_value<E>();
+        }*/
+
+        template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
+        E get_enum_value(const std::string& name) const {
+            return get_enum_value<E>(name.c_str());
+        }
+        template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
+        E get_enum_value(const char* name) const {
+            auto value = get_member(name);
+            try {
+                return io::string_to_enum<E>((std::string)value);
+            } catch( const io::InvalidEnumString& ) {
+                value.throw_error("invalud enumumeration value");
+            }
+        }
+
+        template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
+        E get_enum_value(const std::string& name, E fallback) const {
+            return get_enum_value<E>(name.c_str(), fallback);
+        }
+        template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
+        E get_enum_value(const char* name, E fallback) const {
+            auto value = get_member_opt(name);
+            if( value.has_value() ) {
+                try {
+                    return io::string_to_enum<E>((std::string)*value);
+                } catch( const io::InvalidEnumString& ) {
+                    value->throw_error("invalud enumumeration value");
+                }
+            } else {
+                return fallback;
+            }
+        }
+
         // Sigh.
         std::vector<std::string> get_string_array(const std::string& name) const;
 
@@ -1476,6 +1516,10 @@ class JsonArray : Json
         }
 
         std::string get_string(size_t idx) {
+            return ( *this )[ idx ];
+        }
+
+        JsonArray get_array(size_t idx) {
             return ( *this )[ idx ];
         }
 

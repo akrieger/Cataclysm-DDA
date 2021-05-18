@@ -1153,7 +1153,6 @@ void player::load( const JsonObject &data )
 {
     Character::load( data );
 
-    JsonArray parray;
     character_id tmpid;
 
     data.read( "slow_rad", slow_rad );

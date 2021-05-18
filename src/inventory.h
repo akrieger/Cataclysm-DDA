@@ -200,7 +200,7 @@ class inventory : public visitable
         std::vector<item *> active_items();
 
         void json_load_invcache( JsonIn &jsin );
-        void json_load_items( JsonIn &jsin );
+        void json_load_items( JsonArray ja );
 
         void json_save_invcache( JsonOut &json ) const;
         void json_save_items( JsonOut &json ) const;
