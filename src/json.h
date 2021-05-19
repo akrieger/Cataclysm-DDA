@@ -247,6 +247,7 @@ class JsonIn
         std::string get_member_name(); // also strips the ':'
         JsonObject get_object();
         JsonArray get_array();
+        JsonValue get_value(); // just returns a JsonValue at the current position.
 
         template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
         E get_enum_value() {

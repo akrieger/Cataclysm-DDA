@@ -1390,6 +1390,9 @@ JsonArray JsonIn::get_array()
 {
     return JsonArray( *this );
 }
+JsonValue JsonIn::get_value() {
+    return JsonValue( *this, tell() );
+}
 
 void JsonIn::start_array()
 {
