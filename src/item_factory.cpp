@@ -98,7 +98,7 @@ static void assign( const JsonObject &jo, const std::string &name,
         return;
     }
     mods.clear();
-    for( JsonArray curr : jo.get_array( name ) ) {
+    for( TextJsonArray curr : jo.get_array( name ) ) {
         translation text;
         curr.read( 1, text );
         mods.emplace( gun_mode_id( curr.get_string( 0 ) ), gun_modifier_data( text,

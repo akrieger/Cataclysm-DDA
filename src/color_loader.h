@@ -49,8 +49,8 @@ class color_loader
         }
 
         void load_colorfile( const std::string &path ) {
-            FlexJsonIn jsin = FlexJsonIn::from( path );
-            for( FlexJsonObject jo : jsin.get_array() ) {
+            JsonIn jsin = JsonIn::from( path );
+            for( JsonObject jo : jsin.get_array() ) {
                 // This isn't actually read (here), so just ignore it
                 jo.get_string( "type" );
                 load_colors( jo );

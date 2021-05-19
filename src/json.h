@@ -45,6 +45,7 @@ class TextJsonValue;
 class item;
 
 class JsonObject;
+class JsonIn;
 
 namespace cata
 {

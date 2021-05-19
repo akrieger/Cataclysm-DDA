@@ -490,8 +490,7 @@ void vpart_info::load( const JsonObject &jo, const std::string &src )
     JsonArray tools = jo.get_array( "pseudo_tools" );
     if( !tools.empty() ) {
         def.pseudo_tools.clear();
-        while( tools.has_more() ) {
-            const JsonObject tooldef = tools.next_object();
+        for (const JsonObject tooldef : tools ) {
             const itype_id tool_id( tooldef.get_string( "id" ) );
             const std::string hotkey_str = tooldef.has_string( "hotkey" ) ? tooldef.get_string( "hotkey" ) : "";
             const int hotkey = hotkey_str.empty() ? -1 : static_cast<int>( hotkey_str[0] );

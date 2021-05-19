@@ -1267,6 +1267,10 @@ class JsonObject : Json
             visited_fields_bitset_.set_all();
         }
 
+        void copy_visited_members(const JsonObject& rhs) const {
+            visited_fields_bitset_ = rhs.visited_fields_bitset_;
+        }
+
         json_source_location get_source_location() const;
 
         using Json::str;
@@ -1535,8 +1539,30 @@ class JsonArray : Json
             return ( *this )[ idx ].test_array();
         }
 
+        int next_int() {
+            return get_next();
+        }
+
+        double next_float() {
+            return get_next();
+        }
+
+        std::string next_string() {
+            return get_next();
+        }
+
+        JsonObject next_object() {
+            return get_next();
+        }
+
     private:
+
+        JsonValue get_next() {
+            return ( *this )[ next_++ ];
+        }
+
         size_t size_;
+        size_t next_ = 0;
 
         void init( FlexBuffer const &json ) {
             if( json.IsFixedTypedVector() ) {
