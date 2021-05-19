@@ -741,36 +741,23 @@ text_style_check_reader::text_style_check_reader( const allow_object object_allo
 {
 }
 
-std::string text_style_check_reader::get_next( JsonIn &jsin ) const
+std::string text_style_check_reader::get_next( JsonValue jv ) const
 {
-#ifndef CATA_IN_TOOL
-    int origin = 0;
-#endif
     std::string raw;
     bool check_style = true;
-    if( object_allowed == allow_object::yes && jsin.test_object() ) {
-        JsonObject jsobj = jsin.get_object();
-#ifndef CATA_IN_TOOL
-        if( test_mode ) {
-            origin = jsobj.get_raw( "str" )->tell();
-        }
-#endif
+    if( object_allowed == allow_object::yes && jv.test_object() ) {
+        JsonObject jsobj = jv.get_object();
         raw = jsobj.get_string( "str" );
         if( jsobj.has_member( "//NOLINT(cata-text-style)" ) ) {
             check_style = false;
         }
     } else {
-#ifndef CATA_IN_TOOL
-        if( test_mode ) {
-            origin = jsin.tell();
-        }
-#endif
-        raw = jsin.get_string();
+        raw = jv.get_string();
     }
 #ifndef CATA_IN_TOOL
     if( test_mode && check_style ) {
         const auto text_style_callback =
-            [&jsin, origin]
+            [&jv]
             ( const text_style_fix type, const std::string & msg,
               const std::u32string::const_iterator & beg, const std::u32string::const_iterator & /*end*/,
               const std::u32string::const_iterator & /*at*/,
@@ -796,16 +783,13 @@ std::string text_style_check_reader::get_next( JsonIn &jsin ) const
                           + "    At the following position (marked with caret)";
                     break;
             }
-            const int previous_pos = jsin.tell();
             try {
-                jsin.seek( origin );
-                jsin.string_error( err, std::distance( beg, to ) );
+                jv.throw_error( err, 1 + std::distance( beg, to ) );
             } catch( const JsonError &e ) {
                 debugmsg( "(json-error)\n%s", e.what() );
             }
             // seek to previous pos (end of string) so subsequent json input
             // can continue.
-            jsin.seek( previous_pos );
         };
 
         const std::u32string raw32 = utf8_to_utf32( raw );
