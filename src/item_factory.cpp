@@ -2971,8 +2971,8 @@ void Item_factory::load_basic_info( const JsonObject &jo, itype &def, const std:
             // the first magazine for this ammo type is the default
             def.magazine_default[ ammo ] = itype_id( compat.get_string( 0 ) );
 
-            while( compat.has_more() ) {
-                def.magazines[ ammo ].insert( itype_id( compat.next_string() ) );
+            for (size_t i = 1; i < compat.size(); ++i ) {
+                def.magazines[ ammo ].insert( itype_id( compat[i].get_string() ) );
             }
         }
     }

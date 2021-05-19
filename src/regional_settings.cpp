@@ -726,7 +726,7 @@ void apply_region_overlay( const JsonObject &jo, regional_settings &region )
             if( member.is_comment() ) {
                 continue;
             }
-            dest.add( overmap_special_id( member.name() ), member.get_int() );
+            dest.add( overmap_special_id( member.name() ), member );
         }
     };
     load_building_types( "houses", region.city_spec.houses );

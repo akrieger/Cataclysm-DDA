@@ -1190,6 +1190,9 @@ class JsonObject : Json
             return cata::nullopt;
         }
 
+        JsonValue get_member(const std::string& key) const {
+            return get_member(key.c_str());
+        }
         JsonValue get_member( const char *key ) const {
             // Manually bsearch for the key idx to store in visited_fields_bitset_.
             // flexbuffers::Map::operator[] will probably be faster but won't give us the idx,
@@ -1230,12 +1233,12 @@ class JsonObject : Json
         template <typename T = std::string, typename Res = std::set<T>>
         Res get_tags( const char* name ) const {
             Res res;
-            cata::optional<JsonMember> member_opt = get_member_opt( name );
+            cata::optional<JsonValue> member_opt = get_member_opt( name );
             if( !member_opt.has_value() ) {
                 return res;
             }
 
-            JsonMember &member = *member_opt;
+            JsonValue &member = *member_opt;
 
             // allow single string as tag
             if( member.test_string() ) {
@@ -1554,6 +1557,8 @@ class JsonArray : Json
         JsonObject next_object() {
             return get_next();
         }
+
+        using Json::throw_error;
 
     private:
 
