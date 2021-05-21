@@ -899,6 +899,9 @@ class JsonValue : Json
         std::string get_string() const {
             return (std::string)( *this );
         }
+        int get_int() const {
+            return (int)(*this);
+        }
         double get_float() const {
             return (double)(*this);
         }
@@ -907,6 +910,7 @@ class JsonValue : Json
 
 
         using Json::throw_error;
+        using Json::path_;
 };
 
 class JsonMember : public JsonValue
@@ -1068,6 +1072,7 @@ class JsonObject : Json
         }
 
         // Sigh.
+        std::vector<int> get_int_array(const std::string& name) const;
         std::vector<std::string> get_string_array(const std::string& name) const;
 
         bool has_member( std::string const &key ) const {
@@ -1522,43 +1527,82 @@ class JsonArray : Json
             throw_error(std::to_string(idx) + " index is out of bounds.");
         }
 
-        std::string get_string(size_t idx) {
+        std::string get_string(size_t idx) const {
             return ( *this )[ idx ];
         }
 
-        JsonArray get_array(size_t idx) {
+        JsonArray get_array(size_t idx) const {
             return ( *this )[ idx ];
         }
 
-        double get_float(size_t idx) {
+        double get_float(size_t idx) const {
             return ( *this )[ idx ];
         }
 
-        bool has_string(size_t idx) {
+        bool has_string(size_t idx) const {
             return ( *this )[ idx ].test_string();
         }
 
-        bool has_array(size_t idx) {
+        bool has_int(size_t idx) const {
+            return (*this)[idx].test_int();
+        }
+
+        bool has_array(size_t idx) const {
             return ( *this )[ idx ].test_array();
         }
 
-        int next_int() {
-            return get_next();
+        bool has_object(size_t idx) const {
+            return (*this)[idx].test_object();
         }
 
         double next_float() {
             return get_next();
         }
 
+        bool test_string() {
+            return has_string(next_);
+        }
         std::string next_string() {
             return get_next();
         }
 
+        bool test_int() {
+            return has_int(next_);
+        }
+        int next_int() {
+            return get_next();
+        }
+
+        bool test_array() {
+            return has_array(next_);
+        }
+        JsonArray next_array() {
+            return get_next();
+        }
+
+        bool test_object() {
+            return has_object(next_);
+        }
         JsonObject next_object() {
             return get_next();
         }
 
+        // random-access read values by reference
+        template <typename T> bool read_next(T& t) const {
+            jsin_->seek(get_next().path_);
+            return jsin_->read(t);
+        }
+
+        // random-access read values by reference
+        template <typename T> bool read(size_t i, T& t, bool throw_on_error = false) const {
+            jsin_->seek((*this)[i].path_);
+            return jsin_->read(t, throw_on_error);
+        }
         using Json::throw_error;
+
+        bool has_more() const {
+            return next_ < size_;
+        }
 
     private:
 

@@ -2136,8 +2136,9 @@ void monster::load( const JsonObject &data )
         JsonArray parray = data.get_array( "sp_timeout" );
         size_t index = 0;
         int ptimeout = 0;
-        while( parray.has_more() && index < type->special_attacks_names.size() ) {
-            if( parray.read_next( ptimeout ) ) {
+        while( index < parray.size() && index < type->special_attacks_names.size() ) {
+            int ptimeout = parray.next_int();
+            if( ptimeout ) {
                 // assume timeouts saved in same order as current monsters.json listing
                 const std::string &aname = type->special_attacks_names[index++];
                 auto &entry = special_attacks[aname];

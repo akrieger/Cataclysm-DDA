@@ -881,15 +881,17 @@ void mutation_branch::add_entry( Trait_group &tg, const JsonObject &obj )
 {
     std::unique_ptr<Trait_creation_data> ptr;
     int probability = obj.get_int( "prob", 100 );
-    JsonArray jarr;
+    cata::optional<JsonArray> jarr_opt;
 
     if( obj.has_member( "collection" ) ) {
         ptr = std::make_unique<Trait_group_collection>( probability );
-        jarr = obj.get_array( "collection" );
+        jarr_opt = obj.get_array( "collection" );
     } else if( obj.has_member( "distribution" ) ) {
         ptr = std::make_unique<Trait_group_distribution>( probability );
-        jarr = obj.get_array( "distribution" );
+        jarr_opt = obj.get_array( "distribution" );
     }
+
+    JsonArray& jarr = *jarr_opt;
 
     if( ptr ) {
         Trait_group &tg2 = dynamic_cast<Trait_group &>( *ptr );

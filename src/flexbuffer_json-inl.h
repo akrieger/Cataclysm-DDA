@@ -110,6 +110,15 @@ inline JsonObject JsonValue::get_object() const {
     return (JsonObject)( *this );
 }
 
+inline std::vector<int> JsonObject::get_int_array(const std::string& name) const {
+    std::vector<int> ret;
+    JsonArray ja = get_array(name);
+    ret.reserve(ja.size());
+    for (JsonValue jv : get_array(name)) {
+        ret.emplace_back(jv);
+    }
+    return ret;
+}
 inline std::vector<std::string> JsonObject::get_string_array(const std::string& name) const {
     std::vector<std::string> ret;
     JsonArray ja = get_array(name);
