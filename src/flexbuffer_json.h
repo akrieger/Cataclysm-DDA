@@ -816,6 +816,7 @@ class Json
 
         std::string str() const;
         [[noreturn]] void throw_error( std::string const &message, int offset = 0 ) const;
+        [[noreturn]] void string_error(std::string const& message, int offset = 0) const;
 
     protected:
         Json( FlexBuffer &&json, std::string &&source_file ) : json_{ std::move( json ) },
@@ -910,6 +911,7 @@ class JsonValue : Json
 
 
         using Json::throw_error;
+        using Json::string_error;
         using Json::path_;
 };
 
@@ -1599,6 +1601,10 @@ class JsonArray : Json
             return jsin_->read(t, throw_on_error);
         }
         using Json::throw_error;
+
+        [[noreturn]] void string_error(const std::string& message, size_t idx, int offset) const {
+            ( *this )[ idx ].string_error(message, offset);
+        }
 
         bool has_more() const {
             return next_ < size_;

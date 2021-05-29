@@ -56,6 +56,16 @@ void Json::throw_error( std::string const &message, int offset ) const
     jsin.error( message, offset );
 }
 
+void Json::string_error(std::string const& message, int offset) const
+{
+    std::ifstream original_json(source_file_, std::ifstream::in | std::ifstream::binary);
+    TextJsonIn jsin(original_json);
+
+    advance_jsin(&jsin, /*root_*/flexbuffers::Reference(), path_);
+
+    jsin.string_error(message, offset);
+}
+
 std::string Json::str() const
 {
     std::string ret;
