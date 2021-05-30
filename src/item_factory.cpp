@@ -98,7 +98,7 @@ static void assign( const JsonObject &jo, const std::string &name,
         return;
     }
     mods.clear();
-    for( TextJsonArray curr : jo.get_array( name ) ) {
+    for( JsonArray curr : jo.get_array( name ) ) {
         translation text;
         curr.read( 1, text );
         mods.emplace( gun_mode_id( curr.get_string( 0 ) ), gun_modifier_data( text,
@@ -1605,10 +1605,9 @@ void load_optional_enum_array( std::vector<E> &vec, const JsonObject &jo,
         jo.throw_error( "expected array", member );
     }
 
-    JsonIn &stream = *jo.get_raw( member );
-    stream.start_array();
-    while( !stream.end_array() ) {
-        vec.push_back( stream.get_enum_value<E>() );
+    JsonArray enum_array = jo.get_array( member );
+    while( enum_array.has_more() ) {
+        vec.push_back( enum_array.next_enum_value<E>() );
     }
 }
 

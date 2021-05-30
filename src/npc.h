@@ -281,6 +281,7 @@ struct npc_opinion {
 
     void serialize( JsonOut &json ) const;
     void deserialize( JsonIn &jsin );
+    void deserialize(const JsonObject& jo);
 };
 
 enum class combat_engagement : int {

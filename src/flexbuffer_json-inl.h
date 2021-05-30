@@ -2,13 +2,23 @@
 #ifndef CATA_SRC_FLEXBUFFER_JSON_INL_H
 #define CATA_SRC_FLEXBUFFER_JSON_INL_H
 
+inline JsonValue JsonIn::get_value()
+{
+    check_idx_before_deref();
+    flexbuffers::Reference value = get_current();
+    JsonValue ret{ std::move(value), *source_file_, JsonPath(path_) };
+    advance();
+    return ret;
+}
+
 inline JsonObject JsonIn::get_object()
 {
     check_idx_before_deref();
     flexbuffers::Reference value = get_current();
     if( value.IsMap() ) {
+        JsonObject ret{ std::move(value), *source_file_, JsonPath(path_) };
         advance();
-        return JsonObject( std::move( value ), *source_file_, JsonPath( path_ ) );
+        return ret;
     }
     throw std::runtime_error( "Not an object" );
 }
@@ -18,8 +28,9 @@ inline JsonArray JsonIn::get_array()
     check_idx_before_deref();
     flexbuffers::Reference value = get_current();
     if( value.IsVector() && !value.IsMap() ) {
+        JsonArray ret{ std::move(value), *source_file_, JsonPath(path_) };
         advance();
-        return JsonArray( std::move( value ), *source_file_, JsonPath( path_ ) );
+        return ret;
     }
     throw std::runtime_error( "Not an array" );
 }

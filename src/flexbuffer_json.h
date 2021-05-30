@@ -96,6 +96,7 @@ struct JsonPath {
 
 class JsonObject;
 class JsonArray;
+class JsonValue;
 
 // A replacement for JsonIn that operates on a FlexBuffer, storing position with a JsonPath.
 // We leverage the current design of JsonIn & friends to maximize efficiency of the Flex equivalents.
@@ -405,6 +406,7 @@ class JsonIn
             throw std::runtime_error( "Not in an object" );
         }
 
+        inline JsonValue get_value();
         inline JsonObject get_object();
         inline JsonArray get_array();
 
@@ -854,9 +856,9 @@ class Json
 class JsonValue : Json
 {
     public:
-        JsonValue( FlexBuffer &&json, std::string &&source_file ) : Json( std::move( json ),
+        JsonValue( FlexBuffer &&json, std::string source_file ) : Json( std::move( json ),
                     std::move( source_file ) ) {}
-        JsonValue( FlexBuffer &&json, std::string &&source_file,
+        JsonValue( FlexBuffer &&json, std::string source_file,
                    JsonPath &&path ) : Json( std::move( json ), std::move( source_file ),
                                                  std::move( path ) ) {}
 
@@ -895,6 +897,9 @@ class JsonValue : Json
         }
         bool test_array() const {
             return json_.IsVector() && !json_.IsMap();
+        }
+        bool test_null() const {
+            return json_.IsNull();
         }
 
         std::string get_string() const {
@@ -945,7 +950,6 @@ class JsonObject : Json
         mutable TinyBitSet visited_fields_bitset_;
 
     public:
-
         JsonObject(
             FlexBuffer &&json,
             std::string source_file )
@@ -1589,8 +1593,18 @@ class JsonArray : Json
             return get_next();
         }
 
+        template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
+        E next_enum_value() {
+            try {
+                return io::string_to_enum<E>(next_string());
+            } catch( const io::InvalidEnumString& ) {
+                --path_.last();
+                throw_error("invalid enumeration value");
+            }
+        }
+
         // random-access read values by reference
-        template <typename T> bool read_next(T& t) const {
+        template <typename T> bool read_next(T& t) {
             jsin_->seek(get_next().path_);
             return jsin_->read(t);
         }
@@ -1608,6 +1622,26 @@ class JsonArray : Json
 
         bool has_more() const {
             return next_ < size_;
+        }
+
+        template <typename T = std::string, typename Res = std::set<T>>
+        Res get_tags(const size_t idx) const
+        {
+            Res res;
+
+            JsonValue jv = ( *this )[ idx ];
+
+            // allow single string as tag
+            if( jv.test_string() ) {
+                res.insert(T(jv.get_string()));
+                return res;
+            }
+
+            for( const std::string line : jv.get_array() ) {
+                res.insert(T(line));
+            }
+
+            return res;
         }
 
     private:

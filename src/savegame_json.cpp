@@ -845,8 +845,8 @@ void Character::load( const JsonObject &data )
 
     inv->clear();
     if( data.has_member( "inv" ) ) {
-        JsonIn *invin = data.get_raw( "inv" );
-        inv->json_load_items( *invin );
+        JsonArray invin = data.get_array( "inv" );
+        inv->json_load_items( invin );
     }
     // this is after inventory is loaded to make it more obvious that
     // it needs to be changed again when Character::i_at is removed for nested containers
@@ -1441,8 +1441,7 @@ void avatar::load( const JsonObject &data )
     }
 
     if( data.has_member( "invcache" ) ) {
-        JsonIn *jip = data.get_raw( "invcache" );
-        inv->json_load_invcache( *jip );
+        inv->json_load_invcache(data.get_array("invcache"));
     }
 
     data.read( "calorie_diary", calorie_diary );
@@ -1632,12 +1631,17 @@ void npc_personality::serialize( JsonOut &json ) const
 void npc_opinion::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize(data);
+}
+
+void npc_opinion::deserialize(const JsonObject& data)
+{
     data.allow_omitted_members();
-    data.read( "trust", trust );
-    data.read( "fear", fear );
-    data.read( "value", value );
-    data.read( "anger", anger );
-    data.read( "owed", owed );
+    data.read("trust", trust);
+    data.read("fear", fear);
+    data.read("value", value);
+    data.read("anger", anger);
+    data.read("owed", owed);
 }
 
 void npc_opinion::serialize( JsonOut &json ) const
@@ -1898,8 +1902,8 @@ void npc::load( const JsonObject &data )
 
     companion_mission_inv.clear();
     if( data.has_member( "companion_mission_inv" ) ) {
-        JsonIn *invin_mission = data.get_raw( "companion_mission_inv" );
-        companion_mission_inv.json_load_items( *invin_mission );
+        JsonArray invin_mission = data.get_array( "companion_mission_inv" );
+        companion_mission_inv.json_load_items( invin_mission );
     }
 
     if( !data.read( "restock", restock ) ) {
@@ -2023,11 +2027,11 @@ void inventory::json_save_invcache( JsonOut &json ) const
 /*
  * Invlet cache: player specific, thus not wrapped in inventory::json_load/save
  */
-void inventory::json_load_invcache( JsonIn &jsin )
+void inventory::json_load_invcache( const JsonArray& jsarr )
 {
     try {
         std::unordered_map<itype_id, std::string> map;
-        for( JsonObject jo : jsin.get_array() ) {
+        for( JsonObject jo : jsarr ) {
             jo.allow_omitted_members();
             for( const JsonMember member : jo ) {
                 std::string invlets;
@@ -2057,13 +2061,12 @@ void inventory::json_save_items( JsonOut &json ) const
     json.end_array();
 }
 
-void inventory::json_load_items( JsonIn &jsin )
+void inventory::json_load_items( const JsonArray& ja )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
+    for (JsonObject i : ja) {
         item tmp;
-        tmp.deserialize( jsin );
-        add_item( tmp, true, false );
+        tmp.deserialize( i );
+        add_item( std::move(tmp), true, false );
     }
 }
 
@@ -2100,33 +2103,33 @@ void monster::load( const JsonObject &data )
         wander_pos.z = position.z;
     }
     if( data.has_object( "tied_item" ) ) {
-        JsonIn *tied_item_json = data.get_raw( "tied_item" );
+        JsonObject tied_item_json = data.get_object( "tied_item" );
         item newitem;
-        newitem.deserialize( *tied_item_json );
+        newitem.deserialize( tied_item_json );
         tied_item = cata::make_value<item>( newitem );
     }
     if( data.has_object( "tack_item" ) ) {
-        JsonIn *tack_item_json = data.get_raw( "tack_item" );
+        JsonObject tack_item_json = data.get_object( "tack_item" );
         item newitem;
-        newitem.deserialize( *tack_item_json );
+        newitem.deserialize( tack_item_json );
         tack_item = cata::make_value<item>( newitem );
     }
     if( data.has_object( "armor_item" ) ) {
-        JsonIn *armor_item_json = data.get_raw( "armor_item" );
+        JsonObject armor_item_json = data.get_object( "armor_item" );
         item newitem;
-        newitem.deserialize( *armor_item_json );
+        newitem.deserialize( armor_item_json );
         armor_item = cata::make_value<item>( newitem );
     }
     if( data.has_object( "storage_item" ) ) {
-        JsonIn *storage_item_json = data.get_raw( "storage_item" );
+        JsonObject storage_item_json = data.get_object( "storage_item" );
         item newitem;
-        newitem.deserialize( *storage_item_json );
+        newitem.deserialize( storage_item_json );
         storage_item = cata::make_value<item>( newitem );
     }
     if( data.has_object( "battery_item" ) ) {
-        JsonIn *battery_item_json = data.get_raw( "battery_item" );
+        JsonObject battery_item_json = data.get_object( "battery_item" );
         item newitem;
-        newitem.deserialize( *battery_item_json );
+        newitem.deserialize( battery_item_json );
         battery_item = cata::make_value<item>( newitem );
     }
     data.read( "hp", hp );
@@ -2602,9 +2605,13 @@ void item::migrate_content_item( const item &contained )
     }
 }
 
-void item::deserialize( JsonIn &jsin )
+void item::deserialize(JsonIn& jsin)
 {
     const JsonObject data = jsin.get_object();
+    deserialize(data);
+}
+
+void item::deserialize(const JsonObject& data) {
     data.allow_omitted_members();
     io::JsonObjectInputArchive archive( data );
     io( archive );

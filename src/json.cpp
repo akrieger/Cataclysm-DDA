@@ -1649,6 +1649,7 @@ bool TextJsonIn::read( JsonDeserializer &j, bool throw_on_error )
     // can't know what type of json object it will deserialize from,
     // so just try to deserialize, catching any error.
     // TODO: non-verbose flag for TextJsonIn errors so try/catch is faster here
+    /*
     try {
         j.deserialize( *this );
         return true;
@@ -1658,6 +1659,8 @@ bool TextJsonIn::read( JsonDeserializer &j, bool throw_on_error )
         }
         return false;
     }
+    */
+    return false;
 }
 
 /**
