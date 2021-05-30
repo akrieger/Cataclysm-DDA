@@ -1692,6 +1692,17 @@ class JsonArray : Json
         }
 };
 
+template<typename T>
+void deserialize(cata::optional<T>& obj, JsonIn& jsin)
+{
+    if( jsin.test_null() ) {
+        obj.reset();
+    } else {
+        obj.emplace();
+        jsin.read(*obj, true);
+    }
+}
+
 #include "flexbuffer_json-inl.h"
 
 #endif // CATA_SRC_FLEXBUFFER_JSON_H

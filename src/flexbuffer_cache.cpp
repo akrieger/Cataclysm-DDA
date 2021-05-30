@@ -212,7 +212,7 @@ std::shared_ptr<FlexBufferCache::FlexBuffer> FlexBufferCache::parse_buffer(
     std::string const& json)
 {
     auto fb = parse_buffer_(json.c_str());
-    std::shared_ptr<FlexBufferCache::FlexBuffer>(fb, &fb->buffer)
+    return std::shared_ptr<FlexBufferCache::FlexBuffer>(fb, &fb->buffer);
 }
 
 std::shared_ptr<FlexBufferCache::ParsedBuffer> FlexBufferCache::parse_buffer_( const char *buffer )
