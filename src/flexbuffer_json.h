@@ -967,7 +967,7 @@ protected:
     mutable TinyBitSet visited_fields_bitset_;
 
     static flexbuffers::Reference empty_object_() {
-        static auto empty_object = FlexBufferCache::global_cache().parse_buffer("");
+        static auto empty_object = FlexBufferCache::global_cache().parse_buffer("{}");
         return *empty_object;
     }
 
