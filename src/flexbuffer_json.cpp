@@ -124,3 +124,110 @@ json_source_location JsonObject::get_source_location() const
     loc.offset = jsin.tell();
     return loc;
 }
+
+bool JsonIn::read(bool& b, bool throw_on_error) {
+    if( !test_bool() ) {
+        return error_or_false(throw_on_error, "Expected bool");
+    }
+    b = get_bool();
+    return true;
+}
+bool JsonIn::read(char& c, bool throw_on_error) {
+    if( !test_number() ) {
+        return error_or_false(throw_on_error, "Expected number");
+    }
+    c = get_int();
+    return true;
+}
+bool JsonIn::read(signed char& c, bool throw_on_error) {
+    if( !test_number() ) {
+        return error_or_false(throw_on_error, "Expected number");
+    }
+    // TODO: test for overflow
+    c = get_int();
+    return true;
+}
+bool JsonIn::read(unsigned char& c, bool throw_on_error) {
+    if( !test_number() ) {
+        return error_or_false(throw_on_error, "Expected number");
+    }
+    // TODO: test for overflow
+    c = get_int();
+    return true;
+}
+bool JsonIn::read(short unsigned int& s, bool throw_on_error) {
+    if( !test_number() ) {
+        return error_or_false(throw_on_error, "Expected number");
+    }
+    // TODO: test for overflow
+    s = get_int();
+    return true;
+}
+bool JsonIn::read(short int& s, bool throw_on_error) {
+    if( !test_number() ) {
+        return error_or_false(throw_on_error, "Expected number");
+    }
+    // TODO: test for overflow
+    s = get_int();
+    return true;
+}
+bool JsonIn::read(int& i, bool throw_on_error) {
+    if( !test_number() ) {
+        return error_or_false(throw_on_error, "Expected number");
+    }
+    i = get_int();
+    return true;
+}
+bool JsonIn::read(int64_t& i, bool throw_on_error) {
+    if( !test_number() ) {
+        return error_or_false(throw_on_error, "Expected number");
+    }
+    i = get_int64();
+    return true;
+}
+bool JsonIn::read(uint64_t& i, bool throw_on_error) {
+    if( !test_number() ) {
+        return error_or_false(throw_on_error, "Expected number");
+    }
+    i = get_uint64();
+    return true;
+}
+bool JsonIn::read(unsigned int& u, bool throw_on_error) {
+    if( !test_number() ) {
+        return error_or_false(throw_on_error, "Expected number");
+    }
+    u = get_uint();
+    return true;
+}
+bool JsonIn::read(float& f, bool throw_on_error) {
+    if( !test_number() ) {
+        return error_or_false(throw_on_error, "Expected number");
+    }
+    f = get_float();
+    return true;
+}
+bool JsonIn::read(double& d, bool throw_on_error) {
+    if( !test_number() ) {
+        return error_or_false(throw_on_error, "Expected number");
+    }
+    d = get_float();
+    return true;
+}
+bool JsonIn::read(std::string& s, bool throw_on_error) {
+    if( !test_string() ) {
+        return error_or_false(throw_on_error, "Expected string");
+    }
+    s = get_string();
+    return true;
+}
+bool JsonIn::read(JsonDeserializer& j, bool throw_on_error) {
+    try {
+        j.deserialize(*this);
+        return true;
+    } catch( const JsonError& ) {
+        if( throw_on_error ) {
+            throw;
+        }
+        return false;
+    }
+}
