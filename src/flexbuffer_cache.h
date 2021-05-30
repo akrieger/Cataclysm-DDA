@@ -24,6 +24,7 @@ class FlexBufferCache
         std::shared_ptr<FlexBuffer> parse_through( std::string json_file_path ) noexcept( false );
         size_t drop_cache() noexcept;
         std::shared_ptr<FlexBuffer> parse( const std::string &json_file_path ) noexcept( false );
+        std::shared_ptr<FlexBuffer> parse_buffer(const std::string& buffer) noexcept( false );
         std::shared_ptr<FlexBuffer> parse_and_cache( std::string json_file_path ) noexcept( false ) ;
 
     private:

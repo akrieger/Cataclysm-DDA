@@ -135,6 +135,24 @@ class JsonIn
             return JsonIn( std::move( buffer ), make_shared_fast<std::string>( std::move( source_file ) ) );
         }
 
+        JsonIn(std::istream& json) {
+            json.seekg(0, std::istream::end);
+            size_t len = json.tellg();
+            std::string file_string;
+            file_string.resize(len);
+            json.seekg(0, std::istream::beg);
+            json.read(&file_string[0], len);
+            char buf[ 4096 ];
+            while ( !json.eof() ) {
+                json.read(buf, 4096);
+                file_string.append(buf, json.gcount());
+            }
+            root_ = FlexBufferCache::global_cache().parse_buffer(file_string);
+            parent_ = *root_;
+            source_file_ = make_shared_fast<std::string>("");
+            values_in_parent_ = 0;
+        }
+
         JsonIn( std::shared_ptr<FlexBuffer> root, shared_ptr_fast<std::string> source_file ) : root_{ std::move( root ) },
             parent_{ *root_ }, source_file_{ std::move( source_file ) }, values_in_parent_{ 0 } {
         }

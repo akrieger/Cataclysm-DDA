@@ -208,6 +208,13 @@ std::shared_ptr<FlexBufferCache::FlexBuffer> FlexBufferCache::parse_and_cache(
     return parse_through( json_source_path );
 }
 
+std::shared_ptr<FlexBufferCache::FlexBuffer> FlexBufferCache::parse_buffer(
+    std::string const& json)
+{
+    auto fb = parse_buffer_(json.c_str());
+    std::shared_ptr<FlexBufferCache::FlexBuffer>(fb, &fb->buffer)
+}
+
 std::shared_ptr<FlexBufferCache::ParsedBuffer> FlexBufferCache::parse_buffer_( const char *buffer )
 {
     flatbuffers::IDLOptions opts;
