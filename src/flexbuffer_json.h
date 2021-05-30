@@ -967,7 +967,14 @@ class JsonObject : Json
         flexbuffers::Vector values_ = flexbuffers::Vector::EmptyVector();
         mutable TinyBitSet visited_fields_bitset_;
 
+        static flexbuffers::Reference empty_object_() {
+            static auto empty_object = FlexBufferCache::global_cache().parse_buffer("");
+            return *empty_object;
+        }
+
     public:
+        JsonObject() : Json(empty_object_(), "") {}
+
         JsonObject(
             FlexBuffer &&json,
             std::string source_file )
@@ -1436,7 +1443,14 @@ class JsonObject : Json
 // An iterable wrapper around Json that always iterates values only.
 class JsonArray : Json
 {
+    static flexbuffers::Reference empty_array_() {
+        static auto empty_array = FlexBufferCache::global_cache().parse_buffer("[]");
+        return *empty_array;
+    }
+
     public:
+        JsonArray() : Json(empty_array_(), "") {}
+
         JsonArray(
             FlexBuffer &&json,
             std::string source_file )
