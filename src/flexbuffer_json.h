@@ -932,7 +932,6 @@ class JsonValue : Json
         JsonObject get_object() const;
         JsonArray get_array() const;
 
-
         using Json::throw_error;
         using Json::string_error;
         using Json::path_;
@@ -959,39 +958,54 @@ class JsonMember : public JsonValue
 
 class JsonObject : Json
 {
-    public:
-        using FlexBuffer = FlexBufferCache::FlexBuffer;
+public:
+    using FlexBuffer = FlexBufferCache::FlexBuffer;
 
-    protected:
-        flexbuffers::TypedVector keys_ = flexbuffers::TypedVector::EmptyTypedVector();
-        flexbuffers::Vector values_ = flexbuffers::Vector::EmptyVector();
-        mutable TinyBitSet visited_fields_bitset_;
+protected:
+    flexbuffers::TypedVector keys_ = flexbuffers::TypedVector::EmptyTypedVector();
+    flexbuffers::Vector values_ = flexbuffers::Vector::EmptyVector();
+    mutable TinyBitSet visited_fields_bitset_;
 
-        static flexbuffers::Reference empty_object_() {
-            static auto empty_object = FlexBufferCache::global_cache().parse_buffer("");
-            return *empty_object;
-        }
+    static flexbuffers::Reference empty_object_() {
+        static auto empty_object = FlexBufferCache::global_cache().parse_buffer("");
+        return *empty_object;
+    }
 
-    public:
-        JsonObject() : Json(empty_object_(), "") {}
+public:
+    JsonObject() : Json(empty_object_(), "") {}
 
-        JsonObject(
-            FlexBuffer &&json,
-            std::string source_file )
-            : Json( std::move( json ), std::move( source_file ) ) {
-            init( json_ );
-        }
+    JsonObject(
+        FlexBuffer&& json,
+        std::string source_file)
+        : Json(std::move(json), std::move(source_file)) {
+        init(json_);
+    }
 
-        JsonObject(
-            FlexBuffer &&json,
-            std::string source_file,
-            JsonPath &&path )
-            : Json( std::move( json ), std::move( source_file )
-            , std::move( path ) ) {
-            init( json_ );
-        }
+    JsonObject(
+        FlexBuffer&& json,
+        std::string source_file,
+        JsonPath&& path)
+        : Json(std::move(json), std::move(source_file)
+            , std::move(path)) {
+        init(json_);
+    }
 
-        JsonObject &operator=( JsonObject const & ) = default;
+    JsonObject(JsonObject const& rhs) :
+        Json{flexbuffers::Reference(rhs.json_), std::string(rhs.source_file_)} 
+    {
+        init(json_);
+        // Copying an object resets visited fields.
+        visited_fields_bitset_.clear_all();
+    }
+
+    JsonObject& operator=(JsonObject const& rhs) {
+        json_ = rhs.json_;
+        source_file_ = rhs.source_file_;
+        init(json_);
+        // Copying an object resets visited fields.
+        visited_fields_bitset_.clear_all();
+        return *this;
+    }
 
     private:
         void init( FlexBuffer const &json ) {

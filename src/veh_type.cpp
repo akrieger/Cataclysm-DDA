@@ -362,7 +362,8 @@ void vpart_info::load( const JsonObject &jo, const std::string &src )
             }
             def.categories = ab->second.categories;
         } else {
-            deferred.emplace_back( jo.get_source_location(), src );
+            deferred.emplace_back( jo, src );
+            deferred.back().first.allow_omitted_members();
             jo.allow_omitted_members();
             return;
         }

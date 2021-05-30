@@ -127,58 +127,27 @@ struct DynamicDataLoader::cached_streams {
     lru_cache<std::string, shared_ptr_fast<std::istringstream>> cache;
 };
 
-shared_ptr_fast<std::istream> DynamicDataLoader::get_cached_stream( const std::string &path )
-{
-    cata_assert( !finalized &&
-                 "Cannot open data file after finalization." );
-    cata_assert( stream_cache &&
-                 "Stream cache is only available during finalization" );
-    shared_ptr_fast<std::istringstream> cached = stream_cache->cache.get( path, nullptr );
-    // Create a new stream if the file is not opened yet, or if some code is still
-    // using the previous stream (in such case, `cached` and `stream_cache` have
-    // two references to the stream, hence the test for > 2).
-    if( !cached ) {
-        cached = make_shared_fast<std::istringstream>( read_entire_file( path ) );
-    } else if( cached.use_count() > 2 ) {
-        cached = make_shared_fast<std::istringstream>( cached->str() );
-    }
-    stream_cache->cache.insert( 8, path, cached );
-    return cached;
-}
-
 void DynamicDataLoader::load_deferred( deferred_json &data )
 {
     while( !data.empty() ) {
         const size_t n = data.size();
         auto it = data.begin();
         for( size_t idx = 0; idx != n; ++idx ) {
-            if( !it->first.path ) {
-                debugmsg( "JSON source location has null path, data may load incorrectly" );
-            } else {
-                try {
-                    shared_ptr_fast<std::istream> stream = get_cached_stream( *it->first.path );
-                    JsonIn jsin( *stream, it->first );
-                    JsonObject jo = jsin.get_object();
-                    load_object( jo, it->second );
-                } catch( const JsonError &err ) {
-                    debugmsg( "(json-error)\n%s", err.what() );
-                }
+            try {
+                JsonObject jo = it->first;
+                load_object( jo, it->second );
+            } catch( const JsonError &err ) {
+                debugmsg( "(json-error)\n%s", err.what() );
             }
             ++it;
         }
         data.erase( data.begin(), it );
         if( data.size() == n ) {
             for( const auto &elem : data ) {
-                if( !elem.first.path ) {
-                    debugmsg( "JSON source location has null path when reporting circular dependency" );
-                } else {
-                    try {
-                        shared_ptr_fast<std::istream> stream = get_cached_stream( *it->first.path );
-                        JsonIn jsin( *stream, elem.first );
-                        jsin.error( "JSON contains circular dependency, this object is discarded" );
-                    } catch( const JsonError &err ) {
-                        debugmsg( "(json-error)\n%s", err.what() );
-                    }
+                try {
+                    it->first.throw_error( "JSON contains circular dependency, this object is discarded" );
+                } catch( const JsonError &err ) {
+                    debugmsg( "(json-error)\n%s", err.what() );
                 }
             }
             data.clear();

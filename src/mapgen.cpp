@@ -443,10 +443,9 @@ load_mapgen_function( const JsonObject &jio, const std::string &id_base, const p
         }
     } else if( mgtype == "json" ) {
         JsonObject jo = jio.get_object( "object" );
-        const json_source_location jsrc = jo.get_source_location();
         jo.allow_omitted_members();
         ret = std::make_shared<mapgen_function_json>(
-                  jsrc, mgweight, "mapgen " + id_base, offset );
+                  jo, mgweight, "mapgen " + id_base, offset );
         oter_mapgen.add( id_base, ret );
     } else {
         jio.throw_error( R"(invalid value: must be "builtin" or "json")", "method" );
@@ -461,10 +460,9 @@ static void load_nested_mapgen( const JsonObject &jio, const std::string &id_bas
         if( jio.has_object( "object" ) ) {
             int weight = jio.get_int( "weight", 1000 );
             JsonObject jo = jio.get_object( "object" );
-            const json_source_location jsrc = jo.get_source_location();
             jo.allow_omitted_members();
             nested_mapgen[id_base].add(
-                std::make_shared<mapgen_function_json_nested>( jsrc, "nested mapgen " + id_base ),
+                std::make_shared<mapgen_function_json_nested>( jo, "nested mapgen " + id_base ),
                 weight );
         } else {
             debugmsg( "Nested mapgen: Invalid mapgen function (missing \"object\" object)", id_base.c_str() );
@@ -481,11 +479,10 @@ static void load_update_mapgen( const JsonObject &jio, const std::string &id_bas
     if( mgtype == "json" ) {
         if( jio.has_object( "object" ) ) {
             JsonObject jo = jio.get_object( "object" );
-            const json_source_location jsrc = jo.get_source_location();
             jo.allow_omitted_members();
             update_mapgen[id_base].push_back(
                 std::make_unique<update_mapgen_function_json>(
-                    jsrc, "update mapgen " + id_base ) );
+                    jo, "update mapgen " + id_base ) );
         } else {
             debugmsg( "Update mapgen: Invalid mapgen function (missing \"object\" object)",
                       id_base.c_str() );
@@ -591,8 +588,8 @@ bool mapgen_function_json_base::check_inbounds( const jmapgen_int &x, const jmap
 }
 
 mapgen_function_json_base::mapgen_function_json_base(
-    const json_source_location &jsrcloc, const std::string &context )
-    : jsrcloc( jsrcloc )
+     JsonObject &&json_data, const std::string &context )
+    : json_data_( make_shared_fast<JsonObject>(std::move(json_data)) )
     , context_( context )
     , do_format( false )
     , is_ready( false )
@@ -603,10 +600,10 @@ mapgen_function_json_base::mapgen_function_json_base(
 
 mapgen_function_json_base::~mapgen_function_json_base() = default;
 
-mapgen_function_json::mapgen_function_json( const json_source_location &jsrcloc, const int w,
+mapgen_function_json::mapgen_function_json( JsonObject json_data, const int w,
         const std::string &context, const point &grid_offset )
     : mapgen_function( w )
-    , mapgen_function_json_base( jsrcloc, context )
+    , mapgen_function_json_base( std::move(json_data), context )
     , fill_ter( t_null )
     , rotation( 0 )
 {
@@ -616,10 +613,11 @@ mapgen_function_json::mapgen_function_json( const json_source_location &jsrcloc,
 }
 
 mapgen_function_json_nested::mapgen_function_json_nested(
-    const json_source_location &jsrcloc, const std::string &context )
-    : mapgen_function_json_base( jsrcloc, context )
+    JsonObject &json_data, const std::string &context )
+    : mapgen_function_json_base( JsonObject(json_data), context )
     , rotation( 0 )
 {
+    json_data.allow_omitted_members();
 }
 
 jmapgen_int::jmapgen_int( point p ) : val( p.x ), valmax( p.y ) {}
@@ -2442,17 +2440,11 @@ void mapgen_function_json_base::setup_common()
     if( is_ready ) {
         return;
     }
-    if( !jsrcloc.path ) {
-        debugmsg( "null json source location path" );
-        return;
-    }
-    shared_ptr_fast<std::istream> stream = DynamicDataLoader::get_instance().get_cached_stream(
-            *jsrcloc.path );
-    JsonIn jsin( *stream, jsrcloc );
-    JsonObject jo = jsin.get_object();
+    
+    JsonObject jo = *json_data_;
     mapgen_defer::defer = false;
     if( !setup_common( jo ) ) {
-        jsin.error( "format: no terrain map" );
+        jo.throw_error( "format: no terrain map" );
     }
     if( mapgen_defer::defer ) {
         mapgen_defer::jsi.throw_error( mapgen_defer::message, mapgen_defer::member );
@@ -6506,9 +6498,10 @@ void add_corpse( map *m, const point &p )
 
 //////////////////// mapgen update
 update_mapgen_function_json::update_mapgen_function_json(
-    const json_source_location &jsrcloc, const std::string &context ) :
-    mapgen_function_json_base( jsrcloc, context )
+    JsonObject &json_data, const std::string &context ) :
+    mapgen_function_json_base( JsonObject(json_data), context )
 {
+    json_data.allow_omitted_members();
 }
 
 void update_mapgen_function_json::check() const
@@ -6600,8 +6593,8 @@ mapgen_update_func add_mapgen_update_func( const JsonObject &jo, bool &defer )
         return update_function;
     }
 
-    update_mapgen_function_json json_data( json_source_location {},
-                                           "unknown object in add_mapgen_update_func" );
+    JsonObject temp;
+    update_mapgen_function_json json_data(temp, "unknown object in add_mapgen_update_func" );
     mapgen_defer::defer = defer;
     if( !json_data.setup_update( jo ) ) {
         const auto null_function = []( const tripoint_abs_omt &, mission * ) {
