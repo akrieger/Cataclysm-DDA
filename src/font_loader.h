@@ -43,9 +43,7 @@ class font_loader
     private:
         void load_throws( const std::string &path ) {
             try {
-                FlexBufferCache::global_cache().parse_and_cache( path );
-                std::ifstream stream( path.c_str(), std::ifstream::binary );
-                JsonIn json( stream );
+                JsonIn json = JsonIn::from(path);
                 JsonObject config = json.get_object();
                 if( config.has_string( "typeface" ) ) {
                     typeface.emplace_back( config.get_string( "typeface" ) );

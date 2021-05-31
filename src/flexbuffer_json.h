@@ -161,10 +161,9 @@ class JsonIn
         shared_ptr_fast<std::string> get_path() const {
             return source_file_;
         }
-
-        // get current stream position
-        int tell() {
-            THROW_UNIMPLEMENTED;
+        
+        JsonPath tell() const {
+            return path_;
         }
 
         // seek to specified stream position
@@ -176,8 +175,9 @@ class JsonIn
             path_ = path;
             parent_ = *root_;
             values_in_parent_ = 0;
-            for( uint16_t idx : path_ ) {
-                parent_ = parent_.AsVector()[ idx ];
+            // Advance parent according to path. Note: last idx is element in parent.
+            for( const uint16_t* idx = path_.begin(), *end = path_.end() - 1; idx != end; ++idx ) {
+                parent_ = parent_.AsVector()[ *idx ];
                 values_in_parent_ = count_values_in_parent();
             }
             return *this;
@@ -444,8 +444,9 @@ class JsonIn
             flexbuffers::Reference current = get_current();
             if( current.IsVector() && !current.IsMap() ) {
                 enter_iterable();
+            } else {
+                throw std::runtime_error("Expected an array, got a " + get_current_type());
             }
-            throw std::runtime_error( "Expected an array, got a " + get_current_type() );
         }
         // returns false if it's not the end
         bool end_array() {
@@ -455,8 +456,9 @@ class JsonIn
             flexbuffers::Reference current = get_current();
             if( current.IsMap() ) {
                 enter_iterable();
+            } else {
+                throw std::runtime_error("Expected an object, got a " + get_current_type());
             }
-            throw std::runtime_error( "Expected an object, got a " + get_current_type() );
         }
         // returns false if it's not the end
         bool end_object() {
@@ -709,7 +711,7 @@ class JsonIn
                 v.clear();
                 while( !end_array() ) {
                     T element;
-                    const int prev_pos = tell();
+                    auto prev_pos = tell();
                     if( test_array() ) {
                         start_array();
                         int run_l;
@@ -839,14 +841,19 @@ class Json
         [[noreturn]] void string_error(std::string const& message, int offset = 0) const;
 
     protected:
-        Json( FlexBuffer &&json, std::string &&source_file ) : json_{ std::move( json ) },
+        Json(JsonIn* jsin, FlexBuffer&& json, std::string&& source_file) : jsin_{ jsin }, json_ { std::move(json) },
             source_file_{ std::move( source_file ) } {}
-        Json( FlexBuffer &&json, std::string &&source_file,
-              JsonPath &&path ) : json_{ std::move( json ) },
+        Json( JsonIn* jsin, FlexBuffer &&json, std::string &&source_file,
+            JsonPath&& path) : jsin_{ jsin }, json_ {
+            std::move(json)
+        },
             source_file_{ std::move( source_file ) },
             path_{ std::move( path ) } {}
 
         virtual ~Json() = default;
+
+        Json(Json const&) = default;
+        Json& operator=(Json const&) = default;
 
         // JsonIn keeps the backing memory alive, and other things besides, like the root reference.
         JsonIn *jsin_;
@@ -874,10 +881,10 @@ class Json
 class JsonValue : Json
 {
     public:
-        JsonValue( FlexBuffer &&json, std::string source_file ) : Json( std::move( json ),
+        JsonValue( JsonIn* jsin, FlexBuffer &&json, std::string source_file ) : Json( jsin, std::move( json ),
                     std::move( source_file ) ) {}
-        JsonValue( FlexBuffer &&json, std::string source_file,
-                   JsonPath &&path ) : Json( std::move( json ), std::move( source_file ),
+        JsonValue(JsonIn* jsin, FlexBuffer &&json, std::string source_file,
+                   JsonPath &&path ) : Json( jsin, std::move( json ), std::move( source_file ),
                                                  std::move( path ) ) {}
 
         // NOLINTNEXTLINE(google-explicit-constructor)
@@ -972,26 +979,28 @@ protected:
     }
 
 public:
-    JsonObject() : Json(empty_object_(), "") {}
+    JsonObject() : Json(nullptr, empty_object_(), "") {}
 
     JsonObject(
+        JsonIn* jsin, 
         FlexBuffer&& json,
         std::string source_file)
-        : Json(std::move(json), std::move(source_file)) {
+        : Json(jsin, std::move(json), std::move(source_file)) {
         init(json_);
     }
 
     JsonObject(
+        JsonIn* jsin,
         FlexBuffer&& json,
         std::string source_file,
         JsonPath&& path)
-        : Json(std::move(json), std::move(source_file)
+        : Json(jsin, std::move(json), std::move(source_file)
             , std::move(path)) {
         init(json_);
     }
 
     JsonObject(JsonObject const& rhs) :
-        Json{flexbuffers::Reference(rhs.json_), std::string(rhs.source_file_)} 
+        Json{rhs.jsin_, flexbuffers::Reference(rhs.json_), std::string(rhs.source_file_), JsonPath(rhs.path_)} 
     {
         init(json_);
         // Copying an object resets visited fields.
@@ -1001,6 +1010,7 @@ public:
     JsonObject& operator=(JsonObject const& rhs) {
         json_ = rhs.json_;
         source_file_ = rhs.source_file_;
+        path_ = rhs.path_;
         init(json_);
         // Copying an object resets visited fields.
         visited_fields_bitset_.clear_all();
@@ -1235,7 +1245,7 @@ public:
             bool found = find_map_key_idx( key, keys_, idx );
             if( found ) {
                 mark_visited( idx );
-                return JsonValue{ values_[idx], std::string( source_file_ ), path_ + idx };
+                return JsonValue{ jsin_, values_[idx], std::string( source_file_ ), path_ + idx };
             }
             return cata::nullopt;
         }
@@ -1251,7 +1261,7 @@ public:
             bool found = find_map_key_idx( key, keys_, idx );
             if( found ) {
                 mark_visited( idx );
-                return JsonValue{ values_[idx], std::string( source_file_ ), path_ + idx };
+                return JsonValue{ jsin_, values_[idx], std::string( source_file_ ), path_ + idx };
             }
             error_no_member( key );
             return ( *this )[key];
@@ -1378,7 +1388,7 @@ public:
         JsonValue operator[]( size_t idx ) const {
             mark_visited( idx );
             const char *key = keys_[idx].AsKey();
-            return JsonValue{ values_[idx], std::string( source_file_ ), path_ + idx };
+            return JsonValue{ jsin_, values_[idx], std::string( source_file_ ), path_ + idx };
         }
 
         flexbuffers::Reference find_value_ref( const char *key ) const {
@@ -1463,20 +1473,22 @@ class JsonArray : Json
     }
 
     public:
-        JsonArray() : Json(empty_array_(), "") {}
+        JsonArray() : Json(nullptr, empty_array_(), "") {}
 
         JsonArray(
+            JsonIn* jsin,
             FlexBuffer &&json,
             std::string source_file )
-            : Json( std::move( json ), std::move( source_file ) ) {
+            : Json(jsin, std::move( json ), std::move( source_file ) ) {
             init( json_ );
         }
 
         JsonArray(
+            JsonIn* jsin,
             FlexBuffer &&json,
             std::string source_file,
             JsonPath &&path )
-            : Json( std::move( json ), std::move( source_file )
+            : Json(jsin, std::move( json ), std::move( source_file )
             , std::move( path ) ) {
             init( json_ );
         }
@@ -1574,7 +1586,7 @@ class JsonArray : Json
                 } else {
                     value = json_.AsVector()[ idx ];
                 }
-                return JsonValue{ std::move(value), std::string(source_file_), path_ + idx };
+                return JsonValue{ jsin_, std::move(value), std::string(source_file_), path_ + idx };
             }
             throw_error(std::to_string(idx) + " index is out of bounds.");
         }

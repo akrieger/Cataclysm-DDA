@@ -6,7 +6,7 @@ inline JsonValue JsonIn::get_value()
 {
     check_idx_before_deref();
     flexbuffers::Reference value = get_current();
-    JsonValue ret{ std::move(value), *source_file_, JsonPath(path_) };
+    JsonValue ret{ this, std::move(value), *source_file_, JsonPath(path_) };
     advance();
     return ret;
 }
@@ -16,7 +16,7 @@ inline JsonObject JsonIn::get_object()
     check_idx_before_deref();
     flexbuffers::Reference value = get_current();
     if( value.IsMap() ) {
-        JsonObject ret{ std::move(value), *source_file_, JsonPath(path_) };
+        JsonObject ret{ this, std::move(value), *source_file_, JsonPath(path_) };
         advance();
         return ret;
     }
@@ -28,7 +28,7 @@ inline JsonArray JsonIn::get_array()
     check_idx_before_deref();
     flexbuffers::Reference value = get_current();
     if( value.IsVector() && !value.IsMap() ) {
-        JsonArray ret{ std::move(value), *source_file_, JsonPath(path_) };
+        JsonArray ret{ this, std::move(value), *source_file_, JsonPath(path_) };
         advance();
         return ret;
     }
@@ -104,7 +104,7 @@ inline JsonValue::operator double() const
 inline JsonValue::operator JsonObject() const
 {
     if( json_.IsMap() ) {
-        return JsonObject( FlexBuffer( json_ ), std::string( source_file_ ), JsonPath( path_ ) );
+        return JsonObject(jsin_, FlexBuffer( json_ ), std::string( source_file_ ), JsonPath( path_ ) );
     }
     throw_error( "Expected an object, got a " + std::to_string( json_.GetType() ) );
 }
@@ -112,7 +112,7 @@ inline JsonValue::operator JsonObject() const
 inline JsonValue::operator JsonArray() const
 {
     if( json_.IsAnyVector() && !json_.IsMap() ) {
-        return JsonArray( FlexBuffer{ json_ }, std::string( source_file_ ), JsonPath( path_ ) );
+        return JsonArray( jsin_, FlexBuffer{ json_ }, std::string( source_file_ ), JsonPath( path_ ) );
     }
     throw_error( "Expected an array, got a " + std::to_string( json_.GetType() ) );
 }

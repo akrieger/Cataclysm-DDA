@@ -241,7 +241,7 @@ private:
         if( this != &other ) {
             ensure_capacity_for( other.capacity_ );
             len_ = other.size();
-            std::memcpy( data(), other.data(), len_ );
+            std::uninitialized_copy_n( other.data(), len_, data() );
         }
     }
 
@@ -255,7 +255,7 @@ private:
                 other.capacity_ = kInlineCount;
             } else {
                 // Skip the ensure_capacity_for call cause we know it has to be inline.
-                std::memcpy( inline_, other.inline_, other.len_ );
+                std::uninitialized_copy_n( other.inline_, other.len_, inline_);
                 capacity_ = kInlineCount;
             }
             len_ = other.len_;

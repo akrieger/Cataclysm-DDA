@@ -956,7 +956,7 @@ T read_from_json_string_common( const std::string &s,
     return result;
 }
 }
-
+/*
 template<typename T>
 T read_from_json_string( JsonIn &jsin, const std::vector<std::pair<std::string, T>> &units )
 {
@@ -970,7 +970,7 @@ T read_from_json_string( JsonIn &jsin, const std::vector<std::pair<std::string, 
 
     return read_from_json_string_common<T>( s, units, error );
 }
-
+*/
 template<typename T>
 T read_from_json_string( JsonValue jv, const std::vector<std::pair<std::string, T>> &units )
 {
