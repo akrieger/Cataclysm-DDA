@@ -12,6 +12,7 @@
 
 class JsonIn;
 class JsonOut;
+class JsonObject;
 class item;
 struct itype;
 
@@ -52,6 +53,7 @@ class rule
 
         void serialize( JsonOut &jsout ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( JsonObject& jo);
 
         void test_pattern() const;
 };

@@ -13,6 +13,8 @@
 #include "point.h"
 #include "debug.h"
 
+class JsonValue;
+
 enum class direction : unsigned;
 
 namespace coords
@@ -146,6 +148,9 @@ class coord_point
         }
         void deserialize( JsonIn &jsin ) {
             raw().deserialize( jsin );
+        }
+        void deserialize(JsonValue& jv) {
+            raw().deserialize(jv);
         }
 
         coord_point &operator+=( const coord_point<Point, origin::relative, Scale> &r ) {

@@ -151,7 +151,11 @@ inline JsonArray JsonObject::get_array( std::string const &key ) const
 
 inline JsonArray JsonObject::get_array( const char *key ) const
 {
-    return get_member( key );
+    auto member_opt = get_member_opt(key);
+    if( member_opt.has_value() ) {
+        return std::move(*member_opt);
+    }
+    return JsonArray{};
 }
 
 #endif // CATA_SRC_FLEXBUFFER_JSON_INL_H

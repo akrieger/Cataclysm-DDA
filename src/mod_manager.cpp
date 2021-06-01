@@ -96,9 +96,7 @@ const std::map<std::string, std::string> &get_mod_list_cat_tab()
 void mod_manager::load_replacement_mods( const std::string &path )
 {
     read_from_file_optional_json( path, [&]( JsonIn & jsin ) {
-        jsin.start_array();
-        while( !jsin.end_array() ) {
-            JsonArray arr = jsin.get_array();
+        for (JsonArray arr : jsin.get_array() ) {
             mod_replacements.emplace( mod_id( arr.get_string( 0 ) ),
                                       mod_id( arr.size() > 1 ? arr.get_string( 1 ) : "" ) );
         }
@@ -358,10 +356,7 @@ void mod_manager::load_mod_info( const std::string &info_file_path )
             JsonObject jo = jsin.get_object();
             load_modfile( jo, main_path );
         } else if( jsin.test_array() ) {
-            jsin.start_array();
-            // find type and dispatch each object until array close
-            while( !jsin.end_array() ) {
-                JsonObject jo = jsin.get_object();
+            for (JsonObject jo : jsin.get_array() ) {
                 load_modfile( jo, main_path );
             }
         } else {

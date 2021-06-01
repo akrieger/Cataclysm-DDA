@@ -158,7 +158,9 @@ struct mongroup {
     using archive_type_tag = io::object_archive_tag;
 
     void deserialize( JsonIn &data );
+    void deserialize(JsonObject& data);
     void deserialize_legacy( JsonIn &json );
+    void deserialize_legacy(JsonObject& json);
     void serialize( JsonOut &json ) const;
 };
 

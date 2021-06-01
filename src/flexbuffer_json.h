@@ -97,6 +97,7 @@ struct JsonPath {
 class JsonObject;
 class JsonArray;
 class JsonValue;
+class JsonMember;
 
 // A replacement for JsonIn that operates on a FlexBuffer, storing position with a JsonPath.
 // We leverage the current design of JsonIn & friends to maximize efficiency of the Flex equivalents.
@@ -301,24 +302,6 @@ class JsonIn
             ++path_.last();
         }
 
-        void enter_iterable() {
-            if( path_.size() > 0 ) {
-                parent_ = parent_.AsVector()[ path_.last() ];
-            }
-            values_in_parent_ = count_values_in_parent();
-            path_.push_back( 0 );
-        }
-
-        void end_iterable() {
-            path_.pop_back();
-            parent_ = *root_;
-            values_in_parent_ = 0;
-            for( uint16_t idx : path_ ) {
-                parent_ = parent_.AsVector()[ idx ];
-                values_in_parent_ = count_values_in_parent();
-            }
-        }
-
         void check_idx_before_deref() {
             if( path_.size() > 0 ) {
                 if( path_.last() >= values_in_parent_ ) {
@@ -436,33 +419,6 @@ class JsonIn
                 --path_.last();
                 error( "invalid enumeration value" );
             }
-        }
-
-        // container control and iteration
-        // verify array start
-        void start_array() {
-            flexbuffers::Reference current = get_current();
-            if( current.IsVector() && !current.IsMap() ) {
-                enter_iterable();
-            } else {
-                throw std::runtime_error("Expected an array, got a " + get_current_type());
-            }
-        }
-        // returns false if it's not the end
-        bool end_array() {
-            return path_.last() == values_in_parent_;
-        }
-        void start_object() {
-            flexbuffers::Reference current = get_current();
-            if( current.IsMap() ) {
-                enter_iterable();
-            } else {
-                throw std::runtime_error("Expected an object, got a " + get_current_type());
-            }
-        }
-        // returns false if it's not the end
-        bool end_object() {
-            return path_.last() == values_in_parent_;
         }
 
         // type testing
@@ -590,14 +546,14 @@ class JsonIn
                 return error_or_false( throw_on_error, "Expected json array encoding pair" );
             }
             try {
-                start_array();
-                bool result = !end_array() &&
-                              read( p.first, throw_on_error ) &&
-                              !end_array() &&
-                              read( p.second, throw_on_error ) &&
-                              end_array();
+                JsonArray ja = get_array();
+                if( ja.size() != 2 ) {
+                    return error_or_false( throw_on_error, "Array had wrong number of elements for pair");
+                }
+                bool result = read(p.first, throw_on_error) &&
+                    read(p.second, throw_on_error);
                 if( !result && throw_on_error ) {
-                    error( "Array had wrong number of elements for pair" );
+                    error("Array had wrong number of elements for pair");
                 }
                 return result;
             } catch( const JsonError & ) {
@@ -617,14 +573,11 @@ class JsonIn
                 return error_or_false( throw_on_error, "Expected json array" );
             }
             try {
-                start_array();
                 v.clear();
-                while( !end_array() ) {
+                for (JsonValue jv : get_array()) {
                     typename T::value_type element;
-                    if( read( element, throw_on_error ) ) {
+                    if( jv.read( element, throw_on_error ) ) {
                         v.push_back( std::move( element ) );
-                    } else {
-                        skip_value();
                     }
                 }
             } catch( const JsonError & ) {
@@ -644,23 +597,22 @@ class JsonIn
                 return error_or_false( throw_on_error, "Expected json array" );
             }
             try {
-                start_array();
-                for( size_t i = 0; i < N; ++i ) {
-                    if( end_array() ) {
-                        if( throw_on_error ) {
-                            error( "Json array is too short" );
-                        }
-                        return false; // json array is too small
+                JsonArray ja = get_array();
+                if( ja.size() != N ) {
+                    if( ja.size() < N ) {
+                        return error_or_false(throw_on_error, "Json array is too short");
+                    } else {
+                        return error_or_false(throw_on_error, "Json array is too long");
                     }
-                    if( !read( v[ i ], throw_on_error ) ) {
+                }
+                size_t i = 0;
+                for( JsonValue jv : ja ) {
+                    if( !jv.read(v[ i ], throw_on_error) ) {
                         return false; // invalid entry
                     }
+                    ++i;
                 }
-                bool result = end_array();
-                if( !result && throw_on_error ) {
-                    error( "Array had too many elements" );
-                }
-                return result;
+                return true;
             } catch( const JsonError & ) {
                 if( throw_on_error ) {
                     throw;
@@ -679,14 +631,11 @@ class JsonIn
                 return error_or_false( throw_on_error, "Expected json array" );
             }
             try {
-                start_array();
                 v.clear();
-                while( !end_array() ) {
+                for( JsonValue jv : get_array() ) {
                     typename T::value_type element;
-                    if( read( element, throw_on_error ) ) {
-                        v.insert( std::move( element ) );
-                    } else {
-                        skip_value();
+                    if( jv.read(element, throw_on_error) ) {
+                        v.insert(std::move(element));
                     }
                 }
             } catch( const JsonError & ) {
@@ -707,17 +656,17 @@ class JsonIn
                 return error_or_false( throw_on_error, "Expected json array" );
             }
             try {
-                start_array();
                 v.clear();
-                while( !end_array() ) {
+                for (JsonValue jv : get_array()) {
                     T element;
-                    auto prev_pos = tell();
-                    if( test_array() ) {
-                        start_array();
+                    if( jv.test_array() ) {
+                        JsonArray rle_element = jv;
+                        if( rle_element.size() != 2 ) {
+                            return rle_element.error_or_false(throw_on_error, "Not enough values for RLE");
+                        }
                         int run_l;
-                        if( read( element, throw_on_error ) &&
-                            read( run_l, throw_on_error ) &&
-                            end_array()
+                        if( rle_element[0].read( element, throw_on_error ) &&
+                            rle_element[1].read( run_l, throw_on_error )
                           ) { // all is good
                             // first insert (run_l-1) elements
                             for( int i = 0; i < run_l - 1; i++ ) {
@@ -727,14 +676,10 @@ class JsonIn
                             v.insert( std::move( element ) );
                         } else { // array is malformed, skipping it entirely
                             error_or_false( throw_on_error, "Expected end of array" );
-                            seek( prev_pos );
-                            skip_array();
                         }
                     } else {
-                        if( read( element, throw_on_error ) ) {
+                        if( jv.read( element, throw_on_error ) ) {
                             v.insert( std::move( element ) );
-                        } else {
-                            skip_value();
                         }
                     }
                 }
@@ -757,14 +702,11 @@ class JsonIn
                 return error_or_false( throw_on_error, "Expected json array" );
             }
             try {
-                start_array();
                 v.clear();
-                while( !end_array() ) {
-                    T element;
-                    if( read( element, throw_on_error ) ) {
-                        v.insert( std::move( element ) );
-                    } else {
-                        skip_value();
+                for( JsonValue jv : get_array() ) {
+                    typename T::value_type element;
+                    if( jv.read(element, throw_on_error) ) {
+                        v.insert(std::move(element));
                     }
                 }
             } catch( const JsonError & ) {
@@ -787,16 +729,13 @@ class JsonIn
                 return error_or_false( throw_on_error, "Expected json object" );
             }
             try {
-                start_object();
                 m.clear();
-                while( !end_object() ) {
+                for (JsonMember jm : get_object() ) {
                     using key_type = typename T::key_type;
-                    key_type key = key_from_json_string<key_type>()( get_member_name() );
+                    key_type key = key_from_json_string<key_type>()( jm.name() );
                     typename T::mapped_type element;
-                    if( read( element, throw_on_error ) ) {
+                    if( jm.read( element, throw_on_error ) ) {
                         m[ std::move( key ) ] = std::move( element );
-                    } else {
-                        skip_value();
                     }
                 }
             } catch( const JsonError & ) {
@@ -929,6 +868,9 @@ class JsonValue : Json
 
         std::string get_string() const {
             return (std::string)( *this );
+        }
+        bool get_bool() const {
+            return (bool)( *this );
         }
         int get_int() const {
             return (int)(*this);
@@ -1077,11 +1019,15 @@ public:
         inline JsonArray get_array( const char *key ) const;
 
         JsonObject get_object( std::string const &key ) const {
-            return get_member( key.c_str() );
+            return get_object(key.c_str());
         }
 
         JsonObject get_object( const char *key ) const {
-            return get_member( key );
+            auto member_opt = get_member_opt(key);
+            if( member_opt.has_value() ) {
+                return std::move(*member_opt);
+            }
+            return JsonObject{};
         }
 
         /*template<typename E, typename = typename std::enable_if<std::is_enum<E>::value>::type>
@@ -1473,7 +1419,7 @@ class JsonArray : Json
     }
 
     public:
-        JsonArray() : Json(nullptr, empty_array_(), "") {}
+        JsonArray() : Json(nullptr, empty_array_(), ""), size_ { 0 }{}
 
         JsonArray(
             JsonIn* jsin,
@@ -1662,9 +1608,9 @@ class JsonArray : Json
         }
 
         // random-access read values by reference
-        template <typename T> bool read_next(T& t) {
+        template <typename T> bool read_next(T& t, bool throw_on_error = false) {
             jsin_->seek(get_next().path_);
-            return jsin_->read(t);
+            return jsin_->read(t, throw_on_error);
         }
 
         // random-access read values by reference

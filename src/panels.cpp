@@ -2583,8 +2583,8 @@ void panel_manager::serialize( JsonOut &json )
 
 void panel_manager::deserialize( JsonIn &jsin )
 {
-    jsin.start_array();
-    JsonObject joLayouts( jsin.get_object() );
+    JsonArray ja = jsin.get_array();
+    JsonObject joLayouts( ja[0] );
 
     current_layout_id = joLayouts.get_string( "current_layout_id" );
     for( JsonObject joLayout : joLayouts.get_array( "layouts" ) ) {
@@ -2610,7 +2610,9 @@ void panel_manager::deserialize( JsonIn &jsin )
             }
         }
     }
-    jsin.end_array();
+    if( ja.size() > 1 ) {
+        ja.throw_error("Too many objects for panel manager.");
+    }
 }
 
 void panel_manager::show_adm()

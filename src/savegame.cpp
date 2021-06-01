@@ -393,22 +393,19 @@ void overmap::convert_terrain(
 
 void overmap::load_monster_groups( JsonIn &jsin )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        jsin.start_array();
-
+    // [ [ {}, [...] ], ... ]
+    // array of arrays with an object and variable number of tripoints
+    for (JsonArray mongroup_json : jsin.get_array() ) {
+        JsonObject mongroup_object = mongroup_json[ 0 ];
         mongroup new_group;
-        new_group.deserialize( jsin );
+        new_group.deserialize( mongroup_object );
 
-        jsin.start_array();
         tripoint_om_sm temp;
-        while( !jsin.end_array() ) {
-            temp.deserialize( jsin );
+        for (JsonValue tripoint_json : mongroup_json[1].get_array() ) {
+            temp.deserialize( tripoint_json );
             new_group.pos = temp;
             add_mon_group( new_group );
         }
-
-        jsin.end_array();
     }
 }
 
@@ -1073,9 +1070,14 @@ void mongroup::io( Archive &archive )
 void mongroup::deserialize( JsonIn &data )
 {
     JsonObject jo = data.get_object();
+    deserialize(jo);
+}
+
+void mongroup::deserialize(JsonObject& jo)
+{
     jo.allow_omitted_members();
-    io::JsonObjectInputArchive archive( jo );
-    io( archive );
+    io::JsonObjectInputArchive archive(jo);
+    io(archive);
 }
 
 void mongroup::serialize( JsonOut &json ) const
@@ -1086,35 +1088,39 @@ void mongroup::serialize( JsonOut &json ) const
 
 void mongroup::deserialize_legacy( JsonIn &json )
 {
-    json.start_object();
-    while( !json.end_object() ) {
-        std::string name = json.get_member_name();
+    JsonObject jo = json.get_object();
+    deserialize_legacy(jo);
+}
+
+void mongroup::deserialize_legacy(JsonObject& jo)
+{
+    for (JsonMember jm : jo ) {
+        std::string name = jm.name();
         if( name == "type" ) {
-            type = mongroup_id( json.get_string() );
+            type = mongroup_id(jm.get_string());
         } else if( name == "pos" ) {
-            pos.deserialize( json );
+            pos.deserialize(jm);
         } else if( name == "radius" ) {
-            radius = json.get_int();
+            radius = jm.get_int();
         } else if( name == "population" ) {
-            population = json.get_int();
+            population = jm.get_int();
         } else if( name == "diffuse" ) {
-            diffuse = json.get_bool();
+            diffuse = jm.get_bool();
         } else if( name == "dying" ) {
-            dying = json.get_bool();
+            dying = jm.get_bool();
         } else if( name == "horde" ) {
-            horde = json.get_bool();
+            horde = jm.get_bool();
         } else if( name == "target" ) {
-            target.deserialize( json );
+            target.deserialize(jm);
         } else if( name == "interest" ) {
-            interest = json.get_int();
+            interest = jm.get_int();
         } else if( name == "horde_behaviour" ) {
-            horde_behaviour = json.get_string();
+            horde_behaviour = jm.get_string();
         } else if( name == "monsters" ) {
-            json.start_array();
-            while( !json.end_array() ) {
+            for (JsonObject monster_json : jm.get_array()) {
                 monster new_monster;
-                new_monster.deserialize( json );
-                monsters.push_back( new_monster );
+                new_monster.deserialize(monster_json);
+                monsters.push_back(new_monster);
             }
         }
     }
@@ -1128,10 +1134,9 @@ void mongroup::deserialize_legacy( JsonIn &json )
 
 void mission::unserialize_all( JsonIn &jsin )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
+    for (JsonObject jo : jsin.get_array() ) {
         mission mis;
-        mis.deserialize( jsin );
+        mis.deserialize( jo );
         add_existing( mis );
     }
 }
@@ -1229,15 +1234,19 @@ void faction_manager::serialize( JsonOut &jsout ) const
     jsout.write( local_facs );
 }
 
-void faction_manager::deserialize( JsonIn &jsin )
+void faction_manager::deserialize(JsonIn& jsin)
 {
-    if( jsin.test_object() ) {
+    JsonValue jv = jsin.get_value();
+    deserialize(jv);
+}
+
+void faction_manager::deserialize(JsonValue& jv) {
+    if( jv.test_object() ) {
         // whoops - this recovers factions saved under the wrong format.
-        jsin.start_object();
-        while( !jsin.end_object() ) {
+        for (JsonMember faction_json : jv.get_object() ) {
             faction add_fac;
-            add_fac.id = faction_id( jsin.get_member_name() );
-            jsin.read( add_fac );
+            add_fac.id = faction_id(faction_json.name() );
+            faction_json.read( add_fac );
             faction *old_fac = get( add_fac.id, false );
             if( old_fac ) {
                 *old_fac = add_fac;
@@ -1247,12 +1256,11 @@ void faction_manager::deserialize( JsonIn &jsin )
                 factions[add_fac.id] = add_fac;
             }
         }
-    } else if( jsin.test_array() ) {
+    } else if( jv.test_array() ) {
         // how it should have been serialized.
-        jsin.start_array();
-        while( !jsin.end_array() ) {
+        for (JsonValue faction_json : jv.get_array() ) {
             faction add_fac;
-            jsin.read( add_fac );
+            faction_json.read( add_fac );
             faction *old_fac = get( add_fac.id, false );
             if( old_fac ) {
                 *old_fac = add_fac;
@@ -1269,11 +1277,10 @@ void Creature_tracker::deserialize( JsonIn &jsin )
 {
     monsters_list.clear();
     monsters_by_location.clear();
-    jsin.start_array();
-    while( !jsin.end_array() ) {
+    for (JsonObject monster_object : jsin.get_array() ) {
         // TODO: would be nice if monster had a constructor using JsonIn or similar, so this could be one statement.
         shared_ptr_fast<monster> mptr = make_shared_fast<monster>();
-        jsin.read( *mptr );
+        mptr->deserialize(monster_object);
         add( mptr );
     }
 }

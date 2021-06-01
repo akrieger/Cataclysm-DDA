@@ -277,23 +277,23 @@ submap *mapbuffer::unserialize_submaps( const tripoint &p )
 
 void mapbuffer::deserialize( JsonIn &jsin )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
+    for (JsonObject sm_json : jsin.get_array()) {
         std::unique_ptr<submap> sm = std::make_unique<submap>();
         tripoint submap_coordinates;
-        jsin.start_object();
         int version = 0;
-        while( !jsin.end_object() ) {
-            std::string submap_member_name = jsin.get_member_name();
+        for (JsonMember jm: sm_json) {
+            std::string submap_member_name = jm.name();
             if( submap_member_name == "version" ) {
-                version = jsin.get_int();
+                version = jm.get_int();
             } else if( submap_member_name == "coordinates" ) {
-                jsin.start_array();
-                tripoint loc{ jsin.get_int(), jsin.get_int(), jsin.get_int() };
-                jsin.end_array();
+                JsonArray tripoint_json = jm;
+                tripoint loc{ tripoint_json[0], tripoint_json[1], tripoint_json[2] };
+                if( tripoint_json.size() > 3 ) {
+                    tripoint_json[ 4 ].throw_error("Tripoint requires three points.");
+                }
                 submap_coordinates = loc;
             } else {
-                sm->load( jsin, submap_member_name, version );
+                sm->load( jm, submap_member_name, version );
             }
         }
 

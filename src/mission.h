@@ -356,6 +356,7 @@ class mission
         mission_type_id mission_id();
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize(JsonObject& jo);
 
         mission();
         /** Getters, they mostly return the member directly, mostly. */

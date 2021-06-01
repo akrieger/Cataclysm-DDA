@@ -1069,10 +1069,7 @@ void color_manager::serialize( JsonOut &json ) const
 
 void color_manager::deserialize( JsonIn &jsin )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        JsonObject joColors = jsin.get_object();
-
+    for (JsonObject joColors : jsin.get_array() ) {
         const std::string name = joColors.get_string( "name" );
         const std::string name_custom = joColors.get_string( "custom" );
         const std::string name_invert_custom = joColors.get_string( "invertcustom" );

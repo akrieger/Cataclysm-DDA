@@ -1307,8 +1307,13 @@ void avatar::store( JsonOut &json ) const
 void avatar::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize(data);
+}
+
+void avatar::deserialize(JsonObject& data)
+{
     data.allow_omitted_members();
-    load( data );
+    load(data);
 }
 
 void avatar::load( const JsonObject &data )
@@ -2078,6 +2083,12 @@ void monster::deserialize( JsonIn &jsin )
     JsonObject data = jsin.get_object();
     data.allow_omitted_members();
     load( data );
+}
+
+void monster::deserialize(JsonObject& data)
+{
+    data.allow_omitted_members();
+    load(data);
 }
 
 void monster::load( const JsonObject &data )
@@ -3121,9 +3132,13 @@ void vehicle::serialize( JsonOut &json ) const
 
 ////////////////// mission.h
 ////
-void mission::deserialize( JsonIn &jsin )
+void mission::deserialize(JsonIn& jsin)
 {
     JsonObject jo = jsin.get_object();
+    deserialize(jo);
+}
+
+void mission::deserialize(JsonObject & jo) {
     jo.allow_omitted_members();
 
     if( jo.has_int( "type_id" ) ) {
@@ -3505,35 +3520,40 @@ void map_memory::load( JsonIn &jsin )
         // This file is large enough that it's more than called for to minimize the
         // amount of data written and read and make it a bit less "friendly",
         // and use the streaming interface.
-        jsin.start_array();
+        // [ [ [x,y,z], ... ], [ [x,y,z], ...] ] 
+        JsonArray root = jsin.get_array();
+        if( root.size() != 2 ) {
+            root.throw_error("Expected two arrays of tile and symbol definitions");
+        }
+        JsonArray tiles = root[ 0 ];
+        JsonArray symbols = root[ 1 ];
         tile_cache.clear();
-        jsin.start_array();
-        while( !jsin.end_array() ) {
-            jsin.start_array();
+        for (JsonArray tile_json : tiles) {
             tripoint p;
-            p.x = jsin.get_int();
-            p.y = jsin.get_int();
-            p.z = jsin.get_int();
-            const std::string tile = jsin.get_string();
-            const int subtile = jsin.get_int();
-            const int rotation = jsin.get_int();
+            p.x = tile_json.next_int();
+            p.y = tile_json.next_int();
+            p.z = tile_json.next_int();
+            const std::string tile = tile_json.next_string();
+            const int subtile = tile_json.next_int();
+            const int rotation = tile_json.next_int();
             memorize_tile( std::numeric_limits<int>::max(), p,
                            tile, subtile, rotation );
-            jsin.end_array();
+            if( tile_json.has_more() ) {
+                tile_json.throw_error("Too many values for a tile definition");
+            }
         }
         symbol_cache.clear();
-        jsin.start_array();
-        while( !jsin.end_array() ) {
-            jsin.start_array();
+        for (JsonArray symbol_json : symbols) {
             tripoint p;
-            p.x = jsin.get_int();
-            p.y = jsin.get_int();
-            p.z = jsin.get_int();
-            const int symbol = jsin.get_int();
+            p.x = symbol_json.next_int();
+            p.y = symbol_json.next_int();
+            p.z = symbol_json.next_int();
+            const int symbol = symbol_json.next_int();
             memorize_symbol( std::numeric_limits<int>::max(), p, symbol );
-            jsin.end_array();
+            if( symbol_json.has_more() ) {
+                symbol_json.throw_error("Too many values for a symbol definition");
+            }
         }
-        jsin.end_array();
     }
 }
 
@@ -3558,10 +3578,18 @@ void map_memory::load( const JsonObject &jsin )
 
 void point::deserialize( JsonIn &jsin )
 {
-    jsin.start_array();
-    x = jsin.get_int();
-    y = jsin.get_int();
-    jsin.end_array();
+    JsonValue jv = jsin.get_value();
+    deserialize(jv);
+}
+
+void point::deserialize(JsonValue& jv)
+{
+    JsonArray ja = jv;
+    if( ja.size() > 2 ) {
+        ja[ 2 ].throw_error("Unexpected value for point");
+    }
+    x = ja[ 0 ];
+    y = ja[ 1 ];
 }
 
 void point::serialize( JsonOut &jsout ) const
@@ -3574,11 +3602,15 @@ void point::serialize( JsonOut &jsout ) const
 
 void tripoint::deserialize( JsonIn &jsin )
 {
-    jsin.start_array();
-    x = jsin.get_int();
-    y = jsin.get_int();
-    z = jsin.get_int();
-    jsin.end_array();
+    JsonValue jv = jsin.get_value();
+    deserialize(jv);
+}
+
+void tripoint::deserialize(JsonValue& jv) {
+    JsonArray coords = jv;
+    x = coords[ 0 ];
+    y = coords[ 1 ];
+    z = coords[ 2 ];
 }
 
 void tripoint::serialize( JsonOut &jsout ) const
@@ -3620,9 +3652,8 @@ void serialize( const recipe_subset &value, JsonOut &jsout )
 void deserialize( recipe_subset &value, JsonIn &jsin )
 {
     value.clear();
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        value.include( &recipe_id( jsin.get_string() ).obj() );
+    for (std::string &&recipe : jsin.get_array() ) {
+        value.include( &recipe_id( std::move(recipe) ).obj() );
     }
 }
 
@@ -3839,11 +3870,13 @@ void cata_variant::deserialize( JsonIn &jsin )
     } else if( jsin.test_bool() ) {
         *this = cata_variant::make<cata_variant_type::bool_>( jsin.get_bool() );
     } else {
-        jsin.start_array();
-        if( !( jsin.read( type_ ) && jsin.read( value_ ) ) ) {
+        JsonArray ja = jsin.get_array();
+        if( !( ja[0].read( type_ ) && ja[1].read( value_ ) ) ) {
             jsin.error( "Failed to read cata_variant" );
         }
-        jsin.end_array();
+        if( ja.size() > 2 ) {
+            ja[ 2 ].throw_error("Unexpected value in variant");
+        }
     }
 }
 
@@ -4116,23 +4149,23 @@ void submap::store( JsonOut &jsout ) const
     }
 }
 
-void submap::load( JsonIn &jsin, const std::string &member_name, int version )
+void submap::load( JsonValue &jv, const std::string &member_name, int version )
 {
     bool rubpow_update = version < 22;
     if( member_name == "turn_last_touched" ) {
-        last_touched = time_point( jsin.get_int() );
+        last_touched = time_point( jv.get_int() );
     } else if( member_name == "temperature" ) {
-        temperature = jsin.get_int();
+        temperature = jv.get_int();
     } else if( member_name == "terrain" ) {
         // TODO: try block around this to error out if we come up short?
-        jsin.start_array();
+        JsonArray terrain_json = jv;
         // Small duplication here so that the update check is only performed once
         if( rubpow_update ) {
             item rock = item( "rock", calendar::turn_zero );
             item chunk = item( "steel_chunk", calendar::turn_zero );
             for( int j = 0; j < SEEY; j++ ) {
                 for( int i = 0; i < SEEX; i++ ) {
-                    const ter_str_id tid( jsin.get_string() );
+                    const ter_str_id tid( terrain_json.next_string() );
 
                     if( tid == ter_t_rubble ) {
                         ter[i][j] = ter_id( "t_dirt" );
@@ -4166,13 +4199,15 @@ void submap::load( JsonIn &jsin, const std::string &member_name, int version )
                 // NOLINTNEXTLINE(modernize-loop-convert)
                 for( int i = 0; i < SEEX; i++ ) {
                     if( !remaining ) {
-                        if( jsin.test_string() ) {
-                            iid = ter_str_id( jsin.get_string() ).id();
-                        } else if( jsin.test_array() ) {
-                            jsin.start_array();
-                            iid = ter_str_id( jsin.get_string() ).id();
-                            remaining = jsin.get_int() - 1;
-                            jsin.end_array();
+                        if( terrain_json.test_string() ) {
+                            iid = ter_str_id(terrain_json.next_string() ).id();
+                        } else if( terrain_json.test_array() ) {
+                            JsonArray ja = terrain_json.next_array();
+                            if( ja.size() > 2 ) {
+                                ja[ 2 ].throw_error("Too many values for terrain RLE");
+                            }
+                            iid = ter_str_id(ja[0].get_string() ).id();
+                            remaining = ja[1].get_int() - 1;
                         } else {
                             debugmsg( "Mapbuffer terrain data is corrupt, expected string or array." );
                         }
@@ -4186,13 +4221,15 @@ void submap::load( JsonIn &jsin, const std::string &member_name, int version )
                 debugmsg( "Mapbuffer terrain data is corrupt, tile data remaining." );
             }
         }
-        jsin.end_array();
+        if( terrain_json.has_more() ) {
+            terrain_json.throw_error("Too many values in terrain");
+        }
     } else if( member_name == "radiation" ) {
         int rad_cell = 0;
-        jsin.start_array();
-        while( !jsin.end_array() ) {
-            int rad_strength = jsin.get_int();
-            int rad_num = jsin.get_int();
+        JsonArray rad_array = jv;
+        while (rad_array.has_more()) {
+            int rad_strength = rad_array.next_int();
+            int rad_num = rad_array.next_int();
             for( int i = 0; i < rad_num; ++i ) {
                 if( rad_cell < SEEX * SEEY ) {
                     set_radiation( { rad_cell % SEEX, rad_cell / SEEX }, rad_strength );
@@ -4201,22 +4238,22 @@ void submap::load( JsonIn &jsin, const std::string &member_name, int version )
             }
         }
     } else if( member_name == "furniture" ) {
-        jsin.start_array();
-        while( !jsin.end_array() ) {
-            jsin.start_array();
-            int i = jsin.get_int();
-            int j = jsin.get_int();
-            frn[i][j] = furn_id( jsin.get_string() );
-            jsin.end_array();
+        for (JsonArray furn : jv.get_array() ) {
+            int i = furn.next_int();
+            int j = furn.next_int();
+            frn[i][j] = furn_id( furn.next_string() );
+            if( furn.has_more() ) {
+                furn[ 3 ].throw_error("Unexpected value for furniture.");
+            }
         }
     } else if( member_name == "items" ) {
-        jsin.start_array();
-        while( !jsin.end_array() ) {
-            int i = jsin.get_int();
-            int j = jsin.get_int();
+        JsonArray ja = jv;
+        while( ja.has_more() ) {
+            int i = ja.next_int();
+            int j = ja.next_int();
             const point p( i, j );
 
-            if( !jsin.read( itm[p.x][p.y], false ) ) {
+            if( !ja.read_next( itm[p.x][p.y], false ) ) {
                 debugmsg( "Items array is corrupt in submap at: %s, skipping", p.to_string() );
             }
             // some portion could've been read even if error occurred
@@ -4234,35 +4271,35 @@ void submap::load( JsonIn &jsin, const std::string &member_name, int version )
             }
         }
     } else if( member_name == "traps" ) {
-        jsin.start_array();
-        while( !jsin.end_array() ) {
-            jsin.start_array();
-            int i = jsin.get_int();
-            int j = jsin.get_int();
+        for (JsonArray trap_json : jv.get_array()) {
+            int i = trap_json.next_int();
+            int j = trap_json.next_int();
             const point p( i, j );
             // TODO: jsin should support returning an id like jsin.get_id<trap>()
-            const trap_str_id trid( jsin.get_string() );
+            const trap_str_id trid(trap_json.next_string() );
             trp[p.x][p.y] = trid.id();
-            jsin.end_array();
+            if( trap_json.has_more() ) {
+                trap_json[ 3 ].throw_error("Too many values for trap json");
+            }
         }
     } else if( member_name == "fields" ) {
-        jsin.start_array();
-        while( !jsin.end_array() ) {
+        JsonArray ja = jv;
+        while (ja.has_more()) {
             // Coordinates loop
-            int i = jsin.get_int();
-            int j = jsin.get_int();
-            jsin.start_array();
-            while( !jsin.end_array() ) {
+            int i = ja.next_int();
+            int j = ja.next_int();
+            JsonArray field_data = ja.next_array();
+            while (field_data.has_more()) {
                 // TODO: Check enum->string migration below
                 int type_int = 0;
                 std::string type_str;
-                if( jsin.test_int() ) {
-                    type_int = jsin.get_int();
+                if( field_data.test_int() ) {
+                    type_int = field_data.next_int();
                 } else {
-                    type_str = jsin.get_string();
+                    type_str = field_data.next_string();
                 }
-                int intensity = jsin.get_int();
-                int age = jsin.get_int();
+                int intensity = field_data.next_int();
+                int age = field_data.next_int();
                 field_type_id ft;
                 if( !type_str.empty() ) {
                     ft = field_type_id( type_str );
@@ -4275,40 +4312,40 @@ void submap::load( JsonIn &jsin, const std::string &member_name, int version )
             }
         }
     } else if( member_name == "graffiti" ) {
-        jsin.start_array();
-        while( !jsin.end_array() ) {
-            jsin.start_array();
-            int i = jsin.get_int();
-            int j = jsin.get_int();
+        for (JsonArray ja : jv.get_array() ) {
+            int i = ja.next_int();
+            int j = ja.next_int();
             const point p( i, j );
-            set_graffiti( p, jsin.get_string() );
-            jsin.end_array();
+            set_graffiti( p, ja.next_string() );
+            if( ja.has_more() ) {
+                ja[ 3 ].throw_error("Too many values for graffiti");
+            }
         }
     } else if( member_name == "cosmetics" ) {
-        jsin.start_array();
         std::map<std::string, std::string> tcosmetics;
 
-        while( !jsin.end_array() ) {
-            jsin.start_array();
-            int i = jsin.get_int();
-            int j = jsin.get_int();
+        for (JsonArray ja : jv.get_array()) {
+            int i = ja.next_int();
+            int j = ja.next_int();
             const point p( i, j );
             std::string type, str;
             // Try to read as current format
-            if( jsin.test_string() ) {
-                type = jsin.get_string();
-                str = jsin.get_string();
+            if( ja.test_string() ) {
+                type = ja.next_string();
+                str = ja.next_string();
                 insert_cosmetic( p, type, str );
             } else {
                 // Otherwise read as most recent old format
-                jsin.read( tcosmetics );
+                ja.read_next( tcosmetics );
                 for( auto &cosm : tcosmetics ) {
                     insert_cosmetic( p, cosm.first, cosm.second );
                 }
                 tcosmetics.clear();
             }
 
-            jsin.end_array();
+            if( ja.has_more() ) {
+                ja.throw_error("Too many values");
+            }
         }
     } else if( member_name == "spawns" ) {
         jsin.start_array();

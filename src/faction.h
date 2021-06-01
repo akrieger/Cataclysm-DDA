@@ -31,6 +31,7 @@ std::string fac_wealth_text( int val, int size );
 std::string fac_combat_ability_text( int val );
 
 class JsonIn;
+class JsonValue;
 class JsonObject;
 class JsonOut;
 class faction;
@@ -127,6 +128,7 @@ class faction_manager
 
     public:
         void deserialize( JsonIn &jsin );
+        void deserialize(JsonValue& jv);
         void serialize( JsonOut &jsout ) const;
 
         void clear();

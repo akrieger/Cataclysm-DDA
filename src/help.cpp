@@ -42,10 +42,7 @@ void help::load()
 
 void help::deserialize( JsonIn &jsin )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        JsonObject jo = jsin.get_object();
-
+    for (JsonObject jo : jsin.get_array() ) {
         if( jo.get_string( "type" ) != "help" ) {
             debugmsg( "object with type other than \"type\" found in help text file" );
             continue;

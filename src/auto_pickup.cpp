@@ -819,20 +819,24 @@ void rule_list::serialize( JsonOut &jsout ) const
 void rule::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
-    sRule = jo.get_string( "rule" );
-    bActive = jo.get_bool( "active" );
-    bExclude = jo.get_bool( "exclude" );
+    deserialize(jo);
+}
+
+void rule::deserialize(JsonObject& jo)
+{
+    sRule = jo.get_string("rule");
+    bActive = jo.get_bool("active");
+    bExclude = jo.get_bool("exclude");
 }
 
 void rule_list::deserialize( JsonIn &jsin )
 {
     clear();
 
-    jsin.start_array();
-    while( !jsin.end_array() ) {
+    for (JsonObject jo : jsin.get_array() ) {
         rule tmp;
-        tmp.deserialize( jsin );
-        push_back( tmp );
+        tmp.deserialize( jo );
+        push_back( std::move(tmp) );
     }
 }
 

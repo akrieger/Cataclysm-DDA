@@ -1543,9 +1543,7 @@ void WORLD::load_options( JsonIn &jsin )
 {
     auto &opts = get_options();
 
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        JsonObject jo = jsin.get_object();
+    for (JsonObject jo : jsin.get_array() ) {
         jo.allow_omitted_members();
         const std::string name = opts.migrateOptionName( jo.get_string( "name" ) );
         const std::string value = opts.migrateOptionValue( jo.get_string( "name" ),

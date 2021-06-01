@@ -277,11 +277,8 @@ void input_manager::load( const std::string &file_name, bool is_user_preferences
     JsonIn jsin = JsonIn::from(file_name);
 
     //Crawl through once and create an entry for every definition
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        // JSON object representing the action
-        JsonObject action = jsin.get_object();
-
+    // JSON object representing the action
+    for (JsonObject action : jsin.get_array() ) {
         int version = current_keybinding_version;
         if( is_user_preferences ) {
             // if there isn't a "version" value it means the object was written before
