@@ -504,8 +504,8 @@ class overmap
 
         void add_mon_group( const mongroup &group );
 
-        void load_monster_groups( JsonIn &jsin );
-        void load_legacy_monstergroups( JsonIn &jsin );
+        void load_monster_groups( JsonArray &ja );
+        void load_legacy_monstergroups( JsonArray &ja );
         void save_monster_groups( JsonOut &jo ) const;
     public:
         static void load_obsolete_terrains( const JsonObject &jo );

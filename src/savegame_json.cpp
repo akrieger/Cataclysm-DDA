@@ -431,6 +431,11 @@ void character_id::deserialize( JsonIn &jsin )
     value = jsin.get_int();
 }
 
+void character_id::deserialize(int v)
+{
+    value = v;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// effect_source.h
 

@@ -193,6 +193,7 @@ class weather_manager
         void on_load();
         static void serialize_all( JsonOut &json );
         static void unserialize_all( JsonIn &jsin );
+        static void unserialize_all(JsonObject& jo);
 };
 
 weather_manager &get_weather();
