@@ -710,21 +710,22 @@ void overmap::unserialize_view( std::istream &fin )
             }
             jsin.end_array();
         } else if( name == "extras" ) {
-            jsin.start_array();
+            // [ [ [x,y,id], ...], ... ]
+            JsonArray all_extras = jsin.get_array();
             for( int z = 0; z < OVERMAP_LAYERS; ++z ) {
-                jsin.start_array();
-                while( !jsin.end_array() ) {
+                JsonArray z_extras = all_extras[ z ];
+                for (JsonArray extra : z_extras) {
                     om_map_extra tmp;
-                    jsin.start_array();
-                    jsin.read( tmp.p.x() );
-                    jsin.read( tmp.p.y() );
-                    jsin.read( tmp.id );
-                    jsin.end_array();
+                    extra[0].read( tmp.p.x() );
+                    extra[1].read( tmp.p.y() );
+                    extra[2].read( tmp.id );
+                    if( extra.size() != 3 ) {
+                        extra[ 3 ].throw_error("Unexpected number of values for overmap extra.");
+                    }
 
                     layer[z].extras.push_back( tmp );
                 }
             }
-            jsin.end_array();
         }
     }
 }
