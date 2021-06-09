@@ -692,23 +692,24 @@ void overmap::unserialize_view( std::istream &fin )
             }
             jsin.end_array();
         } else if( name == "notes" ) {
-            jsin.start_array();
+            // [ [ [x,y,text,dangerous,radius], ...], ...]
+            JsonArray all_notes = jsin.get_array();
             for( int z = 0; z < OVERMAP_LAYERS; ++z ) {
-                jsin.start_array();
-                while( !jsin.end_array() ) {
+                JsonArray z_notes = all_notes[ z ];
+                for (JsonArray note : z_notes) {
                     om_note tmp;
-                    jsin.start_array();
-                    jsin.read( tmp.p.x() );
-                    jsin.read( tmp.p.y() );
-                    jsin.read( tmp.text );
-                    jsin.read( tmp.dangerous );
-                    jsin.read( tmp.danger_radius );
-                    jsin.end_array();
+                    note[0].read( tmp.p.x() );
+                    note[1].read( tmp.p.y() );
+                    note[2].read( tmp.text );
+                    note[3].read( tmp.dangerous );
+                    note[4].read( tmp.danger_radius );
+                    if( note.size() != 4 ) {
+                        note[ 5 ].throw_error("Unexpected number of values for overmap note");
+                    }
 
                     layer[z].notes.push_back( tmp );
                 }
             }
-            jsin.end_array();
         } else if( name == "extras" ) {
             // [ [ [x,y,id], ...], ... ]
             JsonArray all_extras = jsin.get_array();
