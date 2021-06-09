@@ -649,17 +649,19 @@ void overmap::unserialize( std::istream &fin )
     }
 }
 
-static void unserialize_array_from_compacted_sequence( JsonIn &jsin, bool ( &array )[OMAPX][OMAPY] )
+static void unserialize_array_from_compacted_sequence( JsonArray &jas, bool ( &array )[OMAPX][OMAPY] )
 {
     int count = 0;
     bool value = false;
     for( int j = 0; j < OMAPY; j++ ) {
         for( auto &array_col : array ) {
             if( count == 0 ) {
-                jsin.start_array();
-                jsin.read( value );
-                jsin.read( count );
-                jsin.end_array();
+                JsonArray ja = jas.next_array();
+                ja.read_next( value );
+                ja.read_next( count );
+                if (ja.size() > 2) {
+                    ja[2].throw_error("Expected two elements.");
+                }
             }
             count--;
             array_col[j] = value;
@@ -672,28 +674,23 @@ void overmap::unserialize_view( std::istream &fin )
 {
     chkversion( fin );
     JsonIn jsin( fin );
-    jsin.start_object();
-    while( !jsin.end_object() ) {
-        const std::string name = jsin.get_member_name();
+    for (JsonMember view : jsin.get_object()) {
+        const std::string name = view.name();
         if( name == "visible" ) {
-            jsin.start_array();
+            JsonArray visible_layers = view;
             for( int z = 0; z < OVERMAP_LAYERS; ++z ) {
-                jsin.start_array();
-                unserialize_array_from_compacted_sequence( jsin, layer[z].visible );
-                jsin.end_array();
+                JsonArray visible_layer = visible_layers[z];
+                unserialize_array_from_compacted_sequence(visible_layer, layer[z].visible );
             }
-            jsin.end_array();
         } else if( name == "explored" ) {
-            jsin.start_array();
+            JsonArray explored_layers = view;
             for( int z = 0; z < OVERMAP_LAYERS; ++z ) {
-                jsin.start_array();
-                unserialize_array_from_compacted_sequence( jsin, layer[z].explored );
-                jsin.end_array();
+                JsonArray explored_layer = explored_layers[z];
+                unserialize_array_from_compacted_sequence(explored_layer, layer[z].explored );
             }
-            jsin.end_array();
         } else if( name == "notes" ) {
             // [ [ [x,y,text,dangerous,radius], ...], ...]
-            JsonArray all_notes = jsin.get_array();
+            JsonArray all_notes = view;
             for( int z = 0; z < OVERMAP_LAYERS; ++z ) {
                 JsonArray z_notes = all_notes[ z ];
                 for (JsonArray note : z_notes) {
@@ -712,7 +709,7 @@ void overmap::unserialize_view( std::istream &fin )
             }
         } else if( name == "extras" ) {
             // [ [ [x,y,id], ...], ... ]
-            JsonArray all_extras = jsin.get_array();
+            JsonArray all_extras = view;
             for( int z = 0; z < OVERMAP_LAYERS; ++z ) {
                 JsonArray z_extras = all_extras[ z ];
                 for (JsonArray extra : z_extras) {
