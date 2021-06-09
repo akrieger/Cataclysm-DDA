@@ -612,29 +612,26 @@ void overmap::unserialize( std::istream &fin )
                 camps.push_back( new_camp );
             }
         } else if( name == "overmap_special_placements" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
-                jsin.start_object();
+            JsonArray special_placements = jsin.get_array();
+            for (JsonObject special_placement : special_placements) {
                 overmap_special_id s;
-                while( !jsin.end_object() ) {
-                    std::string name = jsin.get_member_name();
+                for (JsonMember placement_member : special_placement) {
+                    std::string name = placement_member.name();
                     if( name == "special" ) {
                         jsin.read( s );
                     } else if( name == "placements" ) {
-                        jsin.start_array();
-                        while( !jsin.end_array() ) {
-                            jsin.start_object();
-                            while( !jsin.end_object() ) {
+                        JsonArray placements = jsin.get_array();
+                        for (JsonObject placement : placements) {
+                            for (JsonMember placement_member : placement) {
                                 std::string name = jsin.get_member_name();
                                 if( name == "points" ) {
-                                    jsin.start_array();
-                                    while( !jsin.end_array() ) {
-                                        jsin.start_object();
+                                    JsonArray points = jsin.get_array();
+                                    for (JsonObject point : points) {
                                         tripoint_om_omt p;
-                                        while( !jsin.end_object() ) {
-                                            std::string name = jsin.get_member_name();
+                                        for (JsonMember point_member : point) {
+                                            std::string name = point_member.name();
                                             if( name == "p" ) {
-                                                jsin.read( p );
+                                                point_member.read( p );
                                                 overmap_special_placements[p] = s;
                                             }
                                         }
