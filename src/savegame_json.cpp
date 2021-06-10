@@ -3775,56 +3775,61 @@ void basecamp::serialize( JsonOut &json ) const
 void basecamp::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize(data);
+}
+
+void basecamp::deserialize(JsonObject& data)
+{
     data.allow_omitted_members();
-    data.read( "name", name );
-    data.read( "pos", omt_pos );
-    data.read( "bb_pos", bb_pos );
-    for( JsonObject edata : data.get_array( "expansions" ) ) {
+    data.read("name", name);
+    data.read("pos", omt_pos);
+    data.read("bb_pos", bb_pos);
+    for (JsonObject edata : data.get_array("expansions")) {
         edata.allow_omitted_members();
         expansion_data e;
         point dir;
-        if( edata.has_string( "dir" ) ) {
+        if (edata.has_string("dir")) {
             // old save compatibility
-            const std::string dir_id = edata.get_string( "dir" );
-            dir = base_camps::direction_from_id( dir_id );
+            const std::string dir_id = edata.get_string("dir");
+            dir = base_camps::direction_from_id(dir_id);
         } else {
-            edata.read( "dir", dir );
+            edata.read("dir", dir);
         }
-        edata.read( "type", e.type );
-        if( edata.has_int( "cur_level" ) ) {
-            edata.read( "cur_level", e.cur_level );
+        edata.read("type", e.type);
+        if (edata.has_int("cur_level")) {
+            edata.read("cur_level", e.cur_level);
         }
-        if( edata.has_array( "provides" ) ) {
+        if (edata.has_array("provides")) {
             e.cur_level = -1;
-            for( JsonObject provide_data : edata.get_array( "provides" ) ) {
+            for (JsonObject provide_data : edata.get_array("provides")) {
                 provide_data.allow_omitted_members();
-                std::string id = provide_data.get_string( "id" );
-                int amount = provide_data.get_int( "amount" );
-                e.provides[ id ] = amount;
+                std::string id = provide_data.get_string("id");
+                int amount = provide_data.get_int("amount");
+                e.provides[id] = amount;
             }
         }
         // incase of save corruption, sanity check provides from expansions
-        const std::string &initial_provide = base_camps::faction_encode_abs( e, 0 );
-        if( e.provides.find( initial_provide ) == e.provides.end() ) {
-            e.provides[ initial_provide ] = 1;
+        const std::string& initial_provide = base_camps::faction_encode_abs(e, 0);
+        if (e.provides.find(initial_provide) == e.provides.end()) {
+            e.provides[initial_provide] = 1;
         }
-        for( JsonObject in_progress_data : edata.get_array( "in_progress" ) ) {
+        for (JsonObject in_progress_data : edata.get_array("in_progress")) {
             in_progress_data.allow_omitted_members();
-            std::string id = in_progress_data.get_string( "id" );
-            int amount = in_progress_data.get_int( "amount" );
-            e.in_progress[ id ] = amount;
+            std::string id = in_progress_data.get_string("id");
+            int amount = in_progress_data.get_int("amount");
+            e.in_progress[id] = amount;
         }
-        edata.read( "pos", e.pos );
-        expansions[ dir ] = e;
-        if( dir != base_camps::base_dir ) {
-            directions.push_back( dir );
+        edata.read("pos", e.pos);
+        expansions[dir] = e;
+        if (dir != base_camps::base_dir) {
+            directions.push_back(dir);
         }
     }
-    for( JsonObject edata : data.get_array( "fortifications" ) ) {
+    for (JsonObject edata : data.get_array("fortifications")) {
         edata.allow_omitted_members();
         tripoint_abs_omt restore_pos;
-        edata.read( "pos", restore_pos );
-        fortifications.push_back( restore_pos );
+        edata.read("pos", restore_pos);
+        fortifications.push_back(restore_pos);
     }
 }
 

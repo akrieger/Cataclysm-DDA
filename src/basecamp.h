@@ -338,6 +338,7 @@ class basecamp
         // Save/load
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize(JsonObject& data);
         void load_data( const std::string &data );
 
         static constexpr int inv_range = 20;

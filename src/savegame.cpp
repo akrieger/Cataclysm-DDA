@@ -605,10 +605,10 @@ void overmap::unserialize( std::istream &fin )
                 npcs.push_back( new_npc );
             }
         } else if( name == "camps" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
+            JsonArray camps_json = jsin.get_array();
+            for (JsonObject camp_json : camps_json) {
                 basecamp new_camp;
-                new_camp.deserialize( jsin );
+                new_camp.deserialize(camp_json);
                 camps.push_back( new_camp );
             }
         } else if( name == "overmap_special_placements" ) {
