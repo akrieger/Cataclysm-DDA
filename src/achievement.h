@@ -98,6 +98,7 @@ class achievement
                 };
 
                 void deserialize( JsonIn & );
+                void deserialize( const JsonObject &jo );
                 void check( const achievement_id & ) const;
 
                 time_point target() const;
@@ -147,6 +148,7 @@ struct achievement_state {
 
     void serialize( JsonOut & ) const;
     void deserialize( JsonIn & );
+    void deserialize( const JsonObject &jo );
 };
 
 class achievement_tracker
@@ -216,6 +218,7 @@ class achievements_tracker : public event_subscriber
 
         void serialize( JsonOut & ) const;
         void deserialize( JsonIn & );
+        void deserialize( const JsonObject &jo );
     private:
         void init_watchers();
 

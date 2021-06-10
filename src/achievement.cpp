@@ -166,6 +166,10 @@ struct achievement_requirement {
 
     void deserialize( JsonIn &jin ) {
         const JsonObject &jo = jin.get_object();
+        deserialize( jo );
+    }
+
+    void deserialize( const JsonObject &jo ) {
         if( !( jo.read( "event_statistic", statistic ) &&
                jo.read( "is", comparison ) &&
                ( comparison == achievement_comparison::anything ||
@@ -270,6 +274,11 @@ static time_point epoch_to_time_point( achievement::time_bound::epoch e )
 void achievement::time_bound::deserialize( JsonIn &jin )
 {
     const JsonObject &jo = jin.get_object();
+    deserialize( jo );
+}
+
+void achievement::time_bound::deserialize( const JsonObject &jo )
+{
     if( !( jo.read( "since", epoch_ ) &&
            jo.read( "is", comparison_ ) &&
            jo.read( "target", period_ ) ) ) {
@@ -640,6 +649,11 @@ void achievement_state::serialize( JsonOut &jsout ) const
 void achievement_state::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void achievement_state::deserialize( const JsonObject &jo )
+{
     jo.read( "completion", completion );
     jo.read( "last_state_change", last_state_change );
     jo.read( "final_values", final_values );
@@ -882,6 +896,11 @@ void achievements_tracker::serialize( JsonOut &jsout ) const
 void achievements_tracker::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void achievements_tracker::deserialize( const JsonObject &jo )
+{
     if( !jo.read( "enabled", enabled_ ) ) {
         enabled_ = true;
     }
