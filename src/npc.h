@@ -811,7 +811,7 @@ class npc : public player
 
         // Save & load
         void deserialize( JsonIn &jsin ) override;
-        void deserialize(JsonObject& data) override;
+        void deserialize(JsonObject& data);
 
         void serialize( JsonOut &json ) const override;
 

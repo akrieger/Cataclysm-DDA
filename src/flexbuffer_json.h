@@ -1553,6 +1553,10 @@ class JsonArray : Json
             return ( *this )[ idx ].test_string();
         }
 
+        bool has_bool(size_t idx) const {
+            return (*this)[idx].test_bool();
+        }
+
         bool has_int(size_t idx) const {
             return (*this)[idx].test_int();
         }
@@ -1573,6 +1577,13 @@ class JsonArray : Json
             return has_string(next_);
         }
         std::string next_string() {
+            return get_next();
+        }
+
+        bool test_bool() {
+            return has_bool(next_);
+        }
+        bool next_bool() {
             return get_next();
         }
 
@@ -1647,6 +1658,8 @@ class JsonArray : Json
 
             return res;
         }
+
+        using Json::error_or_false;
 
     private:
 

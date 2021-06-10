@@ -103,6 +103,7 @@ struct computer_failure {
     // Save to/load from saves
     void serialize( JsonOut &jout ) const;
     void deserialize( JsonIn &jin );
+    void deserialize(JsonObject const& jin);
     // Load from data files
     static computer_failure from_json( const JsonObject &jo );
 };

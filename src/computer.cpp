@@ -56,7 +56,12 @@ void computer_failure::serialize( JsonOut &jout ) const
 void computer_failure::deserialize( JsonIn &jin )
 {
     const JsonObject jo = jin.get_object();
-    type = jo.get_enum_value<computer_failure_type>( "action" );
+    deserialize(jo);
+}
+
+void computer_failure::deserialize(const JsonObject& jo)
+{
+    type = jo.get_enum_value<computer_failure_type>("action");
 }
 
 computer::computer( const std::string &new_name, int new_security )

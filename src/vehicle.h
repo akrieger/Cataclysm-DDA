@@ -806,6 +806,7 @@ class vehicle
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize(JsonObject& data);
         // Vehicle parts list - all the parts on a single tile
         int print_part_list( const catacurses::window &win, int y1, int max_y, int width, int p,
                              int hl = -1, bool detail = false ) const;

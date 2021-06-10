@@ -2925,9 +2925,14 @@ void smart_controller_config::serialize( JsonOut &json ) const
 /*
  * Load vehicle from a json blob that might just exceed player in size.
  */
-void vehicle::deserialize( JsonIn &jsin )
+void vehicle::deserialize(JsonIn& jsin)
 {
     JsonObject data = jsin.get_object();
+    deserialize(data);
+}
+
+void vehicle::deserialize(JsonObject& data)
+{
     data.allow_omitted_members();
 
     int fdir = 0;
@@ -4363,72 +4368,69 @@ void submap::load( JsonValue &jv, const std::string &member_name, int version )
             }
         }
     } else if( member_name == "spawns" ) {
-        jsin.start_array();
-        while( !jsin.end_array() ) {
-            jsin.start_array();
+        for (JsonArray ja : jv.get_array()){
             // TODO: json should know how to read an string_id
-            const mtype_id type = mtype_id( jsin.get_string() );
-            int count = jsin.get_int();
-            int i = jsin.get_int();
-            int j = jsin.get_int();
+            const mtype_id type = mtype_id( ja.next_string() );
+            int count = ja.next_int();
+            int i = ja.next_int();
+            int j = ja.next_int();
             const point p( i, j );
-            int faction_id = jsin.get_int();
-            int mission_id = jsin.get_int();
-            bool friendly = jsin.get_bool();
-            std::string name = jsin.get_string();
-            jsin.end_array();
+            int faction_id = ja.next_int();
+            int mission_id = ja.next_int();
+            bool friendly = ja.next_bool();
+            std::string name = ja.next_string();
+            if (ja.size() > 8) {
+                ja[8].throw_error("Too many values");
+            }
             spawn_point tmp( type, count, p, faction_id, mission_id, friendly, name );
             spawns.push_back( tmp );
         }
     } else if( member_name == "vehicles" ) {
-        jsin.start_array();
-        while( !jsin.end_array() ) {
+        for (JsonObject data : jv.get_array()) {
             std::unique_ptr<vehicle> tmp = std::make_unique<vehicle>();
-            jsin.read( *tmp );
+            tmp->deserialize(data);
             vehicles.push_back( std::move( tmp ) );
         }
     } else if( member_name == "partial_constructions" ) {
-        jsin.start_array();
-        while( !jsin.end_array() ) {
+        JsonArray constructions = jv;
+        while( constructions.has_more() ) {
             partial_con pc;
-            int i = jsin.get_int();
-            int j = jsin.get_int();
-            int k = jsin.get_int();
+            int i = constructions.next_int();
+            int j = constructions.next_int();
+            int k = constructions.next_int();
             tripoint pt = tripoint( i, j, k );
-            pc.counter = jsin.get_int();
-            if( jsin.test_int() ) {
+            pc.counter = constructions.next_int();
+            if(constructions.test_int() ) {
                 // Oops, int id incorrectly saved by legacy code, just load it and hope for the best
-                pc.id = construction_id( jsin.get_int() );
+                pc.id = construction_id( constructions.next_int() );
             } else {
-                pc.id = construction_str_id( jsin.get_string() ).id();
+                pc.id = construction_str_id(constructions.next_string() ).id();
             }
-            jsin.start_array();
-            while( !jsin.end_array() ) {
+            for (JsonObject item_json : constructions.next_array()) {
                 item tmp;
-                jsin.read( tmp );
+                tmp.deserialize(item_json);
                 pc.components.push_back( tmp );
             }
             partial_constructions[pt] = pc;
         }
     } else if( member_name == "computers" ) {
-        if( jsin.test_array() ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
+        if( jv.test_array() ) {
+            JsonArray computers_json = jv;
+            while (computers_json.has_more()) {
                 point loc;
-                jsin.read( loc );
+                computers_json.read_next( loc );
                 auto new_comp_it = computers.emplace( loc, computer( "BUGGED_COMPUTER", -100 ) ).first;
-                jsin.read( new_comp_it->second );
+                computers_json.read_next( new_comp_it->second );
             }
         } else {
             // only load legacy data here, but do not update to std::map, since
             // the terrain may not have been loaded yet.
             legacy_computer = std::make_unique<computer>( "BUGGED_COMPUTER", -100 );
-            jsin.read( *legacy_computer );
+            jv.read( *legacy_computer );
         }
     } else if( member_name == "camp" ) {
         camp = std::make_unique<basecamp>();
-        jsin.read( *camp );
-    } else {
-        jsin.skip_value();
+        JsonObject jo = jv;
+        camp->deserialize(jo);
     }
 }
