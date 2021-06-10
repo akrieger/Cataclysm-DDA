@@ -891,9 +891,8 @@ void mutation_branch::add_entry( Trait_group &tg, const JsonObject &obj )
         jarr_opt = obj.get_array( "distribution" );
     }
 
-    JsonArray& jarr = *jarr_opt;
-
     if( ptr ) {
+        JsonArray& jarr = *jarr_opt;
         Trait_group &tg2 = dynamic_cast<Trait_group &>( *ptr );
         for( const JsonObject job2 : jarr ) {
             add_entry( tg2, job2 );
