@@ -5,6 +5,7 @@
 #include "calendar.h"
 
 class JsonIn;
+class JsonObject;
 class JsonOut;
 
 class activity_tracker
@@ -49,6 +50,7 @@ class activity_tracker
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &jo );
 };
 
 #endif // CATA_SRC_ACTIVITY_TRACKER_H

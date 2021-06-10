@@ -516,7 +516,11 @@ void activity_tracker::serialize( JsonOut &json ) const
 void activity_tracker::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
 
+void activity_tracker::deserialize( const JsonObject &jo )
+{
     jo.allow_omitted_members();
     jo.read( "current_activity", current_activity );
     jo.read( "accumulated_activity", accumulated_activity );
