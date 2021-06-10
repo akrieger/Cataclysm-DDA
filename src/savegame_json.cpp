@@ -1379,6 +1379,11 @@ void avatar::store( JsonOut &json ) const
 void avatar::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void avatar::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     load( data );
 }
@@ -4026,6 +4031,11 @@ void basecamp::serialize( JsonOut &json ) const
 void basecamp::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void basecamp::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     data.read( "name", name );
     data.read( "pos", omt_pos );

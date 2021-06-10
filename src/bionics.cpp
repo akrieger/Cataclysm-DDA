@@ -3022,6 +3022,11 @@ void bionic::serialize( JsonOut &json ) const
 void bionic::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void bionic::deserialize( const JsonObject &jo )
+{
     id = bionic_id( jo.get_string( "id" ) );
     invlet = jo.get_int( "invlet" );
     powered = jo.get_bool( "powered" );

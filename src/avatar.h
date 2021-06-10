@@ -83,6 +83,7 @@ class avatar : public player
         void load( const JsonObject &data );
         void serialize( JsonOut &json ) const override;
         void deserialize( JsonIn &jsin ) override;
+        void deserialize( const JsonObject &data );
         bool save_map_memory();
         void load_map_memory();
 
@@ -267,7 +268,9 @@ class avatar : public player
             }
             void deserialize( JsonIn &jsin ) {
                 JsonObject data = jsin.get_object();
-
+                deserialize( data );
+            }
+            void deserialize( const JsonObject &data ) {
                 data.read( "spent", spent );
                 data.read( "gained", gained );
                 if( data.has_member( "activity" ) ) {
@@ -285,7 +288,7 @@ class avatar : public player
             }
 
             void save_activity( JsonOut &json ) const;
-            void read_activity( JsonObject &data );
+            void read_activity( const JsonObject &data );
 
         };
         // called once a day; adds a new daily_calories to the

@@ -23,6 +23,7 @@
 #include "type_id.h"
 
 class JsonIn;
+class JsonObject;
 class JsonOut;
 class character_id;
 class npc;
@@ -338,6 +339,7 @@ class basecamp
         // Save/load
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &data );
         void load_data( const std::string &data );
 
         static constexpr int inv_range = 20;
