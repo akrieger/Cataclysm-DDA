@@ -1715,6 +1715,11 @@ void npc::deserialize( JsonIn &jsin )
     load( data );
 }
 
+void npc::deserialize(JsonObject& data)
+{
+    load(data);
+}
+
 void npc::load( const JsonObject &data )
 {
     player::load( data );

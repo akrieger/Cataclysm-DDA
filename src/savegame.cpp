@@ -595,10 +595,10 @@ void overmap::unserialize( std::istream &fin )
                 scents[pos] = scent_trace( time, strength );
             }
         } else if( name == "npcs" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
+            JsonArray npcs_json = jsin.get_array();
+            for (JsonObject npc_json : npcs_json) {
                 shared_ptr_fast<npc> new_npc = make_shared_fast<npc>();
-                new_npc->deserialize( jsin );
+                new_npc->deserialize( npc_json );
                 if( !new_npc->get_fac_id().str().empty() ) {
                     new_npc->set_fac( new_npc->get_fac_id() );
                 }
