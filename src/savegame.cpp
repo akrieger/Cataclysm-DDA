@@ -576,20 +576,19 @@ void overmap::unserialize( std::istream &fin )
                 vehicles[id] = new_tracker;
             }
         } else if( name == "scent_traces" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
-                jsin.start_object();
+            JsonArray scents_json = jsin.get_array();
+            for (JsonObject scent_json : scents_json) {
                 tripoint_abs_omt pos;
                 time_point time = calendar::before_time_starts;
                 int strength = 0;
-                while( !jsin.end_object() ) {
-                    std::string scent_member_name = jsin.get_member_name();
+                for (JsonMember scent_member : scent_json) {
+                    std::string scent_member_name = scent_member.name();
                     if( scent_member_name == "pos" ) {
-                        jsin.read( pos );
+                        scent_member.read( pos );
                     } else if( scent_member_name == "time" ) {
-                        jsin.read( time );
+                        scent_member.read( time );
                     } else if( scent_member_name == "strength" ) {
-                        jsin.read( strength );
+                        scent_member.read( strength );
                     }
                 }
                 scents[pos] = scent_trace( time, strength );
