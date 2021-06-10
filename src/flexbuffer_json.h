@@ -175,12 +175,11 @@ class JsonIn
         JsonIn& seek( JsonPath const &path ) {
             path_ = path;
             parent_ = *root_;
-            values_in_parent_ = 0;
             // Advance parent according to path. Note: last idx is element in parent.
             for( const uint16_t* idx = path_.begin(), *end = path_.end() - 1; idx != end; ++idx ) {
                 parent_ = parent_.AsVector()[ *idx ];
-                values_in_parent_ = count_values_in_parent();
             }
+            values_in_parent_ = count_values_in_parent();
             return *this;
         }
 
@@ -550,8 +549,8 @@ class JsonIn
                 if( ja.size() != 2 ) {
                     return error_or_false( throw_on_error, "Array had wrong number of elements for pair");
                 }
-                bool result = read(p.first, throw_on_error) &&
-                    read(p.second, throw_on_error);
+                bool result = ja[0].read(p.first, throw_on_error) &&
+                    ja[1].read(p.second, throw_on_error);
                 if( !result && throw_on_error ) {
                     error("Array had wrong number of elements for pair");
                 }
