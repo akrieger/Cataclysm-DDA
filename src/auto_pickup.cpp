@@ -820,6 +820,11 @@ void rule_list::serialize( JsonOut &jsout ) const
 void rule::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void rule::deserialize( const JsonObject &jo )
+{
     sRule = jo.get_string( "rule" );
     bActive = jo.get_bool( "active" );
     bExclude = jo.get_bool( "exclude" );
@@ -827,12 +832,17 @@ void rule::deserialize( JsonIn &jsin )
 
 void rule_list::deserialize( JsonIn &jsin )
 {
+    JsonArray ja = jsin.get_array();
+    deserialize( ja );
+}
+
+void rule_list::deserialize( const JsonArray &ja )
+{
     clear();
 
-    jsin.start_array();
-    while( !jsin.end_array() ) {
+    for( JsonObject jo : ja ) {
         rule tmp;
-        tmp.deserialize( jsin );
+        tmp.deserialize( jo );
         push_back( tmp );
     }
 }
@@ -857,7 +867,13 @@ void npc_settings::serialize( JsonOut &jsout ) const
 
 void npc_settings::deserialize( JsonIn &jsin )
 {
-    rules.deserialize( jsin );
+    JsonArray ja = jsin.get_array();
+    deserialize( ja );
+}
+
+void npc_settings::deserialize( const JsonArray &ja )
+{
+    rules.deserialize( ja );
 }
 
 void npc_settings::refresh_map_items( cache &map_items ) const
