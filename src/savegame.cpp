@@ -556,21 +556,20 @@ void overmap::unserialize( std::istream &fin )
                                                     std::move( new_monster ) ) );
             }
         } else if( name == "tracked_vehicles" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
-                jsin.start_object();
+            JsonArray tracked_vehicles_json = jsin.get_array();
+            for (JsonObject tracked_vehicle_json : tracked_vehicles_json) {
                 om_vehicle new_tracker;
                 int id;
-                while( !jsin.end_object() ) {
-                    std::string tracker_member_name = jsin.get_member_name();
+                for (JsonMember tracked_member : tracked_vehicle_json) {
+                    std::string tracker_member_name = tracked_member.name();
                     if( tracker_member_name == "id" ) {
-                        jsin.read( id );
+                        tracked_member.read( id );
                     } else if( tracker_member_name == "x" ) {
-                        jsin.read( new_tracker.p.x() );
+                        tracked_member.read( new_tracker.p.x() );
                     } else if( tracker_member_name == "y" ) {
-                        jsin.read( new_tracker.p.y() );
+                        tracked_member.read( new_tracker.p.y() );
                     } else if( tracker_member_name == "name" ) {
-                        jsin.read( new_tracker.name );
+                        tracked_member.read( new_tracker.name );
                     }
                 }
                 vehicles[id] = new_tracker;
