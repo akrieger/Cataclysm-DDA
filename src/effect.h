@@ -54,6 +54,7 @@ struct vitamin_rate_effect {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct vitamin_applied_effect {
@@ -350,6 +351,7 @@ class effect
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &jo );
 
     protected:
         const effect_type *eff_type;

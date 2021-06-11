@@ -62,7 +62,12 @@ void vitamin_rate_effect::load( const JsonObject &jo )
 
 void vitamin_rate_effect::deserialize( JsonIn &jsin )
 {
-    load( jsin.get_object() );
+    deserialize( jsin.get_object() );
+}
+
+void vitamin_rate_effect::deserialize( const JsonObject &jo )
+{
+    load( jo );
 }
 
 /** @relates string_id */
@@ -1548,6 +1553,11 @@ void effect::serialize( JsonOut &json ) const
 void effect::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void effect::deserialize( const JsonObject &jo )
+{
     efftype_id id;
     jo.read( "eff_type", id );
     eff_type = &id.obj();
