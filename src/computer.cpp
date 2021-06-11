@@ -35,6 +35,11 @@ void computer_option::serialize( JsonOut &jout ) const
 void computer_option::deserialize( JsonIn &jin )
 {
     const JsonObject jo = jin.get_object();
+    deserialize( jo );
+}
+
+void computer_option::deserialize( const JsonObject &jo )
+{
     name = jo.get_string( "name" );
     action = jo.get_enum_value<computer_action>( "action" );
     security = jo.get_int( "security" );
@@ -56,6 +61,10 @@ void computer_failure::serialize( JsonOut &jout ) const
 void computer_failure::deserialize( JsonIn &jin )
 {
     const JsonObject jo = jin.get_object();
+    deserialize( jo );
+}
+void computer_failure::deserialize( const JsonObject &jo )
+{
     type = jo.get_enum_value<computer_failure_type>( "action" );
 }
 
@@ -173,10 +182,16 @@ void computer::serialize( JsonOut &jout ) const
 
 void computer::deserialize( JsonIn &jin )
 {
-    if( jin.test_string() ) {
-        load_legacy_data( jin.get_string() );
+    JsonValue jv = jin.get_value();
+    deserialize( jv );
+}
+
+void computer::deserialize( const JsonValue &jv )
+{
+    if( jv.test_string() ) {
+        load_legacy_data( jv.get_string() );
     } else {
-        const JsonObject jo = jin.get_object();
+        const JsonObject jo = jv.get_object();
         jo.read( "name", name );
         jo.read( "mission", mission_id );
         jo.read( "security", security );

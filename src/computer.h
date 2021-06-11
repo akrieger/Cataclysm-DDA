@@ -11,6 +11,7 @@
 class JsonIn;
 class JsonObject;
 class JsonOut;
+class JsonValue;
 
 enum computer_action {
     COMPACT_NULL = 0,
@@ -90,6 +91,7 @@ struct computer_option {
     // Save to/load from saves
     void serialize( JsonOut &jout ) const;
     void deserialize( JsonIn &jin );
+    void deserialize( const JsonObject &jo );
     // Load from data files
     static computer_option from_json( const JsonObject &jo );
 };
@@ -103,6 +105,7 @@ struct computer_failure {
     // Save to/load from saves
     void serialize( JsonOut &jout ) const;
     void deserialize( JsonIn &jin );
+    void deserialize( const JsonObject &jo );
     // Load from data files
     static computer_failure from_json( const JsonObject &jo );
 };
@@ -124,6 +127,7 @@ class computer
         void load_legacy_data( const std::string &data );
         void serialize( JsonOut &jout ) const;
         void deserialize( JsonIn &jin );
+        void deserialize( const JsonValue &jv );
 
         friend class computer_session;
     private:
