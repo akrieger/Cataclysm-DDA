@@ -472,6 +472,11 @@ void Character::trait_data::serialize( JsonOut &json ) const
 void Character::trait_data::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void Character::trait_data::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     data.read( "key", key );
     data.read( "charge", charge );
@@ -490,6 +495,11 @@ void consumption_event::serialize( JsonOut &json ) const
 void consumption_event::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void consumption_event::deserialize( const JsonObject &jo )
+{
     jo.allow_omitted_members();
     jo.read( "time", time );
     jo.read( "type_id", type_id );

@@ -293,6 +293,7 @@ struct consumption_event {
     }
     void serialize( JsonOut &json ) const;
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 inline social_modifiers operator+( social_modifiers lhs, const social_modifiers &rhs )
@@ -346,6 +347,7 @@ class contents_change_handler
          * Deserialization for activities
          */
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonValue &jv );
     private:
         std::vector<item_location> unsealed;
 };
@@ -2771,6 +2773,7 @@ class Character : public Creature, public visitable
             int charge = 0;
             void serialize( JsonOut &json ) const;
             void deserialize( JsonIn &jsin );
+            void deserialize( const JsonObject &data );
         };
 
         // The player's position on the local map.

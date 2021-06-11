@@ -3242,7 +3242,13 @@ void contents_change_handler::serialize( JsonOut &jsout ) const
 
 void contents_change_handler::deserialize( JsonIn &jsin )
 {
-    jsin.read( unsealed );
+    JsonValue jv = jsin.get_value();
+    deserialize( jv );
+}
+
+void contents_change_handler::deserialize( const JsonValue &jv )
+{
+    jv.read( unsealed );
 }
 
 std::list<item *> Character::get_dependent_worn_items( const item &it )
