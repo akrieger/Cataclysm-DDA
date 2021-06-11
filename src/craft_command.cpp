@@ -84,7 +84,12 @@ template<typename CompType>
 void comp_selection<CompType>::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
 
+template<typename CompType>
+void comp_selection<CompType>::deserialize( const JsonObject &data )
+{
     std::string use_from_str;
     data.read( "use_from", use_from_str );
     use_from = io::string_to_enum<usage_from>( use_from_str );
@@ -95,7 +100,9 @@ void comp_selection<CompType>::deserialize( JsonIn &jsin )
 template void comp_selection<tool_comp>::serialize( JsonOut &jsout ) const;
 template void comp_selection<item_comp>::serialize( JsonOut &jsout ) const;
 template void comp_selection<tool_comp>::deserialize( JsonIn &jsin );
+template void comp_selection<tool_comp>::deserialize( const JsonObject &data );
 template void comp_selection<item_comp>::deserialize( JsonIn &jsin );
+template void comp_selection<item_comp>::deserialize( const JsonObject &data );
 
 void craft_command::execute( const cata::optional<tripoint> &new_loc )
 {
