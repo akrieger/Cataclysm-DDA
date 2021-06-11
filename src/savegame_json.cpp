@@ -454,6 +454,11 @@ void effect_source::serialize( JsonOut &json ) const
 void effect_source::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void effect_source::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     data.read( "character_id", this->character );
     data.read( "faction_id", this->fac );
