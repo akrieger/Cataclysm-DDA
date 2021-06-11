@@ -103,6 +103,7 @@ struct stat_hp_mods {
     bool was_loaded = false;
     void load( const JsonObject &jsobj );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct body_part_type {
@@ -300,6 +301,7 @@ class bodypart
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &jo );
 };
 
 class body_part_set
