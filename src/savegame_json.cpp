@@ -2331,7 +2331,12 @@ void time_point::serialize( JsonOut &jsout ) const
 
 void time_point::deserialize( JsonIn &jsin )
 {
-    turn_ = jsin.get_int();
+    deserialize( jsin.get_int() );
+}
+
+void time_point::deserialize( int turn )
+{
+    turn_ = turn;
 }
 
 void time_duration::serialize( JsonOut &jsout ) const

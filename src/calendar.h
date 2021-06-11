@@ -8,6 +8,7 @@
 
 class JsonIn;
 class JsonOut;
+class JsonValue;
 class time_duration;
 class time_point;
 template<typename T> struct enum_traits;
@@ -187,6 +188,7 @@ class time_duration
 
         void serialize( JsonOut &jsout ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonValue &jv );
 
         /**
          * Named constructors to get a duration representing a multiple of the named time
@@ -456,6 +458,7 @@ class time_point
 
         void serialize( JsonOut &jsout ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( int );
 
         // TODO: try to get rid of this
         template<typename T>
