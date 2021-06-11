@@ -1590,6 +1590,11 @@ void dialogue_chatbin::serialize( JsonOut &json ) const
 void dialogue_chatbin::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void dialogue_chatbin::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
 
     if( data.has_int( "first_topic" ) ) {
