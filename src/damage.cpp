@@ -181,6 +181,12 @@ bool damage_instance::operator==( const damage_instance &other ) const
 
 void damage_instance::deserialize( JsonIn &jsin )
 {
+    JsonValue jv = jsin.get_value();
+    deserialize( jv );
+}
+
+void damage_instance::deserialize( const JsonValue &jsin )
+{
     // TODO: Clean up
     if( jsin.test_object() ) {
         JsonObject jo = jsin.get_object();
@@ -188,7 +194,7 @@ void damage_instance::deserialize( JsonIn &jsin )
     } else if( jsin.test_array() ) {
         damage_units = load_damage_instance( jsin.get_array() ).damage_units;
     } else {
-        jsin.error( "Expected object or array for damage_instance" );
+        jsin.throw_error( "Expected object or array for damage_instance" );
     }
 }
 
@@ -489,6 +495,11 @@ void damage_over_time_data::serialize( JsonOut &jsout ) const
 void damage_over_time_data::deserialize( JsonIn &jsin )
 {
     const JsonObject &jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void damage_over_time_data::deserialize( const JsonObject &jo )
+{
     std::string tmp_string = jo.get_string( "damage_type" );
     // Remove after 0.F, migrating DT_TRUE to DT_PURE
     if( tmp_string == "true" ) {

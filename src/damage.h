@@ -14,6 +14,7 @@ class JsonArray;
 class JsonIn;
 class JsonObject;
 class JsonOut;
+class JsonValue;
 class item;
 class monster;
 template<typename T> struct enum_traits;
@@ -90,6 +91,7 @@ struct damage_instance {
     /*@}*/
 
     void deserialize( JsonIn & );
+    void deserialize( const JsonValue &jv );
 };
 
 class damage_over_time_data
@@ -106,6 +108,7 @@ class damage_over_time_data
 
         void serialize( JsonOut &jsout ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &jo );
 };
 
 struct dealt_damage_instance {
