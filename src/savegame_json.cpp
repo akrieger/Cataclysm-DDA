@@ -3425,6 +3425,11 @@ void mission::serialize( JsonOut &json ) const
 void faction::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void faction::deserialize( const JsonObject &jo )
+{
     jo.allow_omitted_members();
 
     jo.read( "id", id );

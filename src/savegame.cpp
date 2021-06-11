@@ -1303,13 +1303,19 @@ void faction_manager::serialize( JsonOut &jsout ) const
 
 void faction_manager::deserialize( JsonIn &jsin )
 {
-    if( jsin.test_object() ) {
+    JsonValue jv = jsin.get_value();
+    deserialize( jv );
+}
+
+void faction_manager::deserialize( const JsonValue &jv )
+{
+    if( jv.test_object() ) {
         // whoops - this recovers factions saved under the wrong format.
-        jsin.start_object();
-        while( !jsin.end_object() ) {
+        JsonObject jo = jv;
+        for( JsonMember jm : jo ) {
             faction add_fac;
-            add_fac.id = faction_id( jsin.get_member_name() );
-            jsin.read( add_fac );
+            add_fac.id = faction_id( jm.name() );
+            jm.read( add_fac );
             faction *old_fac = get( add_fac.id, false );
             if( old_fac ) {
                 *old_fac = add_fac;
@@ -1319,12 +1325,12 @@ void faction_manager::deserialize( JsonIn &jsin )
                 factions[add_fac.id] = add_fac;
             }
         }
-    } else if( jsin.test_array() ) {
+    } else if( jv.test_array() ) {
         // how it should have been serialized.
-        jsin.start_array();
-        while( !jsin.end_array() ) {
+        JsonArray ja = jv;
+        for( JsonValue jav : ja ) {
             faction add_fac;
-            jsin.read( add_fac );
+            jav.read( add_fac );
             faction *old_fac = get( add_fac.id, false );
             if( old_fac ) {
                 *old_fac = add_fac;
