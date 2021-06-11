@@ -326,6 +326,7 @@ enum color_id {
     num_colors
 };
 
+class JsonArray;
 class JsonIn;
 class JsonOut;
 
@@ -376,6 +377,7 @@ class nc_color
 
         void serialize( JsonOut &jsout ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( int i );
 
         friend bool operator==( const nc_color &l, const nc_color &r ) {
             return l.attribute_value == r.attribute_value;
@@ -460,6 +462,7 @@ class color_manager
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonArray &ja );
 };
 
 color_manager &get_all_colors();

@@ -28,7 +28,13 @@ void nc_color::serialize( JsonOut &jsout ) const
 
 void nc_color::deserialize( JsonIn &jsin )
 {
-    attribute_value = jsin.get_int();
+    int i = jsin.get_int();
+    deserialize( i );
+}
+
+void nc_color::deserialize( int i )
+{
+    attribute_value = i;
 }
 
 color_manager &get_all_colors()
@@ -1069,10 +1075,13 @@ void color_manager::serialize( JsonOut &json ) const
 
 void color_manager::deserialize( JsonIn &jsin )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        JsonObject joColors = jsin.get_object();
+    JsonArray ja = jsin.get_array();
+    deserialize( ja );
+}
 
+void color_manager::deserialize( const JsonArray &ja )
+{
+    for( JsonObject joColors : ja ) {
         const std::string name = joColors.get_string( "name" );
         const std::string name_custom = joColors.get_string( "custom" );
         const std::string name_invert_custom = joColors.get_string( "invertcustom" );
