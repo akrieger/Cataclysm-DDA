@@ -1146,7 +1146,12 @@ void zone_manager::serialize( JsonOut &json ) const
 
 void zone_manager::deserialize( JsonIn &jsin )
 {
-    jsin.read( zones );
+    JsonValue jv = jsin.get_value();
+    deserialize( jv );
+}
+void zone_manager::deserialize( const JsonValue &jv )
+{
+    jv.read( zones );
     for( auto it = zones.begin(); it != zones.end(); ++it ) {
         const zone_type_id zone_type = it->get_type();
         if( !has_type( zone_type ) ) {
@@ -1174,6 +1179,11 @@ void zone_data::serialize( JsonOut &json ) const
 void zone_data::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void zone_data::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     data.read( "name", name );
     data.read( "type", type );

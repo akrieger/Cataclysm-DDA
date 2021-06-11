@@ -23,6 +23,7 @@
 class JsonIn;
 class JsonObject;
 class JsonOut;
+class JsonValue;
 class faction;
 class item;
 class map;
@@ -334,6 +335,7 @@ class zone_data
         }
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &data );
 };
 
 class zone_manager
@@ -437,6 +439,7 @@ class zone_manager
         void revert_vzones();
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonValue &jv );
 };
 
 #endif // CATA_SRC_CLZONES_H
