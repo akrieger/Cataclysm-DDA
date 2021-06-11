@@ -428,7 +428,13 @@ void character_id::serialize( JsonOut &jsout ) const
 
 void character_id::deserialize( JsonIn &jsin )
 {
-    value = jsin.get_int();
+    int i = jsin.get_int();
+    deserialize( i );
+}
+
+void character_id::deserialize( int i )
+{
+    value = i;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
