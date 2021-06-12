@@ -6647,6 +6647,9 @@ struct extended_photo_def : public JsonDeserializer, public JsonSerializer {
     extended_photo_def() = default;
     void deserialize( JsonIn &jsin ) override {
         JsonObject obj = jsin.get_object();
+        deserialize( obj );
+    }
+    void deserialize( const JsonObject &obj ) {
         quality = obj.get_int( "quality" );
         name = obj.get_string( "name" );
         description = obj.get_string( "description" );
