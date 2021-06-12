@@ -104,6 +104,7 @@ class item_pocket
 
                 void serialize( JsonOut &json ) const;
                 void deserialize( JsonIn &jsin );
+                void deserialize( const JsonObject &data );
             private:
                 int priority_rating = 0;
                 cata::flat_set<itype_id> item_whitelist;
@@ -290,6 +291,7 @@ class item_pocket
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &data );
 
         // true if pocket state is the same as if freshly created from the pocket type
         bool is_default_state() const;
@@ -337,6 +339,7 @@ struct sealable_data {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &data );
 };
 
 class pocket_data
@@ -413,6 +416,7 @@ class pocket_data
 
         void load( const JsonObject &jo );
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &data );
     private:
 
         FlagsSetType flag_restrictions;

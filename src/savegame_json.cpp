@@ -228,6 +228,11 @@ void item_pocket::serialize( JsonOut &json ) const
 void item_pocket::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void item_pocket::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     data.read( "contents", contents );
     int saved_type_int;
@@ -256,6 +261,11 @@ void item_pocket::favorite_settings::serialize( JsonOut &json ) const
 void item_pocket::favorite_settings::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void item_pocket::favorite_settings::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     data.read( "priority", priority_rating );
     data.read( "item_whitelist", item_whitelist );
@@ -267,6 +277,11 @@ void item_pocket::favorite_settings::deserialize( JsonIn &jsin )
 void pocket_data::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void pocket_data::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     load( data );
 }
@@ -274,6 +289,11 @@ void pocket_data::deserialize( JsonIn &jsin )
 void sealable_data::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void sealable_data::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     load( data );
 }
