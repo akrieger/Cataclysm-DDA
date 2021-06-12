@@ -1531,6 +1531,11 @@ void known_magic::serialize( JsonOut &json ) const
 void known_magic::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void known_magic::deserialize( const JsonObject &data )
+{
     data.read( "mana", mana );
 
     for( JsonObject jo : data.get_array( "spellbook" ) ) {
@@ -2390,6 +2395,11 @@ void fake_spell::serialize( JsonOut &json ) const
 void fake_spell::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void fake_spell::deserialize( const JsonObject &data )
+{
     load( data );
 }
 
