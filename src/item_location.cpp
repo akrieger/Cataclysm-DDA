@@ -747,6 +747,10 @@ void item_location::serialize( JsonOut &js ) const
 void item_location::deserialize( JsonIn &js )
 {
     JsonObject obj = js.get_object();
+    deserialize( obj );
+}
+void item_location::deserialize( const JsonObject &obj )
+{
     auto type = obj.get_string( "type" );
 
     int idx = -1;
