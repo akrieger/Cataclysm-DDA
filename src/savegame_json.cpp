@@ -2662,6 +2662,11 @@ void item::migrate_content_item( const item &contained )
 void item::deserialize( JsonIn &jsin )
 {
     const JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void item::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     io::JsonObjectInputArchive archive( data );
     io( archive );

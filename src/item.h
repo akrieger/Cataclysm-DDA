@@ -531,6 +531,7 @@ class item : public visitable
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &data );
 
         const std::string &symbol() const;
         /**
