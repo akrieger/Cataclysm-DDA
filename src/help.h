@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+class JsonArray;
 class JsonIn;
 class translation;
 namespace catacurses
@@ -22,6 +23,7 @@ class help
 
     private:
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonArray &ja );
         void draw_menu( const catacurses::window &win ) const;
         static std::string get_note_colors();
         static std::string get_dir_grid();
