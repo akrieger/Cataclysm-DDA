@@ -308,6 +308,10 @@ void fuel_data::load( const JsonObject &jsobj )
 void fuel_data::deserialize( JsonIn &jsin )
 {
     const JsonObject &jo = jsin.get_object();
+    deserialize( jo );
+}
+void fuel_data::deserialize( const JsonObject &jo )
+{
     load( jo );
 }
 
@@ -329,5 +333,10 @@ void fuel_explosion_data::load( const JsonObject &jsobj )
 void fuel_explosion_data::deserialize( JsonIn &jsin )
 {
     const JsonObject &jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void fuel_explosion_data::deserialize( const JsonObject &jo )
+{
     load( jo );
 }
