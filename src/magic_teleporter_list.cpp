@@ -146,7 +146,11 @@ void teleporter_list::serialize( JsonOut &json ) const
 void teleporter_list::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
 
+void teleporter_list::deserialize( const JsonObject &data )
+{
     for( JsonObject jo : data.get_array( "known_teleporters" ) ) {
         tripoint_abs_omt temp_pos;
         jo.read( "position", temp_pos );
