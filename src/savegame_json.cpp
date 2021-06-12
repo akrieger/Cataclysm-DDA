@@ -204,6 +204,11 @@ void item_contents::serialize( JsonOut &json ) const
 void item_contents::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void item_contents::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     data.read( "contents", contents );
 }

@@ -270,6 +270,7 @@ class item_contents
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &data );
     private:
         // finds the pocket the item will fit in, given the pocket type.
         // this will be where the algorithm picks the best pocket in the contents
