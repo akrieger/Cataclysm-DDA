@@ -26,10 +26,15 @@ bool string_id<item_category>::is_valid() const
 void zone_priority_data::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
-    load( data );
+    deserialize( data );
 }
 
-void zone_priority_data::load( JsonObject &jo )
+void zone_priority_data::deserialize( const JsonObject &jo )
+{
+    load( jo );
+}
+
+void zone_priority_data::load( const JsonObject &jo )
 {
     mandatory( jo, was_loaded, "id", id );
     optional( jo, was_loaded, "flags", flags );

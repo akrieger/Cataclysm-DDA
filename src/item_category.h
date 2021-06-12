@@ -23,7 +23,8 @@ struct zone_priority_data {
     cata::flat_set<flag_id> flags;
 
     void deserialize( JsonIn &jsin );
-    void load( JsonObject &jo );
+    void deserialize( const JsonObject &jo );
+    void load( const JsonObject &jo );
 };
 /**
  * Contains metadata for one category of items
