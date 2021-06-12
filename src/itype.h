@@ -93,7 +93,11 @@ class gunmod_location
         }
 
         void deserialize( JsonIn &jsin ) {
-            _id = jsin.get_string();
+            deserialize( jsin.get_string() );
+        }
+
+        void deserialize( std::string &&id ) {
+            _id = std::move( id );
         }
 };
 
@@ -212,6 +216,7 @@ struct islot_brewable {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct armor_portion_data {
@@ -234,6 +239,7 @@ struct armor_portion_data {
     //cata::optional<layer_level> layer;
 
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct islot_armor {
@@ -283,6 +289,7 @@ struct islot_armor {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct islot_pet_armor {
@@ -319,6 +326,7 @@ struct islot_pet_armor {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct islot_book {
@@ -391,6 +399,7 @@ struct islot_book {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct islot_mod {
@@ -452,6 +461,7 @@ struct islot_engine {
 
         void load( const JsonObject &jo );
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &jo );
 };
 
 struct islot_wheel {
@@ -466,6 +476,7 @@ struct islot_wheel {
 
         void load( const JsonObject &jo );
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &jo );
 };
 
 struct gun_variant_data {
@@ -477,6 +488,7 @@ struct gun_variant_data {
     int weight = 0;
 
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
     void load( const JsonObject &jo );
 };
 
@@ -694,6 +706,7 @@ struct islot_battery {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct islot_ammo : common_ranged_data {
@@ -763,6 +776,7 @@ struct islot_ammo : common_ranged_data {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct islot_bionic {
@@ -791,6 +805,7 @@ struct islot_seed {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 
     /**
      * Time it takes for a seed to grow (based of off a season length of 91 days).
@@ -852,6 +867,7 @@ class islot_milling
 
         void load( const JsonObject &jo );
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &jo );
 };
 
 struct itype {

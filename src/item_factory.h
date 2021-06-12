@@ -57,6 +57,7 @@ class migration
 
                 bool operator==( const content & ) const;
                 void deserialize( JsonIn &jsin );
+                void deserialize( const JsonObject &jsobj );
         };
         std::vector<content> contents;
         bool sealed = true;
