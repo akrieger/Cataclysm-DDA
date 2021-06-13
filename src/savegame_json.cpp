@@ -3226,6 +3226,11 @@ void vehicle::serialize( JsonOut &json ) const
 void mission::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void mission::deserialize( const JsonObject &jo )
+{
     jo.allow_omitted_members();
 
     if( jo.has_int( "type_id" ) ) {
