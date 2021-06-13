@@ -41,6 +41,7 @@ class overmap_connection
 
                 void load( const JsonObject &jo );
                 void deserialize( JsonIn &jsin );
+                void deserialize( const JsonObject &jo );
 
             private:
                 std::set<string_id<overmap_location>> locations;
