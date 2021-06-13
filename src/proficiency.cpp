@@ -345,7 +345,11 @@ void proficiency_set::serialize( JsonOut &jsout ) const
 void proficiency_set::deserialize( JsonIn &jsin )
 {
     JsonObject jsobj = jsin.get_object();
+    deserialize( jsobj );
+}
 
+void proficiency_set::deserialize( const JsonObject &jsobj )
+{
     jsobj.read( "known", known );
     jsobj.read( "learning", learning );
 }
@@ -370,7 +374,11 @@ void learning_proficiency::serialize( JsonOut &jsout ) const
 void learning_proficiency::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
 
+void learning_proficiency::deserialize( const JsonObject &jo )
+{
     jo.read( "id", id );
     jo.read( "practiced", practiced );
 }
@@ -378,7 +386,11 @@ void learning_proficiency::deserialize( JsonIn &jsin )
 void book_proficiency_bonus::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
 
+void book_proficiency_bonus::deserialize( const JsonObject &jo )
+{
     mandatory( jo, was_loaded, "proficiency", id );
     optional( jo, was_loaded, "fail_factor", fail_factor, default_fail_factor );
     optional( jo, was_loaded, "time_factor", time_factor, default_time_factor );

@@ -93,6 +93,7 @@ class proficiency_set
 
         void serialize( JsonOut &jsout ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &jsobj );
         void deserialize_legacy( const JsonArray &jo );
 };
 
@@ -108,6 +109,7 @@ struct learning_proficiency {
 
     void serialize( JsonOut &jsout ) const;
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct display_proficiency {
@@ -136,6 +138,7 @@ struct book_proficiency_bonus {
 
         bool was_loaded = false;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &jo );
 
     private:
         static const float default_time_factor;
