@@ -327,6 +327,11 @@ void player_activity::serialize( JsonOut &json ) const
 void player_activity::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void player_activity::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     std::string tmptype;
     int tmppos = 0;
