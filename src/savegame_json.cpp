@@ -1723,6 +1723,11 @@ void npc_opinion::serialize( JsonOut &json ) const
 void npc_favor::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void npc_favor::deserialize( const JsonObject &jo )
+{
     jo.allow_omitted_members();
     type = static_cast<npc_favor_type>( jo.get_int( "type" ) );
     jo.read( "value", value );

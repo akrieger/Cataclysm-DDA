@@ -5,6 +5,7 @@
 #include "type_id.h"
 
 class JsonIn;
+class JsonObject;
 class JsonOut;
 
 enum npc_favor_type {
@@ -31,6 +32,7 @@ struct npc_favor {
 
     void serialize( JsonOut &json ) const;
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 #endif // CATA_SRC_NPC_FAVOR_H
