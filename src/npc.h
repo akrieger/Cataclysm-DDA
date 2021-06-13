@@ -49,6 +49,7 @@
 class JsonIn;
 class JsonObject;
 class JsonOut;
+class JsonValue;
 class mission;
 class monfaction;
 class monster;
@@ -186,6 +187,7 @@ class job_data
         }
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonValue &jv );
 };
 
 enum npc_mission : int {
@@ -247,6 +249,7 @@ struct npc_personality {
 
     void serialize( JsonOut &json ) const;
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &data );
 };
 
 struct npc_opinion {
@@ -283,6 +286,7 @@ struct npc_opinion {
 
     void serialize( JsonOut &json ) const;
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &data );
 };
 
 enum class combat_engagement : int {
@@ -514,6 +518,7 @@ struct npc_follower_rules {
 
     void serialize( JsonOut &json ) const;
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &data );
 
     bool has_flag( ally_rule test, bool check_override = true ) const;
     void set_flag( ally_rule setit );
@@ -827,6 +832,7 @@ class npc : public player
 
         // Save & load
         void deserialize( JsonIn &jsin ) override;
+        void deserialize( const JsonObject &data );
         void serialize( JsonOut &json ) const override;
 
         // Display

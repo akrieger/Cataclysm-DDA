@@ -1529,6 +1529,11 @@ void npc_follower_rules::serialize( JsonOut &json ) const
 void npc_follower_rules::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void npc_follower_rules::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     int tmpeng = 0;
     data.read( "engagement", tmpeng );
@@ -1655,6 +1660,11 @@ void dialogue_chatbin::deserialize( const JsonObject &data )
 void npc_personality::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void npc_personality::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     int tmpagg = 0;
     int tmpbrav = 0;
@@ -1686,6 +1696,11 @@ void npc_personality::serialize( JsonOut &json ) const
 void npc_opinion::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void npc_opinion::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     data.read( "trust", trust );
     data.read( "fear", fear );
@@ -1739,8 +1754,14 @@ void job_data::serialize( JsonOut &json ) const
 }
 void job_data::deserialize( JsonIn &jsin )
 {
-    if( jsin.test_object() ) {
-        JsonObject jo = jsin.get_object();
+    JsonValue jv = jsin.get_value();
+    deserialize( jv );
+}
+
+void job_data::deserialize( const JsonValue &jv )
+{
+    if( jv.test_object() ) {
+        JsonObject jo = jv;
         jo.allow_omitted_members();
         jo.read( "task_priorities", task_priorities );
     }
@@ -1752,6 +1773,11 @@ void job_data::deserialize( JsonIn &jsin )
 void npc::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void npc::deserialize( const JsonObject &data )
+{
     load( data );
 }
 
