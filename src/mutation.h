@@ -126,6 +126,7 @@ struct reflex_activation_data {
     bool was_loaded = false;
     void load( const JsonObject &jsobj );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct mutation_branch {
