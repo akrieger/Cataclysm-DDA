@@ -96,6 +96,9 @@ struct game_message : public JsonDeserializer, public JsonSerializer {
 
     void deserialize( JsonIn &jsin ) override {
         JsonObject obj = jsin.get_object();
+        deserialize( obj );
+    }
+    void deserialize( const JsonObject &obj )  {
         obj.read( "turn", timestamp_in_turns );
         message = obj.get_string( "message" );
         count = obj.get_int( "count" );
