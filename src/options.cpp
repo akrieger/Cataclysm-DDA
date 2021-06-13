@@ -3094,9 +3094,13 @@ void options_manager::serialize( JsonOut &json ) const
 
 void options_manager::deserialize( JsonIn &jsin )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        JsonObject joOptions = jsin.get_object();
+    JsonArray ja = jsin.get_array();
+    deserialize( ja );
+}
+
+void options_manager::deserialize( const JsonArray &ja )
+{
+    for( JsonObject joOptions : ja ) {
         joOptions.allow_omitted_members();
 
         const std::string name = migrateOptionName( joOptions.get_string( "name" ) );
