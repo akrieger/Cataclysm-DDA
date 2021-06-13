@@ -30,6 +30,7 @@ class ostream;
 
 class JsonIn;
 class JsonOut;
+class JsonValue;
 
 // NOLINTNEXTLINE(cata-xy)
 struct point {
@@ -232,6 +233,7 @@ struct tripoint {
 
     void serialize( JsonOut &jsout ) const;
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonValue &jv );
 
 #ifndef CATA_NO_STL
     friend std::ostream &operator<<( std::ostream &, const tripoint & );

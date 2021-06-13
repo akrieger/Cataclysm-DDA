@@ -3846,11 +3846,19 @@ void point::serialize( JsonOut &jsout ) const
 
 void tripoint::deserialize( JsonIn &jsin )
 {
-    jsin.start_array();
-    x = jsin.get_int();
-    y = jsin.get_int();
-    z = jsin.get_int();
-    jsin.end_array();
+    JsonValue jv = jsin.get_value();
+    deserialize( jv );
+}
+
+void tripoint::deserialize( const JsonValue &jv )
+{
+    JsonArray ja = jv;
+    x = ja.get_int( 0 );
+    y = ja.get_int( 1 );
+    z = ja.get_int( 2 );
+    if( ja.size() > 3 ) {
+        ja.throw_error( "Too many points for tripoint" );
+    }
 }
 
 void tripoint::serialize( JsonOut &jsout ) const
