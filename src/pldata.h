@@ -5,6 +5,7 @@
 #include "calendar.h"
 
 class JsonIn;
+class JsonObject;
 class JsonOut;
 template <typename E> struct enum_traits;
 
@@ -51,6 +52,7 @@ class addiction
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &jo );
 };
 
 #endif // CATA_SRC_PLDATA_H

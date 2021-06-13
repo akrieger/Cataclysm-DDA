@@ -3835,6 +3835,11 @@ void addiction::serialize( JsonOut &json ) const
 void addiction::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void addiction::deserialize( const JsonObject &jo )
+{
     jo.allow_omitted_members();
     type = static_cast<add_type>( jo.get_int( "type_enum" ) );
     intensity = jo.get_int( "intensity" );
