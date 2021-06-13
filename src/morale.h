@@ -95,6 +95,7 @@ class player_morale
                     age( 0_turns ) {}
 
                 void deserialize( JsonIn &jsin );
+                void deserialize( const JsonObject &jo );
                 void serialize( JsonOut &json ) const;
 
                 std::string get_name() const;
