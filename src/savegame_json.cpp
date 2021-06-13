@@ -3830,10 +3830,18 @@ void map_memory::load_legacy( JsonIn &jsin )
 
 void point::deserialize( JsonIn &jsin )
 {
-    jsin.start_array();
-    x = jsin.get_int();
-    y = jsin.get_int();
-    jsin.end_array();
+    JsonValue jv = jsin.get_value();
+    deserialize( jv );
+}
+
+void point::deserialize( const JsonValue &jv )
+{
+    JsonArray ja = jv;
+    x = ja.get_int( 0 );
+    y = ja.get_int( 1 );
+    if( ja.size() > 2 ) {
+        ja.throw_error( "Too many coords for point" );
+    }
 }
 
 void point::serialize( JsonOut &jsout ) const
@@ -3857,7 +3865,7 @@ void tripoint::deserialize( const JsonValue &jv )
     y = ja.get_int( 1 );
     z = ja.get_int( 2 );
     if( ja.size() > 3 ) {
-        ja.throw_error( "Too many points for tripoint" );
+        ja.throw_error( "Too many coords for tripoint" );
     }
 }
 
