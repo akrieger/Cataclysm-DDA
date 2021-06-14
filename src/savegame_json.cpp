@@ -438,6 +438,11 @@ void SkillLevel::serialize( JsonOut &json ) const
 void SkillLevel::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void SkillLevel::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     data.read( "level", _level );
     data.read( "exercise", _exercise );
