@@ -40,6 +40,7 @@
 class Character;
 class Creature;
 class JsonIn;
+class JsonObject;
 class JsonOut;
 class map;
 class monster;
@@ -122,6 +123,7 @@ struct smart_controller_config {
     int battery_hi = 90;
 
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &data );
     void serialize( JsonOut &json ) const;
 };
 
@@ -485,6 +487,7 @@ struct vehicle_part {
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &data );
 
         const item &get_base() const;
         void set_base( const item &new_base );
@@ -609,6 +612,7 @@ struct label : public point {
     std::string text;
 
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &data );
     void serialize( JsonOut &json ) const;
 };
 
@@ -808,6 +812,7 @@ class vehicle
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &data );
         // Vehicle parts list - all the parts on a single tile
         int print_part_list( const catacurses::window &win, int y1, int max_y, int width, int p,
                              int hl = -1, bool detail = false ) const;

@@ -2836,6 +2836,11 @@ void item::serialize( JsonOut &json ) const
 void vehicle_part::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void vehicle_part::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     vpart_id pid;
     data.read( "id", pid );
@@ -3012,6 +3017,11 @@ void vehicle_part::serialize( JsonOut &json ) const
 void label::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void label::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     data.read( "x", x );
     data.read( "y", y );
@@ -3030,6 +3040,11 @@ void label::serialize( JsonOut &json ) const
 void smart_controller_config::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void smart_controller_config::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     data.read( "bat_lo", battery_lo );
     data.read( "bat_hi", battery_hi );
@@ -3049,6 +3064,11 @@ void smart_controller_config::serialize( JsonOut &json ) const
 void vehicle::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void vehicle::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
 
     int fdir = 0;
