@@ -134,7 +134,7 @@ struct overmap_spawns {
 
     protected:
         template<typename JsonObjectType>
-        void load( JsonObjectType &jo ) {
+        void load( const JsonObjectType &jo ) {
             jo.read( "group", group );
             jo.read( "population", population );
         }
@@ -150,6 +150,10 @@ struct overmap_static_spawns : public overmap_spawns {
     template<typename JsonStream>
     void deserialize( JsonStream &jsin ) {
         auto jo = jsin.get_object();
+        deserialize_( jo );
+    }
+    template<typename JsonObjectType>
+    void deserialize_( const JsonObjectType &jo ) {
         overmap_spawns::load( jo );
         jo.read( "chance", chance );
     }
@@ -411,6 +415,10 @@ struct overmap_special_spawns : public overmap_spawns {
     template<typename JsonStream>
     void deserialize( JsonStream &jsin ) {
         auto jo = jsin.get_object();
+        deserialize_( jo );
+    }
+    template<typename JsonObjectType>
+    void deserialize_( const JsonObjectType &jo ) {
         overmap_spawns::load( jo );
         jo.read( "radius", radius );
     }
@@ -426,6 +434,10 @@ struct overmap_special_terrain {
     template<typename JsonStream>
     void deserialize( JsonStream &jsin ) {
         auto om = jsin.get_object();
+        deserialize_( om );
+    }
+    template<typename JsonObjectType>
+    void deserialize_( const JsonObjectType &om ) {
         om.read( "point", p );
         om.read( "overmap", terrain );
         om.read( "flags", flags );
@@ -451,6 +463,10 @@ struct overmap_special_connection {
     template<typename JsonStream>
     void deserialize( JsonStream &jsin ) {
         auto jo = jsin.get_object();
+        deserialize_( jo );
+    }
+    template<typename JsonObjectType>
+    void deserialize_( const JsonObjectType &jo ) {
         jo.read( "point", p );
         jo.read( "terrain", terrain );
         jo.read( "existing", existing );
