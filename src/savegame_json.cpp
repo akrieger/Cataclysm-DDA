@@ -2228,33 +2228,28 @@ void monster::load( const JsonObject &data )
         data.read( "patrol_route", patrol_route_abs_ms );
     }
     if( data.has_object( "tied_item" ) ) {
-        JsonIn *tied_item_json = data.get_raw( "tied_item" );
         item newitem;
-        newitem.deserialize( *tied_item_json );
+        newitem.deserialize( data.get_object( "tied_item" ) );
         tied_item = cata::make_value<item>( newitem );
     }
     if( data.has_object( "tack_item" ) ) {
-        JsonIn *tack_item_json = data.get_raw( "tack_item" );
         item newitem;
-        newitem.deserialize( *tack_item_json );
+        newitem.deserialize( data.get_object( "tack_item" ) );
         tack_item = cata::make_value<item>( newitem );
     }
     if( data.has_object( "armor_item" ) ) {
-        JsonIn *armor_item_json = data.get_raw( "armor_item" );
         item newitem;
-        newitem.deserialize( *armor_item_json );
+        newitem.deserialize( data.get_object( "armor_item" ) );
         armor_item = cata::make_value<item>( newitem );
     }
     if( data.has_object( "storage_item" ) ) {
-        JsonIn *storage_item_json = data.get_raw( "storage_item" );
         item newitem;
-        newitem.deserialize( *storage_item_json );
+        newitem.deserialize( data.get_object( "storage_item" ) );
         storage_item = cata::make_value<item>( newitem );
     }
     if( data.has_object( "battery_item" ) ) {
-        JsonIn *battery_item_json = data.get_raw( "battery_item" );
         item newitem;
-        newitem.deserialize( *battery_item_json );
+        newitem.deserialize( data.get_object( "battery_item" ) );
         battery_item = cata::make_value<item>( newitem );
     }
     data.read( "hp", hp );

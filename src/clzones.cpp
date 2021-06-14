@@ -1240,7 +1240,7 @@ void zone_manager::load_zones()
 
     read_from_file_optional( savefile, [&]( std::istream & fin ) {
         JsonIn jsin( fin );
-        deserialize( jsin );
+        deserialize( jsin.get_value() );
     } );
     revert_vzones();
     added_vzones.clear();
