@@ -408,6 +408,11 @@ void requirement_data::serialize( JsonOut &json ) const
 void requirement_data::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void requirement_data::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
 
     data.read( "blacklisted", blacklisted );
@@ -415,7 +420,6 @@ void requirement_data::deserialize( JsonIn &jsin )
     data.read( "req_comps_total", components );
     data.read( "tool_comps_total", tools );
     data.read( "quality_comps_total", qualities );
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

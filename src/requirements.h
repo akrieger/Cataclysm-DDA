@@ -293,6 +293,7 @@ struct requirement_data {
          */
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &data );
         /** Get all currently loaded requirements */
         static const std::map<requirement_id, requirement_data> &all();
 
