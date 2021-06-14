@@ -1104,7 +1104,12 @@ void recipe::incorporate_build_reqs()
 
 void recipe_proficiency::deserialize( JsonIn &jsin )
 {
-    load( jsin.get_object() );
+    deserialize( jsin.get_object() );
+}
+
+void recipe_proficiency::deserialize( const JsonObject &jo )
+{
+    load( jo );
 }
 
 void recipe_proficiency::load( const JsonObject &jo )
@@ -1119,7 +1124,12 @@ void recipe_proficiency::load( const JsonObject &jo )
 
 void book_recipe_data::deserialize( JsonIn &jsin )
 {
-    load( jsin.get_object() );
+    deserialize( jsin.get_object() );
+}
+
+void book_recipe_data::deserialize( const JsonObject &jo )
+{
+    load( jo );
 }
 
 void book_recipe_data::load( const JsonObject &jo )

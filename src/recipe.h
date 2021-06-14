@@ -57,6 +57,7 @@ struct recipe_proficiency {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 struct book_recipe_data {
@@ -66,6 +67,7 @@ struct book_recipe_data {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &jo );
 };
 
 class recipe
