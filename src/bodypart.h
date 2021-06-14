@@ -364,7 +364,11 @@ class body_part_set
         }
         template<typename Stream>
         void deserialize( Stream &s ) {
-            s.read( parts );
+            deserialize( s.get_value() );
+        }
+        template<typename Value>
+        void deserialize( const Value &v ) {
+            v.read( parts );
         }
 };
 
