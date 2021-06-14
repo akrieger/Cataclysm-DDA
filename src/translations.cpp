@@ -526,25 +526,31 @@ void translation::make_plural()
 
 void translation::deserialize( JsonIn &jsin )
 {
+    JsonValue jv = jsin.get_value();
+    deserialize( jv );
+}
+
+void translation::deserialize( const JsonValue &jv )
+{
     // reset the cache
     cached_language_version = INVALID_LANGUAGE_VERSION;
     cached_translation = nullptr;
 
-    if( jsin.test_string() ) {
+    if( jv.test_string() ) {
         ctxt = nullptr;
         // if plural form is enabled
         if( raw_pl ) {
             // strings with plural forms are currently only simple names, and
             // need no text style check.
-            raw = jsin.get_string();
+            raw = jv.get_string();
             raw_pl = cata::make_value<std::string>( raw + "s" );
         } else {
             raw = text_style_check_reader( text_style_check_reader::allow_object::no )
-                  .get_next( jsin.get_value() );
+                  .get_next( jv );
         }
         needs_translation = true;
     } else {
-        JsonObject jsobj = jsin.get_object();
+        JsonObject jsobj = jv.get_object();
         if( jsobj.has_member( "ctxt" ) ) {
             ctxt = cata::make_value<std::string>( jsobj.get_string( "ctxt" ) );
         } else {

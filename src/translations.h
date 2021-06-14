@@ -12,6 +12,8 @@
 #include "optional.h"
 #include "value_ptr.h"
 
+class JsonValue;
+
 constexpr int INVALID_LANGUAGE_VERSION = 0;
 
 namespace detail
@@ -269,6 +271,7 @@ class translation
          * or converted using `make_plural()`.
          **/
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonValue &jv );
 
         /**
          * Returns raw string if no translation is needed, otherwise returns
