@@ -4110,6 +4110,11 @@ void event_multiset::serialize( JsonOut &jsout ) const
 void event_multiset::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void event_multiset::deserialize( const JsonObject &jo )
+{
     jo.allow_omitted_members();
     JsonArray events = jo.get_array( "event_counts" );
     if( !events.empty() && events.get_array( 0 ).has_int( 1 ) ) {
@@ -4141,6 +4146,11 @@ void stats_tracker::serialize( JsonOut &jsout ) const
 void stats_tracker::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void stats_tracker::deserialize( const JsonObject &jo )
+{
     jo.allow_omitted_members();
     jo.read( "data", data );
     for( std::pair<const event_type, event_multiset> &d : data ) {
