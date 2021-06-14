@@ -136,6 +136,7 @@ class quantity
 
         void serialize( JsonOut &jsout ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonValue &jv );
 
     private:
         value_type value_;
