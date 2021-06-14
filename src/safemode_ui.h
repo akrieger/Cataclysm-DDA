@@ -11,6 +11,7 @@
 #include "creature.h"
 #include "enums.h"
 
+class JsonArray;
 class JsonIn;
 class JsonOut;
 
@@ -111,6 +112,7 @@ class safemode
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonArray &ja );
 };
 
 safemode &get_safemode();
