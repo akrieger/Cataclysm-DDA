@@ -34,7 +34,12 @@ struct numeric_interval {
 
     template<typename JsonStream>
     void deserialize( JsonStream &jsin ) {
-        auto ja = jsin.get_array();
+        auto jv = jsin.get_value();
+        deserialize_( jv );
+    }
+    template<typename JsonValueType>
+    void deserialize_( const JsonValueType &jv ) {
+        JsonArray ja = jv;
         if( ja.size() != 2 ) {
             ja.throw_error( "Intervals should be in format [min, max]." );
         }
