@@ -10,6 +10,7 @@
 
 class Character;
 class JsonIn;
+class JsonObject;
 class JsonOut;
 struct needs_rates;
 
@@ -149,6 +150,7 @@ class stomach_contents
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &json );
+        void deserialize( const JsonObject &jo );
 
     private:
 

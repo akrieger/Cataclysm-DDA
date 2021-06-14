@@ -143,6 +143,11 @@ static units::volume string_to_ml( const std::string &str )
 void stomach_contents::deserialize( JsonIn &json )
 {
     JsonObject jo = json.get_object();
+    deserialize( jo );
+}
+
+void stomach_contents::deserialize( const JsonObject &jo )
+{
     jo.read( "vitamins", nutr.vitamins );
     jo.read( "calories", nutr.calories );
     // nutr.calories was changed from being in kcal to being in cal
