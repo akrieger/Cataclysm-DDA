@@ -388,8 +388,10 @@ class overmap
 
         // parse data in an opened overmap file
         void unserialize( std::istream &fin );
+        void unserialize( const JsonObject &om_json );
         // Parse per-player overmap view data.
         void unserialize_view( std::istream &fin );
+        void unserialize_view( const JsonObject &view_json );
         // Save data in an opened overmap file
         void serialize( std::ostream &fout ) const;
         // Save per-player overmap view data.
@@ -515,7 +517,9 @@ class overmap
         void spawn_mon_group( const mongroup &group );
 
         void load_monster_groups( JsonIn &jsin );
+        void load_monster_groups( const JsonArray &ja );
         void load_legacy_monstergroups( JsonIn &jsin );
+        void load_legacy_monstergroups( const JsonArray &ja );
         void save_monster_groups( JsonOut &jo ) const;
     public:
         static void load_obsolete_terrains( const JsonObject &jo );

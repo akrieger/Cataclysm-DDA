@@ -460,31 +460,40 @@ void overmap::convert_terrain(
 
 void overmap::load_monster_groups( JsonIn &jsin )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        jsin.start_array();
+    load_monster_groups( jsin.get_array() );
+}
+
+void overmap::load_monster_groups( const JsonArray &monster_groups )
+{
+    for( JsonArray monsters_and_positions : monster_groups ) {
 
         mongroup new_group;
-        new_group.deserialize( jsin );
+        new_group.deserialize( monsters_and_positions.next_object() );
 
-        jsin.start_array();
+        JsonArray monster_positions = monsters_and_positions.next_array();
         tripoint_om_sm temp;
-        while( !jsin.end_array() ) {
-            temp.deserialize( jsin );
+        for( JsonValue tripoint_json : monster_positions ) {
+            temp.deserialize( tripoint_json );
             new_group.pos = temp;
             add_mon_group( new_group );
         }
 
-        jsin.end_array();
+        if( monsters_and_positions.has_more() ) {
+            monsters_and_positions.throw_error( "Too many values for monster group" );
+        }
     }
 }
 
 void overmap::load_legacy_monstergroups( JsonIn &jsin )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
+    load_legacy_monstergroups( jsin.get_array() );
+}
+
+void overmap::load_legacy_monstergroups( const JsonArray &monstergroups )
+{
+    for( JsonObject mongroup_json : monstergroups ) {
         mongroup new_group;
-        new_group.deserialize_legacy( jsin );
+        new_group.deserialize_legacy( mongroup_json );
         add_mon_group( new_group );
     }
 }
@@ -494,24 +503,31 @@ void overmap::unserialize( std::istream &fin )
 {
     chkversion( fin );
     JsonIn jsin( fin );
-    jsin.start_object();
-    while( !jsin.end_object() ) {
-        const std::string name = jsin.get_member_name();
+    unserialize( jsin.get_object() );
+}
+
+void overmap::unserialize( const JsonObject &om_json )
+{
+    for( JsonMember om_member : om_json ) {
+        const std::string name = om_member.name();
         if( name == "layers" ) {
             std::unordered_map<tripoint_om_omt, std::string> needs_conversion;
-            jsin.start_array();
+            JsonArray layers_json = om_member;
             for( int z = 0; z < OVERMAP_LAYERS; ++z ) {
-                jsin.start_array();
+                JsonArray layer_json = layers_json.next_array();
                 int count = 0;
                 std::string tmp_ter;
                 oter_id tmp_otid( 0 );
+                JsonArray layer_rle_entry;
                 for( int j = 0; j < OMAPY; j++ ) {
                     for( int i = 0; i < OMAPX; i++ ) {
                         if( count == 0 ) {
-                            jsin.start_array();
-                            jsin.read( tmp_ter );
-                            jsin.read( count );
-                            jsin.end_array();
+                            JsonArray layer_rle_entry = layer_json.next_array();
+                            layer_rle_entry.read_next( tmp_ter );
+                            layer_rle_entry.read_next( count );
+                            if( layer_rle_entry.size() > 2 ) {
+                                layer_rle_entry.throw_error( "Too many values for rle entry" );
+                            }
                             if( obsolete_terrain( tmp_ter ) ) {
                                 for( int p = i; p < i + count; p++ ) {
                                     needs_conversion.emplace(
@@ -529,13 +545,16 @@ void overmap::unserialize( std::istream &fin )
                         layer[z].terrain[i][j] = tmp_otid;
                     }
                 }
-                jsin.end_array();
+                if( layer_json.has_more() ) {
+                    layer_json.throw_error( "Too many entries for layer" );
+                }
             }
-            jsin.end_array();
+            if( layers_json.has_more() ) {
+                layers_json.throw_error( "Too many layers for overmap" );
+            }
             convert_terrain( needs_conversion );
         } else if( name == "region_id" ) {
-            std::string new_region_id;
-            jsin.read( new_region_id );
+            std::string new_region_id = om_member;
             if( settings.id != new_region_id ) {
                 t_regional_settings_map_citr rit = region_settings_map.find( new_region_id );
                 if( rit != region_settings_map.end() ) {
@@ -544,58 +563,55 @@ void overmap::unserialize( std::istream &fin )
                 }
             }
         } else if( name == "mongroups" ) {
-            load_legacy_monstergroups( jsin );
+            load_legacy_monstergroups( om_member );
         } else if( name == "monster_groups" ) {
-            load_monster_groups( jsin );
+            load_monster_groups( om_member );
         } else if( name == "cities" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
-                jsin.start_object();
+            JsonArray cities_json = om_member;
+            for( JsonObject city_json : cities_json ) {
                 city new_city;
-                while( !jsin.end_object() ) {
-                    std::string city_member_name = jsin.get_member_name();
+                for( JsonMember city_member : city_json ) {
+                    std::string city_member_name = city_member.name();
                     if( city_member_name == "name" ) {
-                        jsin.read( new_city.name );
+                        city_member.read( new_city.name );
                     } else if( city_member_name == "x" ) {
-                        jsin.read( new_city.pos.x() );
+                        city_member.read( new_city.pos.x() );
                     } else if( city_member_name == "y" ) {
-                        jsin.read( new_city.pos.y() );
+                        city_member.read( new_city.pos.y() );
                     } else if( city_member_name == "size" ) {
-                        jsin.read( new_city.size );
+                        city_member.read( new_city.size );
                     }
                 }
                 cities.push_back( new_city );
             }
         } else if( name == "connections_out" ) {
-            jsin.read( connections_out );
+            om_member.read( connections_out );
         } else if( name == "roads_out" ) {
             // Legacy data, superceded by that stored in the "connections_out" member. A load and save
             // cycle will migrate this to "connections_out".
             std::vector<tripoint_om_omt> &roads_out =
                 connections_out[string_id<overmap_connection>( "local_road" )];
-            jsin.start_array();
-            while( !jsin.end_array() ) {
-                jsin.start_object();
+            JsonArray roads_out_json = om_member;
+            for( JsonObject road_out_json : roads_out_json ) {
                 tripoint_om_omt new_road;
-                while( !jsin.end_object() ) {
-                    std::string road_member_name = jsin.get_member_name();
+                for( JsonMember road_member : road_out_json ) {
+                    std::string road_member_name = road_member.name();
                     if( road_member_name == "x" ) {
-                        jsin.read( new_road.x() );
+                        road_member.read( new_road.x() );
                     } else if( road_member_name == "y" ) {
-                        jsin.read( new_road.y() );
+                        road_member.read( new_road.y() );
                     }
                 }
                 roads_out.push_back( new_road );
             }
         } else if( name == "radios" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
-                jsin.start_object();
+            JsonArray radios_json = om_member;
+            for( JsonObject radio_json : radios_json ) {
                 radio_tower new_radio{ point_om_sm( point_min ) };
-                while( !jsin.end_object() ) {
-                    const std::string radio_member_name = jsin.get_member_name();
+                for( JsonMember radio_member : radio_json ) {
+                    const std::string radio_member_name = radio_member.name();
                     if( radio_member_name == "type" ) {
-                        const std::string radio_name = jsin.get_string();
+                        const std::string radio_name = radio_member.get_string();
                         const auto mapping =
                             find_if( radio_type_names.begin(), radio_type_names.end(),
                         [radio_name]( const std::pair<radio_type, std::string> &p ) {
@@ -605,107 +621,102 @@ void overmap::unserialize( std::istream &fin )
                             new_radio.type = mapping->first;
                         }
                     } else if( radio_member_name == "x" ) {
-                        jsin.read( new_radio.pos.x() );
+                        radio_member.read( new_radio.pos.x() );
                     } else if( radio_member_name == "y" ) {
-                        jsin.read( new_radio.pos.y() );
+                        radio_member.read( new_radio.pos.y() );
                     } else if( radio_member_name == "strength" ) {
-                        jsin.read( new_radio.strength );
+                        radio_member.read( new_radio.strength );
                     } else if( radio_member_name == "message" ) {
-                        jsin.read( new_radio.message );
+                        radio_member.read( new_radio.message );
                     }
                 }
                 radios.push_back( new_radio );
             }
         } else if( name == "monster_map" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
+            JsonArray monster_map_json = om_member;
+            while( monster_map_json.has_more() ) {
                 tripoint_om_sm monster_location;
                 monster new_monster;
-                monster_location.deserialize( jsin );
-                new_monster.deserialize( jsin );
+                monster_location.deserialize( monster_map_json.next_value() );
+                new_monster.deserialize( monster_map_json.next_object() );
                 monster_map.insert( std::make_pair( monster_location,
                                                     std::move( new_monster ) ) );
             }
         } else if( name == "tracked_vehicles" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
-                jsin.start_object();
+            JsonArray tracked_vehicles_json = om_member;
+            for( JsonObject tracked_vehicle_json : tracked_vehicles_json ) {
                 om_vehicle new_tracker;
                 int id;
-                while( !jsin.end_object() ) {
-                    std::string tracker_member_name = jsin.get_member_name();
+                for( JsonMember tracked_member : tracked_vehicle_json ) {
+                    std::string tracker_member_name = tracked_member.name();
                     if( tracker_member_name == "id" ) {
-                        jsin.read( id );
+                        tracked_member.read( id );
                     } else if( tracker_member_name == "x" ) {
-                        jsin.read( new_tracker.p.x() );
+                        tracked_member.read( new_tracker.p.x() );
                     } else if( tracker_member_name == "y" ) {
-                        jsin.read( new_tracker.p.y() );
+                        tracked_member.read( new_tracker.p.y() );
                     } else if( tracker_member_name == "name" ) {
-                        jsin.read( new_tracker.name );
+                        tracked_member.read( new_tracker.name );
                     }
                 }
                 vehicles[id] = new_tracker;
             }
         } else if( name == "scent_traces" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
-                jsin.start_object();
+            JsonArray scent_traces_json = om_member;
+            for( JsonObject scent_json : scent_traces_json ) {
                 tripoint_abs_omt pos;
                 time_point time = calendar::before_time_starts;
                 int strength = 0;
-                while( !jsin.end_object() ) {
-                    std::string scent_member_name = jsin.get_member_name();
+                for( JsonMember scent_member : scent_json ) {
+                    std::string scent_member_name = scent_member.name();
                     if( scent_member_name == "pos" ) {
-                        jsin.read( pos );
+                        scent_member.read( pos );
                     } else if( scent_member_name == "time" ) {
-                        jsin.read( time );
+                        scent_member.read( time );
                     } else if( scent_member_name == "strength" ) {
-                        jsin.read( strength );
+                        scent_member.read( strength );
                     }
                 }
                 scents[pos] = scent_trace( time, strength );
             }
         } else if( name == "npcs" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
+            JsonArray npcs_json = om_member;
+            for( JsonObject npc_json : npcs_json ) {
                 shared_ptr_fast<npc> new_npc = make_shared_fast<npc>();
-                new_npc->deserialize( jsin );
+                new_npc->deserialize( npc_json );
                 if( !new_npc->get_fac_id().str().empty() ) {
                     new_npc->set_fac( new_npc->get_fac_id() );
                 }
                 npcs.push_back( new_npc );
             }
         } else if( name == "camps" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
+            JsonArray camps_json = om_member;
+            for( JsonObject camp_json : camps_json ) {
                 basecamp new_camp;
-                new_camp.deserialize( jsin );
+                new_camp.deserialize( camp_json );
                 camps.push_back( new_camp );
             }
         } else if( name == "overmap_special_placements" ) {
-            jsin.start_array();
-            while( !jsin.end_array() ) {
-                jsin.start_object();
+            JsonArray special_placements_json = om_member;
+            for( JsonObject special_placement_json : special_placements_json ) {
                 overmap_special_id s;
-                while( !jsin.end_object() ) {
-                    std::string name = jsin.get_member_name();
+                for( JsonMember special_placement_member : special_placement_json ) {
+                    std::string name = special_placement_member.name();
                     if( name == "special" ) {
-                        jsin.read( s );
+                        special_placement_member.read( s );
                     } else if( name == "placements" ) {
-                        jsin.start_array();
-                        while( !jsin.end_array() ) {
-                            jsin.start_object();
-                            while( !jsin.end_object() ) {
-                                std::string name = jsin.get_member_name();
+                        JsonArray placements_json = special_placement_member;
+                        for( JsonObject placement_json : placements_json ) {
+                            for( JsonMember placement_member : placement_json ) {
+                                std::string name = placement_member.name();
                                 if( name == "points" ) {
-                                    jsin.start_array();
-                                    while( !jsin.end_array() ) {
-                                        jsin.start_object();
+                                    JsonArray points_json = placement_member;
+                                    for( JsonObject point_json : points_json ) {
                                         tripoint_om_omt p;
-                                        while( !jsin.end_object() ) {
-                                            std::string name = jsin.get_member_name();
+                                        for( JsonMember point_member : point_json ) {
+                                            std::string name = point_member.name();
                                             if( name == "p" ) {
-                                                jsin.read( p );
+                                                point_member.read( p );
                                                 overmap_special_placements[p] = s;
                                             }
                                         }
@@ -720,17 +731,20 @@ void overmap::unserialize( std::istream &fin )
     }
 }
 
-static void unserialize_array_from_compacted_sequence( JsonIn &jsin, bool ( &array )[OMAPX][OMAPY] )
+static void unserialize_array_from_compacted_sequence( JsonArray &ja,
+        bool ( &array )[OMAPX][OMAPY] )
 {
     int count = 0;
     bool value = false;
     for( int j = 0; j < OMAPY; j++ ) {
         for( auto &array_col : array ) {
             if( count == 0 ) {
-                jsin.start_array();
-                jsin.read( value );
-                jsin.read( count );
-                jsin.end_array();
+                JsonArray sequence = ja.next_array();
+                sequence.read_next( value );
+                sequence.read_next( count );
+                if( sequence.size() > 2 ) {
+                    sequence.throw_error( "Too many values for compacted sequence" );
+                }
             }
             count--;
             array_col[j] = value;
@@ -743,59 +757,77 @@ void overmap::unserialize_view( std::istream &fin )
 {
     chkversion( fin );
     JsonIn jsin( fin );
-    jsin.start_object();
-    while( !jsin.end_object() ) {
-        const std::string name = jsin.get_member_name();
+    unserialize_view( jsin.get_object() );
+}
+
+void overmap::unserialize_view( const JsonObject &view_json )
+{
+    for( JsonMember view_member : view_json ) {
+        const std::string name = view_member.name();
         if( name == "visible" ) {
-            jsin.start_array();
+            JsonArray visible_json = view_member;
             for( int z = 0; z < OVERMAP_LAYERS; ++z ) {
-                jsin.start_array();
-                unserialize_array_from_compacted_sequence( jsin, layer[z].visible );
-                jsin.end_array();
+                JsonArray visible_by_z_json = visible_json.next_array();
+                unserialize_array_from_compacted_sequence( visible_by_z_json, layer[z].visible );
+                if( visible_by_z_json.has_more() ) {
+                    visible_by_z_json.throw_error( "Too many sequences for z visible view" );
+                }
             }
-            jsin.end_array();
+            if( visible_json.has_more() ) {
+                visible_json.throw_error( "Too many views by z count" );
+            }
         } else if( name == "explored" ) {
-            jsin.start_array();
+            JsonArray explored_json = view_member;
             for( int z = 0; z < OVERMAP_LAYERS; ++z ) {
-                jsin.start_array();
-                unserialize_array_from_compacted_sequence( jsin, layer[z].explored );
-                jsin.end_array();
+                JsonArray explored_by_z_json = explored_json.next_array();
+                unserialize_array_from_compacted_sequence( explored_by_z_json, layer[z].explored );
+                if( explored_by_z_json.has_more() ) {
+                    explored_by_z_json.throw_error( "Too many sequences for z explored view" );
+                }
             }
-            jsin.end_array();
+            if( explored_json.has_more() ) {
+                explored_json.throw_error( "Too many views by z count" );
+            }
         } else if( name == "notes" ) {
-            jsin.start_array();
+            JsonArray notes_json = view_member;
             for( int z = 0; z < OVERMAP_LAYERS; ++z ) {
-                jsin.start_array();
-                while( !jsin.end_array() ) {
+                JsonArray notes_by_z_json = notes_json.next_array();
+                for( JsonArray note_json : notes_by_z_json ) {
                     om_note tmp;
-                    jsin.start_array();
-                    jsin.read( tmp.p.x() );
-                    jsin.read( tmp.p.y() );
-                    jsin.read( tmp.text );
-                    jsin.read( tmp.dangerous );
-                    jsin.read( tmp.danger_radius );
-                    jsin.end_array();
+                    note_json.read_next( tmp.p.x() );
+                    note_json.read_next( tmp.p.y() );
+                    note_json.read_next( tmp.text );
+                    note_json.read_next( tmp.dangerous );
+                    note_json.read_next( tmp.danger_radius );
+                    if( note_json.size() > 5 ) {
+                        note_json.throw_error( "Too many values for note" );
+                    }
 
                     layer[z].notes.push_back( tmp );
                 }
             }
-            jsin.end_array();
+            if( notes_json.has_more() ) {
+                notes_json.throw_error( "Too many notes by z count" );
+            }
         } else if( name == "extras" ) {
-            jsin.start_array();
+            JsonArray extras_json = view_member;
             for( int z = 0; z < OVERMAP_LAYERS; ++z ) {
-                jsin.start_array();
-                while( !jsin.end_array() ) {
+                JsonArray extras_by_z = extras_json.next_array();
+                for( JsonArray extra_json : extras_by_z ) {
                     om_map_extra tmp;
-                    jsin.start_array();
-                    jsin.read( tmp.p.x() );
-                    jsin.read( tmp.p.y() );
-                    jsin.read( tmp.id );
-                    jsin.end_array();
+                    extra_json.read_next( tmp.p.x() );
+                    extra_json.read_next( tmp.p.y() );
+                    extra_json.read_next( tmp.id );
+                    if( extra_json.has_more() ) {
+                        extra_json.throw_error( "Too many values for extra" );
+                    }
 
                     layer[z].extras.push_back( tmp );
                 }
             }
-            jsin.end_array();
+            if( extras_json.has_more() ) {
+                extras_json.throw_error( "Too many extras by z count" );
+            }
         }
     }
 }
