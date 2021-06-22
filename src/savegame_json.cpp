@@ -2134,6 +2134,11 @@ void inventory::json_save_invcache( JsonOut &json ) const
  */
 void inventory::json_load_invcache( JsonIn &jsin )
 {
+    json_load_invcache( jsin.get_value() );
+}
+
+void inventory::json_load_invcache( const JsonValue &jsin )
+{
     try {
         std::unordered_map<itype_id, std::string> map;
         for( JsonObject jo : jsin.get_array() ) {
@@ -2168,10 +2173,14 @@ void inventory::json_save_items( JsonOut &json ) const
 
 void inventory::json_load_items( JsonIn &jsin )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
+    json_load_items( jsin.get_array() );
+}
+
+void inventory::json_load_items( const JsonArray &ja )
+{
+    for( JsonObject jo : ja ) {
         item tmp;
-        tmp.deserialize( jsin );
+        tmp.deserialize( jo );
         add_item( tmp, true, false );
     }
 }
