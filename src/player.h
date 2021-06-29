@@ -24,7 +24,6 @@
 #include "ret_val.h"
 #include "type_id.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class nc_color;
@@ -105,7 +104,7 @@ class player : public Character
         }
 
         // populate variables, inventory items, and misc from json object
-        virtual void deserialize( JsonIn &jsin ) = 0;
+        virtual void deserialize( const JsonObject &jsin ) = 0;
 
         // by default save all contained info
         virtual void serialize( JsonOut &jsout ) const = 0;

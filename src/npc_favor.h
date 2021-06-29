@@ -4,7 +4,6 @@
 
 #include "type_id.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 
@@ -31,7 +30,6 @@ struct npc_favor {
     }
 
     void serialize( JsonOut &json ) const;
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonObject &jo );
 };
 

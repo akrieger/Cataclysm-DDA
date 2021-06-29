@@ -16,7 +16,6 @@
 
 enum class special_game_type;
 
-class JsonIn;
 class JsonArray;
 class JsonObject;
 

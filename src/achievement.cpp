@@ -164,11 +164,6 @@ struct achievement_requirement {
 
     bool becomes_false = false;
 
-    void deserialize( JsonIn &jin ) {
-        const JsonObject &jo = jin.get_object();
-        deserialize( jo );
-    }
-
     void deserialize( const JsonObject &jo ) {
         if( !( jo.read( "event_statistic", statistic ) &&
                jo.read( "is", comparison ) &&
@@ -269,12 +264,6 @@ static time_point epoch_to_time_point( achievement::time_bound::epoch e )
     }
     debugmsg( "Invalid epoch" );
     abort();
-}
-
-void achievement::time_bound::deserialize( JsonIn &jin )
-{
-    const JsonObject &jo = jin.get_object();
-    deserialize( jo );
 }
 
 void achievement::time_bound::deserialize( const JsonObject &jo )
@@ -646,12 +635,6 @@ void achievement_state::serialize( JsonOut &jsout ) const
     jsout.end_object();
 }
 
-void achievement_state::deserialize( JsonIn &jsin )
-{
-    JsonObject jo = jsin.get_object();
-    deserialize( jo );
-}
-
 void achievement_state::deserialize( const JsonObject &jo )
 {
     jo.read( "completion", completion );
@@ -891,12 +874,6 @@ void achievements_tracker::serialize( JsonOut &jsout ) const
     jsout.member( "initial_achievements", initial_achievements_ );
     jsout.member( "achievements_status", achievements_status_ );
     jsout.end_object();
-}
-
-void achievements_tracker::deserialize( JsonIn &jsin )
-{
-    JsonObject jo = jsin.get_object();
-    deserialize( jo );
 }
 
 void achievements_tracker::deserialize( const JsonObject &jo )

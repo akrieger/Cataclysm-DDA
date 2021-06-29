@@ -4,7 +4,6 @@
 
 #include "calendar.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 
@@ -49,7 +48,6 @@ class activity_tracker
         std::string debug_weary_info() const;
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &jo );
 };
 

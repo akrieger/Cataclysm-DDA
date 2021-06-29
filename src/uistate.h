@@ -229,11 +229,6 @@ class uistatedata
             json.end_object();
         }
 
-        void deserialize( JsonIn &jsin ) {
-            auto jo = jsin.get_object();
-            deserialize( jo );
-        }
-
         void deserialize( const JsonObject &jo ) {
             jo.allow_omitted_members();
 

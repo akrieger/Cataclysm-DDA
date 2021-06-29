@@ -20,7 +20,6 @@
 #include "to_string_id.h"
 #include "type_id.h"
 
-class JsonIn;
 class JsonOut;
 template <typename E> struct enum_traits;
 
@@ -434,7 +433,6 @@ class cata_variant
         }
 
         void serialize( JsonOut & ) const;
-        void deserialize( JsonIn & );
         void deserialize( const JsonValue &jv );
 
 #define CATA_VARIANT_OPERATOR(op) \

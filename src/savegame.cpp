@@ -1159,12 +1159,6 @@ void mongroup::io( Archive &archive )
     archive.io( "monsters", monsters, io::empty_default_tag() );
 }
 
-void mongroup::deserialize( JsonIn &data )
-{
-    JsonObject jo = data.get_object();
-    deserialize( jo );
-}
-
 void mongroup::deserialize( const JsonObject &jo )
 {
     jo.allow_omitted_members();
@@ -1218,11 +1212,6 @@ void mongroup::deserialize_legacy( const JsonObject &jo )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 ///// SAVE_MASTER (i.e. master.gsav)
-
-void mission::unserialize_all( JsonIn &jsin )
-{
-    unserialize_all( jsin.get_array() );
-}
 
 void mission::unserialize_all( const JsonArray &ja )
 {
@@ -1326,12 +1315,6 @@ void faction_manager::serialize( JsonOut &jsout ) const
     jsout.write( local_facs );
 }
 
-void faction_manager::deserialize( JsonIn &jsin )
-{
-    JsonValue jv = jsin.get_value();
-    deserialize( jv );
-}
-
 void faction_manager::deserialize( const JsonValue &jv )
 {
     if( jv.test_object() ) {
@@ -1366,12 +1349,6 @@ void faction_manager::deserialize( const JsonValue &jv )
             }
         }
     }
-}
-
-void Creature_tracker::deserialize( JsonIn &jsin )
-{
-    JsonArray ja = jsin.get_array();
-    deserialize( ja );
 }
 
 void Creature_tracker::deserialize( const JsonArray &ja )

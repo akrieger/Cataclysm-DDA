@@ -224,7 +224,6 @@ struct monster_death_effect {
     mdeath_type corpse_type = mdeath_type::NORMAL;
 
     void load( const JsonObject &jo );
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonObject &data );
 };
 

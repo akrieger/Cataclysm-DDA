@@ -336,12 +336,6 @@ void reflex_activation_data::load( const JsonObject &jsobj )
     }
 }
 
-void reflex_activation_data::deserialize( JsonIn &jsin )
-{
-    const JsonObject &jo = jsin.get_object();
-    deserialize( jo );
-}
-
 void reflex_activation_data::deserialize( const JsonObject &jo )
 {
     load( jo );

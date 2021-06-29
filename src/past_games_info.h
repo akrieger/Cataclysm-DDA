@@ -12,7 +12,6 @@
 #include "stats_tracker.h"
 #include "type_id.h"
 
-class JsonIn;
 class score;
 
 class past_game_info

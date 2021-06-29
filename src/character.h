@@ -55,7 +55,6 @@
 #include "weighted_list.h"
 
 class Character;
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class SkillLevel;
@@ -292,7 +291,6 @@ struct consumption_event {
         component_hash = food.make_component_hash();
     }
     void serialize( JsonOut &json ) const;
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonObject &jo );
 };
 
@@ -346,7 +344,6 @@ class contents_change_handler
         /**
          * Deserialization for activities
          */
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonValue &jv );
     private:
         std::vector<item_location> unsealed;
@@ -2772,7 +2769,6 @@ class Character : public Creature, public visitable
              */
             int charge = 0;
             void serialize( JsonOut &json ) const;
-            void deserialize( JsonIn &jsin );
             void deserialize( const JsonObject &data );
         };
 

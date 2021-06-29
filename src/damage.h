@@ -11,7 +11,6 @@
 #include "type_id.h"
 
 class JsonArray;
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class JsonValue;
@@ -90,7 +89,6 @@ struct damage_instance {
     void add( const damage_unit &added_du );
     /*@}*/
 
-    void deserialize( JsonIn & );
     void deserialize( const JsonValue &jv );
 };
 
@@ -107,7 +105,6 @@ class damage_over_time_data
         void load( const JsonObject &obj );
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &jo );
 };
 

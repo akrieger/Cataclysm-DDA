@@ -11,7 +11,6 @@
 #include "enums.h"
 
 class JsonArray;
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class item;
@@ -53,7 +52,6 @@ class rule
         }
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &jo );
 
         void test_pattern() const;
@@ -66,7 +64,6 @@ class rule_list : public std::vector<rule>
 {
     public:
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonArray &ja );
 
         void refresh_map_items( cache &map_items ) const;
@@ -157,7 +154,6 @@ class npc_settings : public base_settings
         void show( const std::string &name );
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonArray &ja );
 
         bool empty() const;

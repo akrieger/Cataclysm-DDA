@@ -4,7 +4,6 @@
 
 #include "calendar.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 template <typename E> struct enum_traits;
@@ -51,7 +50,6 @@ class addiction
         explicit addiction( add_type const t, const int i = 1 ) : type {t}, intensity {i} { }
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &jo );
 };
 

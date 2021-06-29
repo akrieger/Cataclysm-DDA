@@ -182,11 +182,6 @@ struct value_constraint {
         return true;
     }
 
-    void deserialize( JsonIn &jsin ) {
-        JsonObject jo = jsin.get_object();
-        deserialize( jo );
-    }
-
     void deserialize( const JsonObject &jo ) {
         cata_variant equals_variant;
         if( jo.read( "equals", equals_variant, false ) ) {
@@ -245,11 +240,6 @@ struct value_constraint {
 struct new_field {
     event_field_transformation transformation;
     std::string input_field;
-
-    void deserialize( JsonIn &jsin ) {
-        JsonObject jo = jsin.get_object();
-        deserialize( jo );
-    }
 
     void deserialize( const JsonObject &jo ) {
         if( jo.size() != 1 ) {

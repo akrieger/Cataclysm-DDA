@@ -14,7 +14,6 @@
 #include "type_id.h"
 
 class JsonArray;
-class JsonIn;
 class JsonOut;
 class monster;
 
@@ -87,7 +86,6 @@ class Creature_tracker
         }
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonArray &ja );
 
         const decltype( monster_faction_map_ ) &factions() const {

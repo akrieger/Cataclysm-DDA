@@ -27,13 +27,6 @@ void mass::serialize( JsonOut &jsout ) const
 }
 
 template<>
-void length::deserialize( JsonIn &jsin )
-{
-    JsonValue jv = jsin.get_value();
-    deserialize( jv );
-}
-
-template<>
 void length::deserialize( const JsonValue &jv )
 {
     *this = read_from_json_string( jv, units::length_units );
@@ -52,13 +45,6 @@ void energy::serialize( JsonOut &jsout ) const
 }
 
 template<>
-void energy::deserialize( JsonIn &jsin )
-{
-    JsonValue jv = jsin.get_value();
-    deserialize( jv );
-}
-
-template<>
 void energy::deserialize( const JsonValue &jv )
 {
     *this = read_from_json_string( jv, units::energy_units );
@@ -70,12 +56,6 @@ void angle::serialize( JsonOut &jsout ) const
     jsout.write( string_format( "%f rad", value_ ) );
 }
 
-template<>
-void angle::deserialize( JsonIn &jsin )
-{
-    JsonValue jv = jsin.get_value();
-    deserialize( jv );
-}
 template<>
 void angle::deserialize( const JsonValue &jv )
 {

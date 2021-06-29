@@ -9,7 +9,6 @@
 #include "event_subscriber.h"
 #include "type_id.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 
@@ -40,7 +39,6 @@ class kill_tracker : public event_subscriber
         void notify( const cata::event & ) override;
 
         void serialize( JsonOut & ) const;
-        void deserialize( JsonIn & );
         void deserialize( const JsonObject &data );
     private:
         std::map<mtype_id, int> kills;         // Player's kill count

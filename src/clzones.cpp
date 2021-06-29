@@ -1144,11 +1144,6 @@ void zone_manager::serialize( JsonOut &json ) const
     json.write( zones );
 }
 
-void zone_manager::deserialize( JsonIn &jsin )
-{
-    JsonValue jv = jsin.get_value();
-    deserialize( jv );
-}
 void zone_manager::deserialize( const JsonValue &jv )
 {
     jv.read( zones );
@@ -1174,12 +1169,6 @@ void zone_data::serialize( JsonOut &json ) const
     json.member( "end", end );
     get_options().serialize( json );
     json.end_object();
-}
-
-void zone_data::deserialize( JsonIn &jsin )
-{
-    JsonObject data = jsin.get_object();
-    deserialize( data );
 }
 
 void zone_data::deserialize( const JsonObject &data )

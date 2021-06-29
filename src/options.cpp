@@ -3092,12 +3092,6 @@ void options_manager::serialize( JsonOut &json ) const
     json.end_array();
 }
 
-void options_manager::deserialize( JsonIn &jsin )
-{
-    JsonArray ja = jsin.get_array();
-    deserialize( ja );
-}
-
 void options_manager::deserialize( const JsonArray &ja )
 {
     for( JsonObject joOptions : ja ) {

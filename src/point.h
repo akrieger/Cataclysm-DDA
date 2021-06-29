@@ -28,7 +28,6 @@ class ostream;
 
 #endif // CATA_NO_STL
 
-class JsonIn;
 class JsonOut;
 class JsonValue;
 
@@ -108,7 +107,6 @@ struct point {
     std::string to_string() const;
 
     void serialize( JsonOut &jsout ) const;
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonValue &jv );
 
     friend inline constexpr bool operator<( const point &a, const point &b ) {
@@ -233,7 +231,6 @@ struct tripoint {
     std::string to_string() const;
 
     void serialize( JsonOut &jsout ) const;
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonValue &jv );
 
 #ifndef CATA_NO_STL

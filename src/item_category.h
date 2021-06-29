@@ -11,7 +11,6 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonIn;
 class JsonObject;
 class item;
 
@@ -22,7 +21,6 @@ struct zone_priority_data {
     bool filthy = false;
     cata::flat_set<flag_id> flags;
 
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonObject &jo );
     void load( const JsonObject &jo );
 };

@@ -25,7 +25,6 @@
 
 class Creature;
 class JsonArray;
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class avatar;
@@ -355,7 +354,6 @@ class mission
         std::string name() const;
         mission_type_id mission_id() const;
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &jo );
 
         mission();
@@ -449,7 +447,6 @@ class mission
 
         // Serializes and unserializes all missions
         static void serialize_all( JsonOut &json );
-        static void unserialize_all( JsonIn &jsin );
         static void unserialize_all( const JsonArray &ja );
         /** Converts a vector mission ids to a vector of mission pointers. Invalid ids are skipped! */
         static std::vector<mission *> to_ptr_vector( const std::vector<int> &vec );

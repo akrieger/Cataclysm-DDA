@@ -342,12 +342,6 @@ void proficiency_set::serialize( JsonOut &jsout ) const
     jsout.end_object();
 }
 
-void proficiency_set::deserialize( JsonIn &jsin )
-{
-    JsonObject jsobj = jsin.get_object();
-    deserialize( jsobj );
-}
-
 void proficiency_set::deserialize( const JsonObject &jsobj )
 {
     jsobj.read( "known", known );
@@ -371,22 +365,10 @@ void learning_proficiency::serialize( JsonOut &jsout ) const
     jsout.end_object();
 }
 
-void learning_proficiency::deserialize( JsonIn &jsin )
-{
-    JsonObject jo = jsin.get_object();
-    deserialize( jo );
-}
-
 void learning_proficiency::deserialize( const JsonObject &jo )
 {
     jo.read( "id", id );
     jo.read( "practiced", practiced );
-}
-
-void book_proficiency_bonus::deserialize( JsonIn &jsin )
-{
-    JsonObject jo = jsin.get_object();
-    deserialize( jo );
 }
 
 void book_proficiency_bonus::deserialize( const JsonObject &jo )

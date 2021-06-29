@@ -36,7 +36,6 @@
 
 class Character;
 class Creature;
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class book_proficiency_bonuses;
@@ -530,7 +529,6 @@ class item : public visitable
         using archive_type_tag = io::object_archive_tag;
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &data );
 
         const std::string &symbol() const;
@@ -2418,7 +2416,6 @@ class item : public visitable
                 // if this is an in progress disassembly as opposed to craft
                 bool disassembly = false;
                 void serialize( JsonOut &jsout ) const;
-                void deserialize( JsonIn &jsin );
                 void deserialize( const JsonObject &obj );
         };
 

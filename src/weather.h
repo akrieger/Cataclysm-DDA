@@ -13,7 +13,6 @@
 #include "weather_gen.h"
 #include "weather_type.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class translation;

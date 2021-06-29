@@ -18,7 +18,6 @@
 
 class Character;
 class Creature;
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class relic;
@@ -57,7 +56,6 @@ class relic_procgen_data
             bool was_loaded = false;
 
             void load( const JsonObject &jo );
-            void deserialize( JsonIn &jsin );
             void deserialize( const JsonObject &jo );
         };
 
@@ -82,7 +80,6 @@ class relic_procgen_data
             bool was_loaded = false;
 
             void load( const JsonObject &jo );
-            void deserialize( JsonIn &jsin );
             void deserialize( const JsonObject &jobj );
         };
 
@@ -96,7 +93,6 @@ class relic_procgen_data
 
             bool was_loaded = false;
             void load( const JsonObject &jo );
-            void deserialize( JsonIn &jsin );
             void deserialize( const JsonObject &jo );
         };
 
@@ -133,7 +129,6 @@ class relic_procgen_data
 
         static void load_relic_procgen_data( const JsonObject &jo, const std::string &src );
         void load( const JsonObject &jo, const std::string & = "" );
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &jobj );
 };
 
@@ -153,7 +148,6 @@ struct relic_charge_template {
 
     int power_level = 0;
 
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonObject &jo );
     void load( const JsonObject &jo );
     relic_charge_info generate() const;
@@ -180,7 +174,6 @@ struct relic_charge_info {
     // assumes exactly one second has passed.
     void accumulate_charge( item &parent );
 
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonObject &jo );
     void load( const JsonObject &jo );
     void serialize( JsonOut &jsout ) const;
@@ -216,7 +209,6 @@ class relic
         void load( const JsonObject &jo );
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &jobj );
 
         void add_passive_effect( const enchantment &ench );

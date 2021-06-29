@@ -17,7 +17,6 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class achievements_tracker;
@@ -97,7 +96,6 @@ class achievement
                     last
                 };
 
-                void deserialize( JsonIn & );
                 void deserialize( const JsonObject &jo );
                 void check( const achievement_id & ) const;
 
@@ -147,7 +145,6 @@ struct achievement_state {
     std::string ui_text( const achievement * ) const;
 
     void serialize( JsonOut & ) const;
-    void deserialize( JsonIn & );
     void deserialize( const JsonObject &jo );
 };
 
@@ -217,7 +214,6 @@ class achievements_tracker : public event_subscriber
         void notify( const cata::event & ) override;
 
         void serialize( JsonOut & ) const;
-        void deserialize( JsonIn & );
         void deserialize( const JsonObject &jo );
     private:
         void init_watchers();

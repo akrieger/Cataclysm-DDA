@@ -64,12 +64,8 @@ class pimpl : private std::unique_ptr<T>
         using std::unique_ptr<T>::operator*;
 
         /// Forwards the stream to `T::deserialize`.
-        template<typename JsonStream>
-        void deserialize( JsonStream &stream ) {
-            deserialize_( stream.get_value() );
-        }
         template<typename JsonValue>
-        void deserialize_( const JsonValue &value ) {
+        void deserialize( const JsonValue &value ) {
             value.read( operator*() );
         }
         /// Forwards the stream to `T::serialize`.

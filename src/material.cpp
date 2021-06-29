@@ -305,11 +305,6 @@ void fuel_data::load( const JsonObject &jsobj )
     optional( jsobj, was_loaded, "perpetual", is_perpetual_fuel );
 }
 
-void fuel_data::deserialize( JsonIn &jsin )
-{
-    const JsonObject &jo = jsin.get_object();
-    deserialize( jo );
-}
 void fuel_data::deserialize( const JsonObject &jo )
 {
     load( jo );
@@ -328,12 +323,6 @@ void fuel_explosion_data::load( const JsonObject &jsobj )
     optional( jsobj, was_loaded, "factor", explosion_factor );
     optional( jsobj, was_loaded, "size_factor", fuel_size_factor );
     optional( jsobj, was_loaded, "fiery", fiery_explosion );
-}
-
-void fuel_explosion_data::deserialize( JsonIn &jsin )
-{
-    const JsonObject &jo = jsin.get_object();
-    deserialize( jo );
 }
 
 void fuel_explosion_data::deserialize( const JsonObject &jo )

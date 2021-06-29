@@ -24,7 +24,6 @@
 #include "point.h"
 #include "type_id.h"
 
-class JsonIn;
 class JsonOut;
 class basecamp;
 class map;

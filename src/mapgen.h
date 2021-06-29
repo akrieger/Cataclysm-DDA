@@ -139,7 +139,6 @@ struct spawn_data {
 class mapgen_parameter
 {
     public:
-        void deserialize( JsonIn & );
         void deserialize( const JsonObject &jo );
 
         cata_variant_type type() const;

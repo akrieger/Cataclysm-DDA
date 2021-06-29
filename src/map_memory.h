@@ -9,7 +9,6 @@
 #include "point.h" // IWYU pragma: keep
 
 class JsonOut;
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class JsonValue;

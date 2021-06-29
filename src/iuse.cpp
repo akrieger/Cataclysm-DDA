@@ -6645,10 +6645,6 @@ struct extended_photo_def {
     std::string description;
 
     extended_photo_def() = default;
-    void deserialize( JsonIn &jsin ) {
-        JsonObject obj = jsin.get_object();
-        deserialize( obj );
-    }
     void deserialize( const JsonObject &obj ) {
         quality = obj.get_int( "quality" );
         name = obj.get_string( "name" );

@@ -60,11 +60,6 @@ void vitamin_rate_effect::load( const JsonObject &jo )
     optional( jo, false, "resist_tick", red_tick, tick );
 }
 
-void vitamin_rate_effect::deserialize( JsonIn &jsin )
-{
-    deserialize( jsin.get_object() );
-}
-
 void vitamin_rate_effect::deserialize( const JsonObject &jo )
 {
     load( jo );
@@ -1549,11 +1544,6 @@ void effect::serialize( JsonOut &json ) const
     json.member( "start_turn", start_time );
     json.member( "source", source );
     json.end_object();
-}
-void effect::deserialize( JsonIn &jsin )
-{
-    JsonObject jo = jsin.get_object();
-    deserialize( jo );
 }
 
 void effect::deserialize( const JsonObject &jo )

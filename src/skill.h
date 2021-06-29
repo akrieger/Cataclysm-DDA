@@ -14,7 +14,6 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class item;
@@ -202,7 +201,6 @@ class SkillLevel
         }
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &data );
 };
 

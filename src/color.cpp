@@ -26,12 +26,6 @@ void nc_color::serialize( JsonOut &jsout ) const
     jsout.write( attribute_value );
 }
 
-void nc_color::deserialize( JsonIn &jsin )
-{
-    int i = jsin.get_int();
-    deserialize( i );
-}
-
 void nc_color::deserialize( int i )
 {
     attribute_value = i;
@@ -1071,12 +1065,6 @@ void color_manager::serialize( JsonOut &json ) const
     }
 
     json.end_array();
-}
-
-void color_manager::deserialize( JsonIn &jsin )
-{
-    JsonArray ja = jsin.get_array();
-    deserialize( ja );
 }
 
 void color_manager::deserialize( const JsonArray &ja )

@@ -80,12 +80,6 @@ std::string memorial_log_entry::to_string() const
     }
 }
 
-void memorial_log_entry::deserialize( JsonIn &jsin )
-{
-    JsonObject jo = jsin.get_object();
-    deserialize( jo );
-}
-
 void memorial_log_entry::deserialize( const JsonObject &jo )
 {
     if( jo.read( "preformatted", preformatted_ ) ) {

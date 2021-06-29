@@ -27,7 +27,6 @@
 
 class Character;
 class JsonArray;
-class JsonIn;
 class JsonOut;
 class JsonValue;
 class item_stack;

@@ -217,8 +217,6 @@ std::string gettext_gendered( const GenderMap &genders, const std::string &msg )
 std::string locale_dir();
 void set_language();
 
-class JsonIn;
-
 /**
  * Class for storing translation context and raw string for deferred translation
  **/
@@ -270,7 +268,6 @@ class translation
          * of this class is constructed with `plural_tag` or `pl_translation()`,
          * or converted using `make_plural()`.
          **/
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonValue &jv );
 
         /**

@@ -817,23 +817,11 @@ void rule_list::serialize( JsonOut &jsout ) const
     jsout.end_array();
 }
 
-void rule::deserialize( JsonIn &jsin )
-{
-    JsonObject jo = jsin.get_object();
-    deserialize( jo );
-}
-
 void rule::deserialize( const JsonObject &jo )
 {
     sRule = jo.get_string( "rule" );
     bActive = jo.get_bool( "active" );
     bExclude = jo.get_bool( "exclude" );
-}
-
-void rule_list::deserialize( JsonIn &jsin )
-{
-    JsonArray ja = jsin.get_array();
-    deserialize( ja );
 }
 
 void rule_list::deserialize( const JsonArray &ja )
@@ -863,12 +851,6 @@ void npc_settings::show( const std::string &name )
 void npc_settings::serialize( JsonOut &jsout ) const
 {
     rules.serialize( jsout );
-}
-
-void npc_settings::deserialize( JsonIn &jsin )
-{
-    JsonArray ja = jsin.get_array();
-    deserialize( ja );
 }
 
 void npc_settings::deserialize( const JsonArray &ja )

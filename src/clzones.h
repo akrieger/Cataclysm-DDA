@@ -20,7 +20,6 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class JsonValue;
@@ -334,7 +333,6 @@ class zone_data
                    p.z >= start.z && p.z <= end.z;
         }
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &data );
 };
 
@@ -438,7 +436,6 @@ class zone_manager
         void zone_edited( zone_data &zone );
         void revert_vzones();
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonValue &jv );
 };
 

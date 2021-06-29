@@ -327,7 +327,6 @@ enum color_id {
 };
 
 class JsonArray;
-class JsonIn;
 class JsonOut;
 
 void init_colors();
@@ -376,7 +375,6 @@ class nc_color
         bool is_blink() const;
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( int i );
 
         friend bool operator==( const nc_color &l, const nc_color &r ) {
@@ -461,7 +459,6 @@ class color_manager
         void show_gui();
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonArray &ja );
 };
 

@@ -147,13 +147,9 @@ struct overmap_static_spawns : public overmap_spawns {
         return overmap_spawns::operator==( rhs ) && chance == rhs.chance;
     }
 
-    template<typename JsonStream>
-    void deserialize( JsonStream &jsin ) {
-        auto jo = jsin.get_object();
-        deserialize_( jo );
-    }
-    template<typename JsonObjectType>
-    void deserialize_( const JsonObjectType &jo ) {
+    template<typename JsonValueType>
+    void deserialize( const JsonValueType &jv ) {
+        JsonObject jo = jv;
         overmap_spawns::load( jo );
         jo.read( "chance", chance );
     }
@@ -412,13 +408,9 @@ struct overmap_special_spawns : public overmap_spawns {
         return overmap_spawns::operator==( rhs ) && radius == rhs.radius;
     }
 
-    template<typename JsonStream>
-    void deserialize( JsonStream &jsin ) {
-        auto jo = jsin.get_object();
-        deserialize_( jo );
-    }
-    template<typename JsonObjectType>
-    void deserialize_( const JsonObjectType &jo ) {
+    template<typename JsonValueType>
+    void deserialize( const JsonValueType &jv ) {
+        JsonObject jo = jv;
         overmap_spawns::load( jo );
         jo.read( "radius", radius );
     }
@@ -431,13 +423,9 @@ struct overmap_special_terrain {
     std::set<std::string> flags;
     std::set<string_id<overmap_location>> locations;
 
-    template<typename JsonStream>
-    void deserialize( JsonStream &jsin ) {
-        auto om = jsin.get_object();
-        deserialize_( om );
-    }
-    template<typename JsonObjectType>
-    void deserialize_( const JsonObjectType &om ) {
+    template<typename JsonValueType>
+    void deserialize( const JsonValueType &jv ) {
+        JsonObject om = jv;
         om.read( "point", p );
         om.read( "overmap", terrain );
         om.read( "flags", flags );
@@ -460,13 +448,9 @@ struct overmap_special_connection {
     string_id<overmap_connection> connection;
     bool existing = false;
 
-    template<typename JsonStream>
-    void deserialize( JsonStream &jsin ) {
-        auto jo = jsin.get_object();
-        deserialize_( jo );
-    }
-    template<typename JsonObjectType>
-    void deserialize_( const JsonObjectType &jo ) {
+    template<typename JsonValueType>
+    void deserialize( const JsonValueType &jv ) {
+        JsonObject jo = jv;
         jo.read( "point", p );
         jo.read( "terrain", terrain );
         jo.read( "existing", existing );

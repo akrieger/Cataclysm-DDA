@@ -964,12 +964,6 @@ class mapgen_value
         shared_ptr_fast<const value_source> source_;
 };
 
-void mapgen_parameter::deserialize( JsonIn &jsin )
-{
-    JsonObject jo = jsin.get_object();
-    deserialize( jo );
-}
-
 void mapgen_parameter::deserialize( const JsonObject &jo )
 {
     jo.read( "type", type_, true );

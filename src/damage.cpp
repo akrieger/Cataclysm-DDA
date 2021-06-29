@@ -179,12 +179,6 @@ bool damage_instance::operator==( const damage_instance &other ) const
     return damage_units == other.damage_units;
 }
 
-void damage_instance::deserialize( JsonIn &jsin )
-{
-    JsonValue jv = jsin.get_value();
-    deserialize( jv );
-}
-
 void damage_instance::deserialize( const JsonValue &jsin )
 {
     // TODO: Clean up
@@ -490,12 +484,6 @@ void damage_over_time_data::serialize( JsonOut &jsout ) const
     jsout.member( "amount", amount );
     jsout.member( "bodyparts", bps );
     jsout.end_object();
-}
-
-void damage_over_time_data::deserialize( JsonIn &jsin )
-{
-    const JsonObject &jo = jsin.get_object();
-    deserialize( jo );
 }
 
 void damage_over_time_data::deserialize( const JsonObject &jo )

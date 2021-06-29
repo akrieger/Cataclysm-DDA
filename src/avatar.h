@@ -82,7 +82,6 @@ class avatar : public player
         void store( JsonOut &json ) const;
         void load( const JsonObject &data );
         void serialize( JsonOut &json ) const override;
-        void deserialize( JsonIn &jsin ) override;
         void deserialize( const JsonObject &data );
         bool save_map_memory();
         void load_map_memory();
@@ -265,10 +264,6 @@ class avatar : public player
                 save_activity( json );
 
                 json.end_object();
-            }
-            void deserialize( JsonIn &jsin ) {
-                JsonObject data = jsin.get_object();
-                deserialize( data );
             }
             void deserialize( const JsonObject &data ) {
                 data.read( "spent", spent );

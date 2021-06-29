@@ -14,7 +14,6 @@
 #include "type_id.h"
 
 class JsonArray;
-class JsonIn;
 class JsonObject;
 class JsonOut;
 struct display_proficiency;
@@ -92,7 +91,6 @@ class proficiency_set
         std::vector<proficiency_id> learning_profs() const;
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &jsobj );
         void deserialize_legacy( const JsonArray &jo );
 };
@@ -108,7 +106,6 @@ struct learning_proficiency {
         practiced( practiced ) {}
 
     void serialize( JsonOut &jsout ) const;
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonObject &jo );
 };
 
@@ -137,7 +134,6 @@ struct book_proficiency_bonus {
         bool include_prereqs = default_include_prereqs;
 
         bool was_loaded = false;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &jo );
 
     private:

@@ -94,10 +94,6 @@ struct game_message {
         return c_dark_gray;
     }
 
-    void deserialize( JsonIn &jsin ) {
-        JsonObject obj = jsin.get_object();
-        deserialize( obj );
-    }
     void deserialize( const JsonObject &obj )  {
         obj.read( "turn", timestamp_in_turns );
         message = obj.get_string( "message" );

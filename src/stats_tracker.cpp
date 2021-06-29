@@ -69,12 +69,6 @@ void event_summary::serialize( JsonOut &jsout ) const
     jsout.end_object();
 }
 
-void event_summary::deserialize( JsonIn &jsin )
-{
-    JsonObject jo = jsin.get_object();
-    deserialize( jo );
-}
-
 void event_summary::deserialize( const JsonObject &jo )
 {
     jo.read( "count", count, true );

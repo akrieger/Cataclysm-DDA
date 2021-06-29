@@ -16,7 +16,6 @@
 #include "translations.h"
 
 class JsonArray;
-class JsonIn;
 class JsonOut;
 
 class options_manager
@@ -207,7 +206,6 @@ class options_manager
                         const translation &lvalname );
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonArray &jo );
 
         std::string migrateOptionName( const std::string &name ) const;

@@ -3240,12 +3240,6 @@ void contents_change_handler::serialize( JsonOut &jsout ) const
     jsout.write( unsealed );
 }
 
-void contents_change_handler::deserialize( JsonIn &jsin )
-{
-    JsonValue jv = jsin.get_value();
-    deserialize( jv );
-}
-
 void contents_change_handler::deserialize( const JsonValue &jv )
 {
     jv.read( unsealed );

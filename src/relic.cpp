@@ -116,13 +116,6 @@ void relic_procgen_data::enchantment_value_passive<T>::load( const JsonObject &j
 }
 
 template<typename T>
-void relic_procgen_data::enchantment_value_passive<T>::deserialize( JsonIn &jsin )
-{
-    JsonObject jobj = jsin.get_object();
-    deserialize( jobj );
-}
-
-template<typename T>
 void relic_procgen_data::enchantment_value_passive<T>::deserialize( const JsonObject &jo )
 {
     load( jo );
@@ -136,12 +129,6 @@ void relic_procgen_data::enchantment_active::load( const JsonObject &jo )
     optional( jo, was_loaded, "increment", increment, 1 );
     optional( jo, was_loaded, "min_level", min_level, 0 );
     optional( jo, was_loaded, "max_level", max_level, 0 );
-}
-
-void relic_procgen_data::enchantment_active::deserialize( JsonIn &jsin )
-{
-    JsonObject jobj = jsin.get_object();
-    deserialize( jobj );
 }
 
 void relic_procgen_data::enchantment_active::deserialize( const JsonObject &jobj )
@@ -213,31 +200,14 @@ void relic_procgen_data::generation_rules::load( const JsonObject &jo )
     optional( jo, was_loaded, "max_negative_power", max_negative_power, 0 );
 }
 
-void relic_procgen_data::generation_rules::deserialize( JsonIn &jsin )
-{
-    JsonObject jo = jsin.get_object();
-    deserialize( jo );
-}
-
 void relic_procgen_data::generation_rules::deserialize( const JsonObject &jo )
 {
     load( jo );
 }
 
-void relic_procgen_data::deserialize( JsonIn &jsin )
-{
-    JsonObject jobj = jsin.get_object();
-    deserialize( jobj );
-}
-
 void relic_procgen_data::deserialize( const JsonObject &jobj )
 {
     load( jobj );
-}
-
-void relic_charge_template::deserialize( JsonIn &jsin )
-{
-    deserialize( jsin.get_object() );
 }
 
 void relic_charge_template::deserialize( const JsonObject &jo )
@@ -279,11 +249,6 @@ relic_charge_info relic_charge_template::generate() const
     ret.type = type;
     ret.power = power_level;
     return ret;
-}
-
-void relic_charge_info::deserialize( JsonIn &jsin )
-{
-    deserialize( jsin.get_object() );
 }
 
 void relic_charge_info::deserialize( const JsonObject &jo )
@@ -369,12 +334,6 @@ void relic::load( const JsonObject &jo )
     }
     jo.read( "name", item_name_override );
     moves = jo.get_int( "moves", 100 );
-}
-
-void relic::deserialize( JsonIn &jsin )
-{
-    JsonObject jobj = jsin.get_object();
-    deserialize( jobj );
 }
 
 void relic::deserialize( const JsonObject &jobj )

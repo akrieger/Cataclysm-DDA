@@ -524,12 +524,6 @@ void translation::make_plural()
     cached_translation = nullptr;
 }
 
-void translation::deserialize( JsonIn &jsin )
-{
-    JsonValue jv = jsin.get_value();
-    deserialize( jv );
-}
-
 void translation::deserialize( const JsonValue &jv )
 {
     // reset the cache

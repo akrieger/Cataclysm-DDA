@@ -16,7 +16,6 @@
 #include "string_id.h"
 #include "translations.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 struct body_part_type;
@@ -102,7 +101,6 @@ struct stat_hp_mods {
 
     bool was_loaded = false;
     void load( const JsonObject &jsobj );
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonObject &jo );
 };
 
@@ -300,7 +298,6 @@ class bodypart
         void mod_frostbite_timer( int mod );
 
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &jo );
 };
 

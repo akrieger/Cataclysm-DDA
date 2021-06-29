@@ -6,7 +6,6 @@
 #include <utility>
 #include <vector>
 
-class JsonIn;
 class JsonOut;
 class JsonValue;
 class time_duration;
@@ -187,7 +186,6 @@ class time_duration
         time_duration() : turns_( 0 ) {}
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonValue &jv );
 
         /**
@@ -457,7 +455,6 @@ class time_point
         }
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( int );
 
         // TODO: try to get rid of this

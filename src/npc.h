@@ -46,7 +46,6 @@
 #include "type_id.h"
 #include "units_fwd.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class JsonValue;
@@ -186,7 +185,6 @@ class job_data
             return ret;
         }
         void serialize( JsonOut &json ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonValue &jv );
 };
 
@@ -248,7 +246,6 @@ struct npc_personality {
     }
 
     void serialize( JsonOut &json ) const;
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonObject &data );
 };
 
@@ -285,7 +282,6 @@ struct npc_opinion {
     }
 
     void serialize( JsonOut &json ) const;
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonObject &data );
 };
 
@@ -517,7 +513,6 @@ struct npc_follower_rules {
     npc_follower_rules();
 
     void serialize( JsonOut &json ) const;
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonObject &data );
 
     bool has_flag( ally_rule test, bool check_override = true ) const;
@@ -831,8 +826,7 @@ class npc : public player
         void starting_weapon( const npc_class_id &type );
 
         // Save & load
-        void deserialize( JsonIn &jsin ) override;
-        void deserialize( const JsonObject &data );
+        void deserialize( const JsonObject &data ) override;
         void serialize( JsonOut &json ) const override;
 
         // Display

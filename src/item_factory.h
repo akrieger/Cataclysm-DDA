@@ -35,7 +35,6 @@ using Item_list = std::vector<item>;
 
 class Item_factory;
 class JsonArray;
-class JsonIn;
 class JsonObject;
 
 extern std::unique_ptr<Item_factory> item_controller;
@@ -56,7 +55,6 @@ class migration
                 int count = 0;
 
                 bool operator==( const content & ) const;
-                void deserialize( JsonIn &jsin );
                 void deserialize( const JsonObject &jsobj );
         };
         std::vector<content> contents;

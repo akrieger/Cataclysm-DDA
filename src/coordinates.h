@@ -146,9 +146,6 @@ class coord_point
         void serialize( JsonOut &jsout ) const {
             raw().serialize( jsout );
         }
-        void deserialize( JsonIn &jsin ) {
-            raw().deserialize( jsin );
-        }
         void deserialize( const JsonValue &jv ) {
             raw().deserialize( jv );
         }

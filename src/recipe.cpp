@@ -1102,11 +1102,6 @@ void recipe::incorporate_build_reqs()
     reqs_internal.emplace_back( req_id, 1 );
 }
 
-void recipe_proficiency::deserialize( JsonIn &jsin )
-{
-    deserialize( jsin.get_object() );
-}
-
 void recipe_proficiency::deserialize( const JsonObject &jo )
 {
     load( jo );
@@ -1120,11 +1115,6 @@ void recipe_proficiency::load( const JsonObject &jo )
     jo.read( "fail_multiplier", fail_multiplier );
     jo.read( "learning_time_multiplier", learning_time_mult );
     jo.read( "max_experience", max_experience );
-}
-
-void book_recipe_data::deserialize( JsonIn &jsin )
-{
-    deserialize( jsin.get_object() );
 }
 
 void book_recipe_data::deserialize( const JsonObject &jo )

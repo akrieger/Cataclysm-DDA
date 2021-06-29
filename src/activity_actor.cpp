@@ -2290,12 +2290,6 @@ void drop_or_stash_item_info::serialize( JsonOut &jsout ) const
     jsout.end_object();
 }
 
-void drop_or_stash_item_info::deserialize( JsonIn &jsin )
-{
-    JsonObject jsobj = jsin.get_object();
-    deserialize( jsobj );
-}
-
 void drop_or_stash_item_info::deserialize( const JsonObject &jsobj )
 {
     jsobj.read( "loc", _loc );
@@ -3290,11 +3284,6 @@ void serialize( const cata::clone_ptr<activity_actor> &actor, JsonOut &jsout )
 
         jsout.end_object();
     }
-}
-
-void deserialize( cata::clone_ptr<activity_actor> &actor, JsonIn &jsin )
-{
-    deserialize( actor, jsin.get_value() );
 }
 
 void deserialize( cata::clone_ptr<activity_actor> &actor, const JsonValue &jsin )

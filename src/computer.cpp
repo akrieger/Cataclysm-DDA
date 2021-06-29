@@ -32,12 +32,6 @@ void computer_option::serialize( JsonOut &jout ) const
     jout.end_object();
 }
 
-void computer_option::deserialize( JsonIn &jin )
-{
-    const JsonObject jo = jin.get_object();
-    deserialize( jo );
-}
-
 void computer_option::deserialize( const JsonObject &jo )
 {
     name = jo.get_string( "name" );
@@ -58,11 +52,6 @@ void computer_failure::serialize( JsonOut &jout ) const
     jout.end_object();
 }
 
-void computer_failure::deserialize( JsonIn &jin )
-{
-    const JsonObject jo = jin.get_object();
-    deserialize( jo );
-}
 void computer_failure::deserialize( const JsonObject &jo )
 {
     type = jo.get_enum_value<computer_failure_type>( "action" );
@@ -178,12 +167,6 @@ void computer::serialize( JsonOut &jout ) const
     jout.member( "failures", failures );
     jout.member( "access_denied", access_denied );
     jout.end_object();
-}
-
-void computer::deserialize( JsonIn &jin )
-{
-    JsonValue jv = jin.get_value();
-    deserialize( jv );
 }
 
 void computer::deserialize( const JsonValue &jv )

@@ -15,7 +15,6 @@
 #include "point.h"
 #include "type_id.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 // from overmap.h
@@ -157,7 +156,6 @@ struct mongroup {
     void io( Archive & );
     using archive_type_tag = io::object_archive_tag;
 
-    void deserialize( JsonIn &data );
     void deserialize( const JsonObject &jo );
     void deserialize_legacy( const JsonObject &jo );
     void serialize( JsonOut &json ) const;

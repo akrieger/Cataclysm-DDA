@@ -30,7 +30,6 @@ std::string fac_respect_text( int val );
 std::string fac_wealth_text( int val, int size );
 std::string fac_combat_ability_text( int val );
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class JsonValue;
@@ -103,7 +102,6 @@ class faction : public faction_template
         faction() = default;
         explicit faction( const faction_template &templ );
 
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonObject &jo );
         void serialize( JsonOut &json ) const;
         void faction_display( const catacurses::window &fac_w, int width ) const;
@@ -128,7 +126,6 @@ class faction_manager
         std::map<faction_id, faction> factions;
 
     public:
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonValue &jv );
         void serialize( JsonOut &jsout ) const;
 

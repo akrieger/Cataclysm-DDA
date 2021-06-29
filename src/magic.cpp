@@ -1528,12 +1528,6 @@ void known_magic::serialize( JsonOut &json ) const
     json.end_object();
 }
 
-void known_magic::deserialize( JsonIn &jsin )
-{
-    JsonObject data = jsin.get_object();
-    deserialize( data );
-}
-
 void known_magic::deserialize( const JsonObject &data )
 {
     data.read( "mana", mana );
@@ -2390,12 +2384,6 @@ void fake_spell::serialize( JsonOut &json ) const
     json.member( "max_level", max_level, max_level_default );
     json.member( "min_level", level, level_default );
     json.end_object();
-}
-
-void fake_spell::deserialize( JsonIn &jsin )
-{
-    JsonObject data = jsin.get_object();
-    deserialize( data );
 }
 
 void fake_spell::deserialize( const JsonObject &data )

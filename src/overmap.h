@@ -30,7 +30,6 @@
 #include "rng.h"
 #include "type_id.h"
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class character_id;
