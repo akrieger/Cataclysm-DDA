@@ -1288,7 +1288,11 @@ void mission::serialize_all( JsonOut &json )
 
 void weather_manager::unserialize_all( JsonIn &jsin )
 {
-    JsonObject w = jsin.get_object();
+    unserialize_all( jsin.get_object() );
+}
+
+void weather_manager::unserialize_all( const JsonObject &w )
+{
     w.read( "lightning", get_weather().lightning_active );
     w.read( "weather_id", get_weather().weather_id );
     w.read( "next_weather", get_weather().nextweather );
