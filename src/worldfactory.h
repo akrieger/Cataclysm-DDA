@@ -17,6 +17,7 @@
 enum class special_game_type;
 
 class JsonIn;
+class JsonArray;
 class JsonObject;
 
 namespace catacurses
@@ -76,6 +77,7 @@ struct WORLD {
         bool save( bool is_conversion = false ) const;
 
         void load_options( JsonIn &jsin );
+        void load_options( const JsonArray &options_json );
         bool load_options();
 };
 
