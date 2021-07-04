@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "enums.h"
+#include "json.h"
 #include "optional.h"
 #include "omdata.h"
 #include "type_id.h"
@@ -66,7 +67,7 @@ struct advanced_inv_save_state {
             pane_right.serialize( json, prefix + "pane_right_" );
         }
 
-        void deserialize( JsonObject &jo, const std::string &prefix ) {
+        void deserialize( const JsonObject &jo, const std::string &prefix ) {
             jo.read( prefix + "active_left", active_left );
             jo.read( prefix + "last_popup_dest", last_popup_dest );
 
@@ -228,9 +229,12 @@ class uistatedata
             json.end_object();
         }
 
-        template<typename JsonStream>
-        void deserialize( JsonStream &jsin ) {
+        void deserialize( JsonIn &jsin ) {
             auto jo = jsin.get_object();
+            deserialize( jo );
+        }
+
+        void deserialize( const JsonObject &jo ) {
             jo.allow_omitted_members();
 
             transfer_save.deserialize( jo, "transfer_save_" );
