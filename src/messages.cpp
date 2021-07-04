@@ -34,7 +34,7 @@
 namespace
 {
 
-struct game_message : public JsonDeserializer, public JsonSerializer {
+struct game_message {
     std::string       message;
     time_point timestamp_in_turns  = calendar::turn_zero;
     int               timestamp_in_user_actions = 0;
@@ -94,7 +94,7 @@ struct game_message : public JsonDeserializer, public JsonSerializer {
         return c_dark_gray;
     }
 
-    void deserialize( JsonIn &jsin ) override {
+    void deserialize( JsonIn &jsin ) {
         JsonObject obj = jsin.get_object();
         deserialize( obj );
     }
@@ -105,7 +105,7 @@ struct game_message : public JsonDeserializer, public JsonSerializer {
         type = static_cast<game_message_type>( obj.get_int( "type" ) );
     }
 
-    void serialize( JsonOut &jsout ) const override {
+    void serialize( JsonOut &jsout ) const {
         jsout.start_object();
         jsout.member( "turn", timestamp_in_turns );
         jsout.member( "message", message );
