@@ -317,9 +317,9 @@ class JsonIn
         /// Overload that calls a global function `deserialize(T&,JsonIn&)`, if available.
         template<typename T>
         auto read( T &v, bool throw_on_error = false ) ->
-        decltype( deserialize( v, *this ), true ) {
+        decltype( deserialize( v, std::declval<const JsonValue &>() ), true ) {
             try {
-                deserialize( v, *this );
+                deserialize( v, this->get_value() );
                 return true;
             } catch( const JsonError & ) {
                 if( throw_on_error ) {
@@ -331,9 +331,10 @@ class JsonIn
 
         /// Overload that calls a member function `T::deserialize(JsonIn&)`, if available.
         template<typename T>
-        auto read( T &v, bool throw_on_error = false ) -> decltype( v.deserialize( *this ), true ) {
+        auto read( T &v, bool throw_on_error = false ) -> decltype( v.deserialize(
+                    std::declval<const JsonValue &>() ), true ) {
             try {
-                v.deserialize( *this );
+                v.deserialize( this->get_value() );
                 return true;
             } catch( const JsonError & ) {
                 if( throw_on_error ) {
