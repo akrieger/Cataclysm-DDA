@@ -66,7 +66,11 @@ class pimpl : private std::unique_ptr<T>
         /// Forwards the stream to `T::deserialize`.
         template<typename JsonStream>
         void deserialize( JsonStream &stream ) {
-            operator*().deserialize( stream );
+            deserialize_(stream.get_value());
+        }
+        template<typename JsonValue>
+        void deserialize_(const JsonValue& value) {
+            value.read(operator*());
         }
         /// Forwards the stream to `T::serialize`.
         template<typename JsonStream>
