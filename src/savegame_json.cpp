@@ -165,9 +165,8 @@ static void serialize( const weak_ptr_fast<monster> &obj, JsonOut &jsout )
     }
 }
 
-static void deserialize( weak_ptr_fast<monster> &obj, JsonIn &jsin )
+static void deserialize( weak_ptr_fast<monster> &obj, const JsonObject &data )
 {
-    JsonObject data = jsin.get_object();
     data.allow_omitted_members();
     tripoint temp_pos;
 
@@ -188,6 +187,12 @@ static void deserialize( weak_ptr_fast<monster> &obj, JsonIn &jsin )
     //     data.read( "unique_id", unique_id );
     //     obj = g->id_registry->from_id( unique_id)
     //    }
+}
+
+static void deserialize( weak_ptr_fast<monster> &obj, JsonIn &jsin )
+{
+    JsonObject data = jsin.get_object();
+    deserialize( obj, data );
 }
 
 void item_contents::serialize( JsonOut &json ) const
@@ -3915,9 +3920,22 @@ static void serialize( const tool_comp &value, JsonOut &jsout )
     jsout.end_object();
 }
 
+static void deserialize( item_comp &value, const JsonObject &jo )
+{
+    jo.allow_omitted_members();
+    jo.read( "type", value.type );
+    jo.read( "count", value.count );
+    jo.read( "recoverable", value.recoverable );
+}
+
 static void deserialize( item_comp &value, JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( value, jo );
+}
+
+static void deserialize( tool_comp &value, const JsonObject &jo )
+{
     jo.allow_omitted_members();
     jo.read( "type", value.type );
     jo.read( "count", value.count );
@@ -3927,10 +3945,7 @@ static void deserialize( item_comp &value, JsonIn &jsin )
 static void deserialize( tool_comp &value, JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
-    jo.allow_omitted_members();
-    jo.read( "type", value.type );
-    jo.read( "count", value.count );
-    jo.read( "recoverable", value.recoverable );
+    deserialize( value, jo );
 }
 
 static void serialize( const quality_requirement &value, JsonOut &jsout )
@@ -3944,13 +3959,18 @@ static void serialize( const quality_requirement &value, JsonOut &jsout )
     jsout.end_object();
 }
 
-static void deserialize( quality_requirement &value, JsonIn &jsin )
+static void deserialize( quality_requirement &value, const JsonObject &jo )
 {
-    JsonObject jo = jsin.get_object();
     jo.allow_omitted_members();
     jo.read( "type", value.type );
     jo.read( "count", value.count );
     jo.read( "level", value.level );
+}
+
+static void deserialize( quality_requirement &value, JsonIn &jsin )
+{
+    JsonObject jo = jsin.get_object();
+    deserialize( value, jo );
 }
 
 // basecamp
