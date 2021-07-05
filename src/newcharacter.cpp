@@ -3614,17 +3614,18 @@ void avatar::save_template( const std::string &name, const points_left &points )
 bool avatar::load_template( const std::string &template_name, points_left &points )
 {
     return read_from_file_json( PATH_INFO::templatedir() + utf8_to_native( template_name ) +
-    ".template", [&]( JsonIn & jsin ) {
+    ".template", [&]( const JsonValue & jv ) {
 
-        if( jsin.test_array() ) {
+        // Legacy templates are an object. Current templates are an array of 0, 1, or 2 objects.
+        JsonObject legacy_template;
+        if( jv.test_array() ) {
             // not a legacy template
-            jsin.start_array();
-
-            if( jsin.end_array() ) {
+            JsonArray template_array = jv;
+            if( template_array.size() == 0 ) {
                 return;
             }
 
-            JsonObject jobj = jsin.get_object();
+            JsonObject jobj = template_array.get_object( 0 );
 
             points.stat_points = jobj.get_int( "stat_points" );
             points.trait_points = jobj.get_int( "trait_points" );
@@ -3643,16 +3644,17 @@ bool avatar::load_template( const std::string &template_name, points_left &point
                 }
             }
 
-            if( jsin.end_array() ) {
+            if( template_array.size() == 1 ) {
                 return;
             }
+            legacy_template = template_array.get_object( 1 );
         } else {
             points.stat_points = 0;
             points.trait_points = 0;
             points.skill_points = 0;
         }
 
-        deserialize( jsin );
+        deserialize( legacy_template );
 
         // If stored_calories the template is under a million (kcals < 1000), assume it predates the
         // kilocalorie-to-literal-calorie conversion and is off by a factor of 1000.
