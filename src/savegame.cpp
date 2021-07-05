@@ -1237,10 +1237,14 @@ void mongroup::deserialize_legacy( const JsonObject &jo )
 
 void mission::unserialize_all( JsonIn &jsin )
 {
-    jsin.start_array();
-    while( !jsin.end_array() ) {
+    unserialize_all( jsin.get_array() );
+}
+
+void mission::unserialize_all( const JsonArray &ja )
+{
+    for( JsonObject jo : ja ) {
         mission mis;
-        mis.deserialize( jsin );
+        mis.deserialize( jo );
         add_existing( mis );
     }
 }
