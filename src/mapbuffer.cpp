@@ -257,7 +257,7 @@ submap *mapbuffer::unserialize_submaps( const tripoint &p )
         }
     }
 
-    if( !read_from_file_optional_json( quad_path, [&]( JsonIn & jsin ) {
+    if( !read_from_file_optional_json( quad_path, [&]( const JsonValue & jsin ) {
     deserialize( jsin );
     } ) ) {
         // If it doesn't exist, trigger generating it.
