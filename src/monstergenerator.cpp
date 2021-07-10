@@ -1292,5 +1292,10 @@ void monster_death_effect::load( const JsonObject &jo )
 void monster_death_effect::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void monster_death_effect::deserialize( const JsonObject &data )
+{
     load( data );
 }

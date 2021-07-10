@@ -225,6 +225,7 @@ struct monster_death_effect {
 
     void load( const JsonObject &jo );
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonObject &data );
 };
 
 struct mtype {
