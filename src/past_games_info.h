@@ -19,7 +19,6 @@ class past_game_info
 {
     public:
         explicit past_game_info( const JsonObject &jo );
-        explicit past_game_info( JsonIn &jsin );
 
         stats_tracker &stats() {
             return *stats_;

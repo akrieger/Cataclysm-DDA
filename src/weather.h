@@ -191,7 +191,6 @@ class weather_manager
         // Returns outdoor or indoor temperature of given location
         int get_temperature( const tripoint_abs_omt &location );
         void clear_temp_cache();
-        static void unserialize_all( JsonIn &jsin );
         static void unserialize_all( const JsonObject &w );
 };
 

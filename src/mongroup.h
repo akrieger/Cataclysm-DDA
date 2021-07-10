@@ -159,7 +159,6 @@ struct mongroup {
 
     void deserialize( JsonIn &data );
     void deserialize( const JsonObject &jo );
-    void deserialize_legacy( JsonIn &json );
     void deserialize_legacy( const JsonObject &jo );
     void serialize( JsonOut &json ) const;
 };

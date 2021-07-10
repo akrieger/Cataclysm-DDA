@@ -80,11 +80,6 @@ static void load( const JsonArray &names_json )
     }
 }
 
-static void load( JsonIn &jsin )
-{
-    load( jsin.get_array() );
-}
-
 void load_from_file( const std::string &filename )
 {
     read_from_file_json( filename, []( const JsonValue & jsin ) {

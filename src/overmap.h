@@ -516,9 +516,7 @@ class overmap
         // Spawns a new mongroup (to be called by worldgen code)
         void spawn_mon_group( const mongroup &group );
 
-        void load_monster_groups( JsonIn &jsin );
         void load_monster_groups( const JsonArray &ja );
-        void load_legacy_monstergroups( JsonIn &jsin );
         void load_legacy_monstergroups( const JsonArray &ja );
         void save_monster_groups( JsonOut &jo ) const;
     public:

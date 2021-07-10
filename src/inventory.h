@@ -201,9 +201,7 @@ class inventory : public visitable
         // returns all items that need processing
         std::vector<item *> active_items();
 
-        void json_load_invcache( JsonIn &jsin );
         void json_load_invcache( const JsonValue &jv );
-        void json_load_items( JsonIn &jsin );
         void json_load_items( const JsonArray &ja );
 
         void json_save_invcache( JsonOut &json ) const;

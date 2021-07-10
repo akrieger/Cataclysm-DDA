@@ -458,11 +458,6 @@ void overmap::convert_terrain(
     generate_bridgeheads( bridge_points );
 }
 
-void overmap::load_monster_groups( JsonIn &jsin )
-{
-    load_monster_groups( jsin.get_array() );
-}
-
 void overmap::load_monster_groups( const JsonArray &monster_groups )
 {
     for( JsonArray monsters_and_positions : monster_groups ) {
@@ -482,11 +477,6 @@ void overmap::load_monster_groups( const JsonArray &monster_groups )
             monsters_and_positions.throw_error( "Too many values for monster group" );
         }
     }
-}
-
-void overmap::load_legacy_monstergroups( JsonIn &jsin )
-{
-    load_legacy_monstergroups( jsin.get_array() );
 }
 
 void overmap::load_legacy_monstergroups( const JsonArray &monstergroups )
@@ -1188,12 +1178,6 @@ void mongroup::serialize( JsonOut &json ) const
     const_cast<mongroup *>( this )->io( archive );
 }
 
-void mongroup::deserialize_legacy( JsonIn &json )
-{
-    JsonObject jo = json.get_object();
-    deserialize_legacy( jo );
-}
-
 void mongroup::deserialize_legacy( const JsonObject &jo )
 {
     for( JsonMember json : jo ) {
@@ -1289,11 +1273,6 @@ void mission::serialize_all( JsonOut &json )
         e->serialize( json );
     }
     json.end_array();
-}
-
-void weather_manager::unserialize_all( JsonIn &jsin )
-{
-    unserialize_all( jsin.get_object() );
 }
 
 void weather_manager::unserialize_all( const JsonObject &w )

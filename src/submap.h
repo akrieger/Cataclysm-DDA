@@ -227,7 +227,6 @@ class submap : maptile_soa<SEEX, SEEY>
         void rotate( int turns );
 
         void store( JsonOut &jsout ) const;
-        void load( JsonIn &jsin, const std::string &member_name, int version );
         void load( const JsonValue &jv, const std::string &member_name, int version );
 
         // If is_uniform is true, this submap is a solid block of terrain

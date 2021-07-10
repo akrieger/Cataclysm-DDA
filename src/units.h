@@ -959,20 +959,6 @@ T read_from_json_string_common( const std::string &s,
 }
 
 template<typename T>
-T read_from_json_string( JsonIn &jsin, const std::vector<std::pair<std::string, T>> &units )
-{
-    const size_t pos = jsin.tell();
-    const auto error = [&]( const char *const msg, size_t offset ) {
-        jsin.seek( pos + offset );
-        jsin.error( msg );
-    };
-
-    const std::string s = jsin.get_string();
-
-    return read_from_json_string_common<T>( s, units, error );
-}
-
-template<typename T>
 T read_from_json_string( const JsonValue &jv, const std::vector<std::pair<std::string, T>> &units )
 {
     const auto error = [&]( const char *const msg, size_t offset ) {
