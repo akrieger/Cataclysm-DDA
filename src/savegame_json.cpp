@@ -3932,10 +3932,14 @@ void serialize( const recipe_subset &value, JsonOut &jsout )
 
 void deserialize( recipe_subset &value, JsonIn &jsin )
 {
+    deserialize( value, jsin.get_array() );
+}
+
+void deserialize( recipe_subset &value, const JsonArray &ja )
+{
     value.clear();
-    jsin.start_array();
-    while( !jsin.end_array() ) {
-        value.include( &recipe_id( jsin.get_string() ).obj() );
+    for( std::string && recipe_id_string : ja ) {
+        value.include( &recipe_id( std::move( recipe_id_string ) ).obj() );
     }
 }
 
