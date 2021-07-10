@@ -967,6 +967,11 @@ class mapgen_value
 void mapgen_parameter::deserialize( JsonIn &jsin )
 {
     JsonObject jo = jsin.get_object();
+    deserialize( jo );
+}
+
+void mapgen_parameter::deserialize( const JsonObject &jo )
+{
     jo.read( "type", type_, true );
     default_ = std::make_unique<mapgen_value<std::string>>( jo.get_member( "default" ) );
 }

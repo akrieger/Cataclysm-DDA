@@ -140,6 +140,7 @@ class mapgen_parameter
 {
     public:
         void deserialize( JsonIn & );
+        void deserialize( const JsonObject &jo );
 
         cata_variant_type type() const;
         cata_variant get( const mapgendata &md ) const;
