@@ -105,6 +105,7 @@ struct mm_region {
 
     void serialize( JsonOut &jsout ) const;
     void deserialize( JsonIn &jsin );
+    void deserialize( const JsonValue &ja );
 };
 
 /**
