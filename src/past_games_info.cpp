@@ -30,9 +30,10 @@ class too_old_memorial_file_error : std::runtime_error
         using runtime_error::runtime_error;
 };
 
-past_game_info::past_game_info( JsonIn &jsin )
+past_game_info::past_game_info( JsonIn &jsin ) : past_game_info( jsin.get_object() ) {}
+
+past_game_info::past_game_info( const JsonObject &jo )
 {
-    JsonObject jo = jsin.get_object();
     int version;
     jo.read( "memorial_version", version );
     if( version == 0 ) {
