@@ -782,6 +782,7 @@ class drop_or_stash_item_info
 
         void serialize( JsonOut &jsout ) const;
         void deserialize( JsonIn &jsin );
+        void deserialize( const JsonObject &jsobj );
 
         const item_location &loc() const {
             return _loc;

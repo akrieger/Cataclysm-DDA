@@ -2293,6 +2293,11 @@ void drop_or_stash_item_info::serialize( JsonOut &jsout ) const
 void drop_or_stash_item_info::deserialize( JsonIn &jsin )
 {
     JsonObject jsobj = jsin.get_object();
+    deserialize( jsobj );
+}
+
+void drop_or_stash_item_info::deserialize( const JsonObject &jsobj )
+{
     jsobj.read( "loc", _loc );
     jsobj.read( "count", _count );
 }
