@@ -1158,9 +1158,14 @@ void mongroup::serialize( JsonOut &json ) const
 
 void mongroup::deserialize_legacy( JsonIn &json )
 {
-    json.start_object();
-    while( !json.end_object() ) {
-        std::string name = json.get_member_name();
+    JsonObject jo = json.get_object();
+    deserialize_legacy( jo );
+}
+
+void mongroup::deserialize_legacy( const JsonObject &jo )
+{
+    for( JsonMember json : jo ) {
+        std::string name = json.name();
         if( name == "type" ) {
             type = mongroup_id( json.get_string() );
         } else if( name == "pos" ) {
@@ -1182,10 +1187,10 @@ void mongroup::deserialize_legacy( JsonIn &json )
         } else if( name == "horde_behaviour" ) {
             horde_behaviour = json.get_string();
         } else if( name == "monsters" ) {
-            json.start_array();
-            while( !json.end_array() ) {
+            JsonArray ja = json;
+            for( JsonObject monster_json : ja ) {
                 monster new_monster;
-                new_monster.deserialize( json );
+                new_monster.deserialize( monster_json );
                 monsters.push_back( new_monster );
             }
         }
