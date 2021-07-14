@@ -1140,6 +1140,11 @@ void mongroup::io( Archive &archive )
 void mongroup::deserialize( JsonIn &data )
 {
     JsonObject jo = data.get_object();
+    deserialize( jo );
+}
+
+void mongroup::deserialize( const JsonObject &jo )
+{
     jo.allow_omitted_members();
     io::JsonObjectInputArchive archive( jo );
     io( archive );

@@ -2127,6 +2127,11 @@ void inventory::json_load_items( JsonIn &jsin )
 void monster::deserialize( JsonIn &jsin )
 {
     JsonObject data = jsin.get_object();
+    deserialize( data );
+}
+
+void monster::deserialize( const JsonObject &data )
+{
     data.allow_omitted_members();
     load( data );
 }
