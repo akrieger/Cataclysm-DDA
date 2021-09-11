@@ -5,11 +5,12 @@
         "sdl2",
         "sdl2-image",
         {
-          "name": "sdl2-mixer",
-          "features": [ "libflac", "mpg123", "libmodplug", "libvorbis" ]
+            "name": "sdl2-mixer",
+            "features": [ "libflac", "mpg123", "libmodplug", "libvorbis" ]
         },
         "sdl2-ttf",
         "gettext",
         "qt5-base"
-    ]
+    ],
+    "builtin-baseline": "49b67d9cb856424ff69f10e7721aec5299624268"
 }
