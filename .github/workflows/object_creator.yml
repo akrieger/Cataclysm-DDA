@@ -87,6 +87,10 @@ jobs:
           cd msvc-object_creator
           msbuild -m -p:Configuration=Release -p:Platform=x64 ObjectCreator-vcpkg-static.sln
 
+    - name: Clean
+      run: |
+          Get-ChildItem -Path Cataclysm-lib-vcpkg-static-Release-x64.*,ObjectCreator-vcpkg-static-Release-x64.* | Foreach-Object { rm $_.FullName }
+
     - name: Dump vcpkg logs if vcpkg build failed
       if: failure()
       run: |
