@@ -50,7 +50,6 @@ jobs:
       with:
         additionalCachedPaths: '${{ runner.workspace }}/Cataclysm-DDA/msvc-full-features/vcpkg_installed;${{ runner.workspace }}/Cataclysm-DDA/msvc-object_creator/vcpkg_installed'
         setupOnly: true
-        appendedCacheKey: ${{ hashFiles( 'msvc-full-features/vcpkg.json', 'msvc-object_creator/vcpkg.json' ) }}
         vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
         vcpkgGitCommitId: '49b67d9cb856424ff69f10e7721aec5299624268'
 
