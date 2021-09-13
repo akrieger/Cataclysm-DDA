@@ -26,6 +26,11 @@ on:
     - 'tools/**'
     - 'utilities/**'
 
+env:
+  # There's not enough disk space to build both release and debug versions of
+  # our dependencies, so we hack the triplet file to build only release versions
+  VCPKG_OVERLAY_TRIPLETS: ${{ github.workspace }}\.github\vcpkg_triplets
+
 jobs:
   build_object_creator:
     name: Build
@@ -53,17 +58,6 @@ jobs:
         appendedCacheKey: ${{ hashFiles( 'msvc-full-features/vcpkg.json', 'msvc-object_creator/vcpkg.json' ) }}
         vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
         vcpkgGitCommitId: '49b67d9cb856424ff69f10e7721aec5299624268'
-
-    # There's not enough disk space to build both release and debug versions of
-    # our dependencies, so we hack the triplet file to build only release
-    # versions
-    # TODO overlay triplets?
-    - name: Disable debug builds for vcpkg
-      run: |
-        Get-ChildItem "${{ runner.workspace }}/b/vcpkg/triplets" -File |
-        Foreach-Object {
-          Add-Content $_.FullName "set(VCPKG_BUILD_TYPE release)`n"
-        }
 
     - name: Integrate vcpkg
       run: |
