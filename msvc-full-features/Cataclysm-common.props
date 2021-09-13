@@ -8,7 +8,7 @@
     <IntDir>$(SolutionDir)$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
-    <VcpkgAdditionalInstallOptions>--clean-after-build</VcpkgAdditionalInstallOptions>
+    <VcpkgAdditionalInstallOptions>--clean-after-build --debug</VcpkgAdditionalInstallOptions>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
