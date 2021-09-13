@@ -26,6 +26,9 @@ on:
     - 'tools/**'
     - 'utilities/**'
 
+env:
+  VCPKG_OVERLAY_TRIPLETS: ${{ runner.workspace }}\Cataclysm-DDA\.github\vcpkg_triplets
+
 jobs:
   build_object_creator:
     name: Build
