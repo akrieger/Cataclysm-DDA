@@ -368,7 +368,6 @@ class JsonIn
         bool read( std::string &s, bool throw_on_error = false );
         template<size_t N>
         bool read( std::bitset<N> &b, bool throw_on_error = false );
-        bool read( JsonDeserializer &j, bool throw_on_error = false );
 
         template <typename T>
         auto read( string_id<T> &thing, bool throw_on_error = false ) -> bool {
