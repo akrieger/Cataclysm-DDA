@@ -621,7 +621,7 @@ void worldfactory::load_last_world_info()
         return;
     }
 
-    JsonIn jsin( file );
+    JsonValue jsin = JsonValue::from( fs::u8path( PATH_INFO::lastworld() ) );
     JsonObject data = jsin.get_object();
     last_world_name = data.get_string( "world_name" );
     last_character_name = data.get_string( "character_name" );
