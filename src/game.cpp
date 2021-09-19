@@ -2526,7 +2526,9 @@ void game::load_master()
 {
     using namespace std::placeholders;
     const auto datafile = PATH_INFO::world_base_save_path() + "/" + SAVE_MASTER;
-    read_from_file_optional( datafile, std::bind( &game::unserialize_master, this, _1 ) );
+    read_from_file_optional( datafile, [&]( std::istream & is ) {
+        unserialize_master( is );
+    } );
 }
 
 bool game::load( const std::string &world )
