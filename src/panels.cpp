@@ -2973,7 +2973,7 @@ bool panel_manager::save()
 
 bool panel_manager::load()
 {
-    return read_from_file_optional_json( PATH_INFO::panel_options(), [&]( const FlexJsonArray & jsin ) {
+    return read_from_file_optional_json( PATH_INFO::panel_options(), [&]( const JsonArray & jsin ) {
         deserialize( jsin );
     } );
 }
@@ -3015,17 +3015,17 @@ void panel_manager::serialize( JsonOut &json )
     json.end_array();
 }
 
-void panel_manager::deserialize( const FlexJsonArray &ja )
+void panel_manager::deserialize( const JsonArray &ja )
 {
-    FlexJsonObject joLayouts = ja.get_object( 0 );
+    JsonObject joLayouts = ja.get_object( 0 );
 
     current_layout_id = joLayouts.get_string( "current_layout_id" );
-    for( FlexJsonObject joLayout : joLayouts.get_array( "layouts" ) ) {
+    for( JsonObject joLayout : joLayouts.get_array( "layouts" ) ) {
         std::string layout_id = joLayout.get_string( "layout_id" );
         auto &layout = layouts.find( layout_id )->second.panels();
         auto it = layout.begin();
 
-        for( FlexJsonObject joPanel : joLayout.get_array( "panels" ) ) {
+        for( JsonObject joPanel : joLayout.get_array( "panels" ) ) {
             std::string id = joPanel.get_string( "name" );
             bool toggle = joPanel.get_bool( "toggle" );
 
