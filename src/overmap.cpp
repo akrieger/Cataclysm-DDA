@@ -6165,12 +6165,13 @@ void overmap::open( overmap_special_batch &enabled_specials )
 {
     const std::string terfilename = overmapbuffer::terrain_filename( loc );
 
-    if( read_from_file_optional( terfilename, [this]( std::istream & fin ) {
-    unserialize( fin );
+    using namespace std::placeholders;
+    if( read_from_file_optional( terfilename, [&]( std::istream & fin ) {
+    unserialize( terfilename, fin );
     } ) ) {
         const std::string plrfilename = overmapbuffer::player_filename( loc );
-        read_from_file_optional( plrfilename, [this]( std::istream & fin ) {
-            unserialize_view( fin );
+        read_from_file_optional( plrfilename, [&]( std::istream & fin ) {
+            unserialize_view( plrfilename, fin );
         } );
     } else { // No map exists!  Prepare neighbors, and generate one.
         std::vector<const overmap *> pointers;
