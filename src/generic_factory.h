@@ -227,7 +227,7 @@ class generic_factory
                         def = ab->second;
                     } else {
                         def.was_loaded = false;
-                        deferred.emplace_back( jo.get_source_location(), src );
+                        deferred.emplace_back( jo, src );
                         jo.allow_omitted_members();
                         return false;
                     }

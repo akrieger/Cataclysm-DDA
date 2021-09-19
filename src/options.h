@@ -15,7 +15,7 @@
 #include "optional.h"
 #include "translations.h"
 
-class FlexJsonArray;
+class JsonArray;
 class JsonOut;
 
 class options_manager
@@ -204,7 +204,7 @@ class options_manager
                         const translation &lvalname );
 
         void serialize( JsonOut &json ) const;
-        void deserialize( const FlexJsonArray &jo );
+        void deserialize( const JsonArray &jo );
 
         std::string migrateOptionName( const std::string &name ) const;
         std::string migrateOptionValue( const std::string &name, const std::string &val ) const;
