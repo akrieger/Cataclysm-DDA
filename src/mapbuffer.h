@@ -10,7 +10,6 @@
 #include "point.h"
 
 class JsonArray;
-class JsonIn;
 class submap;
 
 /**

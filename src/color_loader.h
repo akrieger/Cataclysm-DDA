@@ -53,7 +53,6 @@ class color_loader
                 // This isn't actually read (here), so just ignore it
                 jo.get_string( "type" );
                 load_colors( jo );
-                jo.finish();
             }
         }
 
