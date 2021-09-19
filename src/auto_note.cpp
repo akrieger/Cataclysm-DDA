@@ -89,25 +89,23 @@ void auto_note_settings::load()
 {
     clear();
 
-    const auto parseJson = [&]( const JsonValue & jv ) {
-        JsonObject jo = jv;
-
-        for( JsonMember member : jo ) {
+    const auto parseJson = [&]( const FlexJsonObject & jo ) {
+        for( FlexJsonMember member : jo ) {
             const std::string name = member.name();
 
             if( name == "enabled" ) {
-                JsonArray enabled_notes = member;
+                FlexJsonArray enabled_notes = member;
                 for( std::string entry : enabled_notes ) {
                     autoNoteEnabled.insert( string_id<map_extra> {std::move( entry )} );
                 }
             } else if( name == "discovered" ) {
-                JsonArray discovered_array = member;
+                FlexJsonArray discovered_array = member;
                 for( std::string entry : discovered_array ) {
                     discovered.insert( string_id<map_extra> {std::move( entry )} );
                 }
             } else if( name == "custom_symbols" ) {
-                JsonArray symbols_json = member;
-                for( JsonObject joSymbols : symbols_json ) {
+                FlexJsonArray symbols_json = member;
+                for( FlexJsonObject joSymbols : symbols_json ) {
                     const std::string entry = joSymbols.get_string( "map_extra" );
                     const std::string custom_symbol_str = joSymbols.get_string( "symbol" );
                     const std::string custom_color = joSymbols.get_string( "color" );
