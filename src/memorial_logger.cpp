@@ -154,7 +154,7 @@ void memorial_logger::load( std::istream &fin, const std::string &path )
             log.emplace_back( entry );
         }
     } else {
-        JsonIn jsin( fin, path );
+        JsonValue jsin = JsonValue::from( fs::u8path( path ) );
         if( !jsin.read( log ) ) {
             debugmsg( "Error reading JSON memorial log" );
         }
