@@ -144,6 +144,7 @@ class JsonValue
 
         [[noreturn]] void string_error( const std::string &err, int offset = 0 ) const;
         [[noreturn]] void throw_error( const std::string &err, int offset = 0 ) const;
+        [[noreturn]] void throw_error_after( const std::string &err ) const;
 };
 
 
@@ -1418,6 +1419,12 @@ inline bool JsonValue::test_null() const
 [[noreturn]] inline void JsonValue::throw_error( const std::string &err, int offset ) const
 {
     seek().error( err, offset );
+}
+
+[[noreturn]] inline void JsonValue::throw_error_after( const std::string &err ) const
+{
+    seek().skip_value();
+    jsin_.error( err );
 }
 
 inline std::string JsonValue::get_string() const
