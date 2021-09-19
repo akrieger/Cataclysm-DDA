@@ -404,10 +404,10 @@ class overmap
         std::unordered_multimap<tripoint_om_sm, monster> monster_map;
 
         // parse data in an opened overmap file
-        void unserialize( std::istream &fin );
+        void unserialize( const std::string &file_name, std::istream &fin );
         void unserialize( const JsonObject &jsobj );
         // Parse per-player overmap view data.
-        void unserialize_view( std::istream &fin );
+        void unserialize_view( const std::string &file_name, std::istream &fin );
         void unserialize_view( const JsonObject &jsobj );
         // Save data in an opened overmap file
         void serialize( std::ostream &fout ) const;
