@@ -89,28 +89,25 @@ void auto_note_settings::load()
 {
     clear();
 
-    const auto parseJson = [&]( JsonIn & jin ) {
-        jin.start_object();
+    const auto parseJson = [&]( const JsonValue & jv ) {
+        JsonObject jo = jv;
 
-        while( !jin.end_object() ) {
-            const std::string name = jin.get_member_name();
+        for( JsonMember member : jo ) {
+            const std::string name = member.name();
 
             if( name == "enabled" ) {
-                jin.start_array();
-                while( !jin.end_array() ) {
-                    const std::string entry = jin.get_string();
-                    autoNoteEnabled.insert( string_id<map_extra> {entry} );
+                JsonArray enabled_notes = member;
+                for( std::string entry : enabled_notes ) {
+                    autoNoteEnabled.insert( string_id<map_extra> {std::move( entry )} );
                 }
             } else if( name == "discovered" ) {
-                jin.start_array();
-                while( !jin.end_array() ) {
-                    const std::string entry = jin.get_string();
-                    discovered.insert( string_id<map_extra> {entry} );
+                JsonArray discovered_array = member;
+                for( std::string entry : discovered_array ) {
+                    discovered.insert( string_id<map_extra> {std::move( entry )} );
                 }
             } else if( name == "custom_symbols" ) {
-                jin.start_array();
-                while( !jin.end_array() ) {
-                    JsonObject joSymbols = jin.get_object();
+                JsonArray symbols_json = member;
+                for( JsonObject joSymbols : symbols_json ) {
                     const std::string entry = joSymbols.get_string( "map_extra" );
                     const std::string custom_symbol_str = joSymbols.get_string( "symbol" );
                     const std::string custom_color = joSymbols.get_string( "color" );
@@ -119,10 +116,7 @@ void auto_note_settings::load()
                     sym.set_color( custom_color );
                     custom_symbols.insert( std::make_pair( string_id<map_extra> {entry}, sym ) );
                 }
-            } else {
-                jin.skip_value();
             }
-
         }
     };
 
