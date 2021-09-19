@@ -23,6 +23,7 @@ void set_standard_filenames();
 std::string autopickup();
 std::string base_colors();
 std::string base_path();
+std::string cache_dir();
 std::string colors();
 std::string color_templates();
 std::string config_dir();
