@@ -3958,19 +3958,22 @@ void mm_region::serialize( JsonOut &jsout ) const
 
 void mm_region::deserialize( JsonIn &jsin )
 {
-    jsin.start_array();
+    deserialize( jsin.get_value() );
+}
+
+void mm_region::deserialize( const JsonValue &jv )
+{
+    JsonArray region_json = jv;
     for( size_t y = 0; y < MM_REG_SIZE; y++ ) {
         for( size_t x = 0; x < MM_REG_SIZE; x++ ) {
             shared_ptr_fast<mm_submap> &sm = submaps[x][y];
             sm = make_shared_fast<mm_submap>();
-            if( jsin.test_null() ) {
-                jsin.skip_null();
-            } else {
+            JsonValue jsin = region_json.next_value();
+            if( !jsin.test_null() ) {
                 sm->deserialize( jsin );
             }
         }
     }
-    jsin.end_array();
 }
 
 void map_memory::load_legacy( JsonIn &jsin )
