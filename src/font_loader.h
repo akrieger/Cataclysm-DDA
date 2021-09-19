@@ -42,8 +42,7 @@ class font_loader
     private:
         void load_throws( const std::string &path ) {
             try {
-                cata::ifstream stream( fs::u8path( path ), std::ifstream::binary );
-                JsonIn json( stream );
+                JsonValue json = JsonValue::from( fs::u8path( path ) );
                 JsonObject config = json.get_object();
                 if( config.has_string( "typeface" ) ) {
                     typeface.emplace_back( config.get_string( "typeface" ) );
