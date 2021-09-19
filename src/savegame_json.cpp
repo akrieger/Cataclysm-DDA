@@ -4291,18 +4291,20 @@ void cata_variant::serialize( JsonOut &jsout ) const
     jsout.end_array();
 }
 
-void cata_variant::deserialize( JsonIn &jsin )
+void cata_variant::deserialize( const JsonValue &jsin )
 {
     if( jsin.test_int() ) {
         *this = cata_variant::make<cata_variant_type::int_>( jsin.get_int() );
     } else if( jsin.test_bool() ) {
         *this = cata_variant::make<cata_variant_type::bool_>( jsin.get_bool() );
     } else {
-        jsin.start_array();
-        if( !( jsin.read( type_ ) && jsin.read( value_ ) ) ) {
-            jsin.error( "Failed to read cata_variant" );
+        JsonArray ja = jsin.get_array();
+        if( !( ja.read_next( type_ ) && ja.read_next( value_ ) ) ) {
+            ja.throw_error( "Failed to read cata_variant" );
         }
-        jsin.end_array();
+        if( ja.size() > 2 ) {
+            ja.throw_error( "Too many values for cata_variant" );
+        }
     }
 }
 
