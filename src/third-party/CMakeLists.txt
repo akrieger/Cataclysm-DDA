@@ -8,6 +8,21 @@ add_library(
 
 set(THIRD_PARTY_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/third-party)
 
+file(GLOB FLATBUFFERS_HEADERS ${THIRD_PARTY_SOURCE_DIR}/flatbuffers/**/*.h)
+file(GLOB FLATBUFFERS_SOURCES ${THIRD_PARTY_SOURCE_DIR}/flatbuffers/*.cpp)
+
+add_library(
+        flatbuffers
+        STATIC
+        ${FLATBUFFER_HEADERS}
+        ${FLATBUFFERS_SOURCES})
+        
+target_include_directories(
+        flatbuffers
+        SYSTEM
+        PUBLIC
+        ${THIRD_PARTY_SOURCE_DIR})
+
 file(GLOB GHC_HEADERS ${THIRD_PARTY_SOURCE_DIR}/ghc/*.hpp)
 
 add_library(
@@ -28,4 +43,5 @@ target_include_directories(
 target_link_libraries(
         third-party
         INTERFACE
+        flatbuffers
         ghc-filesystem)
