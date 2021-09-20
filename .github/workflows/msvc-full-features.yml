@@ -104,6 +104,23 @@ jobs:
       run: |
           .\Cataclysm-test-vcpkg-static-Release-x64.exe --min-duration 0.2 --rng-seed time
 
+    - name: Assemble windist
+      run: |
+          .\build-scripts\windist.ps1
+
+    # Although zipping first results in a double zip, we have to do this to
+    # avoid being ratelimited on upload because of the thousands of files
+    # in the dist bundle. This results in a zipped zip, but oh well.
+    - name: Compress windist
+      run: |
+          Compress-Archive -Path bindist/* -DestinationPath cataclysmdda-0.F
+
+    - name: Publish artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: cataclysmdda-0.F
+        path: cataclysmdda-0.F.zip
+
     - name: Clean
       run: |
           Get-ChildItem -Path Cataclysm-lib-vcpkg-static-Release-x64.* | Foreach-Object { rm $_.FullName }
