@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -ex
+
 if [ ! -d lang/po ]
 then
     if [ -d ../lang/po ]
