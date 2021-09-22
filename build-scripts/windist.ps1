@@ -1,4 +1,6 @@
-rm -Recurse -Force bindist
+if (Test-path bindist) {
+  rm -Force -Recurse bindist
+}
 
 mkdir bindist
 cp Cataclysm-vcpkg-static-Release-x64.exe bindist/cataclysm-tiles.exe
@@ -11,3 +13,4 @@ $extras = "data", "doc", "gfx", "LICENSE.txt", "LICENSE-OFL-Terminus-Font.txt", 
 ForEach ($extra in $extras) {
 	cp -r $extra bindist
 }
+Compress-Archive -Force -Path bindist/* -DestinationPath "cataclysmdda-0.F.zip"
