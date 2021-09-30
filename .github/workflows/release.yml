@@ -67,6 +67,8 @@ jobs:
             mxe: none
             ext: zip
             content: application/zip
+            env:
+              VCPKG_OVERLAY_TRIPLETS: ${{ github.workspace }}\.github\vcpkg_triplets
           - name: Windows Tiles x32 MSVC
             artifact: windows-tiles-x32-msvc
             arch: x86
@@ -74,6 +76,8 @@ jobs:
             mxe: none
             ext: zip
             content: application/zip
+            env:
+              VCPKG_OVERLAY_TRIPLETS: ${{ github.workspace }}\.github\vcpkg_triplets
           - name: Windows Tiles x64
             mxe: x86_64
             artifact: windows-tiles-x64
