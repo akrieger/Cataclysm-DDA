@@ -31,6 +31,7 @@
 #include "rng.h"
 #include "type_id.h"
 
+class JsonArray;
 class JsonIn;
 class JsonObject;
 class JsonOut;
@@ -173,7 +174,7 @@ struct pos_dir {
     pos_dir opposite() const;
 
     void serialize( JsonOut &jsout ) const;
-    void deserialize( JsonIn &jsin );
+    void deserialize( const JsonArray &ja );
 
     bool operator==( const pos_dir &r ) const;
     bool operator<( const pos_dir &r ) const;

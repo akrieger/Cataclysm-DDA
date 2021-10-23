@@ -1062,10 +1062,8 @@ bool overmap_special_locations::can_be_placed_on( const oter_id &oter ) const
     return is_amongst_locations( oter, locations );
 }
 
-void overmap_special_locations::deserialize( JsonIn &jsin )
+void overmap_special_locations::deserialize( const JsonArray &ja )
 {
-    JsonArray ja = jsin.get_array();
-
     if( ja.size() != 2 ) {
         ja.throw_error( "expected array of size 2" );
     }
@@ -1074,9 +1072,8 @@ void overmap_special_locations::deserialize( JsonIn &jsin )
     ja.read( 1, locations, true );
 }
 
-void overmap_special_terrain::deserialize( JsonIn &jsin )
+void overmap_special_terrain::deserialize( const JsonObject &om )
 {
-    JsonObject om = jsin.get_object();
     om.read( "point", p );
     om.read( "overmap", terrain );
     om.read( "flags", flags );
@@ -1441,7 +1438,7 @@ struct mutable_overmap_join {
     unsigned priority; // NOLINT(cata-serialize)
     const mutable_overmap_join *opposite = nullptr; // NOLINT(cata-serialize)
 
-    void deserialize( JsonIn &jin ) {
+    void deserialize( const JsonValue &jin ) {
         if( jin.test_string() ) {
             id = jin.get_string();
         } else {
@@ -1508,7 +1505,7 @@ struct mutable_overmap_terrain_join {
         }
     }
 
-    void deserialize( JsonIn &jin ) {
+    void deserialize( const JsonValue &jin ) {
         if( jin.test_string() ) {
             jin.read( join_id, true );
         } else if( jin.test_object() ) {
@@ -1517,7 +1514,7 @@ struct mutable_overmap_terrain_join {
             jo.read( "type", type, true );
             jo.read( "alternatives", alternative_join_ids, true );
         } else {
-            jin.error( "Expected string or object" );
+            jin.throw_error( "Expected string or object" );
         }
     }
 };
@@ -1557,8 +1554,7 @@ struct mutable_overmap_terrain {
         }
     }
 
-    void deserialize( JsonIn &jin ) {
-        JsonObject jo = jin.get_object();
+    void deserialize( const JsonObject &jo ) {
         jo.read( "overmap", terrain, true );
         jo.read( "locations", locations );
         for( int i = 0; i != static_cast<int>( cube_direction::last ); ++i ) {
@@ -2252,7 +2248,7 @@ struct mutable_overmap_phase {
         return { realised_rules };
     }
 
-    void deserialize( JsonIn &jin ) {
+    void deserialize( const JsonValue &jin ) {
         jin.read( rules, true );
     }
 };
@@ -2289,9 +2285,8 @@ void pos_dir<Tripoint>::serialize( JsonOut &jsout ) const
 }
 
 template<typename Tripoint>
-void pos_dir<Tripoint>::deserialize( JsonIn &jsin )
+void pos_dir<Tripoint>::deserialize( const JsonArray &ja )
 {
-    JsonArray ja = jsin.get_array();
     if( ja.size() != 2 ) {
         ja.throw_error( "Expected array of size 2" );
     }
