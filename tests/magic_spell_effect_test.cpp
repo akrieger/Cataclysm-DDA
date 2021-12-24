@@ -15,24 +15,22 @@ static const spell_id spell_test_line_spell( "test_line_spell" );
 TEST_CASE( "line_attack", "[magic]" )
 {
     // manually construct a testable spell
-    std::istringstream str(
-        "  {\n"
-        "    \"id\": \"test_line_spell\",\n"
-        "    \"name\": { \"str\": \"Test Line Spell\" },\n"
-        "    \"description\": \"Spews a line of magic\",\n"
-        "    \"valid_targets\": [ \"ground\" ],\n"
-        "    \"damage_type\": \"none\",\n"
-        "    \"min_range\": 5,\n"
-        "    \"max_range\": 5,\n"
-        "    \"effect\": \"attack\",\n"
-        "    \"shape\": \"line\","
-        "    \"min_aoe\": 0,\n"
-        "    \"max_aoe\": 0,\n"
-        "    \"flags\": [ \"VERBAL\", \"NO_HANDS\", \"NO_LEGS\" ]\n"
-        "  }\n" );
+    JsonObject obj = JsonValue::fromString(
+                         "  {\n"
+                         "    \"id\": \"test_line_spell\",\n"
+                         "    \"name\": { \"str\": \"Test Line Spell\" },\n"
+                         "    \"description\": \"Spews a line of magic\",\n"
+                         "    \"valid_targets\": [ \"ground\" ],\n"
+                         "    \"damage_type\": \"none\",\n"
+                         "    \"min_range\": 5,\n"
+                         "    \"max_range\": 5,\n"
+                         "    \"effect\": \"attack\",\n"
+                         "    \"shape\": \"line\","
+                         "    \"min_aoe\": 0,\n"
+                         "    \"max_aoe\": 0,\n"
+                         "    \"flags\": [ \"VERBAL\", \"NO_HANDS\", \"NO_LEGS\" ]\n"
+                         "  }\n" );
 
-    JsonIn in( str );
-    JsonObject obj( in );
     spell_type::load_spell( obj, "" );
 
     spell sp( spell_test_line_spell );
