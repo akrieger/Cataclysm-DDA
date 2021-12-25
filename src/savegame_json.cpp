@@ -2313,11 +2313,6 @@ void inventory::json_save_invcache( JsonOut &json ) const
 /*
  * Invlet cache: player specific, thus not wrapped in inventory::json_load/save
  */
-void inventory::json_load_invcache( JsonIn &jsin )
-{
-    json_load_invcache( jsin.get_value() );
-}
-
 void inventory::json_load_invcache( const JsonValue &jsin )
 {
     try {
@@ -2350,11 +2345,6 @@ void inventory::json_save_items( JsonOut &json ) const
         }
     }
     json.end_array();
-}
-
-void inventory::json_load_items( JsonIn &jsin )
-{
-    json_load_items( jsin.get_array() );
 }
 
 void inventory::json_load_items( const JsonArray &ja )
@@ -3896,11 +3886,6 @@ void mm_submap::serialize( JsonOut &jsout ) const
     jsout.end_array();
 }
 
-void mm_submap::deserialize( JsonIn &jsin )
-{
-    deserialize( jsin.get_value() );
-}
-
 void mm_submap::deserialize( const JsonValue &jv )
 {
     // Uses RLE for compression.
@@ -3955,11 +3940,6 @@ void mm_region::serialize( JsonOut &jsout ) const
     jsout.end_array();
 }
 
-void mm_region::deserialize( JsonIn &jsin )
-{
-    deserialize( jsin.get_value() );
-}
-
 void mm_region::deserialize( const JsonValue &jv )
 {
     JsonArray region_json = jv;
@@ -3973,11 +3953,6 @@ void mm_region::deserialize( const JsonValue &jv )
             }
         }
     }
-}
-
-void map_memory::load_legacy( JsonIn &jsin )
-{
-    load_legacy( jsin.get_value() );
 }
 
 void map_memory::load_legacy( const JsonValue &jv )
@@ -4584,11 +4559,6 @@ void submap::store( JsonOut &jsout ) const
     if( camp ) {
         jsout.member( "camp", *camp );
     }
-}
-
-void submap::load( JsonIn &jsin, const std::string &member_name, int version )
-{
-    load( jsin.get_value(), member_name, version );
 }
 
 void submap::load( const JsonValue &jv, const std::string &member_name, int version )

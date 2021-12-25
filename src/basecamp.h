@@ -21,8 +21,8 @@
 #include "translations.h"
 #include "type_id.h"
 
-class JsonOut;
 class JsonObject;
+class JsonOut;
 class character_id;
 class npc;
 class time_duration;

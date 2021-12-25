@@ -1245,12 +1245,6 @@ void mongroup::serialize( JsonOut &json ) const
     const_cast<mongroup *>( this )->io( archive );
 }
 
-void mongroup::deserialize_legacy( JsonIn &json )
-{
-    JsonObject jo = json.get_object();
-    deserialize_legacy( jo );
-}
-
 void mongroup::deserialize_legacy( const JsonObject &jo )
 {
     for( JsonMember json : jo ) {
@@ -1295,11 +1289,6 @@ void mongroup::deserialize_legacy( const JsonObject &jo )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 ///// SAVE_MASTER (i.e. master.gsav)
-
-void mission::unserialize_all( JsonIn &jsin )
-{
-    unserialize_all( jsin.get_array() );
-}
 
 void mission::unserialize_all( const JsonArray &ja )
 {
@@ -1350,11 +1339,6 @@ void mission::serialize_all( JsonOut &json )
         e->serialize( json );
     }
     json.end_array();
-}
-
-void weather_manager::unserialize_all( JsonIn &jsin )
-{
-    unserialize_all( jsin.get_object() );
 }
 
 void weather_manager::unserialize_all( const JsonObject &w )
