@@ -32,7 +32,6 @@
 #include "type_id.h"
 
 class JsonArray;
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class character_id;

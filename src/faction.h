@@ -30,7 +30,6 @@ std::string fac_respect_text( int val );
 std::string fac_wealth_text( int val, int size );
 std::string fac_combat_ability_text( int val );
 
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class JsonValue;
