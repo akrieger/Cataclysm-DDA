@@ -18,7 +18,7 @@ add_custom_command(
         COMMAND chkjson
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-include_directories(${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/chkjson)
+include_directories(${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/third-party ${CMAKE_SOURCE_DIR}/src/chkjson)
 
 # Add the actual executable
 if (WIN32)
