@@ -78,7 +78,7 @@ jobs:
             title: Basic Build and Test (GCC 9, Curses, LTO)
             # ~850MB in a clean build
             # ~370MB compressed
-            ccache_limit: 1.5G
+            ccache_limit: 10G
 
           - compiler: clang++-12
             os: ubuntu-latest
@@ -94,7 +94,7 @@ jobs:
             title: Clang 12, Ubuntu, Tiles, ASan
             # ~390MB in a clean build
             # ~50MB compressed
-            ccache_limit: 1G
+            ccache_limit: 10G
 
           - compiler: g++-11
             os: ubuntu-latest
@@ -108,7 +108,7 @@ jobs:
             title: GCC 11, Ubuntu, Curses, ASan
             # ~480MB in a clean build
             # ~50MB compressed
-            ccache_limit: 1G
+            ccache_limit: 10G
 
           - compiler: clang++
             os: macos-10.15
@@ -123,7 +123,7 @@ jobs:
             # ccache on mac has zstd built in
             # ~120MB ccache-compressed in a clean build
             # ~115 compressed
-            ccache_limit: 300M
+            ccache_limit: 10G
 
           - compiler: g++
             os: ubuntu-latest
@@ -140,7 +140,7 @@ jobs:
             wine: wine
             # ~285MB in a clean build
             # ~36MB compressed
-            ccache_limit: 1G
+            ccache_limit: 10G
 
           - compiler: clang++-6.0
             os: ubuntu-18.04
@@ -153,7 +153,7 @@ jobs:
             title: Clang 6, Ubuntu, Curses, Release
             # ~190MB in a clean build
             # ~30MB compressed
-            ccache_limit: 1G
+            ccache_limit: 10G
 
           - compiler: g++-7
             os: ubuntu-18.04
@@ -166,7 +166,7 @@ jobs:
             title: GCC 7, Ubuntu, Tiles, Sound, CMake
             # ~180MB in a clean build
             # ~25MB compressed
-            ccache_limit: 1G
+            ccache_limit: 10G
 
     name: ${{ matrix.title }}
     runs-on: ${{ matrix.os }}
@@ -239,9 +239,9 @@ jobs:
       with:
         path: ${{ steps.get-vars.outputs.ccache-path }}
         # double-dash after compiler is not a typo, it is to disambiguate between g++-<date> and g++-11-<date> for restore key prefix matching
-        key: ccache-${{ runner.os }}-${{ matrix.compiler }}-sloppy3-${{ steps.get-vars.outputs.date }}
+        key: ccache-${{ runner.os }}-${{ matrix.compiler }}-sloppy4-${{ steps.get-vars.outputs.date }}
         restore-keys: |
-          ccache-${{ runner.os }}-${{ matrix.compiler }}-sloppy3-
+          ccache-${{ runner.os }}-${{ matrix.compiler }}-sloppy4-
     - uses: ammaraskar/gcc-problem-matcher@master
     - name: build
       if: ${{ env.SKIP == 'false' }}
