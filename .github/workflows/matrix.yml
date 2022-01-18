@@ -56,10 +56,21 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           paths_ignore: '["android/**", "build-data/osx/**", "doc/**", "doxygen_doc/**", "lgtm/**", "msvc-**", "object_creator/**", "tools/**", "utilities/**"]'
+  matrix-variables:
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    outputs:
+      runs_tests: ${{ steps.matrix_vars.run-tests }}
+      max_parallel: ${{ steps.matrix_vars.max-parallel }}
+    steps:
+      - id: matrix_vars
+        run: |
+          echo "::set-output name=run-tests::$([ "$GITHUB_REF_NAME" = "master" && echo "false" || echo "true" ])
+          echo "::set-output name=max-parallel::$([ "$GITHUB_REF_NAME" = "master" && echo 20 || echo 1 ])
   varied_builds:
-    needs: [ skip-duplicates-code, skip-duplicates-data ]
+    needs: [ skip-duplicates-code, skip-duplicates-data, matrix-variables ]
     strategy:
-      max-parallel: 1
+      max-parallel: ${{ fromJSON(needs.matrix-variables.outputs.max_parallel) }}
       matrix:
         include:
           - compiler: g++-9
