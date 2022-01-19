@@ -73,40 +73,6 @@ jobs:
       max-parallel: ${{ fromJSON(needs.matrix-variables.outputs.max_parallel) }}
       matrix:
         include:
-          - compiler: g++-9
-            os: ubuntu-latest
-            release: 1
-            cmake: 0
-            tiles: 0
-            sound: 0
-            localize: 1
-            test-stage: 1
-            gold: 1
-            lto: 1
-            native: linux64
-            archive-success: basic-build
-            dont_skip_data_only_changes: 1
-            title: Basic Build and Test (GCC 9, Curses, LTO)
-            # ~850MB in a clean build
-            # ~370MB compressed
-            ccache_limit: 3G
-
-          - compiler: clang++-12
-            os: ubuntu-latest
-            release: 0
-            cmake: 0
-            tiles: 1
-            sound: 0
-            localize: 1
-            native: linux64
-            sanitize: address
-            mods: --mods=magiclysm
-            dont_skip_data_only_changes: 1
-            title: Clang 12, Ubuntu, Tiles, ASan
-            # ~390MB in a clean build
-            # ~50MB compressed
-            ccache_limit: 2G
-
           - compiler: g++-11
             os: ubuntu-latest
             release: 0
@@ -119,63 +85,6 @@ jobs:
             title: GCC 11, Ubuntu, Curses, ASan
             # ~480MB in a clean build
             # ~50MB compressed
-            ccache_limit: 2G
-
-          - compiler: clang++
-            os: macos-10.15
-            release: 0
-            cmake: 0
-            native: osx
-            sanitize: undefined
-            tiles: 1
-            sound: 1
-            localize: 1
-            title: Clang 12, macOS 10.15, Tiles, Sound, UBSan
-            # ~880MB ccache-compressed in a clean build
-            # ~100 compressed
-            ccache_limit: 2G
-
-          - compiler: g++
-            os: ubuntu-latest
-            release: 0
-            cmake: 0
-            native:
-            tiles: 1
-            sound: 1
-            localize: 1
-            test-stage: 1
-            title: GCC 11, Ubuntu cross-compile to MinGW-Win64, Tiles, Sound
-            ldflags: -static-libgcc -static-libstdc++
-            mxe_target: x86_64-w64-mingw32.static.gcc11
-            wine: wine
-            # ~285MB in a clean build
-            # ~36MB compressed
-            ccache_limit: 2G
-
-          - compiler: clang++-6.0
-            os: ubuntu-18.04
-            tiles: 0
-            sound: 0
-            release: 1
-            cmake: 0
-            localize: 1
-            native: linux64
-            title: Clang 6, Ubuntu, Curses, Release
-            # ~190MB in a clean build
-            # ~30MB compressed
-            ccache_limit: 2G
-
-          - compiler: g++-7
-            os: ubuntu-18.04
-            release: 1
-            cmake: 1
-            tiles: 1
-            sound: 1
-            localize: 0
-            native: linux64
-            title: GCC 7, Ubuntu, Tiles, Sound, CMake
-            # ~180MB in a clean build
-            # ~25MB compressed
             ccache_limit: 2G
 
     name: ${{ matrix.title }}
@@ -254,9 +163,9 @@ jobs:
       with:
         path: ${{ steps.get-vars.outputs.ccache-path }}
         # double-dash after compiler is not a typo, it is to disambiguate between g++-<date> and g++-11-<date> for restore key prefix matching
-        key: ccache-${{ github.ref_name }}-${{ runner.os }}-${{ matrix.compiler }}--${{ steps.get-vars.outputs.datetime }}
+        key: ccache-${{ github.ref_name }}2-${{ runner.os }}-${{ matrix.compiler }}--${{ steps.get-vars.outputs.datetime }}
         restore-keys: |
-          ccache-master-${{ runner.os }}-${{ matrix.compiler }}--
+          ccache-master2-${{ runner.os }}-${{ matrix.compiler }}--
     - uses: ammaraskar/gcc-problem-matcher@master
     - name: build
       if: ${{ env.SKIP == 'false' }}
