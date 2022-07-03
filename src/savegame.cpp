@@ -176,7 +176,7 @@ std::string scent_map::serialize( bool is_type ) const
     return rle_out.str();
 }
 
-static void chkversion( std::istream &fin )
+static size_t chkversion( std::istream &fin )
 {
     if( fin.peek() == '#' ) {
         std::string vline;
@@ -190,6 +190,7 @@ static void chkversion( std::istream &fin )
             savegame_loading_version = savedver;
         }
     }
+    return fin.tellg();
 }
 
 /*
@@ -197,13 +198,13 @@ static void chkversion( std::istream &fin )
  */
 void game::unserialize( std::istream &fin, const std::string &path )
 {
-    chkversion( fin );
+    size_t json_file_offset = chkversion( fin );
     int tmpturn = 0;
     int tmpcalstart = 0;
     int tmprun = 0;
     tripoint_om_sm lev;
     point_abs_om com;
-    JsonIn jsin( fin, path );
+    JsonValue jsin = JsonValue::from( fs::u8path( path ), json_file_offset );
     try {
         JsonObject data = jsin.get_object();
 
@@ -309,7 +310,7 @@ void scent_map::deserialize( const std::string &data, bool is_type )
 ///// quick shortcuts
 void game::load_shortcuts( std::istream &fin, const std::string &path )
 {
-    JsonIn jsin( fin, path );
+    JsonValue jsin = JsonValue::from( fs::u8path( path ) );
     try {
         JsonObject data = jsin.get_object();
 
@@ -515,10 +516,10 @@ void overmap::load_legacy_monstergroups( const JsonArray &jsin )
 }
 
 // throws std::exception
-void overmap::unserialize( std::istream &fin )
+void overmap::unserialize( const std::string &file_name, std::istream &fin )
 {
-    chkversion( fin );
-    JsonIn jsin( fin );
+    size_t json_offset = chkversion( fin );
+    JsonValue jsin = JsonValue::from( fs::u8path( file_name ), json_offset );
     unserialize( jsin.get_object() );
 }
 
@@ -927,10 +928,10 @@ static void unserialize_array_from_compacted_sequence( JsonArray &ja, MdArray &a
 }
 
 // throws std::exception
-void overmap::unserialize_view( std::istream &fin )
+void overmap::unserialize_view( const std::string &file_name, std::istream &fin )
 {
-    chkversion( fin );
-    JsonIn jsin( fin );
+    size_t json_offset = chkversion( fin );
+    JsonValue jsin = JsonValue::from( fs::u8path( file_name ), json_offset );
     unserialize_view( jsin.get_object() );
 }
 
@@ -1443,13 +1444,13 @@ void mission::unserialize_all( const JsonArray &ja )
     }
 }
 
-void game::unserialize_master( std::istream &fin )
+void game::unserialize_master( const std::string &file_name, std::istream &fin )
 {
     savegame_loading_version = 0;
-    chkversion( fin );
+    size_t json_offset = chkversion( fin );
     try {
-        JsonIn jsin( fin );
-        unserialize_master( jsin.get_value() );
+        JsonValue jv = JsonValue::from( fs::u8path( file_name ), json_offset );
+        unserialize_master( jv );
     } catch( const JsonError &e ) {
         debugmsg( "error loading %s: %s", SAVE_MASTER, e.c_str() );
     }
