@@ -130,7 +130,7 @@ struct file_flexbuffer : parsed_flexbuffer {
             return mtime != mtime_;
         }
 
-        std::unique_ptr<std::istream> get_source_stream() const override {
+        std::unique_ptr<std::istream> get_source_stream() const noexcept( false ) override {
             auto ifs = std::make_unique<cata::ifstream>( source_file_path_,
                        std::ifstream::in | std::ifstream::binary );
             if( !ifs->good() ) {
@@ -138,6 +138,10 @@ struct file_flexbuffer : parsed_flexbuffer {
             }
             ifs->seekg( offset_ );
             return ifs;
+        }
+
+        fs::path get_source_path() const noexcept override {
+            return source_file_path_;
         }
 
     private:
@@ -162,6 +166,11 @@ struct string_flexbuffer : parsed_flexbuffer {
             // strings parsed to json at runtime tend to be short anyway.
             return std::make_unique<std::istringstream>( source_ );
         }
+
+        fs::path get_source_path() const noexcept override {
+            return {};
+        }
+
     private:
         std::string source_;
 };
