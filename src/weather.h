@@ -14,6 +14,7 @@
 #include "weather_type.h"
 
 class JsonIn;
+class JsonObject;
 class JsonOut;
 class translation;
 
@@ -192,6 +193,7 @@ class weather_manager
         int get_temperature( const tripoint_abs_omt &location );
         void clear_temp_cache();
         static void unserialize_all( JsonIn &jsin );
+        static void unserialize_all( const JsonObject &w );
 };
 
 weather_manager &get_weather();
