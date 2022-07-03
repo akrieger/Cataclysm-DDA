@@ -46,6 +46,7 @@
 #include "item_pocket.h"
 #include "itype.h"
 #include "json.h"
+#include "json_loader.h"
 #include "make_static.h"
 #include "map.h"
 #include "map_iterator.h"
@@ -6974,7 +6975,7 @@ bool vehicle::is_foldable() const
 bool vehicle::restore( const std::string &data )
 {
     try {
-        JsonValue json = JsonValue::fromString( data );
+        JsonValue json = json_loader::from_string( data );
         parts.clear();
         json.read( parts );
     } catch( const JsonError &e ) {
