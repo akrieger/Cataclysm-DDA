@@ -4538,9 +4538,9 @@ void cata_variant::deserialize( const JsonValue &jsin )
         *this = cata_variant::make<cata_variant_type::bool_>( jsin.get_bool() );
     } else {
         JsonArray ja = jsin.get_array();
-        if( ja[0].get_string() == "add_type" ) {
+        if( ja.get_string( 0 ) == "add_type" ) {
             type_ = cata_variant_type::addiction_id;
-            value_ = add_type_legacy_conv( ja[1].get_string() );
+            value_ = add_type_legacy_conv( ja.get_string( 1 ) );
         } else if( !( ja.read_next( type_ ) && ja.read_next( value_ ) ) ) {
             ja.throw_error( "Failed to read cata_variant" );
         }
