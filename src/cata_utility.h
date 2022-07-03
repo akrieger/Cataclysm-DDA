@@ -16,6 +16,7 @@
 
 #include "enums.h"
 #include "json.h"
+#include "path_info.h"
 
 class JsonOut;
 class JsonValue;
@@ -317,6 +318,9 @@ class list_circularizer
 bool write_to_file( const std::string &path, const std::function<void( std::ostream & )> &writer,
                     const char *fail_message );
 void write_to_file( const std::string &path, const std::function<void( std::ostream & )> &writer );
+bool write_to_file( const cata_path &path, const std::function<void( std::ostream & )> &writer,
+                    const char *fail_message );
+void write_to_file( const cata_path &path, const std::function<void( std::ostream & )> &writer );
 ///@}
 
 /**
@@ -339,12 +343,22 @@ void write_to_file( const std::string &path, const std::function<void( std::ostr
  */
 /**@{*/
 bool read_from_file( const std::string &path, const std::function<void( std::istream & )> &reader );
-bool read_from_file_json( const std::string &path,
+bool read_from_file( const fs::path &path, const std::function<void( std::istream & )> &reader );
+bool read_from_file( const cata_path &path, const std::function<void( std::istream & )> &reader );
+bool read_from_file_json( const fs::path &path,
+                          const std::function<void( const JsonValue & )> &reader );
+bool read_from_file_json( const cata_path &path,
                           const std::function<void( const JsonValue & )> &reader );
 
 bool read_from_file_optional( const std::string &path,
                               const std::function<void( std::istream & )> &reader );
-bool read_from_file_optional_json( const std::string &path,
+bool read_from_file_optional( const fs::path &path,
+                              const std::function<void( std::istream & )> &reader );
+bool read_from_file_optional( const cata_path &path,
+                              const std::function<void( std::istream & )> &reader );
+bool read_from_file_optional_json( const fs::path &path,
+                                   const std::function<void( const JsonValue & )> &reader );
+bool read_from_file_optional_json( const cata_path &path,
                                    const std::function<void( const JsonValue & )> &reader );
 /**@}*/
 
