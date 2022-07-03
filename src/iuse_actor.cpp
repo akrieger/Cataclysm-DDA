@@ -718,36 +718,38 @@ cata::optional<int> unfold_vehicle_iuse::use( Character &p, item &it, bool, cons
         // Brand new, no HP stored
         return 1;
     }
-    std::istringstream veh_data;
     const auto data = it.get_var( "folding_bicycle_parts" );
-    veh_data.str( data );
-    if( !data.empty() && data[0] >= '0' && data[0] <= '9' ) {
-        // starts with a digit -> old format
-        for( const vpart_reference &vpr : veh->get_all_parts() ) {
-            int tmp;
-            veh_data >> tmp;
-            veh->set_hp( vpr.part(), tmp, true, it.degradation() );
-        }
-    } else {
-        try {
-            JsonIn json( veh_data );
-            // Load parts into a temporary vector to not override
-            // cached values (like precalc, passenger_id, ...)
-            std::vector<vehicle_part> parts;
-            json.read( parts );
-            for( size_t i = 0; i < parts.size() && i < static_cast<size_t>( veh->part_count() ); i++ ) {
-                const vehicle_part &src = parts[i];
-                vehicle_part &dst = veh->part( i );
-                // and now only copy values, that are
-                // expected to be consistent.
-                veh->set_hp( dst, src.hp(), true, it.degradation() );
-                dst.blood = src.blood;
-                // door state/amount of fuel/direction of headlight
-                dst.ammo_set( src.ammo_current(), src.ammo_remaining() );
-                dst.flags = src.flags;
+    if( !data.empty() ) {
+        if( data[0] >= '0' && data[0] <= '9' ) {
+            // starts with a digit -> old format
+            for( const vpart_reference &vpr : veh->get_all_parts() ) {
+                int tmp;
+                std::istringstream veh_data;
+                veh_data.str( data );
+                veh_data >> tmp;
+                veh->set_hp( vpr.part(), tmp, true, it.degradation() );
             }
-        } catch( const JsonError &e ) {
-            debugmsg( "Error restoring vehicle: %s", e.c_str() );
+        } else {
+            try {
+                JsonValue json = JsonValue::fromString( data );
+                // Load parts into a temporary vector to not override
+                // cached values (like precalc, passenger_id, ...)
+                std::vector<vehicle_part> parts;
+                json.read( parts );
+                for( size_t i = 0; i < parts.size() && i < static_cast<size_t>( veh->part_count() ); i++ ) {
+                    const vehicle_part &src = parts[i];
+                    vehicle_part &dst = veh->part( i );
+                    // and now only copy values, that are
+                    // expected to be consistent.
+                    veh->set_hp( dst, src.hp(), true, it.degradation() );
+                    dst.blood = src.blood;
+                    // door state/amount of fuel/direction of headlight
+                    dst.ammo_set( src.ammo_current(), src.ammo_remaining() );
+                    dst.flags = src.flags;
+                }
+            } catch( const JsonError &e ) {
+                debugmsg( "Error restoring vehicle: %s", e.c_str() );
+            }
         }
     }
     return 1;
