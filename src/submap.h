@@ -24,7 +24,6 @@
 #include "point.h"
 #include "type_id.h"
 
-class JsonIn;
 class JsonOut;
 class basecamp;
 class map;
@@ -252,7 +251,6 @@ class submap : maptile_soa<SEEX, SEEY>
         void mirror( bool horizontally );
 
         void store( JsonOut &jsout ) const;
-        void load( JsonIn &jsin, const std::string &member_name, int version );
         void load( const JsonValue &jv, const std::string &member_name, int version );
 
         // If is_uniform is true, this submap is a solid block of terrain
