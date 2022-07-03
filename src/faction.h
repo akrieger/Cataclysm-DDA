@@ -35,6 +35,7 @@ class item;
 class JsonIn;
 class JsonObject;
 class JsonOut;
+class JsonValue;
 class faction;
 class npc;
 
@@ -146,7 +147,7 @@ class faction_manager
         std::map<faction_id, faction> factions;
 
     public:
-        void deserialize( JsonIn &jsin );
+        void deserialize( const JsonValue &jv );
         void serialize( JsonOut &jsout ) const;
 
         void clear();
