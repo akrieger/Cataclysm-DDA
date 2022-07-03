@@ -9,7 +9,6 @@
 #include "point.h" // IWYU pragma: keep
 
 class JsonOut;
-class JsonIn;
 class JsonObject;
 class JsonOut;
 class JsonValue;
@@ -82,7 +81,6 @@ struct mm_submap {
         }
 
         void serialize( JsonOut &jsout ) const;
-        void deserialize( JsonIn &jsin );
         void deserialize( const JsonValue &ja );
 
     private:
@@ -106,7 +104,6 @@ struct mm_region {
     bool is_empty() const;
 
     void serialize( JsonOut &jsout ) const;
-    void deserialize( JsonIn &jsin );
     void deserialize( const JsonValue &ja );
 };
 
@@ -138,7 +135,6 @@ class map_memory
         void load( const tripoint &pos );
 
         /** Load legacy memory file. TODO: remove after 0.F (or whatever BN will have instead). */
-        void load_legacy( JsonIn &jsin );
         void load_legacy( const JsonValue &jv );
 
         /** Save memorized submaps to disk, drop ones far from given global map square pos. */
