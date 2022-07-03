@@ -17,6 +17,7 @@
 #include "enum_conversions.h"
 #include "filesystem.h"
 #include "json.h"
+#include "json_loader.h"
 #include "ofstream_wrapper.h"
 #include "options.h"
 #include "output.h"
@@ -421,7 +422,7 @@ bool read_from_file_json( const std::string &path,
                           const std::function<void( const JsonValue & )> &reader )
 {
     try {
-        JsonValue jo = JsonValue::from( fs::u8path( path ) );
+        JsonValue jo = json_loader::from_path( fs::u8path( path ) );
         reader( jo );
         return true;
     } catch( const std::exception &err ) {
@@ -495,7 +496,7 @@ std::string serialize_wrapper( const std::function<void( JsonOut & )> &callback 
 void deserialize_wrapper( const std::function<void( const JsonValue & )> &callback,
                           const std::string &data )
 {
-    JsonValue jsin = JsonValue::fromString( data );
+    JsonValue jsin = json_loader::from_string( data );
     callback( jsin );
 }
 
