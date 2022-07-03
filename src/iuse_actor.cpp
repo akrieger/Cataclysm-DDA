@@ -51,6 +51,7 @@
 #include "item_pocket.h"
 #include "itype.h"
 #include "json.h"
+#include "json_loader.h"
 #include "line.h"
 #include "magic.h"
 #include "map.h"
@@ -741,7 +742,7 @@ cata::optional<int> unfold_vehicle_iuse::use( Character &p, item &it, bool, cons
             }
         } else {
             try {
-                JsonValue json = JsonValue::fromString( data );
+                JsonValue json = json_loader::from_string( data );
                 // Load parts into a temporary vector to not override
                 // cached values (like precalc, passenger_id, ...)
                 std::vector<vehicle_part> parts;
