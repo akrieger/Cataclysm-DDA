@@ -984,8 +984,7 @@ void Character::load( const JsonObject &data )
 
     inv->clear();
     if( data.has_member( "inv" ) ) {
-        JsonIn *invin = data.get_raw( "inv" );
-        inv->json_load_items( *invin );
+        inv->json_load_items( data.get_member( "inv" ) );
     }
     // this is after inventory is loaded to make it more obvious that
     // it needs to be changed again when Character::i_at is removed for nested containers
@@ -1668,8 +1667,7 @@ void avatar::load( const JsonObject &data )
     }
 
     if( data.has_member( "invcache" ) ) {
-        JsonIn *jip = data.get_raw( "invcache" );
-        inv->json_load_invcache( *jip );
+        inv->json_load_invcache( data.get_member( "invcache" ) );
     }
 
     data.read( "calorie_diary", calorie_diary );
@@ -2278,8 +2276,7 @@ void npc::load( const JsonObject &data )
 
     companion_mission_inv.clear();
     if( data.has_member( "companion_mission_inv" ) ) {
-        JsonIn *invin_mission = data.get_raw( "companion_mission_inv" );
-        companion_mission_inv.json_load_items( *invin_mission );
+        companion_mission_inv.json_load_items( data.get_member( "companion_mission_inv" ) );
     }
 
     if( !data.read( "restock", restock ) ) {
