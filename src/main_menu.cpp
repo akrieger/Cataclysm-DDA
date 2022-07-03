@@ -823,6 +823,7 @@ bool main_menu::opening_screen()
             }
         }
     }
+    std::exit( 0 );
     return true;
 }
 

@@ -785,6 +785,7 @@ int main( int argc, const char *argv[] )
             if( !g->load( cli.world ) ) {
                 break;
             }
+            std::exit( 0 );
             cli.world.clear(); // ensure quit returns to opening screen
 
         } else {
