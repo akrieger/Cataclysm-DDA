@@ -30,6 +30,9 @@ struct parsed_flexbuffer {
         // May throw exceptions.
         virtual std::unique_ptr<std::istream> get_source_stream() const noexcept( false ) = 0;
 
+        // Returns the path to a file containing the text source for the flexbuffer, if it exists.
+        virtual fs::path get_source_path() const noexcept = 0;
+
         // Returns reference to the underlying storage containing the FlexBuffer binary data.
         const std::shared_ptr<flexbuffer_storage> &get_storage() const {
             return storage_;
