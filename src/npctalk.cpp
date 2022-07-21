@@ -4786,5 +4786,4 @@ const json_talk_topic *get_talk_topic( const std::string &id )
 }
 
 template struct talk_effect_t<dialogue>;
-template const std::vector<std::pair<int, itype_id>>
-&talk_effect_fun_t<dialogue>::get_likely_rewards() const;
+template struct talk_effect_fun_t<dialogue>;
