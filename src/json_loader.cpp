@@ -14,7 +14,7 @@ namespace
 
 flexbuffer_cache &global_cache()
 {
-    static flexbuffer_cache cache{ fs::u8path( PATH_INFO::cache_dir() ) };
+    static flexbuffer_cache cache{ fs::u8path( PATH_INFO::cache_dir() ), fs::u8path(PATH_INFO::base_path()) };
     return cache;
 }
 
