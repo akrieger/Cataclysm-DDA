@@ -9,6 +9,8 @@
 #include "units_fwd.h"
 #include "optional.h"
 
+#include <fmt/format.h>
+
 class Character;
 class Creature;
 class JsonObject;
@@ -35,6 +37,9 @@ enum class sound_t : int {
     order,  // loudest to get attention
     LAST // must always be last
 };
+
+template<typename E, typename = std::enable_if_t<std::is_enum_v<E>>>
+auto format_as(E e) { return fmt::underlying(e); }
 
 // Methods for recording sound events.
 /**
@@ -133,6 +138,9 @@ enum class group : int {
     context_themes, //SFX related to context themes
     fatigue         //SFX related to fatigue
 };
+
+template<typename E, typename = std::enable_if_t<std::is_enum_v<E>>>
+auto format_as(E e) { return fmt::underlying(e); }
 
 void load_sound_effects( const JsonObject &jsobj );
 void load_sound_effect_preload( const JsonObject &jsobj );

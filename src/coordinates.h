@@ -471,6 +471,9 @@ inline auto project_bounds( const coord_point<tripoint, Origin, CoarseScale> &co
                project_to<FineScale>( coarse ), project_to<FineScale>( coarse + one ) );
 }
 
+template<typename E, typename = std::enable_if_t<std::is_enum_v<E>>>
+auto format_as(E e) { return fmt::underlying(e); }
+
 } // namespace coords
 
 namespace std

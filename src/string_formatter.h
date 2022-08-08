@@ -20,12 +20,15 @@ class translation;
 namespace cata
 {
 
-// Test for class translation
 template<typename T>
 using is_translation = typename std::conditional <
-                       std::is_same<typename std::decay<T>::type, translation>::value, std::true_type,
-                       std::false_type >::type;
+    std::is_same<typename std::decay<T>::type, translation>::value, std::true_type,
+    std::false_type >::type;
 
+template<typename E, typename = std::enable_if_t<std::is_enum_v<E>>>
+auto format_as(E e) { return fmt::underlying(e); }
+
+/**@}*/
 
 } // namespace cata
 
@@ -52,21 +55,25 @@ using is_translation = typename std::conditional <
  * to match the given format specifier (if possible) - see @ref string_formatter_convert.
  */
 /**@{*/
+
+template<typename E, typename = std::enable_if_t<std::is_enum_v<E>>>
+auto format_as(E e) { return fmt::underlying(e); }
+
 template<typename ...Args>
-inline std::string string_format( std::string format, Args &&... )
+inline std::string string_format( std::string format, Args &&...args )
 {
-    return format;
+    return fmt::format(format, std::forward<Args>(args)...);
 }
 template<typename ...Args>
-inline std::string string_format( const char *format, Args &&... )
+inline std::string string_format( const char *format, Args &&...args )
 {
-    return format;
+    return fmt::format(format, std::forward<Args>(args)...);
 }
 template<typename T, typename ...Args>
 inline typename std::enable_if<cata::is_translation<T>::value, std::string>::type
 string_format( T &&format, Args &&...args )
 {
-    return format.translated();
+    return fmt::format(format.translated(), std::forward<Args>(args)...);
 }
 /**@}*/
 

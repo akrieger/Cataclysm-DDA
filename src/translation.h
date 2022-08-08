@@ -8,6 +8,8 @@
 #include "translation_cache.h"
 #include "value_ptr.h"
 
+#include <fmt/format.h>
+
 class JsonIn;
 
 /**
@@ -222,4 +224,11 @@ std::string operator+( const translation &lhs, const std::string &rhs );
 std::string operator+( const std::string &lhs, const translation &rhs );
 std::string operator+( const translation &lhs, const translation &rhs );
 
+template <> struct fmt::formatter<translation> : formatter<string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto format(const translation &t, FormatContext& ctx) const {
+        return formatter<string_view>::format(t.translated(), ctx);
+    }
+};
 #endif // CATA_SRC_TRANSLATION_H

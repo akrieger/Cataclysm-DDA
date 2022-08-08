@@ -5,11 +5,16 @@
 
 #include "enum_traits.h"
 
+#include <fmt/format.h>
+
 struct tripoint;
 
 namespace om_direction
 {
 enum class type : int;
+
+template<typename E, typename = std::enable_if_t<std::is_enum_v<E>>>
+auto format_as(E e) { return fmt::underlying(e); }
 } // namespace om_direction
 
 // We have other direction enums, but for this purpose we need to have one for
