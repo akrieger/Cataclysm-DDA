@@ -1867,25 +1867,6 @@ void calcStartPos( int &iStartPos, const int iCurrentLine, const int iContentHei
 }
 
 #if defined(_MSC_VER)
-std::string cata::string_formatter::raw_string_format( const char *const format, ... )
-{
-    va_list args;
-    va_start( args, format );
-
-    va_list args_copy;
-    va_copy( args_copy, args );
-    const int result = _vscprintf_p( format, args_copy );
-    va_end( args_copy );
-    if( result == -1 ) {
-        throw std::runtime_error( "Bad format string for printf: \"" + std::string( format ) + "\"" );
-    }
-
-    std::string buffer( result, '\0' );
-    _vsprintf_p( &buffer[0], result + 1, format, args ); //+1 for string's null
-    va_end( args );
-
-    return buffer;
-}
 #else
 
 // Cygwin has limitations which prevents
