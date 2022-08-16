@@ -570,7 +570,7 @@ bool Character::handle_gun_damage( item &it )
     // Below item (maximum dirt possible) should be greater than or equal to dirt range in item_group.cpp. Also keep in mind that monster drops can have specific ranges and these should be below the max!
     const double dirt_max_dbl = 10000;
     if( !it.is_gun() ) {
-        debugmsg( "Tried to handle_gun_damage of a non-gun %s", it.tname() );
+        debugmsg( "Tried to handle_gun_damage of a non-gun {}", it.tname() );
         return false;
     }
 
@@ -588,15 +588,15 @@ bool Character::handle_gun_damage( item &it )
         x_in_y( dirt_dbl * dirt_dbl * dirt_dbl,
                 1000000000000.0 ) ) {
         add_msg_player_or_npc(
-            _( "Your %s misfires with a muffled click!" ),
-            _( "<npcname>'s %s misfires with a muffled click!" ),
+            _( "Your {} misfires with a muffled click!" ),
+            _( "<npcname>'s {} misfires with a muffled click!" ),
             it.tname() );
         // at high dirt levels the chance to misfire gets to significant levels. 10,000 is max and 7800 is quite high so above that the player gets some relief in the form of exchanging time for some dirt reduction. Basically jiggling the parts loose to remove some dirt and get a few more shots out.
         if( dirt_dbl >
             7800 ) {
             add_msg_player_or_npc(
-                _( "Perhaps taking the ammo out of your %s and reloading will help." ),
-                _( "Perhaps taking the ammo out of <npcname>'s %s and reloading will help." ),
+                _( "Perhaps taking the ammo out of your {} and reloading will help." ),
+                _( "Perhaps taking the ammo out of <npcname>'s {} and reloading will help." ),
                 it.tname() );
         }
         return false;
@@ -608,8 +608,8 @@ bool Character::handle_gun_damage( item &it )
     // mean the gun will actually be accurate underwater.
     int effective_durability = firing.durability;
     if( is_underwater() && !it.has_flag( flag_WATERPROOF_GUN ) && one_in( effective_durability ) ) {
-        add_msg_player_or_npc( _( "Your %s misfires with a wet click!" ),
-                               _( "<npcname>'s %s misfires with a wet click!" ),
+        add_msg_player_or_npc( _( "Your {} misfires with a wet click!" ),
+                               _( "<npcname>'s {} misfires with a wet click!" ),
                                it.tname() );
         return false;
         // Here we check for a chance for the weapon to suffer a mechanical malfunction.
@@ -618,16 +618,16 @@ bool Character::handle_gun_damage( item &it )
         // a chance of mechanical failure between 1/(64*3) and 1/(1024*3) on any given shot.
         // the malfunction can't cause damage
     } else if( one_in( ( 2 << effective_durability ) * 3 ) && !it.has_flag( flag_NEVER_JAMS ) ) {
-        add_msg_player_or_npc( _( "Your %s malfunctions!" ),
-                               _( "<npcname>'s %s malfunctions!" ),
+        add_msg_player_or_npc( _( "Your {} malfunctions!" ),
+                               _( "<npcname>'s {} malfunctions!" ),
                                it.tname() );
         return false;
         // Here we check for a chance for the weapon to suffer a misfire due to
         // using player-made 'RECYCLED' bullets. Note that not all forms of
         // player-made ammunition have this effect.
     } else if( curammo_effects.count( "RECYCLED" ) && one_in( 256 ) ) {
-        add_msg_player_or_npc( _( "Your %s misfires with a muffled click!" ),
-                               _( "<npcname>'s %s misfires with a muffled click!" ),
+        add_msg_player_or_npc( _( "Your {} misfires with a muffled click!" ),
+                               _( "<npcname>'s {} misfires with a muffled click!" ),
                                it.tname() );
         return false;
         // Here we check for a chance for attached mods to get damaged if they are flagged as 'CONSUMABLE'.
@@ -655,13 +655,13 @@ bool Character::handle_gun_damage( item &it )
                 }
                 if( one_in( modconsume ) ) {
                     if( mod->mod_damage( dmgamt ) ) {
-                        add_msg_player_or_npc( m_bad, _( "Your attached %s is destroyed by your shot!" ),
-                                               _( "<npcname>'s attached %s is destroyed by their shot!" ),
+                        add_msg_player_or_npc( m_bad, _( "Your attached {} is destroyed by your shot!" ),
+                                               _( "<npcname>'s attached {} is destroyed by their shot!" ),
                                                mod->tname() );
                         i_rem( mod );
                     } else if( it.damage() > initstate ) {
-                        add_msg_player_or_npc( m_bad, _( "Your attached %s is damaged by your shot!" ),
-                                               _( "<npcname>'s %s is damaged by their shot!" ),
+                        add_msg_player_or_npc( m_bad, _( "Your attached {} is damaged by your shot!" ),
+                                               _( "<npcname>'s {} is damaged by their shot!" ),
                                                mod->tname() );
                     }
                 }
@@ -670,8 +670,8 @@ bool Character::handle_gun_damage( item &it )
     }
     if( it.has_fault_flag( "UNLUBRICATED" ) &&
         x_in_y( dirt_dbl, dirt_max_dbl ) ) {
-        add_msg_player_or_npc( m_bad, _( "Your %s emits a grimace-inducing screech!" ),
-                               _( "<npcname>'s %s emits a grimace-inducing screech!" ),
+        add_msg_player_or_npc( m_bad, _( "Your {} emits a grimace-inducing screech!" ),
+                               _( "<npcname>'s {} emits a grimace-inducing screech!" ),
                                it.tname() );
         it.inc_damage();
     }
@@ -679,8 +679,8 @@ bool Character::handle_gun_damage( item &it )
         if( it.ammo_data() != nullptr && ( ( it.ammo_data()->ammo->recoil < it.min_cycle_recoil() ) ||
                                            ( it.has_fault_flag( "BAD_CYCLING" ) && one_in( 16 ) ) ) &&
             it.faults_potential().count( fault_gun_chamber_spent ) ) {
-            add_msg_player_or_npc( m_bad, _( "Your %s fails to cycle!" ),
-                                   _( "<npcname>'s %s fails to cycle!" ),
+            add_msg_player_or_npc( m_bad, _( "Your {} fails to cycle!" ),
+                                   _( "<npcname>'s {} fails to cycle!" ),
                                    it.tname() );
             it.faults.insert( fault_gun_chamber_spent );
             // Don't return false in this case; this shot happens, follow-up ones won't.
@@ -716,8 +716,8 @@ bool Character::handle_gun_damage( item &it )
     if( dirt_dbl > 5000 &&
         x_in_y( dirt_dbl * dirt_dbl * dirt_dbl,
                 5555555555555 ) ) {
-        add_msg_player_or_npc( m_bad, _( "Your %s is damaged by the high pressure!" ),
-                               _( "<npcname>'s %s is damaged by the high pressure!" ),
+        add_msg_player_or_npc( m_bad, _( "Your {} is damaged by the high pressure!" ),
+                               _( "<npcname>'s {} is damaged by the high pressure!" ),
                                it.tname() );
         // Don't increment until after the message
         it.inc_damage();
@@ -729,19 +729,19 @@ void npc::pretend_fire( npc *source, int shots, item &gun )
 {
     int curshot = 0;
     if( one_in( 50 ) ) {
-        add_msg_if_player_sees( *source, m_info, _( "%s shoots something." ), source->disp_name() );
+        add_msg_if_player_sees( *source, m_info, _( "{} shoots something." ), source->disp_name() );
     }
     while( curshot != shots ) {
         const int required = gun.ammo_required();
         if( gun.ammo_consume( required, pos(), this ) != required ) {
-            debugmsg( "Unexpected shortage of ammo whilst firing %s", gun.tname().c_str() );
+            debugmsg( "Unexpected shortage of ammo whilst firing {}", gun.tname().c_str() );
             break;
         }
 
         item *weapon = &gun;
         const item::sound_data data = weapon->gun_noise( shots > 1 );
 
-        add_msg_if_player_sees( *source, m_warning, _( "You hear %s." ), data.sound );
+        add_msg_if_player_sees( *source, m_warning, _( "You hear {}." ), data.sound );
         curshot++;
         moves -= 100;
     }
@@ -751,7 +751,7 @@ int Character::fire_gun( const tripoint &target, int shots )
 {
     item_location gun = get_wielded_item();
     if( !gun ) {
-        debugmsg( "%s doesn't have a gun to fire", get_name() );
+        debugmsg( "{} doesn't have a gun to fire", get_name() );
         return 0;
     }
     return fire_gun( target, shots, *gun );
@@ -760,7 +760,7 @@ int Character::fire_gun( const tripoint &target, int shots )
 int Character::fire_gun( const tripoint &target, int shots, item &gun )
 {
     if( !gun.is_gun() ) {
-        debugmsg( "%s tried to fire non-gun (%s).", get_name(), gun.tname() );
+        debugmsg( "{} tried to fire non-gun ({}).", get_name(), gun.tname() );
         return 0;
     }
     if( gun.has_flag( flag_CHOKE ) && !gun.ammo_effects().count( "SHOT" ) ) {
@@ -783,7 +783,7 @@ int Character::fire_gun( const tripoint &target, int shots, item &gun )
     }
 
     if( shots <= 0 ) {
-        debugmsg( "Attempted to fire zero or negative shots using %s", gun.tname() );
+        debugmsg( "Attempted to fire zero or negative shots using {}", gun.tname() );
     }
 
     map &here = get_map();
@@ -805,7 +805,7 @@ int Character::fire_gun( const tripoint &target, int shots, item &gun )
 
     itype_id gun_id = gun.typeId();
     skill_id gun_skill = gun.gun_skill();
-    add_msg_debug( debugmode::DF_RANGED, "Gun skill (%s) %d", gun_skill.c_str(),
+    add_msg_debug( debugmode::DF_RANGED, "Gun skill ({}) {}", gun_skill.c_str(),
                    get_skill_level( gun_skill ) ) ;
     tripoint aim = target;
     int curshot = 0;
@@ -815,7 +815,7 @@ int Character::fire_gun( const tripoint &target, int shots, item &gun )
         if( gun.has_fault_flag( "JAMMED_GUN" ) && curshot == 0 ) {
             moves -= 50;
             gun.faults.erase( fault_gun_chamber_spent );
-            add_msg_if_player( _( "You cycle your %s manually." ), gun.tname() );
+            add_msg_if_player( _( "You cycle your {} manually." ), gun.tname() );
         }
 
         if( !handle_gun_damage( gun ) ) {
@@ -898,7 +898,7 @@ int Character::fire_gun( const tripoint &target, int shots, item &gun )
         if( has_trait( trait_PYROMANIA ) && !has_morale( MORALE_PYROMANIA_STARTFIRE ) ) {
             const std::set<ammotype> &at = gun.ammo_types();
             if( at.count( ammo_flammable ) ) {
-                add_msg_if_player( m_good, _( "You feel a surge of euphoria as flames roar out of the %s!" ),
+                add_msg_if_player( m_good, _( "You feel a surge of euphoria as flames roar out of the {}!" ),
                                    gun.tname() );
                 add_morale( MORALE_PYROMANIA_STARTFIRE, 15, 15, 8_hours, 6_hours );
                 rem_morale( MORALE_PYROMANIA_NOFIRE );
@@ -913,7 +913,7 @@ int Character::fire_gun( const tripoint &target, int shots, item &gun )
 
         const int required = gun.ammo_required();
         if( gun.ammo_consume( required, pos(), this ) != required ) {
-            debugmsg( "Unexpected shortage of ammo whilst firing %s", gun.tname() );
+            debugmsg( "Unexpected shortage of ammo whilst firing {}", gun.tname() );
             break;
         }
 
@@ -1186,7 +1186,7 @@ dealt_projectile_attack Character::throw_item( const tripoint &target, const ite
     }
 
     const int skill_level = throwing_skill_adjusted( *this );
-    add_msg_debug( debugmode::DF_RANGED, "Adjusted throw skill %d", skill_level );
+    add_msg_debug( debugmode::DF_RANGED, "Adjusted throw skill {}", skill_level );
     projectile proj = thrown_item_projectile( thrown );
     damage_instance &impact = proj.impact;
     std::set<std::string> &proj_effects = proj.proj_effects;
@@ -1403,7 +1403,7 @@ static int print_steadiness( const catacurses::window &w, int line_number, doubl
     const int window_width = getmaxx( w ) - 2; // Window width minus borders.
 
     if( get_option<std::string>( "ACCURACY_DISPLAY" ) == "numbers" ) {
-        std::string steadiness_s = string_format( "%s: %d%%", _( "Steadiness" ),
+        std::string steadiness_s = string_format( "{}: {}%%", _( "Steadiness" ),
                                    static_cast<int>( 100.0 * steadiness ) );
         mvwprintw( w, point( 1, line_number++ ), steadiness_s );
     } else {
@@ -1460,7 +1460,7 @@ static std::string get_colored_bar( const double val, const int width, const std
                 continue;
             }
             used_width += seg_width;
-            result += string_format( "<color_%s>", std::get<2>( *it ) );
+            result += string_format( "<color_{}>", std::get<2>( *it ) );
             result.insert( result.end(), seg_width, std::get<1>( *it ) );
             result += "</color>";
         }
@@ -1670,7 +1670,7 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
             int column_number = 1;
             for( const confidence_rating &cr : aim_chances.front().ratings ) {
                 std::string label = pgettext( "aim_confidence", cr.label.c_str() );
-                std::string symbols = string_format( "<color_%s>%s</color> = %s", cr.color, cr.symbol, label );
+                std::string symbols = string_format( "<color_{}>{}</color> = {}", cr.color, cr.symbol, label );
                 int line_len = utf8_width( label ) + 5; // 5 for '# = ' and whitespace at end
                 if( ( width + bars_pad - column_number ) < line_len ) {
                     column_number = 1;
@@ -1695,13 +1695,13 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
         }
         for( const aim_type_prediction &out : sorted ) {
             if( display_numbers ) {
-                t_aims[aim_iter] = string_format( "<color_dark_gray>%s:</color>", out.name );
-                t_confidence[( aim_iter * 5 ) + 4] = string_format( "<color_light_blue>%d</color>", out.moves );
+                t_aims[aim_iter] = string_format( "<color_dark_gray>{}:</color>", out.name );
+                t_confidence[( aim_iter * 5 ) + 4] = string_format( "<color_light_blue>{}</color>", out.moves );
             } else {
-                print_colored_text( w, point( 1, line_number ), col, col, string_format( _( "%s %s:" ), out.name,
+                print_colored_text( w, point( 1, line_number ), col, col, string_format( _( "{} {}:" ), out.name,
                                     _( "Aim" ) ) );
                 right_print( w, line_number++, 1, c_light_blue, _( "Moves" ) );
-                right_print( w, line_number, 1, c_light_blue, string_format( "%d", out.moves ) );
+                right_print( w, line_number, 1, c_light_blue, string_format( "{}", out.moves ) );
             }
 
             if( display_numbers ) {
@@ -1710,11 +1710,11 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
                 for( const confidence_rating &cr : aim_chances.front().ratings ) {
                     int chance = std::min<int>( 100, 100.0 * ( cr.aim_level ) * out.confidence ) - last_chance;
                     last_chance += chance;
-                    t_confidence[conf_iter + ( aim_iter * 5 )] = string_format( "<color_%s>%3d%%</color>", cr.color,
+                    t_confidence[conf_iter + ( aim_iter * 5 )] = string_format( "<color_{}>{}%%</color>", cr.color,
                             chance );
                     conf_iter++;
                     if( conf_iter == 3 ) {
-                        t_confidence[conf_iter + ( aim_iter * 5 )] = string_format( "<color_%s>%3d%%</color>", "dark_gray",
+                        t_confidence[conf_iter + ( aim_iter * 5 )] = string_format( "<color_{}>{}%%</color>", "dark_gray",
                                 100 - last_chance );
                     }
                 }
@@ -1753,7 +1753,7 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
             int column_number = 1;
             for( const confidence_rating &cr : aim_chances.front().ratings ) {
                 std::string label = pgettext( "aim_confidence", cr.label.c_str() );
-                std::string symbols = string_format( "<color_%s>%s</color> = %s", cr.color, cr.symbol, label );
+                std::string symbols = string_format( "<color_{}>{}</color> = {}", cr.color, cr.symbol, label );
                 int line_len = utf8_width( label ) + 5; // 5 for '# = ' and whitespace at end
                 if( ( width + bars_pad - column_number ) < line_len ) {
                     column_number = 1;
@@ -1778,13 +1778,13 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
 
         for( const aim_type_prediction &out : sorted ) {
             if( display_numbers ) {
-                t_aims[aim_iter] = string_format( "<color_dark_gray>%s:</color>", out.name );
-                t_confidence[( aim_iter * 5 ) + 4] = string_format( "<color_light_blue>%d</color>", out.moves );
+                t_aims[aim_iter] = string_format( "<color_dark_gray>{}:</color>", out.name );
+                t_confidence[( aim_iter * 5 ) + 4] = string_format( "<color_light_blue>{}</color>", out.moves );
             } else {
-                print_colored_text( w, point( 1, line_number ), col, col, string_format( _( "%s %s:" ), out.name,
+                print_colored_text( w, point( 1, line_number ), col, col, string_format( _( "{} {}:" ), out.name,
                                     _( "Aim" ) ) );
                 right_print( w, line_number++, 1, c_light_blue, _( "Moves" ) );
-                right_print( w, line_number, 1, c_light_blue, string_format( "%d", out.moves ) );
+                right_print( w, line_number, 1, c_light_blue, string_format( "{}", out.moves ) );
             }
 
             if( display_numbers ) {
@@ -1793,11 +1793,11 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
                 for( const confidence_rating &cr : out.ratings ) {
                     int chance = std::min<int>( 100, 100.0 * ( cr.aim_level ) * out.confidence ) - last_chance;
                     last_chance += chance;
-                    t_confidence[conf_iter + ( aim_iter * 5 )] = string_format( "<color_%s>%3d%%</color>", cr.color,
+                    t_confidence[conf_iter + ( aim_iter * 5 )] = string_format( "<color_{}>{}%%</color>", cr.color,
                             chance );
                     conf_iter++;
                     if( conf_iter == 3 ) {
-                        t_confidence[conf_iter + ( aim_iter * 5 )] = string_format( "<color_%s>%3d%%</color>", "dark_gray",
+                        t_confidence[conf_iter + ( aim_iter * 5 )] = string_format( "<color_{}>{}%%</color>", "dark_gray",
                                 100 - last_chance );
                     }
                 }
@@ -1844,7 +1844,7 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
 
         for( const confidence_rating &cr : sorted.front().ratings ) {
             std::string label = pgettext( "aim_confidence", cr.label.c_str() );
-            std::string symbols = string_format( "<color_%s>%s</color> = %s", cr.color, cr.symbol,
+            std::string symbols = string_format( "<color_{}>{}</color> = {}", cr.color, cr.symbol,
                                                  label );
             int line_len = utf8_width( label ) + 5; // 5 for '# = ' and whitespace at end
             if( ( width + bars_pad - column_number ) < line_len ) {
@@ -1859,7 +1859,7 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
         for( const aim_type_prediction &out : sorted ) {
             std::string col_hl = out.is_default ? "light_green" : "light_gray";
             std::string desc =
-                string_format( "<color_white>[%s]</color> <color_%s>%s %s</color> | %s: <color_light_blue>%3d</color>",
+                string_format( "<color_white>[{}]</color> <color_{}>{} {}</color> | {}: <color_light_blue>{}</color>",
                                out.hotkey, col_hl, out.name, _( "Aim" ), _( "Moves to fire" ), out.moves );
 
             print_colored_text( w, point( 1, line_number++ ), col, col, desc );
@@ -1869,7 +1869,7 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
                 const std::string line = enumerate_as_string( out.chances.cbegin(), out.chances.cend(),
                 []( const aim_type_prediction::aim_confidence & conf ) {
                     const std::string label_loc = pgettext( "aim_confidence", conf.label.c_str() );
-                    return string_format( "%s: <color_%s>%3d%%</color>", label_loc, conf.color, conf.chance );
+                    return string_format( "{}: <color_{}>{}%%</color>", label_loc, conf.color, conf.chance );
                 }, enumeration_conjunction::none );
 
                 line_number += fold_and_print_from( w, point( 1, line_number ), width, 0, c_dark_gray, line );
@@ -1986,18 +1986,18 @@ std::vector<aim_type> Character::get_aim_types( const item &gun ) const
         thresholds_it = std::adjacent_find( thresholds.begin(), thresholds.end() );
     }
     thresholds_it = thresholds.begin();
-    aim_types.push_back( aim_type { _( "Regular" ), "AIMED_SHOT", _( "[%c] to aim and fire." ),
+    aim_types.push_back( aim_type { _( "Regular" ), "AIMED_SHOT", _( "[{}] to aim and fire." ),
                                     true, *thresholds_it } );
     thresholds_it++;
     if( thresholds_it != thresholds.end() ) {
         aim_types.push_back( aim_type { _( "Careful" ), "CAREFUL_SHOT",
-                                        _( "[%c] to take careful aim and fire." ), true,
+                                        _( "[{}] to take careful aim and fire." ), true,
                                         *thresholds_it } );
         thresholds_it++;
     }
     if( thresholds_it != thresholds.end() ) {
         aim_types.push_back( aim_type { _( "Precise" ), "PRECISE_SHOT",
-                                        _( "[%c] to take precise aim and fire." ), true,
+                                        _( "[{}] to take precise aim and fire." ), true,
                                         *thresholds_it } );
     }
     return aim_types;
@@ -2027,7 +2027,7 @@ static projectile make_gun_projectile( const item &gun )
             }
             ret_val<int> n = try_parse_integer<int>( e.substr( 8 ), false );
             if( !n.success() ) {
-                debugmsg( "Error parsing ammo RECOVER_ denominator: %s", n.str() );
+                debugmsg( "Error parsing ammo RECOVER_ denominator: {}", n.str() );
                 return false;
             }
             return !one_in( n.value() );
@@ -2400,7 +2400,7 @@ double Character::gun_value( const item &weap, int ammo ) const
     double gun_value = damage_and_accuracy * capacity_factor;
 
     add_msg_debug( debugmode::DF_RANGED,
-                   "%s as gun: %.1f total, %.1f dispersion, %.1f damage, %.1f capacity",
+                   "{} as gun: %.1f total, %.1f dispersion, %.1f damage, %.1f capacity",
                    weap.type->get_id().str(), gun_value, dispersion_factor, damage_factor,
                    capacity_factor );
     return std::max( 0.0, gun_value );
@@ -2409,7 +2409,7 @@ double Character::gun_value( const item &weap, int ammo ) const
 target_handler::trajectory target_ui::run()
 {
     if( mode == TargetMode::Spell && !no_mana && !casting->can_cast( *you ) ) {
-        you->add_msg_if_player( m_bad, _( "You don't have enough %s to cast this spell" ),
+        you->add_msg_if_player( m_bad, _( "You don't have enough {} to cast this spell" ),
                                 casting->energy_string() );
     } else if( mode == TargetMode::Fire ) {
         sight_dispersion = you->most_accurate_aiming_method_limit( *relevant );
@@ -2914,7 +2914,7 @@ bool target_ui::set_cursor_pos( const tripoint &new_pos )
                 break;
             default:
                 spell_aoe.clear();
-                debugmsg( "%s does not have valid spell shape", casting->id().str() );
+                debugmsg( "{} does not have valid spell shape", casting->id().str() );
                 break;
         }
     } else if( mode == TargetMode::Turrets ) {
@@ -3055,7 +3055,7 @@ bool target_ui::confirm_non_enemy_target()
 {
     npc *const who = dynamic_cast<npc *>( dst_critter );
     if( who && !who->guaranteed_hostile() ) {
-        return query_yn( _( "Really attack %s?" ), who->get_name().c_str() );
+        return query_yn( _( "Really attack {}?" ), who->get_name().c_str() );
     }
     return true;
 }
@@ -3382,7 +3382,7 @@ bool target_ui::action_aim_and_shoot( const std::string &action )
         }
     }
     if( it == aim_types.end() ) {
-        debugmsg( "Could not find a valid aim_type for %s", action.c_str() );
+        debugmsg( "Could not find a valid aim_type for {}", action.c_str() );
         aim_mode = aim_types.begin();
     }
     int aim_threshold = it->threshold;
@@ -3545,11 +3545,11 @@ std::string target_ui::uitext_title() const
     switch( mode ) {
         case TargetMode::Fire:
         case TargetMode::TurretManual:
-            return string_format( _( "Firing %s" ), relevant->tname() );
+            return string_format( _( "Firing {}" ), relevant->tname() );
         case TargetMode::Throw:
-            return string_format( _( "Throwing %s" ), relevant->tname() );
+            return string_format( _( "Throwing {}" ), relevant->tname() );
         case TargetMode::ThrowBlind:
-            return string_format( _( "Blind throwing %s" ), relevant->tname() );
+            return string_format( _( "Blind throwing {}" ), relevant->tname() );
         default:
             return _( "Set target" );
     }
@@ -3580,7 +3580,7 @@ void target_ui::draw_help_notice()
     int text_y = getmaxy( w_target ) - 1;
     int width = getmaxx( w_target );
     const std::string label_help = string_format(
-                                       narrow ? _( "[%s] show help" ) : _( "[%s] show all controls" ),
+                                       narrow ? _( "[{}] show help" ) : _( "[{}] show all controls" ),
                                        ctxt.get_desc( "HELP_KEYBINDINGS", 1 ) );
     int label_width = std::min( utf8_width( label_help ), width - 6 ); // 6 for borders and "< " + " >"
     int text_x = width - label_width - 6;
@@ -3630,13 +3630,13 @@ void target_ui::draw_controls_list( int text_y )
         lines.push_back( {7, colored( col_move, move ) + " " + colored( col_fire, fire )} );
     }
     {
-        std::string cycle = string_format( _( "[%s] Cycle targets;" ), ctxt.get_desc( "NEXT_TARGET", 1 ) );
-        std::string fire = string_format( _( "[%s] %s." ), bound_key( "FIRE" ).short_description(),
+        std::string cycle = string_format( _( "[{}] Cycle targets;" ), ctxt.get_desc( "NEXT_TARGET", 1 ) );
+        std::string fire = string_format( _( "[{}] {}." ), bound_key( "FIRE" ).short_description(),
                                           uitext_fire() );
         lines.push_back( {0, colored( col_move, cycle ) + " " + colored( col_fire, fire )} );
     }
     {
-        std::string text = string_format( _( "[%s] target self; [%s] toggle snap-to-target" ),
+        std::string text = string_format( _( "[{}] target self; [{}] toggle snap-to-target" ),
                                           bound_key( "CENTER" ).short_description(),
                                           bound_key( "TOGGLE_SNAP_TO_TARGET" ).short_description() );
         lines.push_back( {3, colored( col_enabled, text )} );
@@ -3645,15 +3645,15 @@ void target_ui::draw_controls_list( int text_y )
         std::string aim_and_fire;
         for( const aim_type &e : aim_types ) {
             if( e.has_threshold ) {
-                aim_and_fire += string_format( "[%s] ", bound_key( e.action ).short_description() );
+                aim_and_fire += string_format( "[{}] ", bound_key( e.action ).short_description() );
             }
         }
         aim_and_fire += _( "to aim and fire." );
 
-        std::string aim = string_format( _( "[%s] to steady your aim.  (10 moves)" ),
+        std::string aim = string_format( _( "[{}] to steady your aim.  (10 moves)" ),
                                          bound_key( "AIM" ).short_description() );
 
-        std::string dropaim = string_format( _( "[%s] to stop aiming." ),
+        std::string dropaim = string_format( _( "[{}] to stop aiming." ),
                                              bound_key( "STOPAIM" ).short_description() );
 
         lines.push_back( {2, colored( col_fire, aim )} );
@@ -3662,19 +3662,19 @@ void target_ui::draw_controls_list( int text_y )
     }
     if( mode == TargetMode::Fire || mode == TargetMode::TurretManual || ( mode == TargetMode::Reach &&
             relevant->is_gun() && you->get_aim_types( *relevant ).size() > 1 ) ) {
-        lines.push_back( {5, colored( col_enabled, string_format( _( "[%s] to switch firing modes." ),
+        lines.push_back( {5, colored( col_enabled, string_format( _( "[{}] to switch firing modes." ),
                                       bound_key( "SWITCH_MODE" ).short_description() ) )
                          } );
         if( mode == TargetMode::Fire || mode == TargetMode::TurretManual ) {
-            lines.push_back( { 6, colored( col_enabled, string_format( _( "[%s] to reload/switch ammo." ),
+            lines.push_back( { 6, colored( col_enabled, string_format( _( "[{}] to reload/switch ammo." ),
                                            bound_key( "SWITCH_AMMO" ).short_description() ) )
                              } );
         }
     }
     if( mode == TargetMode::Turrets ) {
         const std::string label = draw_turret_lines
-                                  ? _( "[%s] Hide lines of fire" )
-                                  : _( "[%s] Show lines of fire" );
+                                  ? _( "[{}] Hide lines of fire" )
+                                  : _( "[{}] Show lines of fire" );
         lines.push_back( {1, colored( col_enabled, string_format( label, bound_key( "TOGGLE_TURRET_LINES" ).short_description() ) )} );
     }
 
@@ -3701,9 +3701,9 @@ void target_ui::panel_cursor_info( int &text_y )
 {
     std::string label_range;
     if( src == dst ) {
-        label_range = string_format( _( "Range: %d" ), range );
+        label_range = string_format( _( "Range: {}" ), range );
     } else {
-        label_range = string_format( _( "Range: %d/%d" ), dist_fn( dst ), range );
+        label_range = string_format( _( "Range: {}/{}" ), dist_fn( dst ), range );
     }
     if( status == Status::OutOfRange && mode != TargetMode::Turrets ) {
         // Since each turret has its own range, highlighting cursor
@@ -3714,9 +3714,9 @@ void target_ui::panel_cursor_info( int &text_y )
     std::vector<std::string> labels;
     labels.push_back( label_range );
     if( allow_zlevel_shift ) {
-        labels.push_back( string_format( _( "Elevation: %d" ), dst.z - src.z ) );
+        labels.push_back( string_format( _( "Elevation: {}" ), dst.z - src.z ) );
     }
-    labels.push_back( string_format( _( "Targets: %d" ), targets.size() ) );
+    labels.push_back( string_format( _( "Targets: {}" ), targets.size() ) );
 
     nc_color col = c_light_gray;
     int width = getmaxx( w_target );
@@ -3743,7 +3743,7 @@ void target_ui::panel_gun_info( int &text_y )
         // Gun mode comes from a gunmod, not base gun. Add gunmod's name
         gunmod_name = m->tname() + " ";
     }
-    std::string str = string_format( _( "Firing mode: <color_cyan>%s%s (%d)</color>" ),
+    std::string str = string_format( _( "Firing mode: <color_cyan>{}{} ({})</color>" ),
                                      gunmod_name, mode_name, m.qty
                                    );
     nc_color clr = c_light_gray;
@@ -3753,7 +3753,7 @@ void target_ui::panel_gun_info( int &text_y )
         mvwprintz( w_target, point( 1, text_y++ ), c_red, _( "OUT OF AMMO" ) );
     } else if( ammo ) {
         bool is_favorite = relevant->is_ammo_container() && relevant->first_ammo().is_favorite;
-        str = string_format( m->ammo_remaining() ? _( "Ammo: %s%s (%d/%d)" ) : _( "Ammo: %s%s" ),
+        str = string_format( m->ammo_remaining() ? _( "Ammo: {}{} ({}/{})" ) : _( "Ammo: {}{}" ),
                              colorize( ammo->nname( std::max( m->ammo_remaining(), 1 ) ), ammo->color ),
                              colorize( is_favorite ? " *" : "", ammo->color ), m->ammo_remaining(),
                              m->ammo_capacity( ammo->ammo->type ) );
@@ -3779,7 +3779,7 @@ void target_ui::panel_recoil( int &text_y )
     } else {
         str = pgettext( "amount of backward momentum", "<color_cyan>None</color>" );
     }
-    str = string_format( _( "Recoil: %s" ), str );
+    str = string_format( _( "Recoil: {}" ), str );
     nc_color clr = c_light_gray;
     print_colored_text( w_target, point( 1, text_y++ ), clr, clr, str );
 }
@@ -3788,18 +3788,18 @@ void target_ui::panel_spell_info( int &text_y )
 {
     nc_color clr = c_light_gray;
 
-    mvwprintz( w_target, point( 1, text_y++ ), c_light_green, _( "Casting: %s (Level %u)" ),
+    mvwprintz( w_target, point( 1, text_y++ ), c_light_green, _( "Casting: {} (Level {})" ),
                casting->name(),
                casting->get_level() );
     if( !no_mana || casting->energy_source() == magic_energy_type::none ) {
         if( casting->energy_source() == magic_energy_type::hp ) {
             text_y += fold_and_print( w_target, point( 1, text_y ), getmaxx( w_target ) - 2,
                                       clr,
-                                      _( "Cost: %s %s" ), casting->energy_cost_string( *you ), casting->energy_string() );
+                                      _( "Cost: {} {}" ), casting->energy_cost_string( *you ), casting->energy_string() );
         } else {
             text_y += fold_and_print( w_target, point( 1, text_y ), getmaxx( w_target ) - 2,
                                       clr,
-                                      _( "Cost: %s %s (Current: %s)" ), casting->energy_cost_string( *you ), casting->energy_string(),
+                                      _( "Cost: {} {} (Current: {})" ), casting->energy_cost_string( *you ), casting->energy_string(),
                                       casting->energy_cur_string( *you ) );
         }
     }
@@ -3820,19 +3820,19 @@ void target_ui::panel_spell_info( int &text_y )
 
             if( casting->shape() == spell_shape::cone ) {
                 text_y += fold_and_print( w_target, point( 1, text_y ), getmaxx( w_target ) - 2, color,
-                                          _( "Cone Arc: %s degrees" ), aoes );
+                                          _( "Cone Arc: {} degrees" ), aoes );
             } else if( casting->shape() == spell_shape::line ) {
                 text_y += fold_and_print( w_target, point( 1, text_y ), getmaxx( w_target ) - 2, color,
-                                          _( "Line width: %s" ), aoes );
+                                          _( "Line width: {}" ), aoes );
             } else {
                 text_y += fold_and_print( w_target, point( 1, text_y ), getmaxx( w_target ) - 2, color,
-                                          _( "Effective Spell Radius: %s%s" ), aoes,
+                                          _( "Effective Spell Radius: {}{}" ), aoes,
                                           casting->in_aoe( src, dst ) ? colorize( _( " WARNING!  IN RANGE" ), c_red ) : "" );
             }
         }
     }
 
-    mvwprintz( w_target, point( 1, text_y++ ), c_light_red, _( "Damage: %s" ),
+    mvwprintz( w_target, point( 1, text_y++ ), c_light_red, _( "Damage: {}" ),
                casting->damage_string() );
 
     text_y += fold_and_print( w_target, point( 1, text_y ), getmaxx( w_target ) - 2, clr,
@@ -3875,11 +3875,11 @@ void target_ui::panel_target_info( int &text_y, bool fill_with_blank_if_no_targe
 
 void target_ui::panel_turret_list( int &text_y )
 {
-    mvwprintw( w_target, point( 1, text_y++ ), _( "Turrets in range: %d/%d" ), turrets_in_range.size(),
+    mvwprintw( w_target, point( 1, text_y++ ), _( "Turrets in range: {}/{}" ), turrets_in_range.size(),
                vturrets->size() );
 
     for( const turret_with_lof &it : turrets_in_range ) {
-        std::string str = string_format( "* %s", it.turret->name() );
+        std::string str = string_format( "* {}", it.turret->name() );
         nc_color clr = c_white;
         print_colored_text( w_target, point( 1, text_y++ ), clr, clr, str );
     }
@@ -3908,7 +3908,7 @@ bool gunmode_checks_common( avatar &you, const map &m, std::vector<std::string> 
 
     // Check that passed gun mode is valid and we are able to use it
     if( !( gmode && you.can_use( *gmode ) ) ) {
-        messages.push_back( string_format( _( "You can't currently fire your %s." ),
+        messages.push_back( string_format( _( "You can't currently fire your {}." ),
                                            gmode->tname() ) );
         result = false;
     }
@@ -3916,14 +3916,14 @@ bool gunmode_checks_common( avatar &you, const map &m, std::vector<std::string> 
     const optional_vpart_position vp = m.veh_at( you.pos() );
     if( vp && vp->vehicle().player_in_control( you ) && ( gmode->is_two_handed( you ) ||
             gmode->has_flag( flag_FIRE_TWOHAND ) ) ) {
-        messages.push_back( string_format( _( "You can't fire your %s while driving." ),
+        messages.push_back( string_format( _( "You can't fire your {} while driving." ),
                                            gmode->tname() ) );
         result = false;
     }
 
     if( gmode->has_flag( flag_FIRE_TWOHAND ) && ( !you.has_two_arms_lifting() ||
             you.worn_with_flag( flag_RESTRICT_HANDS ) ) ) {
-        messages.push_back( string_format( _( "You need two free hands to fire your %s." ),
+        messages.push_back( string_format( _( "You need two free hands to fire your {}." ),
                                            gmode->tname() ) );
         result = false;
     }
@@ -3938,9 +3938,9 @@ bool gunmode_checks_weapon( avatar &you, const map &m, std::vector<std::string> 
     if( !gmode->ammo_sufficient( &you ) &&
         !gmode->has_flag( flag_RELOAD_AND_SHOOT ) ) {
         if( !gmode->ammo_remaining() ) {
-            messages.push_back( string_format( _( "Your %s is empty!" ), gmode->tname() ) );
+            messages.push_back( string_format( _( "Your {} is empty!" ), gmode->tname() ) );
         } else {
-            messages.push_back( string_format( _( "Your %s needs %i charges to fire!" ),
+            messages.push_back( string_format( _( "Your {} needs {} charges to fire!" ),
                                                gmode->tname(), gmode->ammo_required() ) );
         }
         result = false;
@@ -3958,13 +3958,13 @@ bool gunmode_checks_weapon( avatar &you, const map &m, std::vector<std::string> 
         if( !is_mech_weapon ) {
             if( you.available_ups() < ups_drain ) {
                 messages.push_back( string_format(
-                                        _( "You need a UPS with at least %2$d charges to fire the %1$s!" ),
+                                        _( "You need a UPS with at least {2} charges to fire the {1}!" ),
                                         gmode->tname(), units::to_kilojoule( ups_drain ) ) );
                 result = false;
             }
         } else {
             if( you.available_ups() < ups_drain ) {
-                messages.push_back( string_format( _( "Your mech has an empty battery, its %s will not fire." ),
+                messages.push_back( string_format( _( "Your mech has an empty battery, its {} will not fire." ),
                                                    gmode->tname() ) );
                 result = false;
             }
@@ -3975,7 +3975,7 @@ bool gunmode_checks_weapon( avatar &you, const map &m, std::vector<std::string> 
             gmode->ammo_remaining( nullptr ) < gmode->ammo_required() &&
             !gmode->has_flag( flag_RELOAD_AND_SHOOT ) ) {
             result = false;
-            messages.push_back( string_format( _( "Your %s is empty!" ), gmode->tname() ) );
+            messages.push_back( string_format( _( "Your {} is empty!" ), gmode->tname() ) );
         }
     }
 
@@ -3985,7 +3985,7 @@ bool gunmode_checks_weapon( avatar &you, const map &m, std::vector<std::string> 
         bool t_mountable = m.has_flag_ter_or_furn( ter_furn_flag::TFLAG_MOUNTABLE, you.pos() );
         if( !t_mountable && !v_mountable ) {
             messages.push_back( string_format(
-                                    _( "You must stand near acceptable terrain or furniture to fire the %s.  A table, a mound of dirt, a broken window, etc." ),
+                                    _( "You must stand near acceptable terrain or furniture to fire the {}.  A table, a mound of dirt, a broken window, etc." ),
                                     gmode->tname() ) );
             result = false;
         }

@@ -875,10 +875,10 @@ TEST_CASE( "submap_terrain_rle_load", "[submap][load]" )
     const ter_id ter_se = sm.get_ter( corner_se );
 
     // We placed a unique terrain in each of the corners. Check that those are correct
-    INFO( string_format( "nw: %s", ter_nw.id().str() ) );
-    INFO( string_format( "ne: %s", ter_ne.id().str() ) );
-    INFO( string_format( "sw: %s", ter_sw.id().str() ) );
-    INFO( string_format( "se: %s", ter_se.id().str() ) );
+    INFO( string_format( "nw: {}", ter_nw.id().str() ) );
+    INFO( string_format( "ne: {}", ter_ne.id().str() ) );
+    INFO( string_format( "sw: {}", ter_sw.id().str() ) );
+    INFO( string_format( "se: {}", ter_se.id().str() ) );
     // Require to prevent the lower CHECK from being spammy
     REQUIRE( ter_nw == t_floor_green );
     REQUIRE( ter_ne == t_floor_red );
@@ -921,11 +921,11 @@ TEST_CASE( "submap_furniture_load", "[submap][load]" )
     const furn_id furn_ra = sm.get_furn( random_pt );
 
     // We placed a unique furniture in a couple pf place. Check that those are correct
-    INFO( string_format( "nw: %s", furn_nw.id().str() ) );
-    INFO( string_format( "ne: %s", furn_ne.id().str() ) );
-    INFO( string_format( "sw: %s", furn_sw.id().str() ) );
-    INFO( string_format( "se: %s", furn_se.id().str() ) );
-    INFO( string_format( "ra: %s", furn_ra.id().str() ) );
+    INFO( string_format( "nw: {}", furn_nw.id().str() ) );
+    INFO( string_format( "ne: {}", furn_ne.id().str() ) );
+    INFO( string_format( "sw: {}", furn_sw.id().str() ) );
+    INFO( string_format( "se: {}", furn_se.id().str() ) );
+    INFO( string_format( "ra: {}", furn_ra.id().str() ) );
     // Require to prevent the lower CHECK from being spammy
     REQUIRE( furn_nw == f_coffin_c );
     REQUIRE( furn_ne == f_bookcase );
@@ -962,11 +962,11 @@ TEST_CASE( "submap_trap_load", "[submap][load]" )
     const trap_id trap_ra = sm.get_trap( random_pt );
 
     // We placed a unique trap in a couple of places. Check that those are correct
-    INFO( string_format( "nw: %s", trap_nw.id().str() ) );
-    INFO( string_format( "ne: %s", trap_ne.id().str() ) );
-    INFO( string_format( "sw: %s", trap_sw.id().str() ) );
-    INFO( string_format( "se: %s", trap_se.id().str() ) );
-    INFO( string_format( "ra: %s", trap_ra.id().str() ) );
+    INFO( string_format( "nw: {}", trap_nw.id().str() ) );
+    INFO( string_format( "ne: {}", trap_ne.id().str() ) );
+    INFO( string_format( "sw: {}", trap_sw.id().str() ) );
+    INFO( string_format( "se: {}", trap_se.id().str() ) );
+    INFO( string_format( "ra: {}", trap_ra.id().str() ) );
     // Require to prevent the lower CHECK from being spammy
     REQUIRE( trap_nw == STATIC( trap_str_id( "tr_rollmat" ) ) );
     REQUIRE( trap_ne == STATIC( trap_str_id( "tr_bubblewrap" ) ) );
@@ -1003,11 +1003,11 @@ TEST_CASE( "submap_rad_load", "[submap][load]" )
     const int rad_ra = sm.get_radiation( random_pt );
 
     // We placed a unique rad level in a couple of places. Check that those are correct
-    INFO( string_format( "nw: %d", rad_nw ) );
-    INFO( string_format( "ne: %d", rad_ne ) );
-    INFO( string_format( "sw: %d", rad_sw ) );
-    INFO( string_format( "se: %d", rad_se ) );
-    INFO( string_format( "ra: %d", rad_ra ) );
+    INFO( string_format( "nw: {}", rad_nw ) );
+    INFO( string_format( "ne: {}", rad_ne ) );
+    INFO( string_format( "sw: {}", rad_sw ) );
+    INFO( string_format( "se: {}", rad_se ) );
+    INFO( string_format( "ra: {}", rad_ra ) );
     // Require to prevent the lower CHECK from being spammy
     REQUIRE( rad_nw == 2 );
     REQUIRE( rad_ne == 1 );
@@ -1019,7 +1019,7 @@ TEST_CASE( "submap_rad_load", "[submap][load]" )
     // Also, check we have no other radiation
     INFO( "Below is the radiation on the row above and the current row.  Unknown values are -1" );
     for( int y = 0; y < SEEY; ++y ) {
-        INFO( string_format( "%2d: %2d%2d%2d%2d%2d%2d%2d%2d%2d%2d%2d%2d", y - 1, rads[0], rads[1], rads[2],
+        INFO( string_format( "{}: {}{}{}{}{}{}{}{}{}{}{}{}", y - 1, rads[0], rads[1], rads[2],
                              rads[3], rads[4], rads[5], rads[6], rads[7], rads[8], rads[9], rads[10], rads[11] ) );
         for( int &rad : rads ) {
             rad = -1;
@@ -1033,7 +1033,7 @@ TEST_CASE( "submap_rad_load", "[submap][load]" )
             }
             int fetched = sm.get_radiation( tested );
             rads[x] = fetched;
-            INFO( string_format( "%2d: %2d%2d%2d%2d%2d%2d%2d%2d%2d%2d%2d%2d", y, rads[0], rads[1], rads[2],
+            INFO( string_format( "{}: {}{}{}{}{}{}{}{}{}{}{}{}", y, rads[0], rads[1], rads[2],
                                  rads[3], rads[4], rads[5], rads[6], rads[7], rads[8], rads[9], rads[10], rads[11] ) );
             CHECK( fetched == 0 );
         }
@@ -1078,11 +1078,11 @@ TEST_CASE( "submap_item_load", "[submap][load]" )
     }
 
     // We placed a unique item in a couple of places. Check that those are correct
-    INFO( string_format( "nw: %d %s %s", item_nw.size(), item_nw[0].str(), item_nw[1].str() ) );
-    INFO( string_format( "ne: %d %s", item_ne.size(), item_ne[0].str() ) );
-    INFO( string_format( "sw: %d %s", item_sw.size(), item_sw[0].str() ) );
-    INFO( string_format( "se: %d %s", item_se.size(), item_se[0].str() ) );
-    INFO( string_format( "ra: %d %s", item_ra.size(), item_ra[0].str() ) );
+    INFO( string_format( "nw: {} {} {}", item_nw.size(), item_nw[0].str(), item_nw[1].str() ) );
+    INFO( string_format( "ne: {} {}", item_ne.size(), item_ne[0].str() ) );
+    INFO( string_format( "sw: {} {}", item_sw.size(), item_sw[0].str() ) );
+    INFO( string_format( "se: {} {}", item_se.size(), item_se[0].str() ) );
+    INFO( string_format( "ra: {} {}", item_ra.size(), item_ra[0].str() ) );
     // Require to prevent the lower CHECK from being spammy
     REQUIRE( item_nw[0] == STATIC( itype_id( "machete" ) ) );
     REQUIRE( item_nw[1] == STATIC( itype_id( "foon" ) ) );
@@ -1133,21 +1133,21 @@ TEST_CASE( "submap_field_load", "[submap][load]" )
     REQUIRE( fd_ra != nullptr );
 
     // We placed a unique item in a couple of places. Check that those are correct
-    INFO( string_format( "nw: %d %s %d %d %s %d %d", field_nw.field_count(),
+    INFO( string_format( "nw: {} {} {} {} {} {} {}", field_nw.field_count(),
                          fd_nw->get_field_type().id().str(), fd_nw->get_field_intensity(),
                          to_turns<int>( fd_nw->get_field_age() ), fd_ow->get_field_type().id().str(),
                          fd_ow->get_field_intensity(),
                          to_turns<int>( fd_ow->get_field_age() ) ) );
-    INFO( string_format( "ne: %d %s %d %d", field_ne.field_count(),
+    INFO( string_format( "ne: {} {} {} {}", field_ne.field_count(),
                          fd_ne->get_field_type().id().str(), fd_ne->get_field_intensity(),
                          to_turns<int>( fd_ne->get_field_age() ) ) );
-    INFO( string_format( "sw: %d %s %d %d", field_sw.field_count(),
+    INFO( string_format( "sw: {} {} {} {}", field_sw.field_count(),
                          fd_sw->get_field_type().id().str(), fd_sw->get_field_intensity(),
                          to_turns<int>( fd_sw->get_field_age() ) ) );
-    INFO( string_format( "se: %d %s %d %d", field_se.field_count(),
+    INFO( string_format( "se: {} {} {} {}", field_se.field_count(),
                          fd_se->get_field_type().id().str(), fd_se->get_field_intensity(),
                          to_turns<int>( fd_se->get_field_age() ) ) );
-    INFO( string_format( "ra: %d %s %d %d", field_ra.field_count(),
+    INFO( string_format( "ra: {} {} {} {}", field_ra.field_count(),
                          fd_ra->get_field_type().id().str(), fd_ra->get_field_intensity(),
                          to_turns<int>( fd_ra->get_field_age() ) ) );
     // Require to prevent the lower CHECK from being spammy
@@ -1193,11 +1193,11 @@ TEST_CASE( "submap_graffiti_load", "[submap][load]" )
     const std::string &g_ra = sm.get_graffiti( random_pt );
 
     // We placed a unique graffiti in a couple of places. Check that those are correct
-    INFO( string_format( "nw: %s", g_nw ) );
-    INFO( string_format( "ne: %s", g_ne ) );
-    INFO( string_format( "sw: %s", g_sw ) );
-    INFO( string_format( "se: %s", g_se ) );
-    INFO( string_format( "ra: %s", g_ra ) );
+    INFO( string_format( "nw: {}", g_nw ) );
+    INFO( string_format( "ne: {}", g_ne ) );
+    INFO( string_format( "sw: {}", g_sw ) );
+    INFO( string_format( "se: {}", g_se ) );
+    INFO( string_format( "ra: {}", g_ra ) );
     // Require to prevent the lower CHECK from being spammy
     REQUIRE( g_nw == "c" );
     REQUIRE( g_ne == "a" );
@@ -1227,11 +1227,11 @@ TEST_CASE( "submap_cosmetics_load", "[submap][load]" )
     const std::string &g_ra = sm.get_graffiti( random_pt );
 
     // We placed a unique graffiti in a couple of places. Check that those are correct
-    INFO( string_format( "nw: %s", g_nw ) );
-    INFO( string_format( "ne: %s", g_ne ) );
-    INFO( string_format( "sw: %s", g_sw ) );
-    INFO( string_format( "se: %s", g_se ) );
-    INFO( string_format( "ra: %s", g_ra ) );
+    INFO( string_format( "nw: {}", g_nw ) );
+    INFO( string_format( "ne: {}", g_ne ) );
+    INFO( string_format( "sw: {}", g_sw ) );
+    INFO( string_format( "se: {}", g_se ) );
+    INFO( string_format( "ra: {}", g_ra ) );
     // Require to prevent the lower CHECK from being spammy
     REQUIRE( g_nw == "I <3 Dr. Hylke van der Schaaf." );
     REQUIRE( g_ne == "This is written text." );
@@ -1274,15 +1274,15 @@ TEST_CASE( "submap_spawns_load", "[submap][load]" )
     } );
 
     // We placed a unique spawn in a couple of places. Check that those are correct
-    INFO( string_format( "nw: [%d, %d] %d %s %s %s", nw.pos.x, nw.pos.y, nw.count, nw.type.str(),
+    INFO( string_format( "nw: [{}, {}] {} {} {} {}", nw.pos.x, nw.pos.y, nw.count, nw.type.str(),
                          nw.friendly ? "friendly" : "hostile", nw.name ) );
-    INFO( string_format( "ne: [%d, %d] %d %s %s %s", ne.pos.x, ne.pos.y, ne.count, ne.type.str(),
+    INFO( string_format( "ne: [{}, {}] {} {} {} {}", ne.pos.x, ne.pos.y, ne.count, ne.type.str(),
                          ne.friendly ? "friendly" : "hostile", ne.name ) );
-    INFO( string_format( "sw: [%d, %d] %d %s %s %s", sw.pos.x, sw.pos.y, sw.count, sw.type.str(),
+    INFO( string_format( "sw: [{}, {}] {} {} {} {}", sw.pos.x, sw.pos.y, sw.count, sw.type.str(),
                          sw.friendly ? "friendly" : "hostile", sw.name ) );
-    INFO( string_format( "se: [%d, %d] %d %s %s %s", se.pos.x, se.pos.y, se.count, se.type.str(),
+    INFO( string_format( "se: [{}, {}] {} {} {} {}", se.pos.x, se.pos.y, se.count, se.type.str(),
                          se.friendly ? "friendly" : "hostile", se.name ) );
-    INFO( string_format( "ra: [%d, %d] %d %s %s %s", ra.pos.x, ra.pos.y, ra.count, ra.type.str(),
+    INFO( string_format( "ra: [{}, {}] {} {} {} {}", ra.pos.x, ra.pos.y, ra.count, ra.type.str(),
                          ra.friendly ? "friendly" : "hostile", ra.name ) );
     // Require to prevent the lower CHECK from being spammy
     CHECK( nw.count == 3 );

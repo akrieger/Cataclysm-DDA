@@ -765,5 +765,5 @@ std::vector<skill_id> talker_character::skills_teacheable() const
 std::string talker_character::skill_seminar_text( const skill_id &s ) const
 {
     int lvl = me_chr->get_skill_level( s );
-    return string_format( "%s (%d)", s.obj().name(), lvl );
+    return string_format( "{} ({})", s.obj().name(), lvl );
 }

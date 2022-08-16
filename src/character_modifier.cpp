@@ -62,7 +62,7 @@ static character_modifier::mod_type string_to_modtype( const std::string &s )
     };
     const auto &iter = modtype_map.find( to_upper_case( s ) );
     if( iter == modtype_map.end() ) {
-        debugmsg( "Invalid mod_type %s", s );
+        debugmsg( "Invalid mod_type {}", s );
         return character_modifier::NONE;
     }
     return iter->second;
@@ -76,7 +76,7 @@ static float load_float_or_maxmovecost( const JsonObject &jo, const std::string 
         if( val_str == "max_move_cost" ) {
             val = MAX_MOVECOST_MODIFIER;
         } else {
-            jo.throw_error( string_format( "invalid %s %s: use a float value or \"max_move_cost\"", field,
+            jo.throw_error( string_format( "invalid {} {}: use a float value or \"max_move_cost\"", field,
                                            val_str ) );
         }
     } else if( jo.has_float( field ) ) {
@@ -252,7 +252,7 @@ static float call_builtin( const std::string &builtin, const Character &c, const
 
     auto iter = func_map.find( builtin );
     if( iter == func_map.end() ) {
-        debugmsg( "Invalid builtin function %s for character modifier", builtin );
+        debugmsg( "Invalid builtin function {} for character modifier", builtin );
         return 0.0f;
     }
 

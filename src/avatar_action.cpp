@@ -358,7 +358,7 @@ bool avatar_action::move( avatar &you, map &m, const tripoint &d )
             return false;
         } else if( critter.has_flag( MF_IMMOBILE ) || critter.has_effect( effect_harnessed ) ||
                    critter.has_effect( effect_ridden ) ) {
-            add_msg( m_info, _( "You can't displace your %s." ), critter.name() );
+            add_msg( m_info, _( "You can't displace your {}." ), critter.name() );
             return false;
         }
         // Successful displacing is handled (much) later
@@ -434,7 +434,7 @@ bool avatar_action::move( avatar &you, map &m, const tripoint &d )
         if( is_riding ) {
             auto *mon = you.mounted_creature.get();
             if( !mon->swims() || mon->get_size() < you.get_size() + 2 ) {
-                add_msg( m_warning, _( "The %s cannot swim while it is carrying you!" ), mon->get_name() );
+                add_msg( m_warning, _( "The {} cannot swim while it is carrying you!" ), mon->get_name() );
                 return false;
             }
         }
@@ -442,7 +442,7 @@ bool avatar_action::move( avatar &you, map &m, const tripoint &d )
             check_water_affect_items( you ) ) {
             if( ( !fromDeepWater || fromBoat ) && you.swim_speed() < 500 ) {
                 add_msg( _( "You start swimming." ) );
-                add_msg( m_info, _( "%s to dive underwater." ),
+                add_msg( m_info, _( "{} to dive underwater." ),
                          press_x( ACTION_MOVE_DOWN ) );
             }
             avatar_action::swim( get_map(), get_avatar(), dest_loc );
@@ -461,7 +461,7 @@ bool avatar_action::move( avatar &you, map &m, const tripoint &d )
         && !veh_closed_door
         && m.open_door( you, dest_loc, !m.is_outside( you.pos() ) ) ) {
         you.moves -= 100;
-        you.add_msg_if_player( _( "You open the %s." ), door_name );
+        you.add_msg_if_player( _( "You open the {}." ), door_name );
         // if auto move is on, continue moving next turn
         if( you.is_auto_moving() ) {
             you.defer_move( dest_loc );
@@ -484,8 +484,8 @@ bool avatar_action::move( avatar &you, map &m, const tripoint &d )
             } else {
                 veh1->open( dpart );
             }
-            //~ %1$s - vehicle name, %2$s - part name
-            you.add_msg_if_player( _( "You open the %1$s's %2$s." ), veh1->name, door_name );
+            //~ {1} - vehicle name, {2} - part name
+            you.add_msg_if_player( _( "You open the {1}'s {2}." ), veh1->name, door_name );
         }
         you.moves -= 100;
         // if auto move is on, continue moving next turn
@@ -498,10 +498,10 @@ bool avatar_action::move( avatar &you, map &m, const tripoint &d )
     if( m.furn( dest_loc ) != f_safe_c && m.open_door( you, dest_loc, !m.is_outside( you.pos() ) ) ) {
         you.moves -= 100;
         if( veh1 != nullptr ) {
-            //~ %1$s - vehicle name, %2$s - part name
-            you.add_msg_if_player( _( "You open the %1$s's %2$s." ), veh1->name, door_name );
+            //~ {1} - vehicle name, {2} - part name
+            you.add_msg_if_player( _( "You open the {1}'s {2}." ), veh1->name, door_name );
         } else {
-            you.add_msg_if_player( _( "You open the %s." ), door_name );
+            you.add_msg_if_player( _( "You open the {}." ), door_name );
         }
         // if auto move is on, continue moving next turn
         if( you.is_auto_moving() ) {
@@ -513,7 +513,7 @@ bool avatar_action::move( avatar &you, map &m, const tripoint &d )
     // Invalid move
     const bool waste_moves = you.is_blind() || you.has_effect( effect_stunned );
     if( waste_moves || dest_loc.z != you.posz() ) {
-        add_msg( _( "You bump into the %s!" ), m.obstacle_name( dest_loc ) );
+        add_msg( _( "You bump into the {}!" ), m.obstacle_name( dest_loc ) );
         // Only lose movement if we're blind
         if( waste_moves ) {
             you.moves -= 100;
@@ -587,7 +587,7 @@ void avatar_action::swim( map &m, avatar &you, const tripoint &p )
     if( !m.has_flag( ter_furn_flag::TFLAG_SWIMMABLE, p ) ) {
         dbg( D_ERROR ) << "game:plswim: Tried to swim in "
                        << m.tername( p ) << "!";
-        debugmsg( "Tried to swim in %s!", m.tername( p ) );
+        debugmsg( "Tried to swim in {}!", m.tername( p ) );
         return;
     }
     if( you.has_effect( effect_onfire ) ) {
@@ -619,7 +619,7 @@ void avatar_action::swim( map &m, avatar &you, const tripoint &p )
     }
     if( you.oxygen <= 5 && you.is_underwater() ) {
         if( movecost < 500 ) {
-            popup( _( "You need to breathe!  (%s to surface.)" ), press_x( ACTION_MOVE_UP ) );
+            popup( _( "You need to breathe!  ({} to surface.)" ), press_x( ACTION_MOVE_UP ) );
         } else {
             popup( _( "You need to breathe but you can't swim!  Get to dry land, quick!" ) );
         }
@@ -761,11 +761,11 @@ static bool can_fire_turret( avatar &you, const map &m, const turret_data &turre
 
     switch( turret.query() ) {
         case turret_data::status::no_ammo:
-            add_msg( m_bad, _( "The %s is out of ammo." ), turret.name() );
+            add_msg( m_bad, _( "The {} is out of ammo." ), turret.name() );
             return false;
 
         case turret_data::status::no_power:
-            add_msg( m_bad, _( "The %s is not powered." ), turret.name() );
+            add_msg( m_bad, _( "The {} is not powered." ), turret.name() );
             return false;
 
         case turret_data::status::ready:
@@ -811,14 +811,14 @@ void avatar_action::fire_wielded_weapon( avatar &you )
 
     if( weapon->is_gunmod() ) {
         add_msg( m_info,
-                 _( "The %s must be attached to a gun, it can not be fired separately." ),
+                 _( "The {} must be attached to a gun, it can not be fired separately." ),
                  weapon->tname() );
         return;
     } else if( !weapon->is_gun() ) {
         return;
     } else if( weapon->ammo_data() &&
                !weapon->ammo_types().count( weapon->loaded_ammo().ammo_type() ) ) {
-        add_msg( m_info, _( "The %s can't be fired while loaded with incompatible ammunition %s" ),
+        add_msg( m_info, _( "The {} can't be fired while loaded with incompatible ammunition {}" ),
                  weapon->tname(), weapon->ammo_current()->nname( 1 ) );
         return;
     }
@@ -881,7 +881,7 @@ bool avatar_action::eat_here( avatar &you )
     if( ( you.has_active_mutation( trait_RUMINANT ) || you.has_active_mutation( trait_GRAZER ) ) &&
         ( here.ter( you.pos() ) == t_underbrush || here.ter( you.pos() ) == t_shrub ) ) {
         if( you.has_effect( effect_hunger_engorged ) ) {
-            add_msg( _( "You're too full to eat the leaves from the %s." ), here.ter( you.pos() )->name() );
+            add_msg( _( "You're too full to eat the leaves from the {}." ), here.ter( you.pos() )->name() );
             return true;
         } else {
             here.ter_set( you.pos(), t_grass );
@@ -964,7 +964,7 @@ void avatar_action::plthrow( avatar &you, item_location loc,
         monster *mons = get_player_character().mounted_creature.get();
         if( mons->has_flag( MF_RIDEABLE_MECH ) ) {
             if( !mons->check_mech_powered() ) {
-                add_msg( m_bad, _( "Your %s refuses to move as its batteries have been drained." ),
+                add_msg( m_bad, _( "Your {} refuses to move as its batteries have been drained." ),
                          mons->get_name() );
                 return;
             }
@@ -983,7 +983,7 @@ void avatar_action::plthrow( avatar &you, item_location loc,
 
     const ret_val<void> ret = you.can_wield( *loc );
     if( !ret.success() ) {
-        add_msg( m_info, "%s", ret.c_str() );
+        add_msg( m_info, "{}", ret.c_str() );
         return;
     }
 
@@ -1020,7 +1020,7 @@ void avatar_action::plthrow( avatar &you, item_location loc,
     if( you.is_worn( *orig ) ) {
         ret_val<void> ret = you.can_takeoff( *orig );
         if( !ret.success() ) {
-            add_msg( m_info, "%s", ret.c_str() );
+            add_msg( m_info, "{}", ret.c_str() );
             return;
         }
     }
@@ -1137,7 +1137,7 @@ void avatar_action::use_item( avatar &you, item_location &loc )
     } else {
         item_location::type loc_where = loc.where_recursive();
         if( loc_where != item_location::type::character ) {
-            you.add_msg_if_player( _( "You pick up the %s." ), loc.get_item()->display_name() );
+            you.add_msg_if_player( _( "You pick up the {}." ), loc.get_item()->display_name() );
             pre_obtain_moves = -1;
             on_person = false;
         }

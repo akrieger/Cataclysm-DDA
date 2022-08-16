@@ -20,7 +20,7 @@ static void check_near( const std::string &subject, float prob, const float expe
 {
     const float low = expected - tolerance;
     const float high = expected + tolerance;
-    THEN( string_format( "%s is between %.1f and %.1f", subject, low, high ) ) {
+    THEN( string_format( "{} is between %.1f and %.1f", subject, low, high ) ) {
         REQUIRE( prob > low );
         REQUIRE( prob < high );
     }

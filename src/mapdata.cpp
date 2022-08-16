@@ -508,10 +508,10 @@ void load_season_array( const JsonObject &jo, const std::string &key, const std:
 
     } else if( jo.has_member( key ) ) {
         jo.throw_error_at(
-            key, string_format( "Expected '%s' member to be string or array", key ) );
+            key, string_format( "Expected '{}' member to be string or array", key ) );
     } else {
         jo.throw_error(
-            string_format( "Expected '%s' member in %s but none was found", key, context ) );
+            string_format( "Expected '{}' member in {} but none was found", key, context ) );
     }
 }
 
@@ -655,7 +655,7 @@ void map_data_common_t::set_connects( const std::string &connect_group_string )
     if( it != ter_connects_map.end() ) {
         connect_group = it->second;
     } else { // arbitrary connect groups are a bad idea for optimization reasons
-        debugmsg( "can't find terrain connection group %s", connect_group_string.c_str() );
+        debugmsg( "can't find terrain connection group {}", connect_group_string.c_str() );
     }
 }
 
@@ -1309,7 +1309,7 @@ static cata::clone_ptr<iexamine_actor> iexamine_actor_from_jsobj( const JsonObje
     try {
         return examine_actors.at( type );
     } catch( const std::exception & ) {
-        jo.throw_error( string_format( "Invalid iexamine actor %s", type ) );
+        jo.throw_error( string_format( "Invalid iexamine actor {}", type ) );
     }
 }
 
@@ -1431,17 +1431,17 @@ void ter_t::load( const JsonObject &jo, const std::string &src )
 static void check_bash_items( const map_bash_info &mbi, const std::string &id, bool is_terrain )
 {
     if( !item_group::group_is_defined( mbi.drop_group ) ) {
-        debugmsg( "%s: bash result item group %s does not exist", id.c_str(), mbi.drop_group.c_str() );
+        debugmsg( "{}: bash result item group {} does not exist", id.c_str(), mbi.drop_group.c_str() );
     }
     if( mbi.str_max != -1 ) {
         if( is_terrain && mbi.ter_set.is_empty() ) { // Some tiles specify t_null explicitly
-            debugmsg( "bash result terrain of %s is undefined/empty", id.c_str() );
+            debugmsg( "bash result terrain of {} is undefined/empty", id.c_str() );
         }
         if( !mbi.ter_set.is_valid() ) {
-            debugmsg( "bash result terrain %s of %s does not exist", mbi.ter_set.c_str(), id.c_str() );
+            debugmsg( "bash result terrain {} of {} does not exist", mbi.ter_set.c_str(), id.c_str() );
         }
         if( !mbi.furn_set.is_valid() ) {
-            debugmsg( "bash result furniture %s of %s does not exist", mbi.furn_set.c_str(), id.c_str() );
+            debugmsg( "bash result furniture {} of {} does not exist", mbi.furn_set.c_str(), id.c_str() );
         }
     }
 }
@@ -1453,17 +1453,17 @@ static void check_decon_items( const map_deconstruct_info &mbi, const std::strin
         return;
     }
     if( !item_group::group_is_defined( mbi.drop_group ) ) {
-        debugmsg( "%s: deconstruct result item group %s does not exist", id.c_str(),
+        debugmsg( "{}: deconstruct result item group {} does not exist", id.c_str(),
                   mbi.drop_group.c_str() );
     }
     if( is_terrain && mbi.ter_set.is_empty() ) { // Some tiles specify t_null explicitly
-        debugmsg( "deconstruct result terrain of %s is undefined/empty", id.c_str() );
+        debugmsg( "deconstruct result terrain of {} is undefined/empty", id.c_str() );
     }
     if( !mbi.ter_set.is_valid() ) {
-        debugmsg( "deconstruct result terrain %s of %s does not exist", mbi.ter_set.c_str(), id.c_str() );
+        debugmsg( "deconstruct result terrain {} of {} does not exist", mbi.ter_set.c_str(), id.c_str() );
     }
     if( !mbi.furn_set.is_valid() ) {
-        debugmsg( "deconstruct result furniture %s of %s does not exist", mbi.furn_set.c_str(),
+        debugmsg( "deconstruct result furniture {} of {} does not exist", mbi.furn_set.c_str(),
                   id.c_str() );
     }
 }
@@ -1475,44 +1475,44 @@ void ter_t::check() const
     check_decon_items( deconstruct, id.str(), true );
 
     if( !transforms_into.is_valid() ) {
-        debugmsg( "invalid transforms_into %s for %s", transforms_into.c_str(), id.c_str() );
+        debugmsg( "invalid transforms_into {} for {}", transforms_into.c_str(), id.c_str() );
     }
 
     // Validate open/close transforms
     if( !open.is_valid() ) {
-        debugmsg( "invalid terrain %s for opening %s", open.c_str(), id.c_str() );
+        debugmsg( "invalid terrain {} for opening {}", open.c_str(), id.c_str() );
     }
     if( !close.is_valid() ) {
-        debugmsg( "invalid terrain %s for closing %s", close.c_str(), id.c_str() );
+        debugmsg( "invalid terrain {} for closing {}", close.c_str(), id.c_str() );
     }
     // Check transition consistency for opening/closing terrain. Has an obvious
     // exception for locked terrains - those aren't expected to be locked again
     if( open && open->close && open->close != id && !has_flag( ter_furn_flag::TFLAG_LOCKED ) ) {
-        debugmsg( "opening terrain %s for %s doesn't reciprocate", open.c_str(), id.c_str() );
+        debugmsg( "opening terrain {} for {} doesn't reciprocate", open.c_str(), id.c_str() );
     }
     if( close && close->open && close->open != id && !has_flag( ter_furn_flag::TFLAG_LOCKED ) ) {
-        debugmsg( "closing terrain %s for %s doesn't reciprocate", close.c_str(), id.c_str() );
+        debugmsg( "closing terrain {} for {} doesn't reciprocate", close.c_str(), id.c_str() );
     }
 
     // Validate curtain transforms
     if( has_examine( iexamine::curtains ) && !has_curtains() ) {
-        debugmsg( "%s is a curtain, but has no curtain_transform", id.c_str() );
+        debugmsg( "{} is a curtain, but has no curtain_transform", id.c_str() );
     }
     if( !has_examine( iexamine::curtains ) && has_curtains() ) {
-        debugmsg( "%s is not a curtain, but has curtain_transform", id.c_str() );
+        debugmsg( "{} is not a curtain, but has curtain_transform", id.c_str() );
     }
     if( !curtain_transform.is_empty() && !curtain_transform.is_valid() ) {
-        debugmsg( "%s has invalid curtain transform target %s", id.c_str(), curtain_transform.c_str() );
+        debugmsg( "{} has invalid curtain transform target {}", id.c_str(), curtain_transform.c_str() );
     }
 
     // Validate generic transforms
     if( transforms_into && transforms_into == id ) {
-        debugmsg( "%s transforms_into itself", id.c_str() );
+        debugmsg( "{} transforms_into itself", id.c_str() );
     }
 
     for( const emit_id &e : emissions ) {
         if( !e.is_valid() ) {
-            debugmsg( "ter %s has invalid emission %s set", id.c_str(), e.str().c_str() );
+            debugmsg( "ter {} has invalid emission {} set", id.c_str(), e.str().c_str() );
         }
     }
 }
@@ -1610,14 +1610,14 @@ void furn_t::check() const
     check_decon_items( deconstruct, id.str(), false );
 
     if( !open.is_valid() ) {
-        debugmsg( "invalid furniture %s for opening %s", open.c_str(), id.c_str() );
+        debugmsg( "invalid furniture {} for opening {}", open.c_str(), id.c_str() );
     }
     if( !close.is_valid() ) {
-        debugmsg( "invalid furniture %s for closing %s", close.c_str(), id.c_str() );
+        debugmsg( "invalid furniture {} for closing {}", close.c_str(), id.c_str() );
     }
     for( const emit_id &e : emissions ) {
         if( !e.is_valid() ) {
-            debugmsg( "furn %s has invalid emission %s set", id.c_str(),
+            debugmsg( "furn {} has invalid emission {} set", id.c_str(),
                       e.str().c_str() );
         }
     }

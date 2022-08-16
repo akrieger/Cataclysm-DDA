@@ -82,7 +82,7 @@ struct mut_transform {
 
     trait_id target;
 
-    /** displayed if player sees transformation with %s replaced by mutation name */
+    /** displayed if player sees transformation with {} replaced by mutation name */
     translation msg_transform;
     /** used to set the active property of the transformed @ref target */
     bool active = false;

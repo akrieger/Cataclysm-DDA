@@ -141,20 +141,20 @@ void material_type::load( const JsonObject &jsobj, const std::string & )
 void material_type::check() const
 {
     if( name().empty() ) {
-        debugmsg( "material %s has no name.", id.c_str() );
+        debugmsg( "material {} has no name.", id.c_str() );
     }
     if( _dmg_adj.size() < 4 ) {
-        debugmsg( "material %s specifies insufficient damaged adjectives.", id.c_str() );
+        debugmsg( "material {} specifies insufficient damaged adjectives.", id.c_str() );
     }
     if( _salvaged_into && ( !item::type_is_defined( *_salvaged_into ) || _salvaged_into->is_null() ) ) {
-        debugmsg( "invalid \"salvaged_into\" %s for %s.", _salvaged_into->c_str(), id.c_str() );
+        debugmsg( "invalid \"salvaged_into\" {} for {}.", _salvaged_into->c_str(), id.c_str() );
     }
     if( !item::type_is_defined( _repaired_with ) ) {
-        debugmsg( "invalid \"repaired_with\" %s for %s.", _repaired_with.c_str(), id.c_str() );
+        debugmsg( "invalid \"repaired_with\" {} for {}.", _repaired_with.c_str(), id.c_str() );
     }
 
     if( _wind_resist && ( *_wind_resist > 100 || *_wind_resist < 0 ) ) {
-        debugmsg( "Wind resistance outside of range (100%% to 0%%, is %d%%) for %s.", *_wind_resist,
+        debugmsg( "Wind resistance outside of range (100%% to 0%%, is {}%%) for {}.", *_wind_resist,
                   id.str() );
     }
 }

@@ -35,7 +35,7 @@ bool game::grabbed_veh_move( const tripoint &dp )
     for( const vpart_reference &vpr : grabbed_vehicle->get_all_parts() ) {
         monster *mon = grabbed_vehicle->get_monster( vpr.part_index() );
         if( mon != nullptr && mon->has_effect( effect_harnessed ) ) {
-            add_msg( m_info, _( "You cannot move this vehicle whilst your %s is harnessed!" ),
+            add_msg( m_info, _( "You cannot move this vehicle whilst your {} is harnessed!" ),
                      mon->get_name() );
             u.grab( object_type::NONE );
             return false;
@@ -88,7 +88,7 @@ bool game::grabbed_veh_move( const tripoint &dp )
     // Vehicle just too big to grab & move; 41-45 lets folks have a bit of a window
     // (Roughly 1.1K kg = danger zone; cube vans are about the max)
     if( str_req > 45 ) {
-        add_msg( m_info, _( "The %s is too bulky for you to move by hand." ),
+        add_msg( m_info, _( "The {} is too bulky for you to move by hand." ),
                  grabbed_vehicle->name );
         return true; // No shoving around an RV.
     }
@@ -127,17 +127,17 @@ bool game::grabbed_veh_move( const tripoint &dp )
         const int ex = dice( 1, 3 ) - 1 + str_req;
         if( ex > str + 1 ) {
             // Pain and movement penalty if exertion exceeds character strength
-            add_msg( m_bad, _( "You strain yourself to move the %s!" ), grabbed_vehicle->name );
+            add_msg( m_bad, _( "You strain yourself to move the {}!" ), grabbed_vehicle->name );
             u.moves -= 200;
             u.mod_pain( 1 );
         } else if( ex >= str ) {
             // Movement is slow if exertion nearly equals character strength
-            add_msg( _( "It takes some time to move the %s." ), grabbed_vehicle->name );
+            add_msg( _( "It takes some time to move the {}." ), grabbed_vehicle->name );
             u.moves -= 200;
         }
     } else {
         u.moves -= 100;
-        add_msg( m_bad, _( "You lack the strength to move the %s." ), grabbed_vehicle->name );
+        add_msg( m_bad, _( "You lack the strength to move the {}." ), grabbed_vehicle->name );
         return true;
     }
 
@@ -148,7 +148,7 @@ bool game::grabbed_veh_move( const tripoint &dp )
         mdir.init( dir.xy() );
         units::angle turn = normalize( mdir.dir() - grabbed_vehicle->face.dir() );
         if( grabbed_vehicle->is_on_ramp && turn == 180_degrees ) {
-            add_msg( m_bad, _( "The %s can't be turned around while on a ramp." ), grabbed_vehicle->name );
+            add_msg( m_bad, _( "The {} can't be turned around while on a ramp." ), grabbed_vehicle->name );
             return tripoint_zero;
         }
         grabbed_vehicle->turn( turn );
@@ -185,7 +185,7 @@ bool game::grabbed_veh_move( const tripoint &dp )
     }
 
     if( final_dp_veh == tripoint_zero ) {
-        add_msg( _( "The %s collides with %s." ), grabbed_vehicle->name, blocker_name );
+        add_msg( _( "The {} collides with {}." ), grabbed_vehicle->name, blocker_name );
         u.grab_point = prev_grab;
         return true;
     }
@@ -198,7 +198,7 @@ bool game::grabbed_veh_move( const tripoint &dp )
         m.level_vehicle( *grabbed_vehicle );
         grabbed_vehicle->check_falling_or_floating();
         if( grabbed_vehicle->is_falling ) {
-            add_msg( _( "You let go of the %1$s as it starts to fall." ), grabbed_vehicle->disp_name() );
+            add_msg( _( "You let go of the {1} as it starts to fall." ), grabbed_vehicle->disp_name() );
             u.grab( object_type::NONE );
             m.drop_vehicle( final_dp_veh );
             return true;

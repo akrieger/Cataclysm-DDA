@@ -192,7 +192,7 @@ void print_grid_comparison(
             if( x == offset.x && y == offset.y ) {
                 output = '@';
             }
-            printf( "%c", output );
+            printf( "{}", output );
         }
         printf( "\n" );
     }
@@ -204,7 +204,7 @@ void print_grid_comparison(
             } else if( control[x][y] > LIGHT_TRANSPARENCY_SOLID ) {
                 output = 'X';
             }
-            printf( "%c", output );
+            printf( "{}", output );
         }
         printf( "    " );
         for( int y = 0; y < MAPSIZE * SEEX; ++y ) {
@@ -214,7 +214,7 @@ void print_grid_comparison(
             } else if( is_nonzero( experiment[x][y] ) ) {
                 output = 'X';
             }
-            printf( "%c", output );
+            printf( "{}", output );
         }
         printf( "\n" );
     }
@@ -262,9 +262,9 @@ static void shadowcasting_runoff( const int iterations, const bool test_bresenha
                                 ( end1 - start1 ).count();
         const long long diff2 = std::chrono::duration_cast<std::chrono::microseconds>
                                 ( end2 - start2 ).count();
-        printf( "oldCastLight() executed %d times in %lld microseconds.\n",
+        printf( "oldCastLight() executed {} times in {} microseconds.\n",
                 iterations, diff1 );
-        printf( "castLight() executed %d times in %lld microseconds.\n",
+        printf( "castLight() executed {} times in {} microseconds.\n",
                 iterations, diff2 );
     }
 
@@ -330,11 +330,11 @@ static void shadowcasting_float_quad(
                                 ( end1 - start1 ).count();
         const long long diff2 = std::chrono::duration_cast<std::chrono::microseconds>
                                 ( end2 - start2 ).count();
-        printf( "castLight on four_quadrants (denominator %u) "
-                "executed %d times in %lld microseconds.\n",
+        printf( "castLight on four_quadrants (denominator {}) "
+                "executed {} times in {} microseconds.\n",
                 denominator, iterations, diff1 );
-        printf( "castLight on floats (denominator %u) "
-                "executed %d times in %lld microseconds.\n",
+        printf( "castLight on floats (denominator {}) "
+                "executed {} times in {} microseconds.\n",
                 denominator, iterations, diff2 );
     }
 
@@ -378,7 +378,7 @@ static void do_3d_benchmark(
     if( iterations > 1 ) {
         const long long diff =
             std::chrono::duration_cast<std::chrono::microseconds>( end - start ).count();
-        printf( "cast_zlight() executed %d times in %lld microseconds.\n",
+        printf( "cast_zlight() executed {} times in {} microseconds.\n",
                 iterations, diff );
     }
 }
@@ -470,9 +470,9 @@ static void shadowcasting_3d_2d( const int iterations )
             std::chrono::duration_cast<std::chrono::microseconds>( end1 - start1 ).count();
         const long long diff2 =
             std::chrono::duration_cast<std::chrono::microseconds>( end2 - start2 ).count();
-        printf( "castLight() executed %d times in %lld microseconds.\n",
+        printf( "castLight() executed {} times in {} microseconds.\n",
                 iterations, diff1 );
-        printf( "cast_zlight() executed %d times in %lld microseconds.\n",
+        printf( "cast_zlight() executed {} times in {} microseconds.\n",
                 iterations, diff2 );
         printf( "new/old execution time ratio: %.02f.\n", static_cast<double>( diff2 ) / diff1 );
     }

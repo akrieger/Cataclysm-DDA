@@ -693,7 +693,7 @@ static cata::optional<std::pair<tripoint_abs_omt, std::string>> get_mission_arro
                                        tripoint( mission_target.raw().xy(), center.raw().z ) );
 
     if( traj.empty() ) {
-        debugmsg( "Failed to gen overmap mission trajectory %s %s",
+        debugmsg( "Failed to gen overmap mission trajectory {} {}",
                   center.to_string(), mission_target.to_string() );
         return cata::nullopt;
     }
@@ -919,7 +919,7 @@ void cata_tiles::draw_om( const point &dest, const tripoint_abs_omt &center_abs_
                     // a little bit of hardcoded fallbacks for hordes
                     if( find_tile_with_season( id ) ) {
                         // NOLINTNEXTLINE(cata-translate-string-literal)
-                        draw_from_id_string( string_format( "overmap_horde_%d", horde_size ),
+                        draw_from_id_string( string_format( "overmap_horde_{}", horde_size ),
                                              omp.raw(), 0, 0, lit_level::LIT, false );
                     } else {
                         switch( horde_size ) {

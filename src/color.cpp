@@ -103,7 +103,7 @@ color_id color_manager::name_to_id( const std::string &name,
     auto iter = name_map.find( name );
     if( iter == name_map.end() ) {
         if( color_error == report_color_error::yes ) {
-            debugmsg( "couldn't parse color: %s", name );
+            debugmsg( "couldn't parse color: {}", name );
         }
         return def_c_unset;
     }
@@ -126,19 +126,19 @@ color_id color_manager::color_to_id( const nc_color &color ) const
     // Optimally this shouldn't happen, but allow for now
     for( const color_manager::color_struct &entry : color_array ) {
         if( entry.color == color ) {
-            debugmsg( "Couldn't find color %d", color.operator int() );
+            debugmsg( "Couldn't find color {}", color.operator int() );
             return entry.col_id;
         }
     }
 
-    debugmsg( "Couldn't find color %d", color.operator int() );
+    debugmsg( "Couldn't find color {}", color.operator int() );
     return def_c_unset;
 }
 
 nc_color color_manager::get( const color_id id ) const
 {
     if( id >= num_colors ) {
-        debugmsg( "Invalid color index: %d. Color array size: %zd", id, color_array.size() );
+        debugmsg( "Invalid color index: {}. Color array size: {}", id, color_array.size() );
         return nc_color();
     }
 
@@ -566,7 +566,7 @@ nc_color color_from_string( const std::string &color,
             new_color.replace( pos, i.second.length(), i.first );
             pos += i.first.length();
             if( color_error == report_color_error::yes ) {
-                debugmsg( "Deprecated foreground color suffix was used: (%s) in (%s).  Please update mod that uses that.",
+                debugmsg( "Deprecated foreground color suffix was used: ({}) in ({}).  Please update mod that uses that.",
                           i.second, color );
             }
         }
@@ -612,7 +612,7 @@ nc_color bgcolor_from_string( const std::string &color )
         while( ( pos = new_color.find( i.second, pos ) ) != std::string::npos ) {
             new_color.replace( pos, i.second.length(), i.first );
             pos += i.first.length();
-            debugmsg( "Deprecated background color suffix was used: (%s) in (%s).  Please update mod that uses that.",
+            debugmsg( "Deprecated background color suffix was used: ({}) in ({}).  Please update mod that uses that.",
                       i.second, color );
         }
     }
@@ -994,7 +994,7 @@ void color_manager::show_gui()
 
             }
 
-            ui_colors.text = string_format( _( "Custom %s color:" ), sColorType );
+            ui_colors.text = string_format( _( "Custom {} color:" ), sColorType );
 
             int i = 0;
             for( auto &iter : name_color_map ) {
@@ -1011,7 +1011,7 @@ void color_manager::show_gui()
                     name_custom = " <color_" + iter.second.name_custom + ">" + iter.second.name_custom + "</color>";
                 }
 
-                ui_colors.addentry( string_format( "%-17s <color_%s>%s</color>%s", iter.first,
+                ui_colors.addentry( string_format( "%-17s <color_{}>{}</color>{}", iter.first,
                                                    sColor, sType, name_custom ) );
 
                 i++;

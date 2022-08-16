@@ -261,7 +261,7 @@ std::string display::date_string()
 {
     const std::string season = calendar::name_season( season_of_year( calendar::turn ) );
     const int day_num = day_of_season<int>( calendar::turn ) + 1;
-    return string_format( _( "%s, day %d" ), season, day_num );
+    return string_format( _( "{}, day {}" ), season, day_num );
 }
 
 std::string display::time_string( const Character &u )
@@ -524,7 +524,7 @@ std::pair<std::string, nc_color> display::morale_emotion( const int morale_cur,
         return std::make_pair( current_face, current_color );
     }
 
-    debugmsg( "morale_emotion no matching face found for: %s", face.getId().str() );
+    debugmsg( "morale_emotion no matching face found for: {}", face.getId().str() );
     return std::make_pair( "ERR", c_light_gray );
 }
 
@@ -709,7 +709,7 @@ std::string display::activity_malus_str( const Character &u )
     const float act_level = u.instantaneous_activity_level();
     const float exertion_mult = u.exertion_adjusted_move_multiplier( act_level ) ;
     const int malus_value = ( 1 / exertion_mult ) * 100 - 100;
-    return string_format( "+%3d%%", malus_value );
+    return string_format( "+{}%%", malus_value );
 }
 
 std::pair<std::string, nc_color> display::activity_text_color( const Character &u )
@@ -983,7 +983,7 @@ std::pair<std::string, nc_color> display::pain_text_color( const Character &u )
     }
     // get pain string
     if( u.has_effect( effect_got_checked ) && perceived_pain > 0 ) {
-        pain_string = string_format( "%s %d", _( "Pain " ), perceived_pain );
+        pain_string = string_format( "{} {}", _( "Pain " ), perceived_pain );
     } else if( perceived_pain > 0 ) {
         pain_string = pain.first;
     }
@@ -1096,7 +1096,7 @@ std::pair<std::string, nc_color> display::vehicle_cruise_text_color( const Chara
         int target = static_cast<int>( convert_velocity( veh->cruise_velocity, VU_VEHICLE ) );
         int current = static_cast<int>( convert_velocity( veh->velocity, VU_VEHICLE ) );
         const std::string units = get_option<std::string> ( "USE_METRIC_SPEEDS" );
-        vel_text = string_format( "%d < %d %s", target, current, units );
+        vel_text = string_format( "{} < {} {}", target, current, units );
 
         const float strain = veh->strain();
         if( strain <= 0 ) {
@@ -1134,7 +1134,7 @@ std::pair<std::string, nc_color> display::vehicle_fuel_percent_text_color( const
         if( max_fuel != 0 ) {
             int percent = cur_fuel * 100 / max_fuel;
             // Simple percent indicator, yellow under 25%, red under 10%
-            fuel_text = string_format( "%d %%", percent );
+            fuel_text = string_format( "{} %%", percent );
             fuel_color = percent < 10 ? c_red : ( percent < 25 ? c_yellow : c_green );
         }
     }
@@ -1154,7 +1154,7 @@ std::pair<std::string, nc_color> display::move_mode_letter_color( const Characte
 std::pair<std::string, nc_color> display::move_count_and_mode_text_color( const avatar &u )
 {
     std::pair<std::string, nc_color> mode_pair = display::move_mode_letter_color( u );
-    std::string count_and_mode = string_format( "%d(%s)", u.movecounter, mode_pair.first );
+    std::string count_and_mode = string_format( "{}({})", u.movecounter, mode_pair.first );
     return std::make_pair( count_and_mode, mode_pair.second );
 }
 
@@ -1162,7 +1162,7 @@ std::pair<std::string, nc_color> display::move_count_and_mode_text_color( const 
 std::pair<std::string, nc_color> display::carry_weight_text_color( const avatar &u )
 {
     int carry_wt = ( 100 * u.weight_carried() ) / u.weight_capacity();
-    std::string weight_text = string_format( "%d%%", carry_wt );
+    std::string weight_text = string_format( "{}%%", carry_wt );
 
     nc_color weight_color = c_green;
     if( carry_wt > 100 ) {
@@ -1398,7 +1398,7 @@ std::string display::overmap_position_text( const tripoint_abs_omt &loc )
     point_abs_om om;
     point_om_omt omt;
     std::tie( om, omt ) = project_remain<coords::om>( abs_omt );
-    return string_format( _( "LEVEL %i, %d'%d, %d'%d" ), loc.z(), om.x(), omt.x(), om.y(), omt.y() );
+    return string_format( _( "LEVEL {}, {}'{}, {}'{}" ), loc.z(), om.x(), omt.x(), om.y(), omt.y() );
 }
 
 std::string display::current_position_text( const tripoint_abs_omt &loc )
@@ -1529,7 +1529,7 @@ std::string display::colorized_compass_legend_text( int width, int max_height, i
                     name = colorize( "@", c_pink );
                     break;
             }
-            name = string_format( "%s %s", name, n->name );
+            name = string_format( "{} {}", name, n->name );
             names.emplace_back( name );
         }
     }
@@ -1550,9 +1550,9 @@ std::string display::colorized_compass_legend_text( int width, int max_height, i
         } else if( m.first->agro > 0 ) {
             danger = c_light_gray;
         }
-        std::string name = m.second > 1 ? string_format( "%d ", m.second ) : "";
+        std::string name = m.second > 1 ? string_format( "{} ", m.second ) : "";
         name += m.first->nname( m.second );
-        name = string_format( "%s %s", colorize( m.first->sym, m.first->color ), colorize( name, danger ) );
+        name = string_format( "{} {}", colorize( m.first->sym, m.first->color ), colorize( name, danger ) );
         names.emplace_back( name );
     }
     return format_widget_multiline( names, max_height, width, height );
@@ -1777,7 +1777,7 @@ void display::print_mon_info( const avatar &u, const catacurses::window &w, int 
             // Some languages don't have plural forms, but we want to always
             // omit 1.
             if( count != 1 ) {
-                name = string_format( pgettext( "monster count and name", "%1$d %2$s" ),
+                name = string_format( pgettext( "monster count and name", "{1} {2}" ),
                                       count, name );
             }
 

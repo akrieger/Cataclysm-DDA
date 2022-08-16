@@ -75,7 +75,7 @@ void scent_map::draw( const catacurses::window &win, const int div, const tripoi
     for( int x = 0; x < max.x; ++x ) {
         for( int y = 0; y < max.y; ++y ) {
             const int sn = get( center + point( -max.x / 2 + x, -max.y / 2 + y ) ) / div;
-            mvwprintz( win, point( x, y ), sev( sn / 10 ), "%d", sn % 10 );
+            mvwprintz( win, point( x, y ), sev( sn / 10 ), "{}", sn % 10 );
         }
     }
 }
@@ -297,7 +297,7 @@ void scent_type::check_scent_consistency()
     for( const scent_type &styp : get_all() ) {
         for( const species_id &spe : styp.receptive_species ) {
             if( !spe.is_valid() ) {
-                debugmsg( "scent_type %s has invalid species_id %s in receptive_species", styp.id.c_str(),
+                debugmsg( "scent_type {} has invalid species_id {} in receptive_species", styp.id.c_str(),
                           spe.c_str() );
             }
         }

@@ -688,7 +688,7 @@ bool monster::die_if_drowning( const tripoint &at_pos, const int chance )
 {
     if( is_aquatic_danger( at_pos ) && one_in( chance ) ) {
         die( nullptr );
-        add_msg_if_player_sees( at_pos, _( "The %s drowns!" ), name() );
+        add_msg_if_player_sees( at_pos, _( "The {} drowns!" ), name() );
         return true;
     }
     return false;
@@ -752,7 +752,7 @@ void monster::move()
             continue;
         }
 
-        add_msg_debug( debugmode::DF_MATTACK, "%s attempting a special attack %s, cooldown %d", name(),
+        add_msg_debug( debugmode::DF_MATTACK, "{} attempting a special attack {}, cooldown {}", name(),
                        sp_type.first, local_attack_data.cooldown );
 
         // Cooldowns are decremented in monster::process_turn
@@ -1148,14 +1148,14 @@ void monster::nursebot_operate( Character *dragged_foe )
         if( dragged_foe->has_effect( effect_grabbed ) && !has_effect( effect_countdown ) &&
             ( creatures.creature_at( get_dest() ) == nullptr ||
               creatures.creature_at( get_dest() ) == dragged_foe ) ) {
-            add_msg( m_bad, _( "The %1$s slowly but firmly puts %2$s down onto the Autodoc couch." ), name(),
+            add_msg( m_bad, _( "The {1} slowly but firmly puts {2} down onto the Autodoc couch." ), name(),
                      dragged_foe->disp_name() );
 
             dragged_foe->move_to( get_dest() );
 
             // There's still time to get away
             add_effect( effect_countdown, 2_turns );
-            add_msg( m_bad, _( "The %s produces a syringe full of some translucent liquid." ), name() );
+            add_msg( m_bad, _( "The {} produces a syringe full of some translucent liquid." ), name() );
         } else if( creatures.creature_at( get_dest() ) != nullptr && has_effect( effect_dragging ) ) {
             sounds::sound( pos(), 8, sounds::sound_t::electronic_speech,
                            string_format(
@@ -1608,13 +1608,13 @@ bool monster::move_to( const tripoint &p, bool force, bool step_on_critter,
             if( flies() ) {
                 moves -= 100;
                 force = true;
-                add_msg_if_player_sees( *this, _( "The %1$s flies over the %2$s." ), name(),
+                add_msg_if_player_sees( *this, _( "The {1} flies over the {2}." ), name(),
                                         here.has_flag_furn( ter_furn_flag::TFLAG_CLIMBABLE, p ) ? here.furnname( p ) :
                                         here.tername( p ) );
             } else if( climbs() ) {
                 moves -= 150;
                 force = true;
-                add_msg_if_player_sees( *this, _( "The %1$s climbs over the %2$s." ), name(),
+                add_msg_if_player_sees( *this, _( "The {1} climbs over the {2}." ), name(),
                                         here.has_flag_furn( ter_furn_flag::TFLAG_CLIMBABLE, p ) ? here.furnname( p ) :
                                         here.tername( p ) );
             }
@@ -1658,21 +1658,21 @@ bool monster::move_to( const tripoint &p, bool force, bool step_on_critter,
     //Birds and other flying creatures flying over the deep water terrain
     if( was_water && flies() ) {
         if( one_in( 4 ) ) {
-            add_msg_if_player_sees( *this, m_warning, _( "A %1$s flies over the %2$s!" ),
+            add_msg_if_player_sees( *this, m_warning, _( "A {1} flies over the {2}!" ),
                                     name(), here.tername( pos() ) );
         }
     } else if( was_water && !will_be_water ) {
         // Use more dramatic messages for swimming monsters
         add_msg_if_player_sees( *this, m_warning,
                                 //~ Message when a monster emerges from water
-                                //~ %1$s: monster name, %2$s: leaps/emerges, %3$s: terrain name
-                                pgettext( "monster movement", "A %1$s %2$s from the %3$s!" ),
+                                //~ {1}: monster name, {2}: leaps/emerges, {3}: terrain name
+                                pgettext( "monster movement", "A {1} {2} from the {3}!" ),
                                 name(), swims() || has_flag( MF_AQUATIC ) ? _( "leaps" ) : _( "emerges" ), here.tername( pos() ) );
     } else if( !was_water && will_be_water ) {
         add_msg_if_player_sees( *this, m_warning, pgettext( "monster movement",
                                 //~ Message when a monster enters water
-                                //~ %1$s: monster name, %2$s: dives/sinks, %3$s: terrain name
-                                "A %1$s %2$s into the %3$s!" ),
+                                //~ {1}: monster name, {2}: dives/sinks, {3}: terrain name
+                                "A {1} {2} into the {3}!" ),
                                 name(), swims() ||
                                 has_flag( MF_AQUATIC ) ? _( "dives" ) : _( "sinks" ), here.tername( destination ) );
     }
@@ -1915,7 +1915,7 @@ bool monster::push_to( const tripoint &p, const int boost, const size_t depth )
     Character &player_character = get_player_character();
     // Only print the message when near player or it can get spammy
     if( rl_dist( player_character.pos(), pos() ) < 4 ) {
-        add_msg_if_player_sees( *critter, m_warning, _( "The %1$s tramples %2$s" ),
+        add_msg_if_player_sees( *critter, m_warning, _( "The {1} tramples {2}" ),
                                 name(), critter->disp_name() );
     }
 
@@ -2006,7 +2006,7 @@ void monster::knock_back_to( const tripoint &to )
         z->check_dead_state();
 
         if( u_see ) {
-            add_msg( _( "The %1$s bounces off a %2$s!" ), name(), z->name() );
+            add_msg( _( "The {1} bounces off a {2}!" ), name(), z->name() );
         }
 
         return;
@@ -2018,7 +2018,7 @@ void monster::knock_back_to( const tripoint &to )
         p->deal_damage( this, bodypart_id( "torso" ),
                         damage_instance( damage_type::BASH, static_cast<float>( type->size ) ) );
         if( u_see ) {
-            add_msg( _( "The %1$s bounces off %2$s!" ), name(), p->get_name() );
+            add_msg( _( "The {1} bounces off {2}!" ), name(), p->get_name() );
         }
 
         p->check_dead_state();
@@ -2031,7 +2031,7 @@ void monster::knock_back_to( const tripoint &to )
     if( !die_if_drowning( to ) && has_flag( MF_AQUATIC ) ) {
         die( nullptr );
         if( u_see ) {
-            add_msg( _( "The %s flops around and dies!" ), name() );
+            add_msg( _( "The {} flops around and dies!" ), name() );
         }
     }
 
@@ -2042,7 +2042,7 @@ void monster::knock_back_to( const tripoint &to )
         apply_damage( nullptr, bodypart_id( "torso" ), dam );
         add_effect( effect_stunned, 2_turns );
         if( u_see ) {
-            add_msg( _( "The %1$s bounces off a %2$s and takes %3$d damage." ), name(),
+            add_msg( _( "The {1} bounces off a {2} and takes {3} damage." ), name(),
                      here.obstacle_name( to ), dam );
         }
 
@@ -2170,8 +2170,8 @@ void monster::shove_vehicle( const tripoint &remote_destination,
                     break;
             }
             if( shove_velocity > 0 ) {
-                //~ %1$s - monster name, %2$s - vehicle name
-                add_msg_if_player_sees( this->pos(), m_bad, _( "%1$s shoves %2$s out of their way!" ),
+                //~ {1} - monster name, {2} - vehicle name
+                add_msg_if_player_sees( this->pos(), m_bad, _( "{1} shoves {2} out of their way!" ),
                                         this->disp_name(),
                                         veh.disp_name() );
                 int shove_moves = shove_veh_mass_moves_factor * veh_mass / 10_kilogram;

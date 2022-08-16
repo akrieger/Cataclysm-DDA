@@ -115,7 +115,7 @@ bool map::build_transparency_cache( const int zlev )
         for( int smy = 0; smy < my_MAPSIZE; ++smy ) {
             const submap *cur_submap = get_submap_at_grid( {smx, smy, zlev} );
             if( cur_submap == nullptr ) {
-                debugmsg( "Tried to build transparency cache at (%d,%d,%d) but the submap is not loaded", smx, smy,
+                debugmsg( "Tried to build transparency cache at ({},{},{}) but the submap is not loaded", smx, smy,
                           zlev );
                 continue;
             }
@@ -427,7 +427,7 @@ void map::generate_lightmap( const int zlev )
         for( int smy = 0; smy < my_MAPSIZE; ++smy ) {
             const submap *cur_submap = get_submap_at_grid( { smx, smy, zlev } );
             if( cur_submap == nullptr ) {
-                debugmsg( "Tried to generate lightmap at (%d,%d,%d) but the submap is not loaded", smx, smy, zlev );
+                debugmsg( "Tried to generate lightmap at ({},{},{}) but the submap is not loaded", smx, smy, zlev );
                 continue;
             }
 

@@ -63,7 +63,7 @@ mf_attitude monfaction::attitude( const mfaction_id &other ) const
 {
     int idx = other.to_i();
     if( idx < 0 || idx >= static_cast<int>( attitude_vec.size() ) ) {
-        debugmsg( "Invalid mfaction_id in the attitude check: %d", idx );
+        debugmsg( "Invalid mfaction_id in the attitude check: {}", idx );
         return MFA_FRIENDLY;
     }
     return static_cast<mf_attitude>( attitude_vec[other.to_i()] );
@@ -103,7 +103,7 @@ bool monfaction::detect_base_faction_cycle() const
         parents_path.push_back( cur );
         // cycle detected!
         if( parents.count( cur ) ) {
-            debugmsg( "In MONSTER_FACTION '%s': detected a cycle in base_faction relations: %s",
+            debugmsg( "In MONSTER_FACTION '{}': detected a cycle in base_faction relations: {}",
             this -> id.str(), debug_menu::iterable_to_string( parents_path, " -> ", []( const auto & el ) {
                 return el.str();
             } ) );
@@ -142,7 +142,7 @@ void monfaction::populate_attitude_vec() const
     for( const monfaction &f : faction_factory.get_all() ) {
         const cata::optional<mf_attitude> &attitude = attitude_rec( f.id );
         if( !attitude ) {
-            debugmsg( "Invalid faction relations (no relation found): %s -> %s",
+            debugmsg( "Invalid faction relations (no relation found): {} -> {}",
                       id.c_str(), f.id.c_str() );
         }
         attitude_vec.push_back( attitude.value_or( MFA_FRIENDLY ) );

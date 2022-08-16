@@ -210,7 +210,7 @@ class wish_mutate_callback: public uilist_callback
                 line2 += 2;
 
                 //~ pts: points, vis: visibility, ugly: ugliness
-                mvwprintz( menu->window, point( startx, line2 ), c_light_gray, _( "pts: %d vis: %d ugly: %d" ),
+                mvwprintz( menu->window, point( startx, line2 ), c_light_gray, _( "pts: {} vis: {} ugly: {}" ),
                            mdata.points,
                            mdata.visibility,
                            mdata.ugliness
@@ -231,7 +231,7 @@ class wish_mutate_callback: public uilist_callback
             msg.clear();
             input_context ctxt( menu->input_category, keyboard_mode::keycode );
             mvwprintw( menu->window, point( startx, menu->w_height - 3 ),
-                       _( "[%s] find, [%s] quit, [t] toggle base trait" ),
+                       _( "[{}] find, [{}] quit, [t] toggle base trait" ),
                        ctxt.get_desc( "FILTER" ), ctxt.get_desc( "QUIT" ) );
 
             if( only_active ) {
@@ -259,7 +259,7 @@ void debug_menu::wishmutate( Character *you )
         wmenu.entries[ c ].extratxt.txt.clear();
         wmenu.entries[ c ].extratxt.color = c_light_green;
         if( you->has_trait( traits_iter.id ) ) {
-            wmenu.entries[ c ].txt = string_format( _( "%s (active)" ), traits_iter.name() );
+            wmenu.entries[ c ].txt = string_format( _( "{} (active)" ), traits_iter.name() );
             wmenu.entries[ c ].text_color = c_green;
             if( you->has_base_trait( traits_iter.id ) ) {
                 wmenu.entries[ c ].extratxt.txt = "T";
@@ -312,14 +312,14 @@ void debug_menu::wishmutate( Character *you )
                     rc++;
                 } while( !you->has_trait( mstr ) && rc < 10 );
             }
-            cb.msg = string_format( _( "%s Mutation changes: %d" ), mstr.c_str(), rc );
+            cb.msg = string_format( _( "{} Mutation changes: {}" ), mstr.c_str(), rc );
             uistate.wishmutate_selected = wmenu.selected;
             if( rc != 0 ) {
                 for( size_t i = 0; i < cb.vTraits.size(); i++ ) {
                     uilist_entry &entry = wmenu.entries[ i ];
                     entry.extratxt.txt.clear();
                     if( you->has_trait( cb.vTraits[ i ] ) ) {
-                        entry.txt = string_format( _( "%s (active)" ), cb.vTraits[ i ]->name() );
+                        entry.txt = string_format( _( "{} (active)" ), cb.vTraits[ i ]->name() );
                         entry.enabled = true;
                         entry.text_color = c_green;
                         cb.pTraits[ cb.vTraits[ i ] ] = true;
@@ -382,7 +382,7 @@ void debug_menu::wisheffect( Character &p )
     auto rebuild_menu = [&]( const bodypart_str_id & bp ) -> void {
         effects.clear();
         efmenu.entries.clear();
-        efmenu.title = string_format( _( "Debug Effects Menu: %s" ), bp->id.str() );
+        efmenu.title = string_format( _( "Debug Effects Menu: {}" ), bp->id.str() );
         efmenu.addentry( 0, true, 'a', _( "Show only active" ) );
         efmenu.addentry( 1, true, 'b', _( "Change body part" ) );
         only_active = false;
@@ -462,7 +462,7 @@ void debug_menu::wisheffect( Character &p )
             effect &eff = effects[efmenu.ret - offset];
 
             int duration = to_seconds<int>( eff.get_duration() );
-            query_int( duration, _( "Set duration (current %1$d): " ), duration );
+            query_int( duration, _( "Set duration (current {1}): " ), duration );
             if( duration < 0 ) {
                 continue;
             }
@@ -581,7 +581,7 @@ class wish_monster_callback: public uilist_callback
             if( valid_entnum ) {
                 tmp.print_info( w_info, 2, 5, 1 );
 
-                std::string header = string_format( "#%d: %s (%d)%s", entnum, tmp.type->id.str(),
+                std::string header = string_format( "#{}: {} ({}){}", entnum, tmp.type->id.str(),
                                                     group, hallucination ? _( " (hallucination)" ) : "" );
                 mvwprintz( w_info, point( ( getmaxx( w_info ) - utf8_width( header ) ) / 2, 0 ), c_cyan, header );
             }
@@ -590,7 +590,7 @@ class wish_monster_callback: public uilist_callback
             msg.clear();
             input_context ctxt( menu->input_category, keyboard_mode::keycode );
             mvwprintw( w_info, point( 0, getmaxy( w_info ) - 2 ),
-                       _( "[%s] find, [f]riendly, [h]allucination, [i]ncrease group, [d]ecrease group, [%s] quit" ),
+                       _( "[{}] find, [f]riendly, [h]allucination, [i]ncrease group, [d]ecrease group, [{}] quit" ),
                        ctxt.get_desc( "FILTER" ), ctxt.get_desc( "QUIT" ) );
 
             wnoutrefresh( w_info );
@@ -645,7 +645,7 @@ void debug_menu::wishmonster( const cata::optional<tripoint> &p )
                     ++num_spawned;
                 }
                 input_context ctxt( wmenu.input_category, keyboard_mode::keycode );
-                cb.msg = string_format( _( "Spawned %d monsters, choose another or [%s] to quit." ),
+                cb.msg = string_format( _( "Spawned {} monsters, choose another or [{}] to quit." ),
                                         num_spawned, ctxt.get_desc( "QUIT" ) );
                 if( num_spawned == 0 ) {
                     cb.msg += _( "\nTarget location is not suitable for placing this kind of monster.  Choose a different target or [i]ncrease the groups size." );
@@ -756,7 +756,7 @@ class wish_item_callback: public uilist_callback
             const int entnum = menu->selected;
             if( entnum >= 0 && static_cast<size_t>( entnum ) < standard_itype_ids.size() ) {
                 item tmp = wishitem_produce( *standard_itype_ids[entnum], flags, false );
-                const std::string header = string_format( "#%d: %s%s%s", entnum,
+                const std::string header = string_format( "#{}: {}{}{}", entnum,
                                            standard_itype_ids[entnum]->get_id().c_str(),
                                            incontainer ? _( " (contained)" ) : "",
                                            flags.empty() ? "" : _( " (flagged)" ) );
@@ -771,7 +771,7 @@ class wish_item_callback: public uilist_callback
             msg.erase();
             input_context ctxt( menu->input_category, keyboard_mode::keycode );
             mvwprintw( menu->window, point( startx, menu->w_height - 2 ),
-                       _( "[%s] find, [%s] container, [%s] flag, [%s] everything, [%s] quit" ),
+                       _( "[{}] find, [{}] container, [{}] flag, [{}] everything, [{}] quit" ),
                        ctxt.get_desc( "FILTER" ), ctxt.get_desc( "CONTAINER" ),
                        ctxt.get_desc( "FLAG" ), ctxt.get_desc( "EVERYTHING" ),
                        ctxt.get_desc( "QUIT" ) );
@@ -880,7 +880,7 @@ void debug_menu::wishitem( Character *you, const tripoint &pos )
                 }
                 if( amount > 0 ) {
                     input_context ctxt( wmenu.input_category, keyboard_mode::keycode );
-                    cb.msg = string_format( _( "Wish granted.  Wish for more or hit [%s] to quit." ),
+                    cb.msg = string_format( _( "Wish granted.  Wish for more or hit [{}] to quit." ),
                                             ctxt.get_desc( "QUIT" ) );
                 }
             }
@@ -928,7 +928,7 @@ void debug_menu::wishskill( Character *you, bool change_theory )
 
     for( const Skill *s : sorted_skills ) {
         const int level = get_level( *s );
-        skmenu.addentry( origskills.size() + skoffset, true, -2, _( "@ %d: %s  " ), level,
+        skmenu.addentry( origskills.size() + skoffset, true, -2, _( "@ {}: {}  " ), level,
                          s->name() );
         origskills.push_back( level );
     }
@@ -959,11 +959,11 @@ void debug_menu::wishskill( Character *you, bool change_theory )
             sksetmenu.w_y_setup = [&]( const int height ) {
                 return std::max( 0, skmenu.w_y + ( skmenu.w_height - height ) / 2 );
             };
-            sksetmenu.settext( string_format( _( "Set '%s' to…" ), skill.name() ) );
+            sksetmenu.settext( string_format( _( "Set '{}' to…" ), skill.name() ) );
             const int skcur = get_level( skill );
             sksetmenu.selected = skcur;
             for( int i = 0; i <= MAX_SKILL; i++ ) {
-                sksetmenu.addentry( i, true, i + 48, "%d%s", i, skcur == i ? _( " (current)" ) : "" );
+                sksetmenu.addentry( i, true, i + 48, "{}{}", i, skcur == i ? _( " (current)" ) : "" );
             }
             sksetmenu.query();
             skset = sksetmenu.ret;
@@ -976,10 +976,10 @@ void debug_menu::wishskill( Character *you, bool change_theory )
             } else {
                 you->set_skill_level( skill.ident(), skset );
             }
-            skmenu.textformatted[0] = string_format( _( "%s set to %d             " ),
+            skmenu.textformatted[0] = string_format( _( "{} set to {}             " ),
                                       skill.name(),
                                       get_level( skill ) ).substr( 0, skmenu.w_width - 4 );
-            skmenu.entries[skill_id + skoffset].txt = string_format( _( "@ %d: %s  " ),
+            skmenu.entries[skill_id + skoffset].txt = string_format( _( "@ {}: {}  " ),
                     get_level( skill ),
                     skill.name() );
             skmenu.entries[skill_id + skoffset].text_color =
@@ -1010,7 +1010,7 @@ void debug_menu::wishskill( Character *you, bool change_theory )
                         you->set_skill_level( skill.ident(), std::max( 0, changeto ) );
                     }
 
-                    skmenu.entries[skill_id + skoffset].txt = string_format( _( "@ %d: %s  " ),
+                    skmenu.entries[skill_id + skoffset].txt = string_format( _( "@ {}: {}  " ),
                             get_level( skill ), skill.name() );
 
                     you->get_skill_level_object( skill.ident() ).practice();
@@ -1062,11 +1062,11 @@ void debug_menu::wishproficiency( Character *you )
 
     for( size_t i = 0; i < sorted_profs.size(); ++i ) {
         if( sorted_profs[i].second ) {
-            prmenu.addentry( i + proffset, true, -2, _( "(known) %s" ),
+            prmenu.addentry( i + proffset, true, -2, _( "(known) {}" ),
                              sorted_profs[i].first->name() );
             prmenu.entries[i + proffset].text_color = c_yellow;
         } else {
-            prmenu.addentry( i + proffset, true, -2, _( "%s" ),
+            prmenu.addentry( i + proffset, true, -2, _( "{}" ),
                              sorted_profs[i].first->name() );
             prmenu.entries[i + proffset].text_color = prmenu.text_color;
         }
@@ -1081,7 +1081,7 @@ void debug_menu::wishproficiency( Character *you )
                 for( size_t i = 0; i < sorted_profs.size(); ++i ) {
                     std::pair<proficiency_id, bool> &cur = sorted_profs[i];
                     cur.second = false;
-                    prmenu.entries[i + proffset].txt = string_format( "%s",  cur.first->name() );
+                    prmenu.entries[i + proffset].txt = string_format( "{}",  cur.first->name() );
                     prmenu.entries[i + proffset].text_color = prmenu.text_color;
                     you->lose_proficiency( cur.first, true );
                 }
@@ -1092,7 +1092,7 @@ void debug_menu::wishproficiency( Character *you )
 
                     if( !cur.second ) {
                         cur.second = true;
-                        prmenu.entries[i + proffset].txt = string_format( _( "(known) %s" ), cur.first->name() );
+                        prmenu.entries[i + proffset].txt = string_format( _( "(known) {}" ), cur.first->name() );
                         prmenu.entries[i + proffset].text_color = c_yellow;
                         you->add_proficiency( cur.first, true );
                     }
@@ -1109,17 +1109,17 @@ void debug_menu::wishproficiency( Character *you )
             cur.second = know_prof;
 
             if( know_prof ) {
-                prmenu.entries[prmenu.selected].txt = string_format( _( "(known) %s" ), cur.first->name() );
+                prmenu.entries[prmenu.selected].txt = string_format( _( "(known) {}" ), cur.first->name() );
                 prmenu.entries[prmenu.selected].text_color = c_yellow;
-                you->add_msg_if_player( m_good, _( "You are now proficient in %s!" ), prof->name() );
+                you->add_msg_if_player( m_good, _( "You are now proficient in {}!" ), prof->name() );
                 you->add_proficiency( prof, true );
                 continue;
             }
 
             know_all = false;
-            prmenu.entries[prmenu.selected].txt = string_format( "%s", cur.first->name() );
+            prmenu.entries[prmenu.selected].txt = string_format( "{}", cur.first->name() );
             prmenu.entries[prmenu.selected].text_color = prmenu.text_color;
-            you->add_msg_if_player( m_bad, _( "You are no longer proficient in %s." ), prof->name() );
+            you->add_msg_if_player( m_bad, _( "You are no longer proficient in {}." ), prof->name() );
             you->lose_proficiency( prof, true );
         }
     } while( prmenu.ret != UILIST_CANCEL );

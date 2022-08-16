@@ -53,10 +53,10 @@ void Character::try_remove_bear_trap()
             if( x_in_y( mon->type->melee_dice * mon->type->melee_sides, 200 ) ) {
                 mon->remove_effect( effect_beartrap );
                 remove_effect( effect_beartrap );
-                add_msg( _( "The %s escapes the bear trap!" ), mon->get_name() );
+                add_msg( _( "The {} escapes the bear trap!" ), mon->get_name() );
             } else {
                 add_msg_if_player( m_bad,
-                                   _( "Your %s tries to free itself from the bear trap, but can't get loose!" ), mon->get_name() );
+                                   _( "Your {} tries to free itself from the bear trap, but can't get loose!" ), mon->get_name() );
             }
         }
     } else {
@@ -81,7 +81,7 @@ void Character::try_remove_lightsnare()
             remove_effect( effect_lightsnare );
             here.spawn_item( pos(), itype_string_36 );
             here.spawn_item( pos(), itype_snare_trigger );
-            add_msg( _( "The %s escapes the light snare!" ), mon->get_name() );
+            add_msg( _( "The {} escapes the light snare!" ), mon->get_name() );
         }
     } else {
         /** @EFFECT_STR increases chance to escape light snare */
@@ -113,7 +113,7 @@ void Character::try_remove_heavysnare()
                 remove_effect( effect_heavysnare );
                 here.spawn_item( pos(), itype_rope_6 );
                 here.spawn_item( pos(), itype_snare_trigger );
-                add_msg( _( "The %s escapes the heavy snare!" ), mon->get_name() );
+                add_msg( _( "The {} escapes the heavy snare!" ), mon->get_name() );
             }
         }
     } else {
@@ -158,16 +158,16 @@ bool Character::try_remove_grab()
             if( ( dice( mon->type->melee_dice + mon->type->melee_sides,
                         3 ) < get_effect_int( effect_grabbed ) ) ||
                 !one_in( 4 ) ) {
-                add_msg( m_bad, _( "Your %s tries to break free, but fails!" ), mon->get_name() );
+                add_msg( m_bad, _( "Your {} tries to break free, but fails!" ), mon->get_name() );
                 return false;
             } else {
-                add_msg( m_good, _( "Your %s breaks free from the grab!" ), mon->get_name() );
+                add_msg( m_good, _( "Your {} breaks free from the grab!" ), mon->get_name() );
                 remove_effect( effect_grabbed );
                 mon->remove_effect( effect_grabbed );
             }
         } else {
             if( one_in( 4 ) ) {
-                add_msg( m_bad, _( "You are pulled from your %s!" ), mon->get_name() );
+                add_msg( m_bad, _( "You are pulled from your {}!" ), mon->get_name() );
                 remove_effect( effect_grabbed );
                 forced_dismount();
             }
@@ -254,7 +254,7 @@ void Character::try_remove_webs()
         auto *mon = mounted_creature.get();
         if( x_in_y( mon->type->melee_dice * mon->type->melee_sides,
                     6 * get_effect_int( effect_webbed ) ) ) {
-            add_msg( _( "The %s breaks free of the webs!" ), mon->get_name() );
+            add_msg( _( "The {} breaks free of the webs!" ), mon->get_name() );
             mon->remove_effect( effect_webbed );
             remove_effect( effect_webbed );
         }
@@ -276,7 +276,7 @@ void Character::try_remove_impeding_effect()
             auto *mon = mounted_creature.get();
             if( x_in_y( mon->type->melee_dice * mon->type->melee_sides,
                         6 * get_effect_int( eff_id ) ) ) {
-                add_msg( _( "The %s breaks free!" ), mon->get_name() );
+                add_msg( _( "The {} breaks free!" ), mon->get_name() );
                 mon->remove_effect( eff_id );
                 remove_effect( eff_id );
             }

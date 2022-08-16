@@ -85,7 +85,7 @@ bool talker_avatar::buy_monster( talker &seller, const mtype_id &mtype, int cost
 {
     npc *seller_guy = seller.get_npc();
     if( !seller_guy ) {
-        popup( _( "%s can't sell you any %s" ), seller.disp_name(), mtype.obj().nname( 2 ) );
+        popup( _( "{} can't sell you any {}" ), seller.disp_name(), mtype.obj().nname( 2 ) );
         return false;
     }
     if( cost > 0 && !npc_trading::pay_npc( *seller_guy, cost ) ) {
@@ -115,10 +115,10 @@ bool talker_avatar::buy_monster( talker &seller, const mtype_id &mtype, int cost
     }
 
     if( name.empty() ) {
-        popup( _( "%1$s gives you %2$d %3$s." ), seller_guy->get_name(),
+        popup( _( "{1} gives you {2} {3}." ), seller_guy->get_name(),
                count, mtype.obj().nname( count ) );
     } else {
-        popup( _( "%1$s gives you %2$s." ), seller_guy->get_name(), name );
+        popup( _( "{1} gives you {2}." ), seller_guy->get_name(), name );
     }
     return true;
 }

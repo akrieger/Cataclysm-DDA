@@ -339,7 +339,7 @@ bool addiction::run_effect( Character &u )
         if( iter != builtin_map.end() ) {
             ret = iter->second.operator()( u, *this );
         } else {
-            debugmsg( "invalid builtin \"%s\" for addiction_type \"%s\"", type->get_builtin(), type.c_str() );
+            debugmsg( "invalid builtin \"{}\" for addiction_type \"{}\"", type->get_builtin(), type.c_str() );
         }
     }
     return ret;
@@ -359,11 +359,11 @@ void add_type::check_add_types()
 {
     for( const add_type &add : add_type::get_all() ) {
         if( add._effect.is_null() == add._builtin.empty() ) {
-            debugmsg( "addiction_type \"%s\" defines %s effect_on_condition %s builtin.  Addictions must define either field, but not both.",
+            debugmsg( "addiction_type \"{}\" defines {} effect_on_condition {} builtin.  Addictions must define either field, but not both.",
                       add.id.c_str(), add._builtin.empty() ? "neither" : "both", add._builtin.empty() ? "or" : "and" );
         }
         if( !add._builtin.empty() && builtin_map.find( add._builtin ) == builtin_map.end() ) {
-            debugmsg( "invalid builtin \"%s\" for addiction_type \"%s\"", add._builtin, add.id.c_str() );
+            debugmsg( "invalid builtin \"{}\" for addiction_type \"{}\"", add._builtin, add.id.c_str() );
         }
     }
 }

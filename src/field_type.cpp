@@ -96,7 +96,7 @@ std::string enum_to_string<description_affix>( description_affix data )
         case description_affix::DESCRIPTION_AFFIX_NUM:
             break;
     }
-    debugmsg( "Invalid description affix value '%d'.", data );
+    debugmsg( "Invalid description affix value '{}'.", data );
     return "invalid";
 }
 
@@ -169,7 +169,7 @@ const field_intensity_level &field_type::get_intensity_level( int level ) const
 {
     if( level < 0 || static_cast<size_t>( level ) >= intensity_levels.size() ) {
         // level + 1 for the original intensity number
-        debugmsg( "Unknown intensity level %d for field type %s.", level + 1, id.str() );
+        debugmsg( "Unknown intensity level {} for field type {}.", level + 1, id.str() );
         return intensity_levels.back();
     }
     return intensity_levels[level];
@@ -328,13 +328,13 @@ void field_type::finalize()
     } );
 
     if( !wandering_field.is_valid() ) {
-        debugmsg( "Invalid wandering_field_id %s in field %s.", wandering_field.c_str(), id.c_str() );
+        debugmsg( "Invalid wandering_field_id {} in field {}.", wandering_field.c_str(), id.c_str() );
         wandering_field = fd_null;
     }
 
     for( const mtype_id &m_id : immune_mtypes ) {
         if( !m_id.is_valid() ) {
-            debugmsg( "Invalid mtype_id %s in immune_mtypes for field %s.", m_id.c_str(), id.c_str() );
+            debugmsg( "Invalid mtype_id {} in immune_mtypes for field {}.", m_id.c_str(), id.c_str() );
         }
     }
 
@@ -348,7 +348,7 @@ void field_type::check() const
     for( const field_intensity_level &intensity_level : intensity_levels ) {
         i++;
         if( intensity_level.name.empty() ) {
-            debugmsg( "Intensity level %d defined for field type \"%s\" has empty name.", i, id.c_str() );
+            debugmsg( "Intensity level {} defined for field type \"{}\" has empty name.", i, id.c_str() );
         }
     }
 }
@@ -393,6 +393,6 @@ field_type field_types::get_field_type_by_legacy_enum( int legacy_enum_id )
             return ft;
         }
     }
-    debugmsg( "Cannot find field_type for legacy enum: %d.", legacy_enum_id );
+    debugmsg( "Cannot find field_type for legacy enum: {}.", legacy_enum_id );
     return field_type();
 }

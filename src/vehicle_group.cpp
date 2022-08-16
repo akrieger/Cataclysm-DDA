@@ -35,7 +35,7 @@ const VehicleGroup &string_id<VehicleGroup>::obj() const
 {
     const auto iter = vgroups.find( *this );
     if( iter == vgroups.end() ) {
-        debugmsg( "invalid vehicle group id %s", c_str() );
+        debugmsg( "invalid vehicle group id {}", c_str() );
         static const VehicleGroup dummy{};
         return dummy;
     }
@@ -59,7 +59,7 @@ const VehiclePlacement &string_id<VehiclePlacement>::obj() const
 {
     const auto iter = vplacements.find( *this );
     if( iter == vplacements.end() ) {
-        debugmsg( "invalid vehicle placement id %s", c_str() );
+        debugmsg( "invalid vehicle placement id {}", c_str() );
         static const VehiclePlacement dummy{};
         return dummy;
     }
@@ -148,7 +148,7 @@ void VehicleFunction_json::apply( map &m, const std::string &terrain_name ) cons
 {
     for( int i = number.get(); i > 0; i-- ) {
         if( !location ) {
-            const size_t replace = placement.find( "%t" );
+            const size_t replace = placement.find( "{}" );
             const VehicleLocation *loc = vplacement_id( replace != std::string::npos ?
                                          placement.substr( 0, replace ) + terrain_name +
                                          placement.substr( replace + 2 ) :
@@ -170,7 +170,7 @@ const VehicleSpawn &string_id<VehicleSpawn>::obj() const
 {
     const auto iter = vspawns.find( *this );
     if( iter == vspawns.end() ) {
-        debugmsg( "invalid vehicle spawn id %s", c_str() );
+        debugmsg( "invalid vehicle spawn id {}", c_str() );
         static const VehicleSpawn dummy{};
         return dummy;
     }
@@ -233,7 +233,7 @@ static void builtin_jackknifed_semi( map &m, const std::string &terrainid )
 {
     const VehicleLocation *loc = vplacement_id( terrainid + "_semi" ).obj().pick();
     if( !loc ) {
-        debugmsg( "builtin_jackknifed_semi unable to get location to place vehicle.  placement %s_semi",
+        debugmsg( "builtin_jackknifed_semi unable to get location to place vehicle.  placement {}",
                   terrainid );
         return;
     }

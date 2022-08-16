@@ -8,34 +8,34 @@
 
 TEST_CASE( "Test vsnprintf_rewrite" )
 {
-    CHECK( rewrite_vsnprintf( "%%hello%%" ) == "%%hello%%" );
+    CHECK( rewrite_vsnprintf( "%{}%%" ) == "%{}%%" );
     CHECK( rewrite_vsnprintf( "hello" ) == "hello" );
     CHECK( rewrite_vsnprintf( "%%" ) == "%%" );
     CHECK( rewrite_vsnprintf( "" ).empty() );
-    CHECK( rewrite_vsnprintf( "%s" ) == "%s" );
-    CHECK( rewrite_vsnprintf( "%1s" ) == "%1s" );
-    CHECK( rewrite_vsnprintf( "%27s" ) == "%27s" );
-    CHECK( rewrite_vsnprintf( "%1$s" ) == "%s" );
-    CHECK( rewrite_vsnprintf( "%2$s" ) == "%2$s" );
-    CHECK( rewrite_vsnprintf( "%1$0.4f" ) == "%0.4f" );
-    CHECK( rewrite_vsnprintf( "%1$0.4f %2f" ) == "%1$0.4f %2f" );
-    CHECK( rewrite_vsnprintf( "%1$0.4f %2$f" ) == "%0.4f %f" );
+    CHECK( rewrite_vsnprintf( "{}" ) == "{}" );
+    CHECK( rewrite_vsnprintf( "{}" ) == "{}" );
+    CHECK( rewrite_vsnprintf( "{}" ) == "{}" );
+    CHECK( rewrite_vsnprintf( "{1}" ) == "{}" );
+    CHECK( rewrite_vsnprintf( "{2}" ) == "{2}" );
+    CHECK( rewrite_vsnprintf( "{1}.4f" ) == "{}.4f" );
+    CHECK( rewrite_vsnprintf( "{1}.4f {}" ) == "{1}.4f {}" );
+    CHECK( rewrite_vsnprintf( "{1}.4f {2}" ) == "{}.4f {}" );
     CHECK( rewrite_vsnprintf( "%" ) == "%" );
-    CHECK( rewrite_vsnprintf( "%1$s %1$s" ) == "%1$s %1$s" );
-    CHECK( rewrite_vsnprintf( "%2$s %1$s %3$s %4$s %5$s %6$s %7$s %8$s %9$4s %10$40s %11$40s" ) ==
-           "%2$s %1$s %3$s %4$s %5$s %6$s %7$s %8$s %9$4s <formatting error> <formatting error>" );
+    CHECK( rewrite_vsnprintf( "{1} {1}" ) == "{1} {1}" );
+    CHECK( rewrite_vsnprintf( "{2} {1} {3} {4} {5} {6} {7} {8} {9} {10} {11}" ) ==
+           "{2} {1} {3} {4} {5} {6} {7} {8} {9} <formatting error> <formatting error>" );
 
-    CHECK( rewrite_vsnprintf( "%1$s %2$s %3$s %4$s %5$s %6$s %7$s %8$s %9$4s %10$40s %11$40s" ) ==
-           "%s %s %s %s %s %s %s %s %4s %40s %40s" );
+    CHECK( rewrite_vsnprintf( "{1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11}" ) ==
+           "{} {} {} {} {} {} {} {} {} {} {}" );
 
-    CHECK( rewrite_vsnprintf( "Needs <color_%1$s>%2$s</color>, a <color_%3$s>wrench</color>, "
-                              "either a <color_%4$s>powered welder</color> "
-                              "(and <color_%5$s>welding goggles</color>) or "
-                              "<color_%6$s>duct tape</color>, and level <color_%7$s>%8$d</color> "
-                              "skill in mechanics.%9$s%10$s" )  ==
-           "Needs <color_%s>%s</color>, a <color_%s>wrench</color>, either a "
-           "<color_%s>powered welder</color> (and <color_%s>welding goggles</color>) or "
-           "<color_%s>duct tape</color>, and level <color_%s>%d</color> skill in mechanics.%s%s" );
+    CHECK( rewrite_vsnprintf( "Needs <color_{1}>{2}</color>, a <color_{3}>wrench</color>, "
+                              "either a <color_{4}>powered welder</color> "
+                              "(and <color_{5}>welding goggles</color>) or "
+                              "<color_{6}>duct tape</color>, and level <color_{7}>{8}</color> "
+                              "skill in mechanics.{9}{10}" )  ==
+           "Needs <color_{}>{}</color>, a <color_{}>wrench</color>, either a "
+           "<color_{}>powered welder</color> (and <color_{}>welding goggles</color>) or "
+           "<color_{}>duct tape</color>, and level <color_{}>{}</color> skill in mechanics.{}{}" );
 }
 
 #endif

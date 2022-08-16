@@ -180,7 +180,7 @@ class teleporter_callback : public uilist_callback
                                                 29, 21 );
                 int dist = rl_dist( player_character.global_omt_location(), index_pairs[entnum] );
                 mvwprintz( menu->window, point( start_x + 2, 1 ), c_white,
-                           string_format( _( "Distance: %d %s" ), dist,
+                           string_format( _( "Distance: {} {}" ), dist,
                                           index_pairs[entnum].to_string() ) );
             }
             wnoutrefresh( menu->window );

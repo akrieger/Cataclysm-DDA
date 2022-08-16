@@ -378,14 +378,14 @@ bool unload_options::query()
 std::string loot_options::get_zone_name_suggestion() const
 {
     if( !mark.empty() ) {
-        return string_format( _( "Loot: Custom: %s" ), mark );
+        return string_format( _( "Loot: Custom: {}" ), mark );
     }
     return _( "Loot: Custom: No Filter" );
 }
 
 std::string unload_options::get_zone_name_suggestion() const
 {
-    return string_format( "%s%s%s%s", _( "Unload: " ), mods ? _( "mods, " ) : "",
+    return string_format( "{}{}{}{}", _( "Unload: " ), mods ? _( "mods, " ) : "",
                           molle ? _( "MOLLE, " ) : "",
                           always_unload ? _( "unload all" ) : _( "unload unmatched" ) );
 }
@@ -403,7 +403,7 @@ std::vector<std::pair<std::string, std::string>> unload_options::get_description
 {
     std::vector<std::pair<std::string, std::string>> options;
     options.emplace_back( std::make_pair( _( "Unload: " ),
-                                          string_format( "%s%s%s", mods ? _( "mods " ) : "",  molle ? _( "MOLLE " ) : "",
+                                          string_format( "{}{}{}", mods ? _( "mods " ) : "",  molle ? _( "MOLLE " ) : "",
                                                   always_unload ? _( "unload all" ) : _( "unload unmatched" ) ) ) );
 
     return options;
@@ -1356,7 +1356,7 @@ void zone_manager::deserialize( const JsonValue &jv )
         const zone_type_id zone_type = it->get_type();
         if( !has_type( zone_type ) ) {
             it = zones.erase( it );
-            debugmsg( "Invalid zone type: %s", zone_type.c_str() );
+            debugmsg( "Invalid zone type: {}", zone_type.c_str() );
         } else  if( it->get_faction() != faction_your_followers ) {
             it = zones.erase( it );
         } else {
@@ -1432,7 +1432,7 @@ namespace
 {
 std::string _savefile( std::string const &suffix, bool player )
 {
-    return string_format( "%szones%s.json",
+    return string_format( "{}{}.json",
                           player ? PATH_INFO::player_base_save_path() + "."
                           : PATH_INFO::world_base_save_path() + "/",
                           suffix );
@@ -1499,7 +1499,7 @@ void zone_manager::load_world_zones( std::string const &suffix )
             const zone_type_id zone_type = it->get_type();
             if( !has_type( zone_type ) ) {
                 it = tmp.erase( it );
-                debugmsg( "Invalid zone type: %s", zone_type.c_str() );
+                debugmsg( "Invalid zone type: {}", zone_type.c_str() );
             } else if( it->get_faction() == faction_your_followers ) {
                 it = tmp.erase( it );
             } else {

@@ -109,10 +109,10 @@ int vehicle::slowdown( int at_velocity ) const
         }
     }
     if( slowdown < 0 ) {
-        debugmsg( "vehicle %s has negative drag slowdown %d\n", name, slowdown );
+        debugmsg( "vehicle {} has negative drag slowdown {}\n", name, slowdown );
     }
     add_msg_debug( debugmode::DF_VEHICLE_MOVE,
-                   "%s at %d vimph, f_drag %3.2f, drag accel %d vmiph - extra drag %d",
+                   "{} at {} vimph, f_drag {}.2f, drag accel {} vmiph - extra drag {}",
                    name, at_velocity, f_total_drag, slowdown, static_drag() );
     // plows slow rolling vehicles, but not falling or floating vehicles
     if( !( is_falling || is_floating || is_flying ) ) {
@@ -403,13 +403,13 @@ void vehicle::thrust( int thd, int z )
     } else if( is_floating && !can_float() ) {
         stop();
         if( pl_ctrl ) {
-            add_msg( _( "The %s is too leaky!" ), name );
+            add_msg( _( "The {} is too leaky!" ), name );
         }
         return;
     } else if( !valid_wheel_config()  && z == 0 ) {
         stop();
         if( pl_ctrl ) {
-            add_msg( _( "The %s doesn't have enough wheels to move!" ), name );
+            add_msg( _( "The {} doesn't have enough wheels to move!" ), name );
         }
         return;
     }
@@ -430,7 +430,7 @@ void vehicle::thrust( int thd, int z )
     int accel = current_acceleration() * traction;
     if( accel < 200 && velocity > 0 && is_towing() ) {
         if( pl_ctrl ) {
-            add_msg( _( "The %s struggles to pull the %s on this surface!" ), name,
+            add_msg( _( "The {} struggles to pull the {} on this surface!" ), name,
                      tow_data.get_towed()->name );
         }
         return;
@@ -438,10 +438,10 @@ void vehicle::thrust( int thd, int z )
     if( thrusting && accel == 0 ) {
         if( pl_ctrl ) {
             if( has_engine_type( fuel_type_muscle, true ) ) {
-                add_msg( _( "The %s is too heavy to move!" ), name );
+                add_msg( _( "The {} is too heavy to move!" ), name );
             } else {
-                add_msg( n_gettext( "The %s is too heavy for its engine!",
-                                    "The %s is too heavy for its engines!",
+                add_msg( n_gettext( "The {} is too heavy for its engine!",
+                                    "The {} is too heavy for its engines!",
                                     engines.size() ), name );
             }
         }
@@ -490,15 +490,15 @@ void vehicle::thrust( int thd, int z )
         if( total_power_w() <= 0 || !engine_on || ( z == 0 && accel == 0 ) ) {
             if( pl_ctrl ) {
                 if( total_power_w( false ) <= 0 ) {
-                    add_msg( m_info, _( "The %s doesn't have an engine!" ), name );
+                    add_msg( m_info, _( "The {} doesn't have an engine!" ), name );
                 } else if( has_engine_type( fuel_type_muscle, true ) ) {
-                    add_msg( m_info, _( "The %s's mechanism is out of reach!" ), name );
+                    add_msg( m_info, _( "The {}'s mechanism is out of reach!" ), name );
                 } else if( !engine_on ) {
-                    add_msg( _( "The %s's engine isn't on!" ), name );
+                    add_msg( _( "The {}'s engine isn't on!" ), name );
                 } else if( traction < 0.01f ) {
-                    add_msg( _( "The %s is stuck." ), name );
+                    add_msg( _( "The {} is stuck." ), name );
                 } else {
-                    add_msg( _( "The %s's engine emits a sneezing sound." ), name );
+                    add_msg( _( "The {}'s engine emits a sneezing sound." ), name );
                 }
             }
             cruise_velocity = 0;
@@ -560,7 +560,7 @@ void vehicle::thrust( int thd, int z )
             monster *mon = get_monster( e );
             if( mon != nullptr && mon->has_effect( effect_harnessed ) ) {
                 if( velocity > mon->get_speed() * 12 ) {
-                    add_msg( m_bad, _( "Your %s is not fast enough to keep up with the %s" ), mon->get_name(), name );
+                    add_msg( m_bad, _( "Your {} is not fast enough to keep up with the {}" ), mon->get_name(), name );
                     int dmg = rng( 0, 10 );
                     damage_direct( get_map(), e, dmg );
                 }
@@ -753,7 +753,7 @@ bool vehicle::collision( std::vector<veh_collision> &colls,
         colls.push_back( fake_coll );
         velocity = 0;
         vertical_velocity = 0;
-        add_msg_debug( debugmode::DF_VEHICLE_MOVE, "Collision check on a dirty vehicle %s", name );
+        add_msg_debug( debugmode::DF_VEHICLE_MOVE, "Collision check on a dirty vehicle {}", name );
         return true;
     }
 
@@ -1048,7 +1048,7 @@ veh_collision vehicle::part_collision( int part, const tripoint &p,
                                   critter->get_armor_bash( bodypart_id( "torso" ) );
                 dam = std::max( 0, dam - armor );
                 critter->apply_damage( driver, bodypart_id( "torso" ), dam );
-                add_msg_debug( debugmode::DF_VEHICLE_MOVE, "Critter collision damage: %d", dam );
+                add_msg_debug( debugmode::DF_VEHICLE_MOVE, "Critter collision damage: {}", dam );
             }
 
             // Don't fling if vertical - critter got smashed into the ground
@@ -1093,11 +1093,11 @@ veh_collision vehicle::part_collision( int part, const tripoint &p,
             if( pl_ctrl ) {
                 if( time_stunned > 0_turns ) {
                     //~ 1$s - vehicle name, 2$s - part name, 3$s - NPC or monster
-                    add_msg( m_warning, _( "Your %1$s's %2$s rams into %3$s and stuns it!" ),
+                    add_msg( m_warning, _( "Your {1}'s {2} rams into {3} and stuns it!" ),
                              name, parts[ ret.part ].name(), ret.target_name );
                 } else {
                     //~ 1$s - vehicle name, 2$s - part name, 3$s - NPC or monster
-                    add_msg( m_warning, _( "Your %1$s's %2$s rams into %3$s!" ),
+                    add_msg( m_warning, _( "Your {1}'s {2} rams into {3}!" ),
                              name, parts[ ret.part ].name(), ret.target_name );
                 }
             }
@@ -1112,11 +1112,11 @@ veh_collision vehicle::part_collision( int part, const tripoint &p,
         if( pl_ctrl ) {
             if( !snd.empty() ) {
                 //~ 1$s - vehicle name, 2$s - part name, 3$s - collision object name, 4$s - sound message
-                add_msg( m_warning, _( "Your %1$s's %2$s rams into %3$s with a %4$s" ),
+                add_msg( m_warning, _( "Your {1}'s {2} rams into {3} with a {4}" ),
                          name, parts[ ret.part ].name(), ret.target_name, snd );
             } else {
                 //~ 1$s - vehicle name, 2$s - part name, 3$s - collision object name
-                add_msg( m_warning, _( "Your %1$s's %2$s rams into %3$s." ),
+                add_msg( m_warning, _( "Your {1}'s {2} rams into {3}." ),
                          name, parts[ ret.part ].name(), ret.target_name );
             }
         }
@@ -1174,10 +1174,10 @@ void vehicle::handle_trap( const tripoint &p, int part )
     const bool known = tr.can_see( p, player_character );
     if( seen ) {
         if( known ) {
-            //~ %1$s: name of the vehicle; %2$s: name of the related vehicle part; %3$s: trap name
-            add_msg( m_bad, _( "The %1$s's %2$s runs over %3$s." ), name, parts[ part ].name(), tr.name() );
+            //~ {1}: name of the vehicle; {2}: name of the related vehicle part; {3}: trap name
+            add_msg( m_bad, _( "The {1}'s {2} runs over {3}." ), name, parts[ part ].name(), tr.name() );
         } else {
-            add_msg( m_bad, _( "The %1$s's %2$s runs over something." ), name, parts[ part ].name() );
+            add_msg( m_bad, _( "The {1}'s {2} runs over something." ), name, parts[ part ].name() );
         }
     }
 
@@ -1216,7 +1216,7 @@ void vehicle::handle_trap( const tripoint &p, int part )
             if( seen && !known ) {
                 // hard to miss!
                 const std::string direction = direction_name( direction_from( player_character.pos(), p ) );
-                add_msg( _( "You've spotted a %1$s to the %2$s!" ), tr.name(), direction );
+                add_msg( _( "You've spotted a {1} to the {2}!" ), tr.name(), direction );
             }
         }
     }
@@ -1411,7 +1411,7 @@ void vehicle::pldrive( Character &driver, const point &p, int z )
         }
 
         if( penalty > skill || ( penalty > 0 && cost > 400 ) ) {
-            driver.add_msg_if_player( m_warning, _( "You fumble with the %s's controls." ), name );
+            driver.add_msg_if_player( m_warning, _( "You fumble with the {}'s controls." ), name );
             // Anything from a wasted attempt to 2 turns in the intended direction
             turn_delta *= rng( 0, 2 );
             // Also wastes next turn
@@ -1448,7 +1448,7 @@ void vehicle::pldrive( Character &driver, const point &p, int z )
         ///\EFFECT_DRIVING increases chance of regaining control of a vehicle
         if( handling_diff * rng( 1, 10 ) <
             driver.dex_cur + driver.get_skill_level( skill_driving ) * 2 ) {
-            driver.add_msg_if_player( _( "You regain control of the %s." ), name );
+            driver.add_msg_if_player( _( "You regain control of the {}." ), name );
             driver.practice( skill_driving, velocity / 5 );
             velocity = static_cast<int>( forward_velocity() );
             skidding = false;
@@ -1471,7 +1471,7 @@ void vehicle::possibly_recover_from_skid()
     // Threshold of recovery is Gaussianesque.
 
     if( std::fabs( dot ) * 100 > dice( 9, 20 ) ) {
-        add_msg( _( "The %s recovers from its skid." ), name );
+        add_msg( _( "The {} recovers from its skid." ), name );
         // face_vec takes over.
         skidding = false;
         // Wheels absorb horizontal velocity.
@@ -1740,7 +1740,7 @@ vehicle *vehicle::act_on_map()
     const bool pl_ctrl = player_in_control( player_character );
     // TODO: Remove this hack, have vehicle sink a z-level
     if( is_floating && !can_float() ) {
-        add_msg( m_bad, _( "Your %s sank." ), name );
+        add_msg( m_bad, _( "Your {} sank." ), name );
         if( pl_ctrl ) {
             unboard_all();
         }
@@ -1791,9 +1791,9 @@ vehicle *vehicle::act_on_map()
         if( !should_fall ) {
             stop();
             if( floating.empty() ) {
-                add_msg( m_info, _( "Your %s can't move on this terrain." ), name );
+                add_msg( m_info, _( "Your {} can't move on this terrain." ), name );
             } else {
-                add_msg( m_info, _( "Your %s is beached." ), name );
+                add_msg( m_info, _( "Your {} is beached." ), name );
             }
             return this;
         }
@@ -2096,13 +2096,13 @@ units::angle map::shake_vehicle( vehicle &veh, const int velocity_before,
         const int ps = r.prt;
         Creature *rider = r.psg;
         if( rider == nullptr ) {
-            debugmsg( "throw passenger: empty passenger at part %d", ps );
+            debugmsg( "throw passenger: empty passenger at part {}", ps );
             continue;
         }
 
         const tripoint part_pos = veh.global_part_pos3( ps );
         if( rider->pos() != part_pos ) {
-            debugmsg( "throw passenger: passenger at %d,%d,%d, part at %d,%d,%d",
+            debugmsg( "throw passenger: passenger at {},{},{}, part at {},{},{}",
                       rider->posx(), rider->posy(), rider->posz(),
                       part_pos.x, part_pos.y, part_pos.z );
             veh.part( ps ).remove_flag( vehicle_part::passenger_flag );
@@ -2135,8 +2135,8 @@ units::angle map::shake_vehicle( vehicle &veh, const int velocity_before,
             if( psg ) {
                 psg->hurtall( dmg, nullptr );
                 psg->add_msg_player_or_npc( m_bad,
-                                            _( "You take %d damage by the power of the impact!" ),
-                                            _( "<npcname> takes %d damage by the power of the "
+                                            _( "You take {} damage by the power of the impact!" ),
+                                            _( "<npcname> takes {} damage by the power of the "
                                                "impact!" ),  dmg );
             } else {
                 pet->apply_damage( nullptr, bodypart_id( "torso" ), dmg );
@@ -2150,8 +2150,8 @@ units::angle map::shake_vehicle( vehicle &veh, const int velocity_before,
             ///\EFFECT_DRIVING reduces chance of losing control of vehicle when shaken
             if( lose_ctrl_roll > psg->dex_cur * 2 + psg->get_skill_level( skill_driving ) * 3 ) {
                 psg->add_msg_player_or_npc( m_warning,
-                                            _( "You lose control of the %s." ),
-                                            _( "<npcname> loses control of the %s." ), veh.name );
+                                            _( "You lose control of the {}." ),
+                                            _( "<npcname> loses control of the {}." ), veh.name );
                 int turn_amount = rng( 1, 3 ) * std::sqrt( std::abs( veh.velocity ) ) / 30;
                 if( turn_amount < 1 ) {
                     turn_amount = 1;
@@ -2164,14 +2164,14 @@ units::angle map::shake_vehicle( vehicle &veh, const int velocity_before,
         if( throw_from_seat ) {
             if( psg ) {
                 psg->add_msg_player_or_npc( m_bad,
-                                            _( "You are hurled from the %s's seat by "
+                                            _( "You are hurled from the {}'s seat by "
                                                "the power of the impact!" ),
-                                            _( "<npcname> is hurled from the %s's seat by "
+                                            _( "<npcname> is hurled from the {}'s seat by "
                                                "the power of the impact!" ), veh.name );
                 unboard_vehicle( part_pos );
             } else {
                 add_msg_if_player_sees( part_pos, m_bad,
-                                        _( "The %s is hurled from %s's by the power of the impact!" ),
+                                        _( "The {} is hurled from {}'s by the power of the impact!" ),
                                         pet->disp_name(), veh.name );
             }
             ///\EFFECT_STR reduces distance thrown from seat in a vehicle impact

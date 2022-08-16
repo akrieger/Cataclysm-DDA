@@ -28,7 +28,7 @@ static constexpr tripoint badguy_pos( HALF_MAPSIZE_X + 1, HALF_MAPSIZE_Y, 0 );
 static void check_near( const std::string &subject, float actual, const float expected,
                         const float tolerance )
 {
-    THEN( string_format( "%s is about %.1f (+/- %.2f) with val %.1f", subject, expected, tolerance,
+    THEN( string_format( "{} is about %.1f (+/- %.2f) with val %.1f", subject, expected, tolerance,
                          actual ) ) {
         CHECK( actual == Approx( expected ).margin( tolerance ) );
     }
@@ -37,7 +37,7 @@ static void check_near( const std::string &subject, float actual, const float ex
 static void check_not_near( const std::string &subject, float actual, const float undesired,
                             const float tolerance )
 {
-    THEN( string_format( "%s is not about %.1f (+/- %.1f)  with val %.1f", subject, undesired,
+    THEN( string_format( "{} is not about %.1f (+/- %.1f)  with val %.1f", subject, undesired,
                          tolerance, actual ) ) {
         CHECK_FALSE( actual == Approx( undesired ).margin( tolerance ) );
     }
@@ -73,7 +73,7 @@ static float get_avg_melee_dmg( const std::string &clothing_id, bool infect_risk
     }
     CAPTURE( dude.is_dead() );
     const std::string ret_type = infect_risk ? "infections" : "damage total";
-    INFO( string_format( "%s landed %d hits on character, causing %d %s.", zed.get_name(), num_hits,
+    INFO( string_format( "{} landed {} hits on character, causing {} {}.", zed.get_name(), num_hits,
                          dam_acc, ret_type ) );
     num_hits = num_hits ? num_hits : 1;
     return static_cast<float>( dam_acc ) / num_hits;
@@ -108,7 +108,7 @@ static float get_avg_melee_dmg( item cloth, bool infect_risk = false )
     }
     CAPTURE( dude.is_dead() );
     const std::string ret_type = infect_risk ? "infections" : "damage total";
-    INFO( string_format( "%s landed %d hits on character, causing %d %s.", zed.get_name(), num_hits,
+    INFO( string_format( "{} landed {} hits on character, causing {} {}.", zed.get_name(), num_hits,
                          dam_acc, ret_type ) );
     num_hits = num_hits ? num_hits : 1;
     return static_cast<float>( dam_acc ) / num_hits;
@@ -149,7 +149,7 @@ static float get_avg_bullet_dmg( const std::string &clothing_id )
         }
     }
     CAPTURE( dude->is_dead() );
-    INFO( string_format( "%s landed %d hits on character, causing %d damage total.",
+    INFO( string_format( "{} landed {} hits on character, causing {} damage total.",
                          badguy->disp_name( false, true ), num_hits, dam_acc ) );
     num_hits = num_hits ? num_hits : 1;
     return static_cast<float>( dam_acc ) / num_hits;

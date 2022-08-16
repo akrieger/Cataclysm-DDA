@@ -154,7 +154,7 @@ void mutation_category_trait::check_consistency()
     for( const auto &pr : mutation_category_traits ) {
         const mutation_category_trait &cat = pr.second;
         if( !cat.threshold_mut.is_empty() && !cat.threshold_mut.is_valid() ) {
-            debugmsg( "Mutation category %s has threshold mutation %s, which does not exist",
+            debugmsg( "Mutation category {} has threshold mutation {}, which does not exist",
                       cat.id.c_str(), cat.threshold_mut.c_str() );
         }
     }
@@ -630,7 +630,7 @@ std::string mutation_branch::desc( const std::string &variant ) const
     }
 
     if( variter->second.append_desc ) {
-        return string_format( "%s  %s", raw_desc.translated(),
+        return string_format( "{}  {}", raw_desc.translated(),
                               variter->second.alt_description.translated() );
     }
     return variter->second.alt_description.translated();
@@ -664,7 +664,7 @@ static void check_has_cyclic_dependency( const trait_id &mid )
 {
     std::vector<trait_id> already_visited;
     if( has_cyclic_dependency( mid, already_visited ) ) {
-        debugmsg( "mutation %s references itself in either of its prerequsition branches.  The program will crash if the player gains this mutation.",
+        debugmsg( "mutation {} references itself in either of its prerequsition branches.  The program will crash if the player gains this mutation.",
                   mid.c_str() );
     }
 }
@@ -674,11 +674,11 @@ static void check_consistency( const std::vector<trait_id> &mvec, const trait_id
 {
     for( const auto &m : mvec ) {
         if( !m.is_valid() ) {
-            debugmsg( "mutation %s refers to undefined %s %s", mid.c_str(), what.c_str(), m.c_str() );
+            debugmsg( "mutation {} refers to undefined {} {}", mid.c_str(), what.c_str(), m.c_str() );
         }
 
         if( m == mid ) {
-            debugmsg( "mutation %s refers to itself in %s context.  The program will crash if the player gains this mutation.",
+            debugmsg( "mutation {} refers to itself in {} context.  The program will crash if the player gains this mutation.",
                       mid.c_str(), what.c_str() );
         }
     }
@@ -692,33 +692,33 @@ void mutation_branch::check_consistency()
         const std::map<species_id, int> &an_id = mdata.anger_relations;
         for( const auto &style : mdata.initial_ma_styles ) {
             if( !style.is_valid() ) {
-                debugmsg( "mutation %s refers to undefined martial art style %s", mid.c_str(), style.c_str() );
+                debugmsg( "mutation {} refers to undefined martial art style {}", mid.c_str(), style.c_str() );
             }
         }
         for( const std::string &type : mdata.types ) {
             if( !mutation_type_exists( type ) ) {
-                debugmsg( "mutation %s refers to undefined mutation type %s", mid.c_str(), type );
+                debugmsg( "mutation {} refers to undefined mutation type {}", mid.c_str(), type );
             }
         }
         if( mid->transform ) {
             const trait_id tid = mid->transform->target;
             if( !tid.is_valid() ) {
-                debugmsg( "mutation %s transform uses undefined target %s", mid.c_str(), tid.c_str() );
+                debugmsg( "mutation {} transform uses undefined target {}", mid.c_str(), tid.c_str() );
             }
         }
         for( const std::pair<species_id, int> elem : an_id ) {
             if( !elem.first.is_valid() ) {
-                debugmsg( "mutation %s refers to undefined species id %s", mid.c_str(), elem.first.c_str() );
+                debugmsg( "mutation {} refers to undefined species id {}", mid.c_str(), elem.first.c_str() );
             }
         }
         if( s_id && !s_id.value().is_valid() ) {
-            debugmsg( "mutation %s refers to undefined scent type %s", mid.c_str(), s_id.value().c_str() );
+            debugmsg( "mutation {} refers to undefined scent type {}", mid.c_str(), s_id.value().c_str() );
         }
         for( const trait_id &replacement : mdata.replacements ) {
             const mutation_branch &rdata = replacement.obj();
             for( const mutation_category_id &cat : rdata.category ) {
                 if( std::find( mdata.category.begin(), mdata.category.end(), cat ) == mdata.category.end() ) {
-                    debugmsg( "mutation %s lacks category %s present in replacement mutation %s", mid.c_str(),
+                    debugmsg( "mutation {} lacks category {} present in replacement mutation {}", mid.c_str(),
                               cat.c_str(), replacement.c_str() );
                 }
             }
@@ -734,7 +734,7 @@ void mutation_branch::check_consistency()
                         std::find( mdata.category.begin(), mdata.category.end(), cat ) != mdata.category.end();
             }
             if( !found ) {
-                debugmsg( "categories in mutation %s don't match any category present in additive mutation %s",
+                debugmsg( "categories in mutation {} don't match any category present in additive mutation {}",
                           mid.c_str(), addition.c_str() );
             }
         }
@@ -748,7 +748,7 @@ void mutation_branch::check_consistency()
                             std::find( prereq.category.begin(), prereq.category.end(), cat_id ) != prereq.category.end();
                 }
                 if( !found ) {
-                    debugmsg( "mutation %s is in category %s but none of its slot 1 prereqs have this category",
+                    debugmsg( "mutation {} is in category {} but none of its slot 1 prereqs have this category",
                               mid.c_str(), cat_id.c_str() );
                 }
             }
@@ -761,7 +761,7 @@ void mutation_branch::check_consistency()
                             std::find( prereq.category.begin(), prereq.category.end(), cat_id ) != prereq.category.end();
                 }
                 if( !found ) {
-                    debugmsg( "mutation %s is in category %s but none of its slot 2 prereqs have this category",
+                    debugmsg( "mutation {} is in category {} but none of its slot 2 prereqs have this category",
                               mid.c_str(), cat_id.c_str() );
                 }
             }
@@ -769,7 +769,7 @@ void mutation_branch::check_consistency()
 
         // We need to display active mutations in the UI.
         if( mdata.activated && !mdata.player_display ) {
-            debugmsg( "mutation %s is not displayed but set as active" );
+            debugmsg( "mutation {} is not displayed but set as active" );
         }
 
         check_has_cyclic_dependency( mid );
@@ -837,7 +837,7 @@ const mutation_variant *mutation_branch::pick_variant_menu() const
     uilist menu;
     menu.allow_cancel = false;
     menu.desc_enabled = true;
-    menu.text = string_format( _( "Pick variant for: %s" ), name() );
+    menu.text = string_format( _( "Pick variant for: {}" ), name() );
     std::vector<const mutation_variant *> options;
     for( const std::pair<const std::string, mutation_variant> &var : variants ) {
         options.emplace_back( &var.second );
@@ -960,7 +960,7 @@ void mutation_branch::finalize_trait_blacklist()
 {
     for( const auto &trait : trait_blacklist ) {
         if( !trait.is_valid() ) {
-            debugmsg( "trait on blacklist %s does not exist", trait.c_str() );
+            debugmsg( "trait on blacklist {} does not exist", trait.c_str() );
         }
     }
 }
@@ -983,12 +983,12 @@ static Trait_group &make_group_or_throw( const trait_group::Trait_group_tag &gid
     if( is_collection ) {
         if( dynamic_cast<Trait_group_distribution *>( found->second.get() ) ) {
             throw std::runtime_error( string_format(
-                                          R"("mutation group "%s" already defined with type "distribution")", gid.str() ) );
+                                          R"("mutation group "{}" already defined with type "distribution")", gid.str() ) );
         }
     } else {
         if( dynamic_cast<Trait_group_collection *>( found->second.get() ) ) {
             throw std::runtime_error( string_format(
-                                          R"("mutation group "%s" already defined with type "collection")", gid.str() ) );
+                                          R"("mutation group "{}" already defined with type "collection")", gid.str() ) );
         }
     }
     return *found->second;

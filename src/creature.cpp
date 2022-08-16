@@ -650,7 +650,7 @@ int Creature::size_melee_penalty() const
             return 0;
     }
 
-    debugmsg( "Invalid target size %d", get_size() );
+    debugmsg( "Invalid target size {}", get_size() );
     return 0;
 }
 
@@ -701,7 +701,7 @@ float Creature::get_crit_factor( const bodypart_id &bp ) const
 
 int Creature::deal_melee_attack( Creature *source, int hitroll )
 {
-    add_msg_debug( debugmode::DF_CREATURE, "Base hitroll %d",
+    add_msg_debug( debugmode::DF_CREATURE, "Base hitroll {}",
                    hitroll );
 
     float dodge = dodge_roll();
@@ -721,7 +721,7 @@ int Creature::deal_melee_attack( Creature *source, int hitroll )
     if( dodge > 0.0 && hit_spread <= 0 && source != nullptr && !source->is_hallucination() ) {
         on_dodge( source, source->get_melee() );
     }
-    add_msg_debug( debugmode::DF_CREATURE, "Final hitspread %d",
+    add_msg_debug( debugmode::DF_CREATURE, "Final hitspread {}",
                    hit_spread );
     return hit_spread;
 }
@@ -821,7 +821,7 @@ void projectile::apply_effects_damage( Creature &target, Creature *source,
             !player_character.has_morale( MORALE_PYROMANIA_STARTFIRE ) &&
             player_character.sees( target ) ) {
             player_character.add_msg_if_player( m_good,
-                                                _( "You feel a surge of euphoria as flame engulfs %s!" ), target.get_name() );
+                                                _( "You feel a surge of euphoria as flame engulfs {}!" ), target.get_name() );
             player_character.add_morale( MORALE_PYROMANIA_STARTFIRE, 15, 15, 8_hours, 6_hours );
             player_character.rem_morale( MORALE_PYROMANIA_NOFIRE );
         }
@@ -835,7 +835,7 @@ void projectile::apply_effects_damage( Creature &target, Creature *source,
             !player_character.has_morale( MORALE_PYROMANIA_STARTFIRE ) &&
             player_character.sees( target ) ) {
             player_character.add_msg_if_player( m_good,
-                                                _( "You feel a surge of euphoria as flame engulfs %s!" ), target.get_name() );
+                                                _( "You feel a surge of euphoria as flame engulfs {}!" ), target.get_name() );
             player_character.add_morale( MORALE_PYROMANIA_STARTFIRE, 15, 15, 8_hours, 6_hours );
             player_character.rem_morale( MORALE_PYROMANIA_NOFIRE );
         }
@@ -847,8 +847,8 @@ void projectile::apply_effects_damage( Creature &target, Creature *source,
             target.add_effect( effect_source( source ), effect_stunned, duration );
             target.add_effect( effect_source( source ), effect_sensor_stun, duration );
             add_msg( source->is_avatar() ?
-                     _( "You land a clean shot on the %1$s sensors, stunning it." ) :
-                     _( "The %1$s is stunned!" ),
+                     _( "You land a clean shot on the {1} sensors, stunning it." ) :
+                     _( "The {1} is stunned!" ),
                      target.disp_name( true ) );
         }
     }
@@ -978,14 +978,14 @@ void Creature::messaging_projectile_attack( const Creature *source,
             }
         } else if( total_damage == 0 ) {
             //~ 1$ - monster name, 2$ - character's bodypart or monster's skin/armor
-            add_msg( _( "The shot reflects off %1$s %2$s!" ), disp_name( true ),
+            add_msg( _( "The shot reflects off {1} {2}!" ), disp_name( true ),
                      is_monster() ?
                      skin_name() :
                      body_part_name_accusative( hit_selection.bp_hit ) );
         } else if( is_avatar() ) {
             //monster hits player ranged
             //~ Hit message. 1$s is bodypart name in accusative. 2$d is damage value.
-            add_msg_if_player( m_bad, _( "You were hit in the %1$s for %2$d damage." ),
+            add_msg_if_player( m_bad, _( "You were hit in the {1} for {2} damage." ),
                                body_part_name_accusative( hit_selection.bp_hit ),
                                total_damage );
         } else if( source != nullptr ) {
@@ -1006,22 +1006,22 @@ void Creature::messaging_projectile_attack( const Creature *source,
                     SCT.removeCreatureHP();
                 }
                 if( hit_selection.wp_hit.empty() ) {
-                    //~ %1$s: creature name, %2$d: damage value
-                    add_msg( m_good, _( "You hit %1$s for %2$d damage." ),
+                    //~ {1}: creature name, {2}: damage value
+                    add_msg( m_good, _( "You hit {1} for {2} damage." ),
                              disp_name(), total_damage );
                 } else {
-                    //~ %1$s: creature name, %2$s: weakpoint hit, %3$d: damage value
-                    add_msg( m_good, _( "You hit %1$s in %2$s for %3$d damage." ),
+                    //~ {1}: creature name, {2}: weakpoint hit, {3}: damage value
+                    add_msg( m_good, _( "You hit {1} in {2} for {3} damage." ),
                              disp_name(), hit_selection.wp_hit, total_damage );
                 }
             } else if( source != this ) {
                 if( hit_selection.wp_hit.empty() ) {
                     //~ 1$ - shooter, 2$ - target
-                    add_msg( _( "%1$s shoots %2$s." ),
+                    add_msg( _( "{1} shoots {2}." ),
                              source->disp_name(), disp_name() );
                 } else {
                     //~ 1$ - shooter, 2$ - target, 3$ - weakpoint
-                    add_msg( _( "%1$s shoots %2$s in %3$s." ),
+                    add_msg( _( "{1} shoots {2} in {3}." ),
                              source->disp_name(), disp_name(), hit_selection.wp_hit );
                 }
             }
@@ -1075,8 +1075,8 @@ void Creature::deal_projectile_attack( Creature *source, dealt_projectile_attack
         if( source != nullptr && player_view.sees( *source ) ) {
             add_msg_player_or_npc(
                 m_warning,
-                _( "You avoid %s projectile!" ),
-                _( "<npcname> avoids %s projectile." ),
+                _( "You avoid {} projectile!" ),
+                _( "<npcname> avoids {} projectile." ),
                 source->disp_name( true ) );
         } else {
             add_msg_player_or_npc(
@@ -1209,7 +1209,7 @@ void Creature::deal_damage_handle_type( const effect_source &source, const damag
                 if( player_character.has_trait( trait_PYROMANIA ) &&
                     !player_character.has_morale( MORALE_PYROMANIA_STARTFIRE ) && player_character.sees( *this ) ) {
                     player_character.add_msg_if_player( m_good,
-                                                        _( "You feel a surge of euphoria as flame engulfs %s!" ), this->get_name() );
+                                                        _( "You feel a surge of euphoria as flame engulfs {}!" ), this->get_name() );
                     player_character.add_morale( MORALE_PYROMANIA_STARTFIRE, 15, 15, 8_hours, 6_hours );
                     player_character.rem_morale( MORALE_PYROMANIA_NOFIRE );
                 }
@@ -1276,7 +1276,7 @@ void Creature::longpull( const std::string &name, const tripoint &p )
     }
     if( c == nullptr || !sees( *c ) ) {
         // TODO: Latch onto objects?
-        add_msg_if_player( m_warning, _( "There's nothing here to latch onto with your %s!" ),
+        add_msg_if_player( m_warning, _( "There's nothing here to latch onto with your {}!" ),
                            name );
         return;
     }
@@ -1287,20 +1287,20 @@ void Creature::longpull( const std::string &name, const tripoint &p )
     const int str = ch != nullptr ? ch->get_str() : mon != nullptr ? mon->get_grab_strength() : 10;
     const int odds = units::to_kilogram( c->get_weight() ) / ( str * 3 );
     if( one_in( clamp<int>( odds * odds, 1, 1000 ) ) ) {
-        add_msg_if_player( m_good, _( "You pull %1$s towards you with your %2$s!" ), c->disp_name(),
+        add_msg_if_player( m_good, _( "You pull {1} towards you with your {2}!" ), c->disp_name(),
                            name );
         if( c->is_avatar() ) {
-            add_msg( m_warning, _( "%1$s pulls you in with their %2$s!" ), disp_name( false, true ), name );
+            add_msg( m_warning, _( "{1} pulls you in with their {2}!" ), disp_name( false, true ), name );
         }
         c->move_to( tripoint_abs_ms( line_to( get_location().raw(), c->get_location().raw(), 0,
                                               0 ).front() ) );
         c->add_effect( effect_stunned, 1_seconds );
         sounds::sound( c->pos(), 5, sounds::sound_t::combat, _( "Shhhk!" ) );
     } else {
-        add_msg_if_player( m_bad, _( "%s weight makes it difficult to pull towards you." ),
+        add_msg_if_player( m_bad, _( "{} weight makes it difficult to pull towards you." ),
                            c->disp_name( true, true ) );
         if( c->is_avatar() ) {
-            add_msg( m_info, _( "%1s tries to pull you in, but you resist!" ), disp_name( false, true ) );
+            add_msg( m_info, _( "{} tries to pull you in, but you resist!" ), disp_name( false, true ) );
         }
     }
 }
@@ -1352,7 +1352,7 @@ void Creature::add_effect( const effect_source &source, const efftype_id &eff_id
     }
 
     if( !eff_id.is_valid() ) {
-        debugmsg( "Invalid effect, ID: %s", eff_id.c_str() );
+        debugmsg( "Invalid effect, ID: {}", eff_id.c_str() );
         return;
     }
     const effect_type &type = eff_id.obj();
@@ -1395,7 +1395,7 @@ void Creature::add_effect( const effect_source &source, const efftype_id &eff_id
 
             // Bound intensity by [1, max intensity]
             if( e.get_intensity() < 1 ) {
-                add_msg_debug( debugmode::DF_CREATURE, "Bad intensity, ID: %s", e.get_id().c_str() );
+                add_msg_debug( debugmode::DF_CREATURE, "Bad intensity, ID: {}", e.get_id().c_str() );
                 e.set_intensity( 1 );
             } else if( e.get_intensity() > e.get_max_intensity() ) {
                 e.set_intensity( e.get_max_intensity() );
@@ -1435,7 +1435,7 @@ void Creature::add_effect( const effect_source &source, const efftype_id &eff_id
         }
         // Bound new effect intensity by [1, max intensity]
         if( e.get_intensity() < 1 ) {
-            add_msg_debug( debugmode::DF_CREATURE, "Bad intensity, ID: %s", e.get_id().c_str() );
+            add_msg_debug( debugmode::DF_CREATURE, "Bad intensity, ID: {}", e.get_id().c_str() );
             e.set_intensity( 1 );
         } else if( e.get_intensity() > e.get_max_intensity() ) {
             e.set_intensity( e.get_max_intensity() );
@@ -1951,7 +1951,7 @@ bodypart *Creature::get_part( const bodypart_id &id )
 {
     auto found = body.find( id.id() );
     if( found == body.end() ) {
-        debugmsg( "Could not find bodypart %s in %s's body", id.id().c_str(), get_name() );
+        debugmsg( "Could not find bodypart {} in {}'s body", id.id().c_str(), get_name() );
         return nullptr;
     }
     return &found->second;
@@ -1961,7 +1961,7 @@ const bodypart *Creature::get_part( const bodypart_id &id ) const
 {
     auto found = body.find( id.id() );
     if( found == body.end() ) {
-        debugmsg( "Could not find bodypart %s in %s's body", id.id().c_str(), get_name() );
+        debugmsg( "Could not find bodypart {} in {}'s body", id.id().c_str(), get_name() );
         return nullptr;
     }
     return &found->second;
@@ -2296,8 +2296,8 @@ static void sort_body_parts( std::vector<bodypart_id> &bps )
     }
 
     if( !unaccounted_parts.empty() || !parts_with_no_connections.empty() ) {
-        debugmsg( "Error in topo-sorting bodyparts: unaccounted_parts.size() == %d; "
-                  "parts_with_no_connections.size() == %d", unaccounted_parts.size(),
+        debugmsg( "Error in topo-sorting bodyparts: unaccounted_parts.size() == {}; "
+                  "parts_with_no_connections.size() == {}", unaccounted_parts.size(),
                   parts_with_no_connections.size() );
         return;
     }
@@ -2551,7 +2551,7 @@ void Creature::mod_stat( const std::string &stat, float modifier )
     } else if( stat == "moves" ) {
         mod_moves( modifier );
     } else {
-        debugmsg( "Tried to modify a nonexistent stat %s.", stat.c_str() );
+        debugmsg( "Tried to modify a nonexistent stat {}.", stat.c_str() );
     }
 }
 
@@ -2716,7 +2716,7 @@ std::unordered_map<std::string, std::string> &Creature::get_values()
 bodypart_id Creature::select_body_part( int min_hit, int max_hit, bool can_attack_high,
                                         int hit_roll ) const
 {
-    add_msg_debug( debugmode::DF_CREATURE, "hit roll = %d", hit_roll );
+    add_msg_debug( debugmode::DF_CREATURE, "hit roll = {}", hit_roll );
     if( !is_monster() && !can_attack_high ) {
         can_attack_high = as_character()->is_on_ground();
     }
@@ -2924,7 +2924,7 @@ void Creature::describe_infrared( std::vector<std::string> &buf ) const
             break;
     }
     buf.emplace_back( _( "You see a figure radiating heat." ) );
-    buf.push_back( string_format( _( "It is %s in size." ), size_str ) );
+    buf.push_back( string_format( _( "It is {} in size." ), size_str ) );
 }
 
 void Creature::describe_specials( std::vector<std::string> &buf ) const
@@ -2956,7 +2956,7 @@ std::unique_ptr<talker> get_talker_for( Creature &me )
     } else if( me.is_avatar() ) {
         return std::make_unique<talker_avatar>( static_cast<avatar *>( &me ) );
     } else {
-        debugmsg( "Invalid creature type %s.", me.get_name() );
+        debugmsg( "Invalid creature type {}.", me.get_name() );
         standard_npc default_npc( "Default" );
         return get_talker_for( default_npc );
     }
@@ -2967,7 +2967,7 @@ std::unique_ptr<talker> get_talker_for( const Creature &me )
     if( !me.is_monster() ) {
         return std::make_unique<talker_character_const>( static_cast<const Character *>( &me ) );
     } else {
-        debugmsg( "Invalid creature type %s.", me.get_name() );
+        debugmsg( "Invalid creature type {}.", me.get_name() );
         standard_npc default_npc( "Default" );
         return get_talker_for( default_npc );
     }
@@ -2986,7 +2986,7 @@ std::unique_ptr<talker> get_talker_for( Creature *me )
     } else if( me->is_avatar() ) {
         return std::make_unique<talker_avatar>( static_cast<avatar *>( me ) );
     } else {
-        debugmsg( "Invalid creature type %s.", me->get_name() );
+        debugmsg( "Invalid creature type {}.", me->get_name() );
         standard_npc default_npc( "Default" );
         return get_talker_for( default_npc );
     }

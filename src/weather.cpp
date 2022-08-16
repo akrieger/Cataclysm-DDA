@@ -223,7 +223,7 @@ void retroactively_fill_from_funnel( item &it, const trap &tr, const time_point 
     if( data.rain_amount > 0 ) {
         const int rain = roll_remainder( 1.0 / tr.funnel_turns_per_charge( data.rain_amount ) );
         it.add_rain_to_container( false, rain );
-        // add_msg_debug( "Retroactively adding %d water from turn %d to %d", rain, startturn, endturn);
+        // add_msg_debug( "Retroactively adding {} water from turn {} to {}", rain, startturn, endturn);
     }
 
     if( data.acid_amount > 0 ) {
@@ -362,7 +362,7 @@ static void fill_funnels( int rain_depth_mm_per_hour, bool acid, const trap &tr 
         units::volume maxcontains = 0_ml;
         if( one_in( turns_per_charge ) ) {
             // FIXME:
-            //add_msg("%d mm/h %d tps %.4f: fill",int(calendar::turn),rain_depth_mm_per_hour,turns_per_charge);
+            //add_msg("{} mm/h {} tps %.4f: fill",int(calendar::turn),rain_depth_mm_per_hour,turns_per_charge);
             // This funnel has collected some rain! Put the rain in the largest
             // container here which is either empty or contains some mixture of
             // impure water and acid.
@@ -525,7 +525,7 @@ static std::string print_time_just_hour( const time_point &p )
     if( hour_param == 0 ) {
         hour_param = 12;
     }
-    return string_format( hour < 12 ? _( "%d AM" ) : _( "%d PM" ), hour_param );
+    return string_format( hour < 12 ? _( "{} AM" ) : _( "{} PM" ), hour_param );
 }
 
 // Script from Wikipedia:
@@ -564,8 +564,8 @@ std::string weather_forecast( const point_abs_sm &abs_sm_pos )
     weather_manager &weather = get_weather();
     // Current time
     weather_report += string_format(
-                          //~ %1$s: time of day, %2$s: hour of day, %3$s: city name, %4$s: weather name, %5$s: temperature value
-                          _( "The current time is %1$s Eastern Standard Time.  At %2$s in %3$s, it was %4$s.  The temperature was %5$s. " ),
+                          //~ {1}: time of day, {2}: hour of day, {3}: city name, {4}: weather name, {5}: temperature value
+                          _( "The current time is {1} Eastern Standard Time.  At {2} in {3}, it was {4}.  The temperature was {5}. " ),
                           to_string_time_of_day( calendar::turn ), print_time_just_hour( calendar::turn ),
                           city_name,
                           weather.weather_id->name, print_temperature( get_weather().temperature )
@@ -615,12 +615,12 @@ std::string weather_forecast( const point_abs_sm &abs_sm_pos )
             started_at_night = false;
         }
         if( d > 0 && static_cast<int>( started_at_night ) != d % 2 ) {
-            day = string_format( pgettext( "Mon Night", "%s Night" ), to_string( day_of_week( c ) ) );
+            day = string_format( pgettext( "Mon Night", "{} Night" ), to_string( day_of_week( c ) ) );
         } else {
             day = to_string( day_of_week( c ) );
         }
         weather_report += string_format(
-                              _( "%s… %s. Highs of %s. Lows of %s. " ),
+                              _( "{}… {}. Highs of {}. Lows of {}. " ),
                               day, forecast->name,
                               print_temperature( high ), print_temperature( low )
                           );
@@ -639,13 +639,13 @@ std::string print_temperature( double fahrenheit, int decimals )
     };
 
     if( get_option<std::string>( "USE_CELSIUS" ) == "celsius" ) {
-        return string_format( pgettext( "temperature in Celsius", "%sC" ),
+        return string_format( pgettext( "temperature in Celsius", "{}" ),
                               text( temp_to_celsius( fahrenheit ) ) );
     } else if( get_option<std::string>( "USE_CELSIUS" ) == "kelvin" ) {
-        return string_format( pgettext( "temperature in Kelvin", "%sK" ),
+        return string_format( pgettext( "temperature in Kelvin", "{}" ),
                               text( temp_to_kelvin( fahrenheit ) ) );
     } else {
-        return string_format( pgettext( "temperature in Fahrenheit", "%sF" ), text( fahrenheit ) );
+        return string_format( pgettext( "temperature in Fahrenheit", "{}" ), text( fahrenheit ) );
     }
 }
 
@@ -655,7 +655,7 @@ std::string print_temperature( double fahrenheit, int decimals )
 std::string print_humidity( double humidity, int decimals )
 {
     const std::string ret = string_format( "%.*f", decimals, humidity );
-    return string_format( pgettext( "humidity in percent", "%s%%" ), ret );
+    return string_format( pgettext( "humidity in percent", "{}%%" ), ret );
 }
 
 /**
@@ -664,7 +664,7 @@ std::string print_humidity( double humidity, int decimals )
 std::string print_pressure( double pressure, int decimals )
 {
     const std::string ret = string_format( "%.*f", decimals, pressure / 10 );
-    return string_format( pgettext( "air pressure in kPa", "%s kPa" ), ret );
+    return string_format( pgettext( "air pressure in kPa", "{} kPa" ), ret );
 }
 
 int get_local_windchill( double temperature_f, double humidity, double wind_mph )
@@ -954,7 +954,7 @@ void weather_manager::update_weather()
             here.get_abs_sub().z() >= 0 && here.is_outside( player_character.pos() )
             && !player_character.has_activity( ACT_WAIT_WEATHER ) ) {
             g->cancel_activity_or_ignore_query( distraction_type::weather_change,
-                                                string_format( _( "The weather changed to %s!" ), weather_id->name ) );
+                                                string_format( _( "The weather changed to {}!" ), weather_id->name ) );
         }
 
         if( weather_id != old_weather && player_character.has_activity( ACT_WAIT_WEATHER ) ) {

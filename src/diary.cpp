@@ -87,7 +87,7 @@ void diary::spell_changes()
             add_to_change_list( _( "Known spells:" ) );
             for( const std::pair<const string_id<spell_type>, int> &elem : currpage->known_spells ) {
                 const spell s = u->magic->get_spell( elem.first );
-                add_to_change_list( string_format( _( "%s: %d" ), s.name(), elem.second ), s.description() );
+                add_to_change_list( string_format( _( "{}: {}" ), s.name(), elem.second ), s.description() );
             }
             add_to_change_list( " " );
         }
@@ -103,7 +103,7 @@ void diary::spell_changes()
                             flag = false;
                         }
                         const spell s = u->magic->get_spell( elem.first );
-                        add_to_change_list( string_format( _( "%s: %d -> %d" ), s.name(), prevlvl, elem.second ),
+                        add_to_change_list( string_format( _( "{}: {} -> {}" ), s.name(), prevlvl, elem.second ),
                                             s.description() );
                     }
                 } else {
@@ -112,7 +112,7 @@ void diary::spell_changes()
                         flag = false;
                     }
                     const spell s = u->magic->get_spell( elem.first );
-                    add_to_change_list( string_format( _( "%s: %d" ), s.name(), elem.second ), s.description() );
+                    add_to_change_list( string_format( _( "{}: {}" ), s.name(), elem.second ), s.description() );
                 }
             }
             if( !flag ) {
@@ -257,7 +257,7 @@ void diary::kill_changes()
                 nc_color color = m.color;
                 std::string symbol = m.sym;
                 std::string nname = m.nname( elem.second );
-                add_to_change_list( string_format( "%4d ", elem.second ) + colorize( symbol,
+                add_to_change_list( string_format( "{} ", elem.second ) + colorize( symbol,
                                     color ) + " " + colorize( nname, c_light_gray ), m.get_description() );
             }
             add_to_change_list( " " );
@@ -265,7 +265,7 @@ void diary::kill_changes()
         if( !currpage->npc_kills.empty() ) {
             add_to_change_list( _( "NPC Killed" ) );
             for( const std::string &npc_name : currpage->npc_kills ) {
-                add_to_change_list( string_format( "%4d ", 1 ) + colorize( "@ " + npc_name, c_magenta ) );
+                add_to_change_list( string_format( "{} ", 1 ) + colorize( "@ " + npc_name, c_magenta ) );
             }
             add_to_change_list( " " );
         }
@@ -289,7 +289,7 @@ void diary::kill_changes()
                             flag = false;
                         }
                         kills = kills - prevkills;
-                        add_to_change_list( string_format( "%4d ", kills ) + colorize( symbol,
+                        add_to_change_list( string_format( "{} ", kills ) + colorize( symbol,
                                             color ) + " " + colorize( nname, c_light_gray ), m.get_description() );
                     }
                 } else {
@@ -297,7 +297,7 @@ void diary::kill_changes()
                         add_to_change_list( _( "Kills: " ) );
                         flag = false;
                     }
-                    add_to_change_list( string_format( "%4d ", kills ) + colorize( symbol,
+                    add_to_change_list( string_format( "{} ", kills ) + colorize( symbol,
                                         color ) + " " + colorize( nname, c_light_gray ), m.get_description() );
                 }
 
@@ -321,7 +321,7 @@ void diary::kill_changes()
                         add_to_change_list( _( "NPC Killed: " ) );
                         flag = false;
                     }
-                    add_to_change_list( string_format( "%4d ", 1 ) + colorize( "@ " + npc_name, c_magenta ) );
+                    add_to_change_list( string_format( "{} ", 1 ) + colorize( "@ " + npc_name, c_magenta ) );
                 }
 
             }
@@ -350,7 +350,7 @@ void diary::skill_changes()
 
                 if( elem.second > 0 ) {
                     Skill s = elem.first.obj();
-                    add_to_change_list( string_format( "<color_light_blue>%s: %d</color>", s.name(), elem.second ),
+                    add_to_change_list( string_format( "<color_light_blue>{}: {}</color>", s.name(), elem.second ),
                                         s.description() );
                 }
             }
@@ -367,7 +367,7 @@ void diary::skill_changes()
                         flag = false;
                     }
                     Skill s = elem.first.obj();
-                    add_to_change_list( string_format( _( "<color_light_blue>%s: %d -> %d</color>" ), s.name(),
+                    add_to_change_list( string_format( _( "<color_light_blue>{}: {} -> {}</color>" ), s.name(),
                                                        prevpage->skillsL[elem.first], elem.second ), s.description() );
                 }
 
@@ -452,10 +452,10 @@ void diary::stat_changes()
     }
     if( prevpage == nullptr ) {
         add_to_change_list( _( "Stats:" ) );
-        add_to_change_list( string_format( _( "Strength: %d" ), currpage->strength ) );
-        add_to_change_list( string_format( _( "Dexterity: %d" ), currpage->dexterity ) );
-        add_to_change_list( string_format( _( "Intelligence: %d" ), currpage->intelligence ) );
-        add_to_change_list( string_format( _( "Perception: %d" ), currpage->perception ) );
+        add_to_change_list( string_format( _( "Strength: {}" ), currpage->strength ) );
+        add_to_change_list( string_format( _( "Dexterity: {}" ), currpage->dexterity ) );
+        add_to_change_list( string_format( _( "Intelligence: {}" ), currpage->intelligence ) );
+        add_to_change_list( string_format( _( "Perception: {}" ), currpage->perception ) );
         add_to_change_list( " " );
     } else {
 
@@ -465,7 +465,7 @@ void diary::stat_changes()
                 add_to_change_list( _( "Stats: " ) );
                 flag = false;
             }
-            add_to_change_list( string_format( _( "Strength: %d -> %d" ), prevpage->strength,
+            add_to_change_list( string_format( _( "Strength: {} -> {}" ), prevpage->strength,
                                                currpage->strength ) );
         }
         if( currpage->dexterity != prevpage->dexterity ) {
@@ -473,7 +473,7 @@ void diary::stat_changes()
                 add_to_change_list( _( "Stats: " ) );
                 flag = false;
             }
-            add_to_change_list( string_format( _( "Dexterity: %d -> %d" ), prevpage->dexterity,
+            add_to_change_list( string_format( _( "Dexterity: {} -> {}" ), prevpage->dexterity,
                                                currpage->dexterity ) );
         }
         if( currpage->intelligence != prevpage->intelligence ) {
@@ -481,7 +481,7 @@ void diary::stat_changes()
                 add_to_change_list( _( "Stats: " ) );
                 flag = false;
             }
-            add_to_change_list( string_format( _( "Intelligence: %d -> %d" ), prevpage->intelligence,
+            add_to_change_list( string_format( _( "Intelligence: {} -> {}" ), prevpage->intelligence,
                                                currpage->intelligence ) );
         }
 
@@ -490,7 +490,7 @@ void diary::stat_changes()
                 add_to_change_list( _( "Stats: " ) );
                 flag = false;
             }
-            add_to_change_list( string_format( _( "Perception: %d -> %d" ), prevpage->perception,
+            add_to_change_list( string_format( _( "Perception: {} -> {}" ), prevpage->perception,
                                                currpage->perception ) );
         }
         if( !flag ) {
@@ -589,10 +589,10 @@ std::string diary::get_head_text()
             time_diff_text = get_diary_time_since_str( turn_diff, currpageptr->time_acc );
         }
         //~ Head text of a diary page
-        //~ %1$d is the current page number, %2$d is the number of pages in total
-        //~ %3$s is the time point when the current page was created
-        //~ %4$s is time relative to the previous page
-        return string_format( _( "Entry: %1$d/%2$d, %3$s, %4$s" ),
+        //~ {1} is the current page number, {2} is the number of pages in total
+        //~ {3} is the time point when the current page was created
+        //~ {4} is time relative to the previous page
+        return string_format( _( "Entry: {1}/{2}, {3}, {4}" ),
                               opened_page + 1, pages.size(),
                               get_diary_time_str( currpageptr->turn, currpageptr->time_acc ),
                               time_diff_text );

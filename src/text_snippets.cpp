@@ -160,7 +160,7 @@ snippet_id snippet_library::random_id_from_category( const std::string &cat ) co
         return snippet_id::NULL_ID();
     }
     if( !it->second.no_id.empty() ) {
-        debugmsg( "ids are required, but not specified for some snippets in category %s", cat );
+        debugmsg( "ids are required, but not specified for some snippets in category {}", cat );
     }
     if( it->second.ids.empty() ) {
         return snippet_id::NULL_ID();

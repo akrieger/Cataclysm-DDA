@@ -276,7 +276,7 @@ tileset::find_tile_type_by_season( const std::string &id, season_type season ) c
     } else if( res.default_tile ) { // can skip this check, but just in case
         return tile_lookup_res( iter->first, *res.default_tile );
     }
-    debugmsg( "empty record found in `tile_ids_by_season` for key: %s", id );
+    debugmsg( "empty record found in `tile_ids_by_season` for key: {}", id );
     return cata::nullopt;
 }
 
@@ -1091,7 +1091,7 @@ void tileset_cache::loader::load_tilejson_from_file( const JsonObject &config )
                 try {
                     entry.throw_error( "Additional tiles defined, but 'multitile' is not true." );
                 } catch( const JsonError &err ) {
-                    debugmsg( "(json-error)\n%s", err.what() );
+                    debugmsg( "(json-error)\n{}", err.what() );
                 }
             }
             // write the information of the base tile to curr_tile

@@ -84,7 +84,7 @@ int Character::get_armor_type( damage_type dt, bodypart_id bp ) const
             break;
     }
 
-    debugmsg( "Invalid damage type: %d", dt );
+    debugmsg( "Invalid damage type: {}", dt );
     return 0;
 }
 
@@ -131,7 +131,7 @@ std::map<bodypart_id, int> Character::get_all_armor_type( damage_type dt,
             }
             case damage_type::NONE:
             case damage_type::NUM:
-                debugmsg( "Invalid damage type: %d", dt );
+                debugmsg( "Invalid damage type: {}", dt );
                 return ret;
         }
     }
@@ -256,13 +256,13 @@ void destroyed_armor_msg( Character &who, const std::string &pre_damage_name )
 {
     if( who.is_avatar() ) {
         get_memorial().add(
-            //~ %s is armor name
-            pgettext( "memorial_male", "Worn %s was completely destroyed." ),
-            pgettext( "memorial_female", "Worn %s was completely destroyed." ),
+            //~ {} is armor name
+            pgettext( "memorial_male", "Worn {} was completely destroyed." ),
+            pgettext( "memorial_female", "Worn {} was completely destroyed." ),
             pre_damage_name );
     }
-    who.add_msg_player_or_npc( m_bad, _( "Your %s is completely destroyed!" ),
-                               _( "<npcname>'s %s is completely destroyed!" ),
+    who.add_msg_player_or_npc( m_bad, _( "Your {} is completely destroyed!" ),
+                               _( "<npcname>'s {} is completely destroyed!" ),
                                pre_damage_name );
 }
 
@@ -439,7 +439,7 @@ bool Character::ablative_armor_absorb( damage_unit &du, item &armor, const sub_b
                     const std::string pre_damage_name = ablative_armor.tname();
 
                     // TODO: add balistic and shattering verbs for ablative materials instead of hard coded
-                    std::string format_string = _( "Your %1$s is %2$s!" );
+                    std::string format_string = _( "Your {1} is {2}!" );
                     std::string damage_verb = "shattered";
                     add_msg_if_player( m_bad, format_string, pre_damage_name, damage_verb );
 
@@ -502,8 +502,8 @@ void Character::describe_damage( damage_unit &du, item &armor ) const
 
     // add "further" if the damage adjective and verb are the same
     std::string format_string = ( pre_damage_adj == damage_verb ) ?
-                                //~ %1$s is your armor name, %2$s is a damage verb
-                                _( "Your %1$s is %2$s further!" ) : _( "Your %1$s is %2$s!" );
+                                //~ {1} is your armor name, {2} is a damage verb
+                                _( "Your {1} is {2} further!" ) : _( "Your {1} is {2}!" );
     add_msg_if_player( m_bad, format_string, pre_damage_name, damage_verb );
     //item is damaged
     if( is_avatar() ) {

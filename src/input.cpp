@@ -248,7 +248,7 @@ void input_manager::init()
     try {
         save();
     } catch( std::exception &err ) {
-        debugmsg( "Could not write imported keybindings: %s", err.what() );
+        debugmsg( "Could not write imported keybindings: {}", err.what() );
         return;
     }
     // Finally if we did import a file, and saved it to the new keybindings
@@ -290,8 +290,8 @@ void input_manager::load( const std::string &file_name, bool is_user_preferences
 
         const std::string type = action.get_string( "type", "keybinding" );
         if( type != "keybinding" ) {
-            debugmsg( "Only objects of type 'keybinding' (not %s) should appear in the "
-                      "keybindings file '%s'", type, file_name );
+            debugmsg( "Only objects of type 'keybinding' (not {}) should appear in the "
+                      "keybindings file '{}'", type, file_name );
             continue;
         }
 
@@ -543,7 +543,7 @@ void input_manager::init_keycode_mapping()
         if( !IS_NAMED_CTRL_CHAR( c ) ) {
             // These are directly translated in `get_keyname()`
             // NOLINTNEXTLINE(cata-translate-string-literal)
-            add_keyboard_char_keycode_pair( c, string_format( "CTRL+%c", c + 64 ) );
+            add_keyboard_char_keycode_pair( c, string_format( "CTRL+{}", c + 64 ) );
         }
     }
 
@@ -551,7 +551,7 @@ void input_manager::init_keycode_mapping()
     for( int i = F_KEY_NUM_BEG; i <= F_KEY_NUM_END; i++ ) {
         // These are directly translated in `get_keyname()`
         // NOLINTNEXTLINE(cata-translate-string-literal)
-        add_keyboard_char_keycode_pair( KEY_F( i ), string_format( "F%d", i ) );
+        add_keyboard_char_keycode_pair( KEY_F( i ), string_format( "F{}", i ) );
     }
 
     static const std::vector<std::pair<int, std::string>> keyboard_code_keycode_pair = {
@@ -733,13 +733,13 @@ std::string input_manager::get_keyname( int ch, input_event_t inp_type, bool por
                         if( portable ) {
                             return it->second;
                         } else {
-                            return string_format( pgettext( "function key name", "F%d" ), F_KEY_NUM( ch ) );
+                            return string_format( pgettext( "function key name", "F{}" ), F_KEY_NUM( ch ) );
                         }
                     } else if( IS_CTRL_CHAR( ch ) && !IS_NAMED_CTRL_CHAR( ch ) ) {
                         if( portable ) {
                             return it->second;
                         } else {
-                            return string_format( pgettext( "control key name", "CTRL+%c" ), ch + 64 );
+                            return string_format( pgettext( "control key name", "CTRL+{}" ), ch + 64 );
                         }
                     } else if( ch >= char_key_beg && ch <= char_key_end && ch != ' ' ) {
                         // character keys except space need no translation
@@ -761,7 +761,7 @@ std::string input_manager::get_keyname( int ch, input_event_t inp_type, bool por
     if( portable ) {
         return std::string( "UNKNOWN_" ) + int_to_str( ch );
     } else {
-        return string_format( _( "unknown key %ld" ), ch );
+        return string_format( _( "unknown key {}" ), ch );
     }
 }
 
@@ -1162,15 +1162,15 @@ std::string input_context::get_desc(
 {
     return get_desc( action_descriptor, text, evt_filter,
                      to_translation(
-                         //~ %1$s: action description text before key,
-                         //~ %2$s: key description,
-                         //~ %3$s: action description text after key.
-                         "keybinding", "%1$s(%2$s)%3$s" ),
+                         //~ {1}: action description text before key,
+                         //~ {2}: key description,
+                         //~ {3}: action description text after key.
+                         "keybinding", "{1}({2}){3}" ),
                      to_translation(
                          // \u00A0 is the non-breaking space
-                         //~ %1$s: key description,
-                         //~ %2$s: action description.
-                         "keybinding", "[%1$s]\u00A0%2$s" ) );
+                         //~ {1}: key description,
+                         //~ {2}: action description.
+                         "keybinding", "[{1}]\u00A0{2}" ) );
 }
 
 std::string input_context::describe_key_and_name( const std::string &action_descriptor,
@@ -1435,13 +1435,13 @@ action_id input_context::display_menu( const bool permit_execute_action )
     legend += colorize( _( "Keybinding active only on this screen" ), local_key ) + "\n";
     legend += colorize( _( "Keybinding active globally" ), global_key ) + "\n";
     legend += string_format(
-                  _( "Press %c to remove keybinding\nPress %c to add local keybinding\nPress %c to add global keybinding\n" ),
+                  _( "Press {} to remove keybinding\nPress {} to add local keybinding\nPress {} to add global keybinding\n" ),
                   fallback_keys.at( fallback_action::remove ),
                   fallback_keys.at( fallback_action::add_local ),
                   fallback_keys.at( fallback_action::add_global ) );
     if( permit_execute_action ) {
         legend += string_format(
-                      _( "Press %c to execute action\n" ),
+                      _( "Press {} to execute action\n" ),
                       fallback_keys.at( fallback_action::execute ) );
     }
 
@@ -1475,11 +1475,11 @@ action_id input_context::display_menu( const bool permit_execute_action )
             if( status == s_add_global && overwrite_default ) {
                 // We're trying to add a global, but this action has a local
                 // defined, so gray out the invlet.
-                mvwprintz( w_help, point( 2, i + 10 ), c_dark_gray, "%c ", invlet );
+                mvwprintz( w_help, point( 2, i + 10 ), c_dark_gray, "{} ", invlet );
             } else if( status == s_add || status == s_add_global || status == s_remove ) {
-                mvwprintz( w_help, point( 2, i + 10 ), c_light_blue, "%c ", invlet );
+                mvwprintz( w_help, point( 2, i + 10 ), c_light_blue, "{} ", invlet );
             } else if( status == s_execute ) {
-                mvwprintz( w_help, point( 2, i + 10 ), c_white, "%c ", invlet );
+                mvwprintz( w_help, point( 2, i + 10 ), c_white, "{} ", invlet );
             } else {
                 mvwprintz( w_help, point( 2, i + 10 ), c_blue, "  " );
             }
@@ -1491,8 +1491,8 @@ action_id input_context::display_menu( const bool permit_execute_action )
             } else {
                 col = global_key;
             }
-            mvwprintz( w_help, point( 4, i + 10 ), col, "%s:", get_action_name( action_id ) );
-            mvwprintz( w_help, point( 52, i + 10 ), col, "%s", get_desc( action_id ) );
+            mvwprintz( w_help, point( 4, i + 10 ), col, "{}:", get_action_name( action_id ) );
+            mvwprintz( w_help, point( 52, i + 10 ), col, "{}", get_desc( action_id ) );
         }
 
         // spopup.query_string() will call wnoutrefresh( w_help )
@@ -1609,7 +1609,7 @@ action_id input_context::display_menu( const bool permit_execute_action )
             // bindings for the default context.
             if( status == s_remove && ( is_local || !is_empty ) ) {
                 if( !get_option<bool>( "QUERY_KEYBIND_REMOVAL" ) || query_yn( is_local &&
-                        is_empty ? _( "Reset to global bindings for %s?" ) : _( "Clear keys for %s?" ), name ) ) {
+                        is_empty ? _( "Reset to global bindings for {}?" ) : _( "Clear keys for {}?" ), name ) ) {
 
                     // If it's global, reset the global actions.
                     std::string category_to_access = category;
@@ -1626,7 +1626,7 @@ action_id input_context::display_menu( const bool permit_execute_action )
             } else if( status == s_add || status == s_add_global ) {
                 const input_event new_event = query_popup()
                                               .preferred_keyboard_mode( preferred_keyboard_mode )
-                                              .message( _( "New key for %s" ), name )
+                                              .message( _( "New key for {}" ), name )
                                               .allow_anykey( true )
                                               .query()
                                               .evt;
@@ -1634,7 +1634,7 @@ action_id input_context::display_menu( const bool permit_execute_action )
                 if( action_uses_input( action_id, new_event )
                     // Allow adding keys already used globally to local bindings
                     && ( status == s_add_global || is_local ) ) {
-                    popup_getkey( _( "This key is already used for %s." ), name );
+                    popup_getkey( _( "This key is already used for {}." ), name );
                     status = s_show;
                     continue;
                 }
@@ -1645,7 +1645,7 @@ action_id input_context::display_menu( const bool permit_execute_action )
 
                 if( has_conflicts ) {
                     resolve_conflicts = query_yn(
-                                            _( "This key conflicts with %s. Remove this key from the conflicting command(s), and continue?" ),
+                                            _( "This key conflicts with {}. Remove this key from the conflicting command(s), and continue?" ),
                                             conflicts.c_str() );
                 }
 
@@ -1676,7 +1676,7 @@ action_id input_context::display_menu( const bool permit_execute_action )
             inp_mngr.save();
             get_help().load();
         } catch( std::exception &err ) {
-            popup( _( "saving keybindings failed: %s" ), err.what() );
+            popup( _( "saving keybindings failed: {}" ), err.what() );
         }
     } else if( changed ) {
         inp_mngr.action_contexts.swap( old_action_contexts );

@@ -388,7 +388,7 @@ std::pair<nutrients, nutrients> Character::compute_nutrient_range(
             }
         }
         if( result_it.typeId() != comest_it.typeId() ) {
-            debugmsg( "When creating recipe result expected %s, got %s\n",
+            debugmsg( "When creating recipe result expected {}, got {}\n",
                       comest_it.typeId().str(), result_it.typeId().str() );
         }
         std::tie( this_min, this_max ) = compute_nutrient_range( result_it, rec, extra_flags );
@@ -556,7 +556,7 @@ std::map<vitamin_id, int> Character::effect_vitamin_mod( const std::map<vitamin_
 int Character::vitamin_mod( const vitamin_id &vit, int qty )
 {
     if( !vit.is_valid() ) {
-        debugmsg( "Vitamin with id %s does not exist, and cannot be modified", vit.str() );
+        debugmsg( "Vitamin with id {} does not exist, and cannot be modified", vit.str() );
         return 0;
     }
     // What's going on here? Emplace returns either an iterator to the inserted
@@ -764,7 +764,7 @@ ret_val<edible_rating> Character::can_eat( const item &food ) const
                              : has_amount( tool.first, 1 );
             if( !has ) {
                 return ret_val<edible_rating>::make_failure( NO_TOOL,
-                        string_format( _( "You need a %s to consume that!" ),
+                        string_format( _( "You need a {} to consume that!" ),
                                        item::nname( tool.first ) ) );
             }
         }
@@ -784,7 +784,7 @@ ret_val<edible_rating> Character::can_eat( const item &food ) const
                          : has_amount( comest->tool, 1 );
         if( !has ) {
             return ret_val<edible_rating>::make_failure( NO_TOOL,
-                    string_format( _( "You need a %s to consume that!" ),
+                    string_format( _( "You need a {} to consume that!" ),
                                    item::nname( comest->tool ) ) );
         }
     }
@@ -829,7 +829,7 @@ ret_val<edible_rating> Character::can_consume_fuel( const item &fuel ) const
             mat_type = ammo.get_base_material().id;
         }
         if( get_fuel_capacity( mat_type ) <= 0 ) {
-            return ret_val<edible_rating>::make_failure( _( "No space to store more %s" ), item_name );
+            return ret_val<edible_rating>::make_failure( _( "No space to store more {}" ), item_name );
         }
 
     }
@@ -841,7 +841,7 @@ ret_val<edible_rating> Character::will_eat( const item &food, bool interactive )
     ret_val<edible_rating> ret = can_eat( food );
     if( !ret.success() ) {
         if( interactive ) {
-            add_msg_if_player( m_info, "%s", ret.c_str() );
+            add_msg_if_player( m_info, "{}", ret.c_str() );
         }
         return ret;
     }
@@ -876,7 +876,7 @@ ret_val<edible_rating> Character::will_eat( const item &food, bool interactive )
 
     if( food.get_comestible()->parasites > 0 && !food.has_flag( flag_NO_PARASITES ) &&
         !has_flag( json_flag_PARAIMMUNE ) ) {
-        add_consequence( string_format( _( "Consuming this %s probably isn't very healthy." ),
+        add_consequence( string_format( _( "Consuming this {} probably isn't very healthy." ),
                                         food.tname() ),
                          PARASITES );
     }
@@ -923,11 +923,11 @@ ret_val<edible_rating> Character::will_eat( const item &food, bool interactive )
         std::string food_tame = food.tname();
         const nc_color food_color = food.color_in_inventory();
         if( eat_verb || comest->comesttype == comesttype_FOOD ) {
-            req += string_format( _( "Eat your %s anyway?" ), colorize( food_tame, food_color ) );
+            req += string_format( _( "Eat your {} anyway?" ), colorize( food_tame, food_color ) );
         } else if( !eat_verb && comest->comesttype == comesttype_DRINK ) {
-            req += string_format( _( "Drink your %s anyway?" ), colorize( food_tame, food_color ) );
+            req += string_format( _( "Drink your {} anyway?" ), colorize( food_tame, food_color ) );
         } else {
-            req += string_format( _( "Consume your %s anyway?" ), colorize( food_tame, food_color ) );
+            req += string_format( _( "Consume your {} anyway?" ), colorize( food_tame, food_color ) );
         }
 
         if( !query_yn( req ) ) {
@@ -994,12 +994,12 @@ static bool eat( item &food, Character &you, bool force )
                                 you.stomach.capacity( you ) );
     const bool saprophage = you.has_trait( trait_SAPROPHAGE );
     if( spoiled && !saprophage ) {
-        you.add_msg_if_player( m_bad, _( "Ick, this %s doesn't taste so good…" ), food.tname() );
+        you.add_msg_if_player( m_bad, _( "Ick, this {} doesn't taste so good…" ), food.tname() );
         if( !you.has_flag( json_flag_IMMUNE_SPOIL ) ) {
             you.add_effect( effect_foodpoison, rng( 6_minutes, ( nutr + 1 ) * 6_minutes ) );
         }
     } else if( spoiled && saprophage ) {
-        you.add_msg_if_player( m_good, _( "Mmm, this %s tastes delicious…" ), food.tname() );
+        you.add_msg_if_player( m_good, _( "Mmm, this {} tastes delicious…" ), food.tname() );
     }
     if( !you.consume_effects( food ) ) {
         // Already consumed by using `food.type->invoke`?
@@ -1031,17 +1031,17 @@ static bool eat( item &food, Character &you, bool force )
     }
 
     if( amorphous ) {
-        you.add_msg_player_or_npc( _( "You assimilate your %s." ), _( "<npcname> assimilates a %s." ),
+        you.add_msg_player_or_npc( _( "You assimilate your {}." ), _( "<npcname> assimilates a {}." ),
                                    food.tname() );
     } else if( drinkable ) {
         if( you.has_trait( trait_SCHIZOPHRENIC ) &&
             !you.has_effect( effect_took_thorazine ) && one_in( 50 ) && !spoiled && food.goes_bad() &&
             you.is_avatar() ) {
 
-            add_msg( m_bad, _( "Ick, this %s (rotten) doesn't taste so good…" ), food.tname() );
-            add_msg( _( "You drink your %s (rotten)." ), food.tname() );
+            add_msg( m_bad, _( "Ick, this {} (rotten) doesn't taste so good…" ), food.tname() );
+            add_msg( _( "You drink your {} (rotten)." ), food.tname() );
         } else {
-            you.add_msg_player_or_npc( _( "You drink your %s." ), _( "<npcname> drinks a %s." ),
+            you.add_msg_player_or_npc( _( "You drink your {}." ), _( "<npcname> drinks a {}." ),
                                        food.tname() );
         }
     } else if( chew ) {
@@ -1049,10 +1049,10 @@ static bool eat( item &food, Character &you, bool force )
             !you.has_effect( effect_took_thorazine ) && one_in( 50 ) && !spoiled && food.goes_bad() &&
             you.is_avatar() ) {
 
-            add_msg( m_bad, _( "Ick, this %s (rotten) doesn't taste so good…" ), food.tname() );
-            add_msg( _( "You eat your %s (rotten)." ), food.tname() );
+            add_msg( m_bad, _( "Ick, this {} (rotten) doesn't taste so good…" ), food.tname() );
+            add_msg( _( "You eat your {} (rotten)." ), food.tname() );
         } else {
-            you.add_msg_player_or_npc( _( "You eat your %s." ), _( "<npcname> eats a %s." ),
+            you.add_msg_player_or_npc( _( "You eat your {}." ), _( "<npcname> eats a {}." ),
                                        food.tname() );
         }
     }
@@ -1455,7 +1455,7 @@ bool Character::consume_effects( item &food )
         // But always round down
         int h_loss = -rottedness * comest.get_default_nutr();
         mod_daily_health( h_loss, -200 );
-        add_msg_debug( debugmode::DF_FOOD, "%d health from %0.2f%% rotten food", h_loss, rottedness );
+        add_msg_debug( debugmode::DF_FOOD, "{} health from {}.2f%% rotten food", h_loss, rottedness );
     }
 
     // Used in hibernation messages.
@@ -1542,7 +1542,7 @@ bool Character::consume_effects( item &food )
         food_nutrients
     };
     add_msg_debug( debugmode::DF_FOOD,
-                   "Effective volume: %d (solid) %d (liquid)\n multiplier: %g calories: %d, weight: %d",
+                   "Effective volume: {} (solid) {} (liquid)\n multiplier: {} calories: {}, weight: {}",
                    units::to_milliliter( ingested.solids ), units::to_milliliter( ingested.water ), ratio,
                    food_nutrients.kcal(), units::to_gram( food_weight ) );
     // Maybe move tapeworm to digestion
@@ -1572,7 +1572,7 @@ bool Character::fuel_bionic_with( item &it )
     }
 
     if( it.is_favorite &&
-        !get_avatar().query_yn( _( "Are you sure you want to eat your favorited %s?" ), it.tname() ) ) {
+        !get_avatar().query_yn( _( "Are you sure you want to eat your favorited {}?" ), it.tname() ) ) {
         return false;
     }
 
@@ -1608,12 +1608,12 @@ bool Character::fuel_bionic_with( item &it )
     set_value( mat.str(), new_charge );
     update_fuel_storage( mat );
     add_msg_player_or_npc( m_info,
-                           //~ %1$i: charge number, %2$s: item name, %3$s: bionics name
-                           n_gettext( "You load %1$i charge of %2$s in your %3$s.",
-                                      "You load %1$i charges of %2$s in your %3$s.", loadable ),
-                           //~ %1$i: charge number, %2$s: item name, %3$s: bionics name
-                           n_gettext( "<npcname> load %1$i charge of %2$s in their %3$s.",
-                                      "<npcname> load %1$i charges of %2$s in their %3$s.", loadable ), loadable, mat->name(),
+                           //~ {1}: charge number, {2}: item name, {3}: bionics name
+                           n_gettext( "You load {1} charge of {2} in your {3}.",
+                                      "You load {1} charges of {2} in your {3}.", loadable ),
+                           //~ {1}: charge number, {2}: item name, {3}: bionics name
+                           n_gettext( "<npcname> load {1} charge of {2} in their {3}.",
+                                      "<npcname> load {1} charges of {2} in their {3}.", loadable ), loadable, mat->name(),
                            bio->name );
 
     // Return false for magazines because only their ammo is consumed
@@ -1778,7 +1778,7 @@ static bool consume_med( item &target, Character &you )
     if( req_tool->tool ) {
         if( !( you.has_amount( tool_type, 1 ) &&
                you.has_charges( tool_type, req_tool->tool->charges_per_use ) ) ) {
-            you.add_msg_if_player( m_info, _( "You need a %s to consume that!" ), req_tool->nname( 1 ) );
+            you.add_msg_if_player( m_info, _( "You need a {} to consume that!" ), req_tool->nname( 1 ) );
             return false;
         }
         you.use_charges( tool_type, req_tool->tool->charges_per_use );
@@ -1826,9 +1826,9 @@ trinary Character::consume( item &target, bool force, bool refuel )
     }
 
     if( target.is_craft() ) {
-        add_msg_if_player( m_info, _( "You can't eat your %s." ), target.tname() );
+        add_msg_if_player( m_info, _( "You can't eat your {}." ), target.tname() );
         if( is_npc() ) {
-            debugmsg( "%s tried to eat a %s", get_name(), target.tname() );
+            debugmsg( "{} tried to eat a {}", get_name(), target.tname() );
         }
         return trinary::NONE;
     }

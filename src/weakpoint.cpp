@@ -496,7 +496,7 @@ static float reweigh( float base, float rolls )
 const weakpoint *weakpoints::select_weakpoint( const weakpoint_attack &attack ) const
 {
     add_msg_debug( debugmode::DF_MONSTER,
-                   "Weakpoint Selection: Source: %s, Weapon %s, Skill %.3f",
+                   "Weakpoint Selection: Source: {}, Weapon {}, Skill %.3f",
                    attack.source == nullptr ? "nullptr" : attack.source->get_name(),
                    attack.weapon == nullptr ? "nullptr" : attack.weapon->type_name(),
                    attack.wp_skill );
@@ -511,7 +511,7 @@ const weakpoint *weakpoints::select_weakpoint( const weakpoint_attack &attack ) 
         float new_reweighed = 100.0f * reweigh( new_base / 100.0f, rolls );
         float hit_chance = new_reweighed - reweighed;
         add_msg_debug( debugmode::DF_MONSTER,
-                       "Weakpoint Selection: weakpoint %s, hit_chance %.4f",
+                       "Weakpoint Selection: weakpoint {}, hit_chance %.4f",
                        weakpoint.name, hit_chance );
         if( idx < hit_chance ) {
             return &weakpoint;
@@ -586,7 +586,7 @@ void weakpoints::load( const JsonObject &jo, const std::string & )
 void weakpoints::add_from_set( const weakpoints_id &set_id, bool replace_id )
 {
     if( !set_id.is_valid() ) {
-        debugmsg( "invalid weakpoint_set id \"%s\"", set_id.c_str() );
+        debugmsg( "invalid weakpoint_set id \"{}\"", set_id.c_str() );
         return;
     }
     add_from_set( set_id.obj(), replace_id );
@@ -610,7 +610,7 @@ void weakpoints::add_from_set( const weakpoints &set, bool replace_id )
 void weakpoints::del_from_set( const weakpoints_id &set_id )
 {
     if( !set_id.is_valid() ) {
-        debugmsg( "invalid weakpoint_set id \"%s\"", set_id.c_str() );
+        debugmsg( "invalid weakpoint_set id \"{}\"", set_id.c_str() );
         return;
     }
     del_from_set( set_id.obj() );

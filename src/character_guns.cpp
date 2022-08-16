@@ -158,7 +158,7 @@ void Character::gunmod_add( item &gun, item &mod )
     std::string mod_name = mod.tname();
 
     if( !wield( gun ) ) {
-        add_msg_if_player( _( "You can't wield the %1$s." ), gun.tname() );
+        add_msg_if_player( _( "You can't wield the {1}." ), gun.tname() );
         return;
     }
 
@@ -169,7 +169,7 @@ void Character::gunmod_add( item &gun, item &mod )
     } );
 
     if( mods.empty() ) {
-        add_msg_if_player( _( "You no longer have a %s and can't continue crafting." ), mod_name );
+        add_msg_if_player( _( "You no longer have a {} and can't continue crafting." ), mod_name );
         return;
     }
 
@@ -183,7 +183,7 @@ void Character::gunmod_add( item &gun, item &mod )
     int qty = 0;
 
     if( mod.is_irremovable() ) {
-        if( !query_yn( _( "Permanently install your %1$s in your %2$s?" ),
+        if( !query_yn( _( "Permanently install your {1} in your {2}?" ),
                        colorize( moved_mod.tname(), moved_mod.color_in_inventory() ),
                        colorize( wielded_gun->tname(), wielded_gun->color_in_inventory() ) ) ) {
             add_msg_if_player( _( "Never mind." ) );
@@ -194,17 +194,17 @@ void Character::gunmod_add( item &gun, item &mod )
     // if chance of success <100% prompt user to continue
     if( roll < 100 ) {
         uilist prompt;
-        prompt.text = string_format( _( "Attach your %1$s to your %2$s?" ), moved_mod.tname(),
+        prompt.text = string_format( _( "Attach your {1} to your {2}?" ), moved_mod.tname(),
                                      wielded_gun->tname() );
 
         std::vector<std::function<void()>> actions;
 
         prompt.addentry( -1, true, 'w',
-                         string_format( _( "Try without tools (%i%%) risking damage (%i%%)" ), roll, risk ) );
+                         string_format( _( "Try without tools ({}%%) risking damage ({}%%)" ), roll, risk ) );
         actions.emplace_back( [&] {} );
 
         prompt.addentry( -1, has_charges( itype_small_repairkit, 100 ), 'f',
-                         string_format( _( "Use 100 charges of firearm repair kit (%i%%)" ), std::min( roll * 2, 100 ) ) );
+                         string_format( _( "Use 100 charges of firearm repair kit ({}%%)" ), std::min( roll * 2, 100 ) ) );
 
         actions.emplace_back( [&] {
             tool = "small_repairkit";
@@ -214,7 +214,7 @@ void Character::gunmod_add( item &gun, item &mod )
         } );
 
         prompt.addentry( -1, has_charges( itype_large_repairkit, 25 ), 'g',
-                         string_format( _( "Use 25 charges of gunsmith repair kit (%i%%)" ), std::min( roll * 3, 100 ) ) );
+                         string_format( _( "Use 25 charges of gunsmith repair kit ({}%%)" ), std::min( roll * 3, 100 ) ) );
 
         actions.emplace_back( [&] {
             tool = "large_repairkit";

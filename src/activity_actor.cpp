@@ -218,7 +218,7 @@ std::string activity_actor::get_progress_message( const player_activity &act ) c
 {
     if( act.moves_total > 0 ) {
         const int pct = ( ( act.moves_total - act.moves_left ) * 100 ) / act.moves_total;
-        return string_format( "%d%%", pct );
+        return string_format( "{}%%", pct );
     } else {
         return std::string();
     }
@@ -627,8 +627,8 @@ void gunmod_remove_activity_actor::gunmod_remove( Character &who, item &gun, ite
         }
     }
 
-    //~ %1$s - gunmod, %2$s - gun.
-    who.add_msg_if_player( _( "You remove your %1$s from your %2$s." ), modtype->nname( 1 ),
+    //~ {1} - gunmod, {2} - gun.
+    who.add_msg_if_player( _( "You remove your {1} from your {2}." ), modtype->nname( 1 ),
                            gun.tname() );
 }
 
@@ -817,14 +817,14 @@ void bookbinder_copy_activity_actor::do_turn( player_activity &, Character &p )
 void bookbinder_copy_activity_actor::finish( player_activity &act, Character &p )
 {
     if( !book_binder->can_contain( item( itype_paper, calendar::turn, pages ) ).success() ) {
-        debugmsg( "Book binder can not contain '%s' recipe when it should.", rec_id.str() );
+        debugmsg( "Book binder can not contain '{}' recipe when it should.", rec_id.str() );
         act.set_to_null();
         return;
     }
 
     const bool rec_added = book_binder->eipc_recipe_add( rec_id );
     if( rec_added ) {
-        p.add_msg_if_player( m_good, _( "You copy the recipe for %1$s into your recipe book." ),
+        p.add_msg_if_player( m_good, _( "You copy the recipe for {1} into your recipe book." ),
                              rec_id->result_name() );
 
         p.use_charges( itype_paper, pages );
@@ -844,7 +844,7 @@ void bookbinder_copy_activity_actor::finish( player_activity &act, Character &p 
         book_binder->put_in( item( itype_paper, calendar::turn, pages ),
                              item_pocket::pocket_type::MAGAZINE );
     } else {
-        debugmsg( "Recipe book already has '%s' recipe when it should not.", rec_id.str() );
+        debugmsg( "Recipe book already has '{}' recipe when it should not.", rec_id.str() );
     }
 
     act.set_to_null();
@@ -954,7 +954,7 @@ void hacksaw_activity_actor::start( player_activity &act, Character &/*who*/ )
         const furn_id furn_type = here.furn( target );
         if( !furn_type->hacksaw->valid() ) {
             if( !testing ) {
-                debugmsg( "%s hacksaw is invalid", furn_type.id().str() );
+                debugmsg( "{} hacksaw is invalid", furn_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -965,7 +965,7 @@ void hacksaw_activity_actor::start( player_activity &act, Character &/*who*/ )
         const ter_id ter_type = here.ter( target );
         if( !ter_type->hacksaw->valid() ) {
             if( !testing ) {
-                debugmsg( "%s hacksaw is invalid", ter_type.id().str() );
+                debugmsg( "{} hacksaw is invalid", ter_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -982,7 +982,7 @@ void hacksaw_activity_actor::start( player_activity &act, Character &/*who*/ )
     const int qual = tool->get_quality( qual_SAW_M );
     if( qual < 2 ) {
         if( !testing ) {
-            debugmsg( "Item %s with 'HACKSAW' use action requires SAW_M quality of at least 2.",
+            debugmsg( "Item {} with 'HACKSAW' use action requires SAW_M quality of at least 2.",
                       tool->typeId().c_str() );
         }
         act.set_to_null();
@@ -993,7 +993,7 @@ void hacksaw_activity_actor::start( player_activity &act, Character &/*who*/ )
     //3 makes the speed one-and-a-half times, and the total moves 66% of hacksaw. 4 is twice the speed, 50% the moves, etc, 5 is 2.5 times the speed, 40% the original time
     //done because it's easy to code, and diminising returns on cutting speed make sense as the limiting factor becomes aligning the tool and controlling it instead of the actual cutting
     act.moves_total = moves_before_quality / ( qual / 2 );
-    add_msg_debug( debugmode::DF_ACTIVITY, "%s moves_total: %d", act.id().str(), act.moves_total );
+    add_msg_debug( debugmode::DF_ACTIVITY, "{} moves_total: {}", act.id().str(), act.moves_total );
     act.moves_left = act.moves_total;
 }
 
@@ -1016,9 +1016,9 @@ void hacksaw_activity_actor::do_turn( player_activity &/*act*/, Character &who )
         }
     } else {
         if( who.is_avatar() ) {
-            who.add_msg_if_player( m_bad, _( "Your %1$s ran out of charges." ), tool->tname() );
+            who.add_msg_if_player( m_bad, _( "Your {1} ran out of charges." ), tool->tname() );
         } else { // who.is_npc()
-            add_msg_if_player_sees( who.pos(), _( "%1$s %2$s ran out of charges." ), who.disp_name( false,
+            add_msg_if_player_sees( who.pos(), _( "{1} {2} ran out of charges." ), who.disp_name( false,
                                     true ), tool->tname() );
         }
         who.cancel_activity();
@@ -1034,7 +1034,7 @@ void hacksaw_activity_actor::finish( player_activity &act, Character &who )
         const furn_id furn_type = here.furn( target );
         if( !furn_type->hacksaw->valid() ) {
             if( !testing ) {
-                debugmsg( "%s hacksaw is invalid", furn_type.id().str() );
+                debugmsg( "{} hacksaw is invalid", furn_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -1043,7 +1043,7 @@ void hacksaw_activity_actor::finish( player_activity &act, Character &who )
         const furn_str_id new_furn = furn_type->hacksaw->result();
         if( !new_furn.is_valid() ) {
             if( !testing ) {
-                debugmsg( "hacksaw furniture: %s invalid furniture", new_furn.str() );
+                debugmsg( "hacksaw furniture: {} invalid furniture", new_furn.str() );
             }
             act.set_to_null();
             return;
@@ -1055,7 +1055,7 @@ void hacksaw_activity_actor::finish( player_activity &act, Character &who )
         const ter_id ter_type = here.ter( target );
         if( !ter_type->hacksaw->valid() ) {
             if( !testing ) {
-                debugmsg( "%s hacksaw is invalid", ter_type.id().str() );
+                debugmsg( "{} hacksaw is invalid", ter_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -1064,7 +1064,7 @@ void hacksaw_activity_actor::finish( player_activity &act, Character &who )
         const ter_str_id new_ter = ter_type->hacksaw->result();
         if( !new_ter.is_valid() ) {
             if( !testing ) {
-                debugmsg( "hacksaw terrain: %s invalid terrain", new_ter.str() );
+                debugmsg( "hacksaw terrain: {} invalid terrain", new_ter.str() );
             }
             act.set_to_null();
             return;
@@ -1255,7 +1255,7 @@ void read_activity_actor::start( player_activity &act, Character &who )
     // avatar::update_mental_focus and avatar::calc_focus_equilibrium
     act.targets.push_back( book );
 
-    add_msg_debug( debugmode::DF_ACT_READ, "reading time = %s",
+    add_msg_debug( debugmode::DF_ACT_READ, "reading time = {}",
                    to_string_writable( time_duration::from_moves( moves_total ) ) );
 
     act.moves_total = moves_total;
@@ -1289,7 +1289,7 @@ void read_activity_actor::do_turn( player_activity &act, Character &who )
 
         // do not spam the message log
         if( calendar::once_every( 5_minutes ) ) {
-            add_msg_debug( debugmode::DF_ACT_READ, "reading time = %s",
+            add_msg_debug( debugmode::DF_ACT_READ, "reading time = {}",
                            to_string_writable( time_duration::from_moves( act.moves_left ) ) );
         }
     } else {
@@ -1305,7 +1305,7 @@ void read_activity_actor::do_turn( player_activity &act, Character &who )
     } else if( using_ereader && !ereader->ammo_sufficient( &who ) ) {
         add_msg_if_player_sees(
             who,
-            _( "%1$s %2$s ran out of batteries." ),
+            _( "{1} {2} ran out of batteries." ),
             who.disp_name( true, true ),
             item::nname( ereader->typeId() ) );
         who.cancel_activity();
@@ -1339,7 +1339,7 @@ void read_activity_actor::read_book( Character &learner,
     max_ex *= ( originalSkillLevel + 1 ) * penalty;
     max_ex = std::max( min_ex, max_ex );
 
-    add_msg_debug( debugmode::DF_ACT_READ, "%s read exp: min_ex %d; max_ex %d",
+    add_msg_debug( debugmode::DF_ACT_READ, "{} read exp: min_ex {}; max_ex {}",
                    learner.disp_name(), min_ex, max_ex );
     skill_level.readBook( min_ex, max_ex, islotbook->level );
 }
@@ -1436,10 +1436,10 @@ bool read_activity_actor::player_read( avatar &you )
                     learner->getID(), skill, skill_level.knowledgeLevel() );
 
                 if( learner->is_avatar() ) {
-                    add_msg( m_good, _( "You theoretical knowledge of %s increases to level %d." ), skill.obj().name(),
+                    add_msg( m_good, _( "You theoretical knowledge of {} increases to level {}." ), skill.obj().name(),
                              originalSkillLevel + 1 );
                 } else {
-                    add_msg( m_good, _( "%s increases their %s knowledge." ), learner->disp_name(),
+                    add_msg( m_good, _( "{} increases their {} knowledge." ), learner->disp_name(),
                              skill.obj().name() );
                 }
 
@@ -1449,7 +1449,7 @@ bool read_activity_actor::player_read( avatar &you )
 
             } else {
                 if( learner->is_avatar() ) {
-                    add_msg( m_info, _( "You learn a little about %s!  (%d%%)" ), skill_name,
+                    add_msg( m_info, _( "You learn a little about {}!  ({}%%)" ), skill_name,
                              skill_level.knowledgeExperience() );
                 } else {
                     little_learned.push_back( learner->disp_name() );
@@ -1460,7 +1460,7 @@ bool read_activity_actor::player_read( avatar &you )
                 ( learner->has_trait( trait_SCHIZOPHRENIC ) && !learner->has_effect( effect_took_thorazine ) &&
                   one_in( 25 ) ) ) {
                 if( learner->is_avatar() ) {
-                    add_msg( m_info, _( "You can no longer learn from %s." ), book->type_name() );
+                    add_msg( m_info, _( "You can no longer learn from {}." ), book->type_name() );
                 } else {
                     cant_learn.push_back( learner->disp_name() );
                 }
@@ -1473,17 +1473,17 @@ bool read_activity_actor::player_read( avatar &you )
     }   // end for all learners
 
     if( little_learned.size() == 1 ) {
-        add_msg( m_info, _( "%s learns a little about %s!" ), little_learned.begin()->c_str(),
+        add_msg( m_info, _( "{} learns a little about {}!" ), little_learned.begin()->c_str(),
                  skill.obj().name() );
 
     } else if( !little_learned.empty() ) {
         const std::string little_learned_msg = enumerate_as_string( little_learned );
-        add_msg( m_info, _( "%s learn a little about %s!" ), little_learned_msg, skill.obj().name() );
+        add_msg( m_info, _( "{} learn a little about {}!" ), little_learned_msg, skill.obj().name() );
     }
 
     if( !cant_learn.empty() ) {
         const std::string names = enumerate_as_string( cant_learn );
-        add_msg( m_info, _( "%s can no longer learn from %s." ), names, book->type_name() );
+        add_msg( m_info, _( "{} can no longer learn from {}." ), names, book->type_name() );
     }
 
     // read non-skill books only once
@@ -1515,7 +1515,7 @@ bool read_activity_actor::player_readma( avatar &you )
 
     int difficulty = std::max( 1, style_to_learn->learn_difficulty );
     difficulty = std::max( 1, 20 + difficulty * 2 - you.get_knowledge_level( skill_used ) * 2 );
-    add_msg_debug( debugmode::DF_ACT_READ, "Chance to learn one in: %d", difficulty );
+    add_msg_debug( debugmode::DF_ACT_READ, "Chance to learn one in: {}", difficulty );
 
     if( one_in( difficulty ) ) {
         // learn martial art
@@ -1583,14 +1583,14 @@ bool read_activity_actor::npc_read( npc &learner )
                 learner.getID(), skill, skill_level.knowledgeLevel() );
 
             if( display_messages ) {
-                add_msg( m_good, _( "%s increases their %s level." ), learner.disp_name(),
+                add_msg( m_good, _( "{} increases their {} level." ), learner.disp_name(),
                          skill_name );
             }
 
             continuous = false;
 
         } else if( display_messages ) {
-            add_msg( m_info, _( "%s learns a little about %s!" ), learner.disp_name(),
+            add_msg( m_info, _( "{} learns a little about {}!" ), learner.disp_name(),
                      skill_name );
         }
 
@@ -1598,12 +1598,12 @@ bool read_activity_actor::npc_read( npc &learner )
             ( ( skill_level == islotbook->level || !skill_level.can_train() ) ||
               ( learner.has_trait( trait_SCHIZOPHRENIC ) && !learner.has_effect( effect_took_thorazine ) &&
                 one_in( 25 ) ) ) ) {
-            add_msg( m_info, _( "%s can no longer learn from %s." ), learner.disp_name(),
+            add_msg( m_info, _( "{} can no longer learn from {}." ), learner.disp_name(),
                      book->type_name() );
         }
 
     } else if( display_messages && skill ) {
-        add_msg( m_info, _( "%s can no longer learn from %s." ), learner.disp_name(),
+        add_msg( m_info, _( "{} can no longer learn from {}." ), learner.disp_name(),
                  book->type_name() );
         continuous = false;
         // read non-skill books only once
@@ -1669,7 +1669,7 @@ void read_activity_actor::finish( player_activity &act, Character &who )
             }
 
             time_taken = who.as_avatar()->time_to_read( *book, *reader );
-            add_msg_debug( debugmode::DF_ACT_READ, "reading time = %s",
+            add_msg_debug( debugmode::DF_ACT_READ, "reading time = {}",
                            to_string_writable( time_taken ) );
         }
 
@@ -1718,7 +1718,7 @@ std::string read_activity_actor::get_progress_message( const player_activity & )
         you.has_identified( book->typeId() ) ) {
         const SkillLevel &skill_level = you.get_skill_level_object( skill );
         //~ skill_name current_skill_level -> next_skill_level (% to next level)
-        return string_format( pgettext( "reading progress", "%1$s %2$d -> %3$d (%4$d%%)" ),
+        return string_format( pgettext( "reading progress", "{1} {2} -> {3} ({4}%%)" ),
                               skill.obj().name(),
                               skill_level.knowledgeLevel(),
                               skill_level.knowledgeLevel() + 1,
@@ -1936,7 +1936,7 @@ void boltcutting_activity_actor::start( player_activity &act, Character &/*who*/
         const furn_id furn_type = here.furn( target );
         if( !furn_type->boltcut->valid() ) {
             if( !testing ) {
-                debugmsg( "%s boltcut is invalid", furn_type.id().str() );
+                debugmsg( "{} boltcut is invalid", furn_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -1947,7 +1947,7 @@ void boltcutting_activity_actor::start( player_activity &act, Character &/*who*/
         const ter_id ter_type = here.ter( target );
         if( !ter_type->boltcut->valid() ) {
             if( !testing ) {
-                debugmsg( "%s boltcut is invalid", ter_type.id().str() );
+                debugmsg( "{} boltcut is invalid", ter_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -1961,7 +1961,7 @@ void boltcutting_activity_actor::start( player_activity &act, Character &/*who*/
         return;
     }
 
-    add_msg_debug( debugmode::DF_ACTIVITY, "%s moves_total: %d", act.id().str(), act.moves_total );
+    add_msg_debug( debugmode::DF_ACTIVITY, "{} moves_total: {}", act.id().str(), act.moves_total );
     act.moves_left = act.moves_total;
 }
 
@@ -1971,9 +1971,9 @@ void boltcutting_activity_actor::do_turn( player_activity &/*act*/, Character &w
         tool->ammo_consume( tool->ammo_required(), tool.position(), &who );
     } else {
         if( who.is_avatar() ) {
-            who.add_msg_if_player( m_bad, _( "Your %1$s ran out of charges." ), tool->tname() );
+            who.add_msg_if_player( m_bad, _( "Your {1} ran out of charges." ), tool->tname() );
         } else { // who.is_npc()
-            add_msg_if_player_sees( who.pos(), _( "%1$s %2$s ran out of charges." ), who.disp_name( false,
+            add_msg_if_player_sees( who.pos(), _( "{1} {2} ran out of charges." ), who.disp_name( false,
                                     true ), tool->tname() );
         }
         who.cancel_activity();
@@ -1989,7 +1989,7 @@ void boltcutting_activity_actor::finish( player_activity &act, Character &who )
         const furn_id furn_type = here.furn( target );
         if( !furn_type->boltcut->valid() ) {
             if( !testing ) {
-                debugmsg( "%s boltcut is invalid", furn_type.id().str() );
+                debugmsg( "{} boltcut is invalid", furn_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -1998,7 +1998,7 @@ void boltcutting_activity_actor::finish( player_activity &act, Character &who )
         const furn_str_id new_furn = furn_type->boltcut->result();
         if( !new_furn.is_valid() ) {
             if( !testing ) {
-                debugmsg( "boltcut furniture: %s invalid furniture", new_furn.str() );
+                debugmsg( "boltcut furniture: {} invalid furniture", new_furn.str() );
             }
             act.set_to_null();
             return;
@@ -2010,7 +2010,7 @@ void boltcutting_activity_actor::finish( player_activity &act, Character &who )
         const ter_id ter_type = here.ter( target );
         if( !ter_type->boltcut->valid() ) {
             if( !testing ) {
-                debugmsg( "%s boltcut is invalid", ter_type.id().str() );
+                debugmsg( "{} boltcut is invalid", ter_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -2019,7 +2019,7 @@ void boltcutting_activity_actor::finish( player_activity &act, Character &who )
         const ter_str_id new_ter = ter_type->boltcut->result();
         if( !new_ter.is_valid() ) {
             if( !testing ) {
-                debugmsg( "boltcut terrain: %s invalid terrain", new_ter.str() );
+                debugmsg( "boltcut terrain: {} invalid terrain", new_ter.str() );
             }
             act.set_to_null();
             return;
@@ -2114,7 +2114,7 @@ void lockpick_activity_actor::start( player_activity &act, Character & )
     act.moves_total = moves_total;
 
     const time_duration lockpicking_time = time_duration::from_moves( moves_total );
-    add_msg_debug( debugmode::DF_ACT_LOCKPICK, "lockpicking time = %s",
+    add_msg_debug( debugmode::DF_ACT_LOCKPICK, "lockpicking time = {}",
                    to_string_writable( lockpicking_time ) );
 }
 
@@ -2144,7 +2144,7 @@ void lockpick_activity_actor::finish( player_activity &act, Character &who )
 
     if( here.has_furn( target ) ) {
         if( furn_type->lockpick_result.is_null() ) {
-            debugmsg( "%s lockpick_result is null", furn_type.id().str() );
+            debugmsg( "{} lockpick_result is null", furn_type.id().str() );
             return;
         }
 
@@ -2154,7 +2154,7 @@ void lockpick_activity_actor::finish( player_activity &act, Character &who )
         }
     } else {
         if( ter_type->lockpick_result.is_null() ) {
-            debugmsg( "%s lockpick_result is null", ter_type.id().str() );
+            debugmsg( "{} lockpick_result is null", ter_type.id().str() );
             return;
         }
 
@@ -2203,7 +2203,7 @@ void lockpick_activity_actor::finish( player_activity &act, Character &who )
     // In the meantime, let's roll 3d5-3, giving us a range of 0-12.
     int lock_roll = rng( 0, 4 ) + rng( 0, 4 ) + rng( 0, 4 );
 
-    add_msg_debug( debugmode::DF_ACT_LOCKPICK, "Rolled %i. Mean_roll %g. Difficulty %i.",
+    add_msg_debug( debugmode::DF_ACT_LOCKPICK, "Rolled {}. Mean_roll {}. Difficulty {}.",
                    pick_roll, mean_roll, lock_roll );
 
     // Your base skill XP gain is derived from the lock difficulty (which is currently random but shouldn't be).
@@ -2334,8 +2334,8 @@ void ebooksave_activity_actor::start( player_activity &act, Character &/*who*/ )
 {
     const int pages = pages_in_book( book->typeId() );
     const time_duration scanning_time = pages < 1 ? time_per_page : pages * time_per_page;
-    add_msg_debug( debugmode::DF_ACT_EBOOK, "ebooksave pages = %d", pages );
-    add_msg_debug( debugmode::DF_ACT_EBOOK, "scanning_time time = %s",
+    add_msg_debug( debugmode::DF_ACT_EBOOK, "ebooksave pages = {}", pages );
+    add_msg_debug( debugmode::DF_ACT_EBOOK, "scanning_time time = {}",
                    to_string_writable( scanning_time ) );
     act.moves_total = to_moves<int>( scanning_time );
     act.moves_left = act.moves_total;
@@ -2348,7 +2348,7 @@ void ebooksave_activity_actor::do_turn( player_activity &/*act*/, Character &who
         if( !ereader->ammo_sufficient( &who ) ) {
             add_msg_if_player_sees(
                 who,
-                _( "%1$s %2$s ran out of batteries." ),
+                _( "{1} {2} ran out of batteries." ),
                 who.disp_name( true, true ),
                 item::nname( ereader->typeId() ) );
             who.cancel_activity();
@@ -2366,7 +2366,7 @@ void ebooksave_activity_actor::finish( player_activity &act, Character &who )
     if( who.is_avatar() ) {
         add_msg( m_info, _( "You scan the book into your device." ) );
     } else { // who.is_npc()
-        add_msg_if_player_sees( who, _( "%s scans the book into their device." ),
+        add_msg_if_player_sees( who, _( "{} scans the book into their device." ),
                                 who.disp_name( false, true ) );
     }
     act.set_to_null();
@@ -2711,10 +2711,10 @@ void safecracking_activity_actor::start( player_activity &act, Character &who )
         add_msg( m_info, _( "You start cracking the safe." ) );
     } else { // who.is_npc
         // npcs can't crack safes yet, this is for when they are able to
-        add_msg_if_player_sees( who, _( "%1$s starts cracking the safe." ), who.disp_name() );
+        add_msg_if_player_sees( who, _( "{1} starts cracking the safe." ), who.disp_name() );
     }
 
-    add_msg_debug( debugmode::DF_ACT_SAFECRACKING, "safecracking time = %s",
+    add_msg_debug( debugmode::DF_ACT_SAFECRACKING, "safecracking time = {}",
                    to_string_writable( cracking_time ) );
 
     act.moves_total = to_moves<int>( cracking_time );
@@ -2734,7 +2734,7 @@ void safecracking_activity_actor::do_turn( player_activity &act, Character &who 
     }
 
     if( calendar::once_every( 5_minutes ) ) {
-        add_msg_debug( debugmode::DF_ACT_SAFECRACKING, "safecracking time left = %s",
+        add_msg_debug( debugmode::DF_ACT_SAFECRACKING, "safecracking time left = {}",
                        to_string_writable( time_duration::from_moves( act.moves_left ) ) );
     }
 
@@ -2865,10 +2865,10 @@ void unload_activity_actor::unload( Character &who, item_location &target )
             }
         }
         if( actually_unloaded ) {
-            who.add_msg_if_player( _( "You disassemble your %s." ), it.tname() );
+            who.add_msg_if_player( _( "You disassemble your {}." ), it.tname() );
         }
     } else if( actually_unloaded ) {
-        who.add_msg_if_player( _( "You unload your %s." ), it.tname() );
+        who.add_msg_if_player( _( "You unload your {}." ), it.tname() );
     }
 
     if( it.has_flag( flag_MAG_DESTROY ) && it.ammo_remaining() == 0 ) {
@@ -2925,7 +2925,7 @@ bool craft_activity_actor::check_if_craft_okay( item_location &craft_item, Chara
     }
 
     if( !craft->is_craft() ) {
-        debugmsg( "ACT_CRAFT target '%s' is not a craft.  Aborting ACT_CRAFT.", craft->tname() );
+        debugmsg( "ACT_CRAFT target '{}' is not a craft.  Aborting ACT_CRAFT.", craft->tname() );
         return false;
     }
 
@@ -3063,8 +3063,8 @@ void craft_activity_actor::do_turn( player_activity &act, Character &crafter )
             bool destroy = craft.handle_craft_failure( crafter );
             // If the craft needs to be destroyed, do it and stop crafting.
             if( destroy ) {
-                crafter.add_msg_player_or_npc( _( "There is nothing left of the %s to craft from." ),
-                                               _( "There is nothing left of the %s <npcname> was crafting." ), craft.tname() );
+                crafter.add_msg_player_or_npc( _( "There is nothing left of the {} to craft from." ),
+                                               _( "There is nothing left of the {} <npcname> was crafting." ), craft.tname() );
                 craft_item.remove_item();
                 crafter.cancel_activity();
             }
@@ -3376,7 +3376,7 @@ static void debug_drop_list( const std::vector<drop_or_stash_item_info> &items )
             // some items could have been destroyed by e.g. monster attack
             continue;
         }
-        res += string_format( "Drop %d %s\n", it.count(), loc->display_name( it.count() ) );
+        res += string_format( "Drop {} {}\n", it.count(), loc->display_name( it.count() ) );
     }
     popup( res, PF_GET_KEY );
 }
@@ -3530,7 +3530,7 @@ void harvest_activity_actor::start( player_activity &act, Character &who )
     }
 
     const time_duration forage_time = rng( 5_seconds, 15_seconds );
-    add_msg_debug( debugmode::DF_ACT_HARVEST, "harvest time: %s", to_string_writable( forage_time ) );
+    add_msg_debug( debugmode::DF_ACT_HARVEST, "harvest time: {}", to_string_writable( forage_time ) );
     act.moves_total = to_moves<int>( forage_time );
     act.moves_left = act.moves_total;
 }
@@ -3602,11 +3602,11 @@ static void stash_on_pet( const std::list<item> &items, monster &pet, Character 
 
     for( const item &it : items ) {
         if( it.volume() > remaining_volume ) {
-            add_msg( m_bad, _( "%1$s did not fit and fell to the %2$s." ), it.display_name(),
+            add_msg( m_bad, _( "{1} did not fit and fell to the {2}." ), it.display_name(),
                      here.name( pet.pos() ) );
             here.add_item_or_charges( pet.pos(), it );
         } else if( it.weight() > remaining_weight ) {
-            add_msg( m_bad, _( "%1$s is too heavy and fell to the %2$s." ), it.display_name(),
+            add_msg( m_bad, _( "{1} is too heavy and fell to the {2}." ), it.display_name(),
                      here.name( pet.pos() ) );
             here.add_item_or_charges( pet.pos(), it );
         } else {
@@ -3682,7 +3682,7 @@ void disable_activity_actor::do_turn( player_activity &, Character &who )
     monster &critter = *mon_ptr;
     if( !can_disable_or_reprogram( critter ) ) {
         // I think recovery from stunned is the only reason this could happen
-        who.add_msg_if_player( _( "The %s recovers before you can finish." ), critter.name() );
+        who.add_msg_if_player( _( "The {} recovers before you can finish." ), critter.name() );
         who.cancel_activity();
         return;
     }
@@ -3699,13 +3699,13 @@ void disable_activity_actor::finish( player_activity &act, Character &/*who*/ )
         if( critter.has_effect( effect_docile ) ) {
             critter.remove_effect( effect_docile );
             if( one_in( 3 ) ) {
-                add_msg( _( "The %s hovers momentarily as it surveys the area." ),
+                add_msg( _( "The {} hovers momentarily as it surveys the area." ),
                          critter.name() );
             }
         } else {
             critter.add_effect( effect_docile, 1_turns, true );
             if( one_in( 3 ) ) {
-                add_msg( _( "The %s lets out a whirring noise and starts to follow you." ),
+                add_msg( _( "The {} lets out a whirring noise and starts to follow you." ),
                          critter.name() );
             }
         }
@@ -3844,8 +3844,8 @@ void insert_item_activity_actor::finish( player_activity &act, Character &who )
                 success = holster->put_in( it, item_pocket::pocket_type::CONTAINER,
                                            /*unseal_pockets=*/true ).success();
                 if( success ) {
-                    //~ %1$s: item to put in the container, %2$s: container to put item in
-                    who.add_msg_if_player( string_format( _( "You put your %1$s into the %2$s." ),
+                    //~ {1}: item to put in the container, {2}: container to put item in
+                    who.add_msg_if_player( string_format( _( "You put your {1} into the {2}." ),
                                                           holstered_item.first->display_name(), holster->type->nname( 1 ) ) );
                     handler.add_unsealed( holster );
                     handler.unseal_pocket_containing( holstered_item.first );
@@ -3867,8 +3867,8 @@ void insert_item_activity_actor::finish( player_activity &act, Character &who )
                 if( success ) {
                     item copy( it );
                     copy.charges = result;
-                    //~ %1$s: item to put in the container, %2$s: container to put item in
-                    who.add_msg_if_player( string_format( _( "You put your %1$s into the %2$s." ),
+                    //~ {1}: item to put in the container, {2}: container to put item in
+                    who.add_msg_if_player( string_format( _( "You put your {1} into the {2}." ),
                                                           copy.display_name(), holster->type->nname( 1 ) ) );
                     handler.add_unsealed( holster );
                     handler.unseal_pocket_containing( holstered_item.first );
@@ -3883,7 +3883,7 @@ void insert_item_activity_actor::finish( player_activity &act, Character &who )
         if( !success ) {
             who.add_msg_if_player(
                 string_format(
-                    _( "Could not put %1$s into %2$s, aborting." ),
+                    _( "Could not put {1} into {2}, aborting." ),
                     it.tname(), holster->tname() ) );
         }
     } else {
@@ -3987,7 +3987,7 @@ void reload_activity_actor::finish( player_activity &act, Character &who )
     const bool ammo_uses_speedloader = ammo.has_flag( flag_SPEEDLOADER );
 
     if( !reloadable.reload( who, std::move( reload_targets[ 1 ] ), quantity ) ) {
-        add_msg( m_info, _( "Can't reload the %s." ), reloadable_name );
+        add_msg( m_info, _( "Can't reload the {}." ), reloadable_name );
         return;
     }
 
@@ -3996,20 +3996,20 @@ void reload_activity_actor::finish( player_activity &act, Character &who )
     }
 
     if( reloadable.get_var( "dirt", 0 ) > 7800 ) {
-        add_msg( m_neutral, _( "You manage to loosen some debris and make your %s somewhat operational." ),
+        add_msg( m_neutral, _( "You manage to loosen some debris and make your {} somewhat operational." ),
                  reloadable_name );
         reloadable.set_var( "dirt", ( reloadable.get_var( "dirt", 0 ) - rng( 790, 2750 ) ) );
     }
 
     if( reloadable.is_gun() ) {
         if( reloadable.has_flag( flag_RELOAD_ONE ) && !ammo_uses_speedloader ) {
-            add_msg( m_neutral, _( "You insert %dx %s into the %s." ), quantity, ammo_name, reloadable_name );
+            add_msg( m_neutral, _( "You insert {} {} into the {}." ), quantity, ammo_name, reloadable_name );
         }
         make_reload_sound( who, reloadable );
     } else if( reloadable.is_watertight_container() ) {
-        add_msg( m_neutral, _( "You refill the %s." ), reloadable_name );
+        add_msg( m_neutral, _( "You refill the {}." ), reloadable_name );
     } else {
-        add_msg( m_neutral, _( "You reload the %1$s with %2$s." ), reloadable_name, ammo_name );
+        add_msg( m_neutral, _( "You reload the {1} with {2}." ), reloadable_name, ammo_name );
     }
 
     who.recoil = MAX_RECOIL;
@@ -4031,30 +4031,30 @@ void reload_activity_actor::finish( player_activity &act, Character &who )
     // Build prompt
     uilist reload_query;
     const bool wield_check = who.can_wield( reloadable ).success();
-    reload_query.text = string_format( _( "The %s no longer fits in your inventory" ),
+    reload_query.text = string_format( _( "The {} no longer fits in your inventory" ),
                                        reloadable_name );
     if( who.has_wield_conflicts( reloadable ) ) {
         reload_query.addentry( 1, wield_check, 'w',
-                               _( "Dispose of %s and wield %s" ), who.get_wielded_item()->display_name(),
+                               _( "Dispose of {} and wield {}" ), who.get_wielded_item()->display_name(),
                                reloadable_name );
     } else {
-        reload_query.addentry( 1, wield_check, 'w', _( "Wield %s" ), reloadable_name );
+        reload_query.addentry( 1, wield_check, 'w', _( "Wield {}" ), reloadable_name );
     }
-    reload_query.addentry( 2, true, 'd', _( "Drop %s" ), reloadable_name );
+    reload_query.addentry( 2, true, 'd', _( "Drop {}" ), reloadable_name );
     reload_query.query();
 
     switch( reload_query.ret ) {
         case 1:
             // This case is only reachable if wield_check is true
             who.wield( reloadable );
-            add_msg( m_neutral, _( "The %s no longer fits in your inventory so you wield it instead." ),
+            add_msg( m_neutral, _( "The {} no longer fits in your inventory so you wield it instead." ),
                      reloadable_name );
             break;
         case 2:
         default:
             // In player inventory and player is wielding something.
             if( loc.held_by( who ) ) {
-                add_msg( m_neutral, _( "The %s no longer fits in your inventory so you drop it instead." ),
+                add_msg( m_neutral, _( "The {} no longer fits in your inventory so you drop it instead." ),
                          reloadable_name );
             }
             get_map().add_item_or_charges( loc.position(), reloadable );
@@ -4127,7 +4127,7 @@ void milk_activity_actor::finish( player_activity &act, Character &who )
         if( milk.charges > 0 ) {
             milked_item->second = milk.charges;
         } else {
-            who.add_msg_if_player( _( "The %s's udders run dry." ), source_mon->get_name() );
+            who.add_msg_if_player( _( "The {}'s udders run dry." ), source_mon->get_name() );
         }
     }
     // if the monster was not manually tied up, but needed to be fixed in place temporarily then
@@ -4175,7 +4175,7 @@ void shearing_activity_actor::start( player_activity &act, Character &who )
                                        true ) : mon->unique_name;
 
     if( !mon->shearable() ) {
-        add_msg( _( "%1$s has nothing %2$s could shear." ), pet_name_capitalized, who.disp_name() );
+        add_msg( _( "{1} has nothing {2} could shear." ), pet_name_capitalized, who.disp_name() );
         if( shearing_tie ) {
             mon->remove_effect( effect_tied );
         }
@@ -4186,10 +4186,10 @@ void shearing_activity_actor::start( player_activity &act, Character &who )
     const int shearing_quality = who.max_quality( qual_SHEAR );
     if( !( shearing_quality > 0 ) ) {
         if( who.is_avatar() ) {
-            add_msg( m_info, _( "%1$s don't have a shearing tool." ), who.disp_name( false, true ) );
+            add_msg( m_info, _( "{1} don't have a shearing tool." ), who.disp_name( false, true ) );
         } else { // who.is_npc
             // npcs can't shear monsters yet, this is for when they are able to
-            add_msg_if_player_sees( who, _( "%1$s doesn't have a shearing tool." ), who.disp_name(),
+            add_msg_if_player_sees( who, _( "{1} doesn't have a shearing tool." ), who.disp_name(),
                                     mon->disp_name() );
         }
         if( shearing_tie ) {
@@ -4200,15 +4200,15 @@ void shearing_activity_actor::start( player_activity &act, Character &who )
     }
 
     const time_duration shearing_time = 30_minutes / shearing_quality;
-    add_msg_debug( debugmode::DF_ACT_SHEARING, "shearing_time time = %s",
+    add_msg_debug( debugmode::DF_ACT_SHEARING, "shearing_time time = {}",
                    to_string_writable( shearing_time ) );
 
     if( who.is_avatar() ) {
         add_msg( m_info,
-                 _( "%1$s start shearing %2$s." ), who.disp_name( false, true ), mon->disp_name() );
+                 _( "{1} start shearing {2}." ), who.disp_name( false, true ), mon->disp_name() );
     } else { // who.is_npc
         // npcs can't shear monsters yet, this is for when they are able to
-        add_msg_if_player_sees( who, _( "%1$s starts shearing %2$s." ), who.disp_name(),
+        add_msg_if_player_sees( who, _( "{1} starts shearing {2}." ), who.disp_name(),
                                 mon->disp_name() );
     }
 
@@ -4222,12 +4222,12 @@ void shearing_activity_actor::do_turn( player_activity &, Character &who )
         if( who.is_avatar() ) {
             add_msg(
                 m_bad,
-                _( "%1$s don't have a shearing tool anymore." ),
+                _( "{1} don't have a shearing tool anymore." ),
                 who.disp_name( false, true ) );
         } else {
             add_msg_if_player_sees(
                 who,
-                _( "%1$s doesn't have a shearing tool anymore." ),
+                _( "{1} doesn't have a shearing tool anymore." ),
                 who.disp_name() );
         }
         who.cancel_activity();
@@ -4257,7 +4257,7 @@ void shearing_activity_actor::finish( player_activity &act, Character &who )
 
     add_msg_if_player_sees( who,
                             string_format(
-                                _( "%1$s finished shearing %2$s and got:" ),
+                                _( "{1} finished shearing {2} and got:" ),
                                 who.disp_name( false, true ),
                                 mon->unique_name.empty() ? mon->disp_name() : mon->unique_name ) );
 
@@ -4273,8 +4273,8 @@ void shearing_activity_actor::finish( player_activity &act, Character &who )
                 mp.add_item_or_charges( who.pos(), shear_item );
             }
             add_msg_if_player_sees( who,
-                                    //~ %1$s - item, %2$d - amount
-                                    string_format( _( "%1$s x%2$d" ),
+                                    //~ {1} - item, {2} - amount
+                                    string_format( _( "{1} x{2}" ),
                                                    shear_item.display_name(), roll.amount ) );
         }
     }
@@ -4449,7 +4449,7 @@ void oxytorch_activity_actor::start( player_activity &act, Character &/*who*/ )
         const furn_id furn_type = here.furn( target );
         if( !furn_type->oxytorch->valid() ) {
             if( !testing ) {
-                debugmsg( "%s oxytorch is invalid", furn_type.id().str() );
+                debugmsg( "{} oxytorch is invalid", furn_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -4460,7 +4460,7 @@ void oxytorch_activity_actor::start( player_activity &act, Character &/*who*/ )
         const ter_id ter_type = here.ter( target );
         if( !ter_type->oxytorch->valid() ) {
             if( !testing ) {
-                debugmsg( "%s oxytorch is invalid", ter_type.id().str() );
+                debugmsg( "{} oxytorch is invalid", ter_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -4474,7 +4474,7 @@ void oxytorch_activity_actor::start( player_activity &act, Character &/*who*/ )
         return;
     }
 
-    add_msg_debug( debugmode::DF_ACTIVITY, "%s moves_total: %d", act.id().str(), act.moves_total );
+    add_msg_debug( debugmode::DF_ACTIVITY, "{} moves_total: {}", act.id().str(), act.moves_total );
     act.moves_left = act.moves_total;
 }
 
@@ -4488,9 +4488,9 @@ void oxytorch_activity_actor::do_turn( player_activity &/*act*/, Character &who 
         }
     } else {
         if( who.is_avatar() ) {
-            who.add_msg_if_player( m_bad, _( "Your %1$s ran out of charges." ), tool->tname() );
+            who.add_msg_if_player( m_bad, _( "Your {1} ran out of charges." ), tool->tname() );
         } else { // who.is_npc()
-            add_msg_if_player_sees( who.pos(), _( "%1$s %2$s ran out of charges." ), who.disp_name( false,
+            add_msg_if_player_sees( who.pos(), _( "{1} {2} ran out of charges." ), who.disp_name( false,
                                     true ), tool->tname() );
         }
         who.cancel_activity();
@@ -4506,7 +4506,7 @@ void oxytorch_activity_actor::finish( player_activity &act, Character &who )
         const furn_id furn_type = here.furn( target );
         if( !furn_type->oxytorch->valid() ) {
             if( !testing ) {
-                debugmsg( "%s oxytorch is invalid", furn_type.id().str() );
+                debugmsg( "{} oxytorch is invalid", furn_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -4515,7 +4515,7 @@ void oxytorch_activity_actor::finish( player_activity &act, Character &who )
         const furn_str_id new_furn = furn_type->oxytorch->result();
         if( !new_furn.is_valid() ) {
             if( !testing ) {
-                debugmsg( "oxytorch furniture: %s invalid furniture", new_furn.str() );
+                debugmsg( "oxytorch furniture: {} invalid furniture", new_furn.str() );
             }
             act.set_to_null();
             return;
@@ -4527,7 +4527,7 @@ void oxytorch_activity_actor::finish( player_activity &act, Character &who )
         const ter_id ter_type = here.ter( target );
         if( !ter_type->oxytorch->valid() ) {
             if( !testing ) {
-                debugmsg( "%s oxytorch is invalid", ter_type.id().str() );
+                debugmsg( "{} oxytorch is invalid", ter_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -4536,7 +4536,7 @@ void oxytorch_activity_actor::finish( player_activity &act, Character &who )
         const ter_str_id new_ter = ter_type->oxytorch->result();
         if( !new_ter.is_valid() ) {
             if( !testing ) {
-                debugmsg( "oxytorch terrain: %s invalid terrain", new_ter.str() );
+                debugmsg( "oxytorch terrain: {} invalid terrain", new_ter.str() );
             }
             act.set_to_null();
             return;
@@ -4619,7 +4619,7 @@ void tent_placement_activity_actor::finish( player_activity &act, Character &p )
     }
     here.furn_set( p.pos() + target, door_closed );
 
-    add_msg( m_info, _( "You set up the %s on the ground." ), it.tname() );
+    add_msg( m_info, _( "You set up the {} on the ground." ), it.tname() );
     add_msg( m_info, _( "Examine the center square to pack it up again." ) );
     act.set_to_null();
 }
@@ -4735,7 +4735,7 @@ void play_with_pet_activity_actor::finish( player_activity &act, Character &who 
         who.add_msg_if_player( m_good, playstr, pet_name );
     }
 
-    who.add_msg_if_player( m_good, _( "Playing with your %s has lifted your spirits a bit." ),
+    who.add_msg_if_player( m_good, _( "Playing with your {} has lifted your spirits a bit." ),
                            pet_name );
     act.set_to_null();
 }
@@ -4780,7 +4780,7 @@ void prying_activity_actor::start( player_activity &act, Character &who )
         const furn_id furn_type = here.furn( target );
         if( !furn_type->prying->valid() ) {
             if( !testing ) {
-                debugmsg( "%s prying is invalid", furn_type.id().str() );
+                debugmsg( "{} prying is invalid", furn_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -4793,7 +4793,7 @@ void prying_activity_actor::start( player_activity &act, Character &who )
         const ter_id ter_type = here.ter( target );
         if( !ter_type->prying->valid() ) {
             if( !testing ) {
-                debugmsg( "%s prying is invalid", ter_type.id().str() );
+                debugmsg( "{} prying is invalid", ter_type.id().str() );
             }
             act.set_to_null();
             return;
@@ -4811,12 +4811,12 @@ void prying_activity_actor::start( player_activity &act, Character &who )
     }
 
     if( prying_nails && !tool->has_quality( qual_PRYING_NAIL ) ) {
-        who.add_msg_if_player( _( "You can't use your %1$s to pry up the nails." ), tool->tname() );
+        who.add_msg_if_player( _( "You can't use your {1} to pry up the nails." ), tool->tname() );
         act.set_to_null();
         return;
     }
 
-    add_msg_debug( debugmode::DF_ACTIVITY, "%s moves_total: %d", act.id().str(), act.moves_total );
+    add_msg_debug( debugmode::DF_ACTIVITY, "{} moves_total: {}", act.id().str(), act.moves_total );
     act.moves_left = act.moves_total;
 }
 
@@ -4836,9 +4836,9 @@ void prying_activity_actor::do_turn( player_activity &/*act*/, Character &who )
         }
     } else {
         if( who.is_avatar() ) {
-            who.add_msg_if_player( m_bad, _( "Your %1$s ran out of charges." ), tool->tname() );
+            who.add_msg_if_player( m_bad, _( "Your {1} ran out of charges." ), tool->tname() );
         } else { // who.is_npc()
-            add_msg_if_player_sees( who.pos(), _( "%1$s %2$s ran out of charges." ), who.disp_name( false,
+            add_msg_if_player_sees( who.pos(), _( "{1} {2} ran out of charges." ), who.disp_name( false,
                                     true ), tool->tname() );
         }
         who.cancel_activity();
@@ -4893,7 +4893,7 @@ void prying_activity_actor::handle_prying( Character &who )
         const furn_id furn_type = here.furn( target );
         if( !furn_type->prying->valid() ) {
             if( !testing ) {
-                debugmsg( "%s prying is invalid", furn_type.id().str() );
+                debugmsg( "{} prying is invalid", furn_type.id().str() );
             }
             return;
         }
@@ -4907,7 +4907,7 @@ void prying_activity_actor::handle_prying( Character &who )
         const furn_str_id new_furn = furn_type->prying->result();
         if( !new_furn.is_valid() ) {
             if( !testing ) {
-                debugmsg( "prying furniture: %s invalid furniture", new_furn.str() );
+                debugmsg( "prying furniture: {} invalid furniture", new_furn.str() );
             }
             return;
         }
@@ -4917,7 +4917,7 @@ void prying_activity_actor::handle_prying( Character &who )
         const ter_id ter_type = here.ter( target );
         if( !ter_type->prying->valid() ) {
             if( !testing ) {
-                debugmsg( "%s prying is invalid", ter_type.id().str() );
+                debugmsg( "{} prying is invalid", ter_type.id().str() );
             }
             return;
         }
@@ -4931,7 +4931,7 @@ void prying_activity_actor::handle_prying( Character &who )
         const ter_str_id new_ter = ter_type->prying->result();
         if( !new_ter.is_valid() ) {
             if( !testing ) {
-                debugmsg( "prying terrain: %s invalid terrain", new_ter.str() );
+                debugmsg( "prying terrain: {} invalid terrain", new_ter.str() );
             }
             return;
         }
@@ -4986,7 +4986,7 @@ void prying_activity_actor::handle_prying_nails( Character &who )
         const furn_id furn_type = here.furn( target );
         if( !furn_type->prying->valid() ) {
             if( !testing ) {
-                debugmsg( "%s prying is invalid", furn_type.id().str() );
+                debugmsg( "{} prying is invalid", furn_type.id().str() );
             }
             return;
         }
@@ -4994,7 +4994,7 @@ void prying_activity_actor::handle_prying_nails( Character &who )
         const furn_str_id new_furn = furn_type->prying->result();
         if( !new_furn.is_valid() ) {
             if( !testing ) {
-                debugmsg( "prying furniture: %s invalid furniture", new_furn.str() );
+                debugmsg( "prying furniture: {} invalid furniture", new_furn.str() );
             }
             return;
         }
@@ -5005,7 +5005,7 @@ void prying_activity_actor::handle_prying_nails( Character &who )
         const ter_id ter_type = here.ter( target );
         if( !ter_type->prying->valid() ) {
             if( !testing ) {
-                debugmsg( "%s prying is invalid", ter_type.id().str() );
+                debugmsg( "{} prying is invalid", ter_type.id().str() );
             }
             return;
         }
@@ -5013,7 +5013,7 @@ void prying_activity_actor::handle_prying_nails( Character &who )
         const ter_str_id new_ter = ter_type->prying->result();
         if( !new_ter.is_valid() ) {
             if( !testing ) {
-                debugmsg( "prying terrain: %s invalid terrain", new_ter.str() );
+                debugmsg( "prying terrain: {} invalid terrain", new_ter.str() );
             }
             return;
         }
@@ -5423,12 +5423,12 @@ void chop_planks_activity_actor::finish( player_activity &act, Character &who )
     map &here = get_map();
     if( planks > 0 ) {
         here.spawn_item( here.getlocal( act.placement ), itype_2x4, planks, 0, calendar::turn );
-        who.add_msg_if_player( m_good, n_gettext( "You produce %d plank.", "You produce %d planks.",
+        who.add_msg_if_player( m_good, n_gettext( "You produce {} plank.", "You produce {} planks.",
                                planks ), planks );
     }
     if( scraps > 0 ) {
         here.spawn_item( here.getlocal( act.placement ), itype_splinter, scraps, 0, calendar::turn );
-        who.add_msg_if_player( m_good, n_gettext( "You produce %d splinter.", "You produce %d splinters.",
+        who.add_msg_if_player( m_good, n_gettext( "You produce {} splinter.", "You produce {} splinters.",
                                scraps ), scraps );
     }
     if( planks < max_planks / 2 ) {
@@ -5610,7 +5610,7 @@ void clear_rubble_activity_actor::finish( player_activity &act, Character &who )
 {
     map &here = get_map();
     const tripoint_bub_ms &pos = here.bub_from_abs( act.placement );
-    who.add_msg_if_player( m_info, _( "You clear up the %s." ), here.furnname( pos ) );
+    who.add_msg_if_player( m_info, _( "You clear up the {}." ), here.furnname( pos ) );
     here.furn_set( pos, f_null );
 
     act.set_to_null();
@@ -5668,7 +5668,7 @@ void firstaid_activity_actor::finish( player_activity &act, Character &who )
     Character *patient = patientID == get_avatar().getID() ? &get_avatar() :
                          dynamic_cast<Character *>( g->find_npc( patientID ) );
     if( !patient ) {
-        debugmsg( "Your patient can no longer be found so you stop using the %s.", name );
+        debugmsg( "Your patient can no longer be found so you stop using the {}.", name );
         act.set_to_null();
         act.values.clear();
         return;
@@ -5806,7 +5806,7 @@ void forage_activity_actor::finish( player_activity &act, Character &who )
             } else if( it->has_flag( flag_FORAGE_HALLU ) && one_in( 10 ) ) {
                 it->set_flag( flag_HIDDEN_HALLU );
             }
-            add_msg( m_good, _( "You found: %s!" ), it->display_name() );
+            add_msg( m_good, _( "You found: {}!" ), it->display_name() );
         }
     }
     // 10% to drop a item/items from this group.
@@ -5820,7 +5820,7 @@ void forage_activity_actor::finish( player_activity &act, Character &who )
                 continue;
             }
             handled.push_back( it );
-            add_msg( m_good, _( "You found: %s!" ), it->display_name() );
+            add_msg( m_good, _( "You found: {}!" ), it->display_name() );
             found_something = true;
         }
     }
@@ -5894,7 +5894,7 @@ void gunmod_add_activity_actor::finish( player_activity &act, Character &who )
     }
 
     if( rng( 0, 100 ) <= roll ) {
-        add_msg( m_good, _( "You successfully attached the %1$s to your %2$s." ), mod.tname(),
+        add_msg( m_good, _( "You successfully attached the {1} to your {2}." ), mod.tname(),
                  gun.tname() );
         gun.put_in( who.i_rem( &mod ), item_pocket::pocket_type::MOD );
 
@@ -5906,16 +5906,16 @@ void gunmod_add_activity_actor::finish( player_activity &act, Character &who )
                     who.remove_item( *mod );
                 }
             }
-            add_msg( m_bad, _( "You failed at installing the %s and destroyed your %s!" ), mod.tname(),
+            add_msg( m_bad, _( "You failed at installing the {} and destroyed your {}!" ), mod.tname(),
                      gun.tname() );
             who.i_rem( &gun );
         } else {
-            add_msg( m_bad, _( "You failed at installing the %s and damaged your %s!" ), mod.tname(),
+            add_msg( m_bad, _( "You failed at installing the {} and damaged your {}!" ), mod.tname(),
                      gun.tname() );
         }
 
     } else {
-        add_msg( m_info, _( "You failed at installing the %s." ), mod.tname() );
+        add_msg( m_info, _( "You failed at installing the {}." ), mod.tname() );
     }
 }
 
@@ -6234,7 +6234,7 @@ void unload_loot_activity_actor::do_turn( player_activity &act, Character &you )
 
                 // check if we found path to source / adjacent tile
                 if( route.empty() ) {
-                    add_msg( m_info, _( "%s can't reach the source tile." ),
+                    add_msg( m_info, _( "{} can't reach the source tile." ),
                              you.disp_name() );
                     continue;
                 }
@@ -6408,7 +6408,7 @@ void unload_loot_activity_actor::do_turn( player_activity &act, Character &you )
     }
 
     // If we got here without restarting the activity, it means we're done
-    add_msg( m_info, _( "%s sorted out every item possible." ), you.disp_name( false, true ) );
+    add_msg( m_info, _( "{} sorted out every item possible." ), you.disp_name( false, true ) );
     if( you.is_npc() ) {
         npc *guy = dynamic_cast<npc *>( &you );
         guy->revert_after_activity();
@@ -6511,7 +6511,7 @@ void deserialize( cata::clone_ptr<activity_actor> &actor, JsonIn &jsin )
                 JsonValue jv = data.get_member( "actor_data" );
                 actor = deserializer->second( jv );
             } else {
-                debugmsg( "Failed to find activity actor deserializer for type \"%s\"", actor_type.c_str() );
+                debugmsg( "Failed to find activity actor deserializer for type \"{}\"", actor_type.c_str() );
                 actor = nullptr;
             }
         } else {

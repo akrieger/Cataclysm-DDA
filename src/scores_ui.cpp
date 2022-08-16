@@ -32,8 +32,8 @@ static std::string get_achievements_text( const achievements_tracker &achievemen
     std::string cap_thing_name = use_conducts ? _( "Conducts" ) : _( "Achievements" );
     if( !achievements.is_enabled() ) {
         return string_format(
-                   _( "%s are disabled, probably due to use of the debug menu.  If you only used "
-                      "the debug menu to work around a game bug, then you can re-enable %s via the "
+                   _( "{} are disabled, probably due to use of the debug menu.  If you only used "
+                      "the debug menu to work around a game bug, then you can re-enable {} via the "
                       "debug menu (\"Enable achievements\" under the \"Game\" submenu)." ),
                    cap_thing_name, thing_name );
     }
@@ -64,9 +64,9 @@ static std::string get_achievements_text( const achievements_tracker &achievemen
         os += colorize( horizontal_line, c_magenta );
     }
     if( valid_achievements.empty() ) {
-        os += string_format( _( "This game has no valid %s.\n" ), thing_name );
+        os += string_format( _( "This game has no valid {}.\n" ), thing_name );
     }
-    os += string_format( _( "Note that only %s that existed when you started this game and still "
+    os += string_format( _( "Note that only {} that existed when you started this game and still "
                             "exist now will appear here." ), thing_name );
     return os;
 }

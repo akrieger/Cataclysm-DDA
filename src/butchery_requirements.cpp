@@ -61,7 +61,7 @@ void butchery_requirements::load( const JsonObject &jo, const std::string & )
         int critter_size = 1;
         for( JsonObject butcher_jo : member.get_array() ) {
             if( critter_size == creature_size::num_sizes ) {
-                debugmsg( "ERROR: %s has too many creature sizes.  must have exactly %d",
+                debugmsg( "ERROR: {} has too many creature sizes.  must have exactly {}",
                           id.c_str(), creature_size::num_sizes - 1 );
                 break;
             }
@@ -85,12 +85,12 @@ void butchery_requirements::check_consistency()
     for( const butchery_requirements &req : get_all() ) {
         for( const auto &size_req : req.requirements ) {
             if( size_req.second.size() != static_cast<size_t>( creature_size::num_sizes - 1 ) ) {
-                debugmsg( "ERROR: %s needs exactly %d entries to cover all creature sizes",
+                debugmsg( "ERROR: {} needs exactly {} entries to cover all creature sizes",
                           req.id.c_str(), static_cast<int>( creature_size::num_sizes ) - 1 );
             }
             for( const auto &butcher_req : size_req.second ) {
                 if( butcher_req.second.size() != static_cast<size_t>( butcher_type::NUM_TYPES ) ) {
-                    debugmsg( "ERROR: %s needs exactly %d entries to cover all butchery types",
+                    debugmsg( "ERROR: {} needs exactly {} entries to cover all butchery types",
                               req.id.c_str(), static_cast<int>( butcher_type::NUM_TYPES ) );
                 }
             }

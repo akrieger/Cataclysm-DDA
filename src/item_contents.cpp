@@ -69,7 +69,7 @@ void pocket_favorite_callback::refresh( uilist *menu )
         const int width = menu->pad_right - 1;
 
         fold_and_print( menu->window, point( 2, 2 ), width,
-                        c_light_gray, string_format( _( "Currently modifying %s" ),
+                        c_light_gray, string_format( _( "Currently modifying {}" ),
                                 colorize( whitelist ? _( "whitelist" ) : _( "blacklist" ), c_light_blue ) ) );
 
         selected_pocket->general_info( info, pocket_num, true );
@@ -108,7 +108,7 @@ void pocket_favorite_callback::add_pockets( item &i, uilist &pocket_selector,
         return;
     }
 
-    pocket_selector.addentry( -1, false, '\0', string_format( "%s%s", depth, i.display_name() ) );
+    pocket_selector.addentry( -1, false, '\0', string_format( "{}{}", depth, i.display_name() ) );
     // pad list with empty entries for the items themselves
     saved_pockets.emplace_back( nullptr, 0, nullptr );
     if( ( i.is_collapsed() && to_organize.size() != 1 ) || i.all_pockets_sealed() ) {
@@ -120,9 +120,9 @@ void pocket_favorite_callback::add_pockets( item &i, uilist &pocket_selector,
     uilist_entry *item_entry = &pocket_selector.entries.back();
     int pocket_num = 1;
     for( item_pocket *it_pocket : i.get_all_contained_pockets() ) {
-        std::string temp = string_format( "%d -", pocket_num );
+        std::string temp = string_format( "{} -", pocket_num );
 
-        pocket_selector.addentry( 0, true, '\0', string_format( "%s%s %s/%s",
+        pocket_selector.addentry( 0, true, '\0', string_format( "{}{} {}/{}",
                                   depth,
                                   temp,
                                   vol_to_info( "", "", it_pocket->contains_volume() ).sValue,
@@ -180,7 +180,7 @@ void pocket_favorite_callback::move_item( uilist *menu, item_pocket *selected_po
         }
 
         if( item_to_move.first != nullptr ) {
-            menu->settext( string_format( "%s: %s", _( "Moving" ), item_to_move.first->display_name() ) );
+            menu->settext( string_format( "{}: {}", _( "Moving" ), item_to_move.first->display_name() ) );
             refresh_columns( menu );
 
             // if we have an item already selected for moving update some info
@@ -242,7 +242,7 @@ bool pocket_favorite_callback::key( const input_context &ctxt, const input_event
     }
 
     const std::string &action = ctxt.input_to_action( event );
-    //popup( string_format( "%s, %s, %s.", event.long_description(),
+    //popup( string_format( "{}, {}, {}.", event.long_description(),
     //                      event.short_description(), action ) );
     if( action == "FAV_WHITELIST" ) {
         whitelist = true;
@@ -252,7 +252,7 @@ bool pocket_favorite_callback::key( const input_context &ctxt, const input_event
         return true;
     } else if( action == "FAV_PRIORITY" ) {
         string_input_popup popup;
-        popup.title( string_format( _( "Enter Priority (current priority %d)" ),
+        popup.title( string_format( _( "Enter Priority (current priority {})" ),
                                     selected_pocket->settings.priority() ) );
         selected_pocket->settings.set_priority( popup.query_int() );
         return true;
@@ -376,7 +376,7 @@ bool pocket_favorite_callback::key( const input_context &ctxt, const input_event
         }
         return true;
     } else if( action == "FAV_CLEAR" ) {
-        if( query_yn( _( "Are you sure you want to clear settings for pocket %d?" ), pocket_num ) ) {
+        if( query_yn( _( "Are you sure you want to clear settings for pocket {}?" ), pocket_num ) ) {
             selected_pocket->settings.clear();
         }
     } else if( action == "FAV_CONTEXT_MENU" ) {
@@ -594,7 +594,7 @@ void item_contents::combine( const item_contents &read_input, const bool convert
                 const ret_val<item_pocket::contain_code> inserted = current_pocket_iter->insert_item( *it );
                 if( !inserted.success() ) {
                     uninserted_items.push_back( *it );
-                    debugmsg( "error: item %s cannot fit into pocket while loading: %s",
+                    debugmsg( "error: item {} cannot fit into pocket while loading: {}",
                               it->typeId().str(), inserted.str() );
                 }
             }
@@ -656,7 +656,7 @@ struct item_contents::item_contents_helper {
         }
 
         if( failure_messages.empty() ) {
-            return ret_val<my_pocket_type *>::make_failure( null_pocket, _( "pocket with type (%s) not found" ),
+            return ret_val<my_pocket_type *>::make_failure( null_pocket, _( "pocket with type ({}) not found" ),
                     io::enum_to_string( pk_type ) );
         }
         std::sort( failure_messages.begin(), failure_messages.end(), localized_compare );
@@ -665,7 +665,7 @@ struct item_contents::item_contents_helper {
             failure_messages.end() );
         return ret_val<my_pocket_type *>::make_failure(
                    null_pocket,
-                   n_gettext( "pocket unacceptable because %s", "pockets unacceptable because %s",
+                   n_gettext( "pocket unacceptable because {}", "pockets unacceptable because {}",
                               num_pockets_of_type ),
                    enumerate_as_string( failure_messages, enumeration_conjunction::or_ ) );
     }
@@ -735,7 +735,7 @@ void item_contents::force_insert_item( const item &it, item_pocket::pocket_type 
             return;
         }
     }
-    debugmsg( "ERROR: Could not insert item %s as contents does not have pocket type", it.tname() );
+    debugmsg( "ERROR: Could not insert item {} as contents does not have pocket type", it.tname() );
 }
 
 std::pair<item_location, item_pocket *> item_contents::best_pocket( const item &it,
@@ -1369,7 +1369,7 @@ bool item_contents::is_single_restricted_container() const
 item &item_contents::only_item()
 {
     if( num_item_stacks() != 1 ) {
-        debugmsg( "ERROR: item_contents::only_item called with %d items contained", num_item_stacks() );
+        debugmsg( "ERROR: item_contents::only_item called with {} items contained", num_item_stacks() );
         return null_item_reference();
     }
     for( item_pocket &pocket : contents ) {
@@ -1385,7 +1385,7 @@ item &item_contents::only_item()
 const item &item_contents::only_item() const
 {
     if( num_item_stacks() != 1 ) {
-        debugmsg( "ERROR: item_contents::only_item called with %d items contained", num_item_stacks() );
+        debugmsg( "ERROR: item_contents::only_item called with {} items contained", num_item_stacks() );
         return null_item_reference();
     }
     for( const item_pocket &pocket : contents ) {
@@ -2146,7 +2146,7 @@ float item_contents::relative_encumbrance() const
         nonrigid_max_volume += pocket.max_contains_volume() * modifier;
     }
     if( nonrigid_volume > nonrigid_max_volume ) {
-        debugmsg( "volume exceeds capacity (%sml > %sml)",
+        debugmsg( "volume exceeds capacity ({} > {})",
                   to_milliliter( nonrigid_volume ), to_milliliter( nonrigid_max_volume ) );
         return 1;
     }
@@ -2243,7 +2243,7 @@ void item_contents::info( std::vector<iteminfo> &info, const iteminfo_query *par
             insert_separation_line( info );
             info.emplace_back( "CONTAINER", _( "<bold>This item incorporates</bold>:" ) );
             for( const item &it : additional_pockets ) {
-                info.emplace_back( "CONTAINER", string_format( _( "%s." ),
+                info.emplace_back( "CONTAINER", string_format( _( "{}." ),
                                    it.display_name() ) );
             }
             info.back().bNewLine = true;
@@ -2269,7 +2269,7 @@ void item_contents::info( std::vector<iteminfo> &info, const iteminfo_query *par
             insert_separation_line( info );
             // If there are multiple similar pockets, show their capacity as a set
             if( pocket_num[idx] > 1 ) {
-                info.emplace_back( "DESCRIPTION", string_format( _( "<bold>%d pockets</bold> with capacity:" ),
+                info.emplace_back( "DESCRIPTION", string_format( _( "<bold>{} pockets</bold> with capacity:" ),
                                    pocket_num[idx] ) );
             } else {
                 // If this is the only pocket the item has, label it "Total capacity"

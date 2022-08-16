@@ -166,7 +166,7 @@ void DynamicDataLoader::load_deferred( deferred_json &data )
                     JsonObject jo = jsin.get_object();
                     load_object( jo, it->second );
                 } catch( const JsonError &err ) {
-                    debugmsg( "(json-error)\n%s", err.what() );
+                    debugmsg( "(json-error)\n{}", err.what() );
                 }
             }
             ++it;
@@ -183,7 +183,7 @@ void DynamicDataLoader::load_deferred( deferred_json &data )
                         JsonIn jsin( *stream, elem.first );
                         jsin.error( "JSON contains circular dependency, this object is discarded" );
                     } catch( const JsonError &err ) {
-                        debugmsg( "(json-error)\n%s", err.what() );
+                        debugmsg( "(json-error)\n{}", err.what() );
                     }
                 }
                 inp_mngr.pump_events();
@@ -208,7 +208,7 @@ void DynamicDataLoader::add( const std::string &type,
 {
     const auto pair = type_function_map.emplace( type, f );
     if( !pair.second ) {
-        debugmsg( "tried to insert a second handler for type %s into the DynamicDataLoader", type.c_str() );
+        debugmsg( "tried to insert a second handler for type {} into the DynamicDataLoader", type.c_str() );
     }
 }
 
@@ -221,7 +221,7 @@ void DynamicDataLoader::add( const std::string &type,
         f( obj, src );
     } );
     if( !pair.second ) {
-        debugmsg( "tried to insert a second handler for type %s into the DynamicDataLoader", type.c_str() );
+        debugmsg( "tried to insert a second handler for type {} into the DynamicDataLoader", type.c_str() );
     }
 }
 
@@ -233,7 +233,7 @@ void DynamicDataLoader::add( const std::string &type,
         f( obj );
     } );
     if( !pair.second ) {
-        debugmsg( "tried to insert a second handler for type %s into the DynamicDataLoader", type.c_str() );
+        debugmsg( "tried to insert a second handler for type {} into the DynamicDataLoader", type.c_str() );
     }
 }
 
@@ -528,7 +528,7 @@ void DynamicDataLoader::load_all_from_json( JsonIn &jsin, const std::string &src
         // if there's anything else in the file, it's an error.
         jsin.eat_whitespace();
         if( jsin.good() ) {
-            jsin.error( string_format( "expected single-object file but found '%c'", jsin.peek() ) );
+            jsin.error( string_format( "expected single-object file but found '{}'", jsin.peek() ) );
         }
     } else if( jsin.test_array() ) {
         jsin.start_array();

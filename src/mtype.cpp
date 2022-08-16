@@ -284,7 +284,7 @@ void mtype::faction_display( catacurses::window &w, const point &top_left, const
 {
     int y = 0;
     // Name & symbol
-    trim_and_print( w, top_left + point( 2, y ), width, c_white, string_format( "%s  %s", colorize( sym,
+    trim_and_print( w, top_left + point( 2, y ), width, c_white, string_format( "{}  {}", colorize( sym,
                     color ), nname() ) );
     y++;
     // Difficulty
@@ -303,13 +303,13 @@ void mtype::faction_display( catacurses::window &w, const point &top_left, const
         diff_str = _( "<color_red>Fatally dangerous!</color>" );
     }
     trim_and_print( w, top_left + point( 0, ++y ), width, c_light_gray,
-                    string_format( "%s: %s", colorize( _( "Difficulty" ), c_white ), diff_str ) );
+                    string_format( "{}: {}", colorize( _( "Difficulty" ), c_white ), diff_str ) );
     // Origin
     std::vector<std::string> origin_list =
-        foldstring( string_format( "%s: %s", colorize( _( "Origin" ), c_white ),
+        foldstring( string_format( "{}: {}", colorize( _( "Origin" ), c_white ),
                                    enumerate_as_string( src.begin(), src.end(),
     []( const std::pair<mtype_id, mod_id> &source ) {
-        return string_format( "'%s'", source.second->name() );
+        return string_format( "'{}'", source.second->name() );
     }, enumeration_conjunction::arrow ) ), width );
     for( const std::string &org : origin_list ) {
         trim_and_print( w, top_left + point( 0, ++y ), width, c_light_gray, org );
@@ -324,11 +324,11 @@ void mtype::faction_display( catacurses::window &w, const point &top_left, const
     };
     auto size_iter = size_map.find( size );
     trim_and_print( w, top_left + point( 0, ++y ), width, c_light_gray,
-                    string_format( "%s: %s", colorize( _( "Size" ), c_white ),
+                    string_format( "{}: {}", colorize( _( "Size" ), c_white ),
                                    size_iter == size_map.end() ? _( "Unknown" ) : _( size_iter->second ) ) );
     // Species
     std::vector<std::string> species_list =
-        foldstring( string_format( "%s: %s", colorize( _( "Species" ), c_white ),
+        foldstring( string_format( "{}: {}", colorize( _( "Species" ), c_white ),
     enumerate_as_string( species_descriptions(), []( const std::string & sp ) {
         return colorize( sp, c_yellow );
     } ) ), width );
@@ -347,7 +347,7 @@ void mtype::faction_display( catacurses::window &w, const point &top_left, const
         senses_str.emplace_back( colorize( _( "smell" ), c_yellow ) );
     }
     trim_and_print( w, top_left + point( 0, ++y ), width, c_light_gray,
-                    string_format( "%s: %s", colorize( _( "Senses" ), c_white ), enumerate_as_string( senses_str ) ) );
+                    string_format( "{}: {}", colorize( _( "Senses" ), c_white ), enumerate_as_string( senses_str ) ) );
     // Abilities
     if( has_flag( MF_SWIMS ) ) {
         trim_and_print( w, top_left + point( 0, ++y ), width, c_white, _( "It can swim." ) );

@@ -368,7 +368,7 @@ input_context game::get_player_input( std::string &action )
             if( uquit == QUIT_WATCH ) {
                 deathcam_msg_popup = std::make_unique<static_popup>();
                 deathcam_msg_popup
-                ->wait_message( c_red, _( "Press %s to accept your fate…" ), ctxt.get_desc( "QUIT" ) )
+                ->wait_message( c_red, _( "Press {} to accept your fate…" ), ctxt.get_desc( "QUIT" ) )
                 .on_top( true );
             }
 
@@ -546,8 +546,8 @@ static void open()
             bool outside = !player_veh || player_veh != veh;
             if( !outside ) {
                 veh->open( openable );
-                //~ %1$s - vehicle name, %2$s - part name
-                player_character.add_msg_if_player( _( "You open the %1$s's %2$s." ), veh->name, part_name );
+                //~ {1} - vehicle name, {2} - part name
+                player_character.add_msg_if_player( _( "You open the {1}'s {2}." ), veh->name, part_name );
             } else {
                 // Outside means we check if there's anything in that tile outside-openable.
                 // If there is, we open everything on tile. This means opening a closed,
@@ -555,12 +555,12 @@ static void open()
                 // curtains as well.
                 int outside_openable = veh->next_part_to_open( vp->part_index(), true );
                 if( outside_openable == -1 ) {
-                    add_msg( m_info, _( "That %s can only be opened from the inside." ), part_name );
+                    add_msg( m_info, _( "That {} can only be opened from the inside." ), part_name );
                     player_character.moves += 100;
                 } else {
                     veh->open_all_at( openable );
-                    //~ %1$s - vehicle name, %2$s - part name
-                    player_character.add_msg_if_player( _( "You open the %1$s's %2$s." ), veh->name, part_name );
+                    //~ {1} - vehicle name, {2} - part name
+                    player_character.add_msg_if_player( _( "You open the {1}'s {2}." ), veh->name, part_name );
                 }
             }
         } else {
@@ -568,7 +568,7 @@ static void open()
             if( const cata::optional<vpart_reference> already_open = vp.part_with_feature( "OPENABLE",
                     true ) ) {
                 const std::string name = already_open->info().name();
-                add_msg( m_info, _( "That %s is already open." ), name );
+                add_msg( m_info, _( "That {} is already open." ), name );
             }
             player_character.moves += 100;
         }
@@ -577,7 +577,7 @@ static void open()
     // Not a vehicle part, just a regular door
     bool didit = here.open_door( player_character, openp, !here.is_outside( player_character.pos() ) );
     if( didit ) {
-        player_character.add_msg_if_player( _( "You open the %s." ), here.name( openp ) );
+        player_character.add_msg_if_player( _( "You open the {}." ), here.name( openp ) );
     } else {
         const ter_str_id tid = here.ter( openp ).id();
 
@@ -612,9 +612,9 @@ static void grab()
 
     if( you.get_grab_type() != object_type::NONE ) {
         if( const optional_vpart_position vp = here.veh_at( you.pos() + you.grab_point ) ) {
-            add_msg( _( "You release the %s." ), vp->vehicle().name );
+            add_msg( _( "You release the {}." ), vp->vehicle().name );
         } else if( here.has_furn( you.pos() + you.grab_point ) ) {
-            add_msg( _( "You release the %s." ), here.furnname( you.pos() + you.grab_point ) );
+            add_msg( _( "You release the {}." ), here.furnname( you.pos() + you.grab_point ) );
         }
 
         you.grab( object_type::NONE );
@@ -654,17 +654,17 @@ static void grab()
             return;
         }
         you.grab( object_type::VEHICLE, grabp - you.pos() );
-        add_msg( _( "You grab the %s." ), vp->vehicle().name );
+        add_msg( _( "You grab the {}." ), vp->vehicle().name );
     } else if( here.has_furn( grabp ) ) { // If not, grab furniture if present
         if( !here.furn( grabp ).obj().is_movable() ) {
-            add_msg( _( "You can not grab the %s" ), here.furnname( grabp ) );
+            add_msg( _( "You can not grab the {}" ), here.furnname( grabp ) );
             return;
         }
         you.grab( object_type::FURNITURE, grabp - you.pos() );
         if( !here.can_move_furniture( grabp, &you ) ) {
-            add_msg( _( "You grab the %s. It feels really heavy." ), here.furnname( grabp ) );
+            add_msg( _( "You grab the {}. It feels really heavy." ), here.furnname( grabp ) );
         } else {
-            add_msg( _( "You grab the %s." ), here.furnname( grabp ) );
+            add_msg( _( "You grab the {}." ), here.furnname( grabp ) );
         }
     } else { // TODO: grab mob? Captured squirrel = pet (or meat that stays fresh longer).
         add_msg( m_info, _( "There's nothing to grab there!" ) );
@@ -701,7 +701,7 @@ static void smash()
         auto *mons = player_character.mounted_creature.get();
         if( mons->has_flag( MF_RIDEABLE_MECH ) ) {
             if( !mons->check_mech_powered() ) {
-                add_msg( m_bad, _( "Your %s refuses to move as its batteries have been drained." ),
+                add_msg( m_bad, _( "Your {} refuses to move as its batteries have been drained." ),
                          mons->get_name() );
                 return;
             }
@@ -756,7 +756,7 @@ static void smash()
             continue;
         }
         if( smashskill < bash_info.str_min && one_in( 10 ) ) {
-            add_msg( m_neutral, _( "You don't seem to be damaging the %s." ), fd_to_smsh.first->get_name() );
+            add_msg( m_neutral, _( "You don't seem to be damaging the {}." ), fd_to_smsh.first->get_name() );
             return;
         } else if( smashskill >= rng( bash_info.str_min, bash_info.str_max ) ) {
             sounds::sound( smashp, bash_info.sound_vol, sounds::sound_t::combat, bash_info.sound, true, "smash",
@@ -826,7 +826,7 @@ static void smash()
             if( !best_part_to_smash.first->smash_message.empty() ) {
                 add_msg( best_part_to_smash.first->smash_message, name_to_bash );
             } else {
-                add_msg( _( "You use your %s to smash the %s." ),
+                add_msg( _( "You use your {} to smash the {}." ),
                          body_part_name_accusative( best_part_to_smash.first ), name_to_bash );
             }
         }
@@ -858,7 +858,7 @@ static void smash()
                 }
                 const int vol = weapon->volume() * glass_fraction / units::legacy_volume_factor;
                 if( glass_portion && rng( 0, vol + 3 ) < vol ) {
-                    add_msg( m_bad, _( "Your %s shatters!" ), weapon->tname() );
+                    add_msg( m_bad, _( "Your {} shatters!" ), weapon->tname() );
                     weapon->spill_contents( player_character.pos() );
                     sounds::sound( player_character.pos(), 24, sounds::sound_t::combat, "CRACK!", true, "smash",
                                    "glass" );
@@ -882,11 +882,11 @@ static void smash()
         if( !bash_result.success ) {
             if( smashskill < here.bash_resistance( smashp ) && one_in( 10 ) ) {
                 if( here.has_furn( smashp ) && here.furn( smashp ).obj().bash.str_min != -1 ) {
-                    // %s is the smashed furniture
-                    add_msg( m_neutral, _( "You don't seem to be damaging the %s." ), here.furnname( smashp ) );
+                    // {} is the smashed furniture
+                    add_msg( m_neutral, _( "You don't seem to be damaging the {}." ), here.furnname( smashp ) );
                 } else {
-                    // %s is the smashed terrain
-                    add_msg( m_neutral, _( "You don't seem to be damaging the %s." ), here.tername( smashp ) );
+                    // {} is the smashed terrain
+                    add_msg( m_neutral, _( "You don't seem to be damaging the {}." ), here.tername( smashp ) );
                 }
             }
         }
@@ -949,7 +949,7 @@ static void wait()
 
         if( has_watch && duration != time_duration::from_turns( calendar::INDEFINITELY_LONG ) ) {
             const std::string dur_str( to_string( duration ) );
-            text += ( text.empty() ? dur_str : string_format( " (%s)", dur_str ) );
+            text += ( text.empty() ? dur_str : string_format( " ({})", dur_str ) );
         }
         as_m.addentry( retval, true, hotkey, text );
         durations.emplace( retval, duration );
@@ -1012,7 +1012,7 @@ static void wait()
     }
 
     // NOLINTNEXTLINE(cata-text-style): spaces required for concatenation
-    as_m.text = has_watch ? string_format( _( "It's %s now.  " ),
+    as_m.text = has_watch ? string_format( _( "It's {} now.  " ),
                                            to_string_time_of_day( calendar::turn ) ) : "";
     as_m.text += setting_alarm ? _( "Set alarm for when?" ) : _( "Wait for how long?" );
     as_m.query(); /* calculate key and window variables, generate window, and loop until we get a valid answer */
@@ -1115,7 +1115,7 @@ static void sleep()
     // check for deactivating any currently played music instrument.
     for( item *&item : player_character.inv_dump() ) {
         if( item->active && item->get_use( "musical_instrument" ) != nullptr ) {
-            player_character.add_msg_if_player( _( "You stop playing your %s before trying to sleep." ),
+            player_character.add_msg_if_player( _( "You stop playing your {} before trying to sleep." ),
                                                 item->tname() );
             // deactivate instrument
             item->active = false;
@@ -1168,7 +1168,7 @@ static void sleep()
 
         for( int i = 3; i <= 9; ++i ) {
             as_m.entries.emplace_back( i, true, '0' + i,
-                                       string_format( _( "Set alarm to wake up in %i hours." ), i ) + deaf_text );
+                                       string_format( _( "Set alarm to wake up in {} hours." ), i ) + deaf_text );
         }
 
         as_m.query();
@@ -1250,7 +1250,7 @@ static void loot()
     flags |= g->check_near_zone( zone_type_MOPPING, player_character.pos() ) ? MultiMopping : 0;
     if( flags == 0 ) {
         add_msg( m_info, _( "There is no compatible zone nearby." ) );
-        add_msg( m_info, _( "Compatible zones are %s and %s" ),
+        add_msg( m_info, _( "Compatible zones are {} and {}" ),
                  mgr.get_name_from_type( zone_type_LOOT_UNSORTED ),
                  mgr.get_name_from_type( zone_type_FARM_PLOT ) );
         return;
@@ -1604,7 +1604,7 @@ bool Character::cast_spell( spell &sp, bool fake_spell,
 
     if( !magic->has_enough_energy( *this, sp ) ) {
         add_msg( game_message_params{ m_bad, gmf_bypass_cooldown },
-                 _( "You don't have enough %s to cast the spell." ),
+                 _( "You don't have enough {} to cast the spell." ),
                  sp.energy_string() );
         return false;
     }
@@ -1701,7 +1701,7 @@ void game::open_consume_item_menu()
 static void handle_debug_mode()
 {
     auto debug_mode_setup = []( uilist_entry & entry ) -> void {
-        entry.txt = string_format( _( "Debug Mode (%1$s)" ), debug_mode ? _( "ON" ) : _( "OFF" ) );
+        entry.txt = string_format( _( "Debug Mode ({1})" ), debug_mode ? _( "ON" ) : _( "OFF" ) );
         entry.text_color = debug_mode ? c_green : c_light_gray;
     };
 
@@ -1735,7 +1735,7 @@ static void handle_debug_mode()
     uilist dbmenu;
     dbmenu.allow_anykey = true;
     dbmenu.title = _( "Debug Mode Filters" );
-    dbmenu.text = string_format( _( "Press [%1$s] to quickly toggle debug mode." ),
+    dbmenu.text = string_format( _( "Press [{1}] to quickly toggle debug mode." ),
                                  ctxt.get_desc( "debug_mode" ) );
 
     dbmenu.entries.reserve( 1 + debugmode::DF_LAST );
@@ -2395,7 +2395,7 @@ bool game::do_regular_action( action_id &act, avatar &player_character,
 
         case ACTION_SLEEP:
             if( has_vehicle_control( player_character ) ) {
-                add_msg( m_info, _( "Vehicle control has moved, %s" ),
+                add_msg( m_info, _( "Vehicle control has moved, {}" ),
                          press_x( ACTION_CONTROL_VEHICLE, _( "new binding is " ),
                                   _( "new default binding is '^'." ) ) );
             } else {
@@ -2470,7 +2470,7 @@ bool game::do_regular_action( action_id &act, avatar &player_character,
             if( safe_mode == SAFE_MODE_STOP && !get_safemode().empty() ) {
                 get_safemode().add_rule( get_safemode().lastmon_whitelist, Creature::Attitude::ANY, 0,
                                          rule_state::WHITELISTED );
-                add_msg( m_info, _( "Creature whitelisted: %s" ), get_safemode().lastmon_whitelist );
+                add_msg( m_info, _( "Creature whitelisted: {}" ), get_safemode().lastmon_whitelist );
                 set_safe_mode( SAFE_MODE_ON );
                 mostseen = 0;
             } else {
@@ -2626,7 +2626,7 @@ bool game::do_regular_action( action_id &act, avatar &player_character,
             get_options().get_option( "AUTO_FEATURES" ).setNext();
             get_options().save();
             //~ Auto Features are now ON/OFF
-            add_msg( _( "%s are now %s." ),
+            add_msg( _( "{} are now {}." ),
                      get_options().get_option( "AUTO_FEATURES" ).getMenuText(),
                      get_option<bool>( "AUTO_FEATURES" ) ? _( "ON" ) : _( "OFF" ) );
             break;
@@ -2635,7 +2635,7 @@ bool game::do_regular_action( action_id &act, avatar &player_character,
             get_options().get_option( "AUTO_PULP_BUTCHER" ).setNext();
             get_options().save();
             //~ Auto Pulp/Pulp Adjacent/Butcher is now set to x
-            add_msg( _( "%s is now set to %s." ),
+            add_msg( _( "{} is now set to {}." ),
                      get_options().get_option( "AUTO_PULP_BUTCHER" ).getMenuText(),
                      get_options().get_option( "AUTO_PULP_BUTCHER" ).getValueName() );
             break;
@@ -2644,7 +2644,7 @@ bool game::do_regular_action( action_id &act, avatar &player_character,
             get_options().get_option( "AUTO_MINING" ).setNext();
             get_options().save();
             //~ Auto Mining is now ON/OFF
-            add_msg( _( "%s is now %s." ),
+            add_msg( _( "{} is now {}." ),
                      get_options().get_option( "AUTO_MINING" ).getMenuText(),
                      get_option<bool>( "AUTO_MINING" ) ? _( "ON" ) : _( "OFF" ) );
             break;
@@ -2667,7 +2667,7 @@ bool game::do_regular_action( action_id &act, avatar &player_character,
                 add_msg( _( "You will be reminded not to steal." ) );
             } else {
                 // ERROR
-                add_msg( _( "THIEF_MODE CONTAINED BAD VALUE [ %s ]!" ),
+                add_msg( _( "THIEF_MODE CONTAINED BAD VALUE [ {} ]!" ),
                          player_character.get_value( "THIEF_MODE" ) );
             }
             break;
@@ -2676,7 +2676,7 @@ bool game::do_regular_action( action_id &act, avatar &player_character,
             get_options().get_option( "AUTO_FORAGING" ).setNext();
             get_options().save();
             //~ Auto Foraging is now set to x
-            add_msg( _( "%s is now set to %s." ),
+            add_msg( _( "{} is now set to {}." ),
                      get_options().get_option( "AUTO_FORAGING" ).getMenuText(),
                      get_options().get_option( "AUTO_FORAGING" ).getValueName() );
             break;
@@ -2685,7 +2685,7 @@ bool game::do_regular_action( action_id &act, avatar &player_character,
             get_options().get_option( "AUTO_PICKUP" ).setNext();
             get_options().save();
             //~ Auto pickup is now set to x
-            add_msg( _( "%s is now set to %s." ),
+            add_msg( _( "{} is now set to {}." ),
                      get_options().get_option( "AUTO_PICKUP" ).getMenuText(),
                      get_options().get_option( "AUTO_PICKUP" ).getValueName() );
             break;
@@ -2922,11 +2922,11 @@ bool game::handle_action()
         if( !evt.sequence.empty() ) {
             const int ch = evt.get_first_input();
             if( !get_option<bool>( "NO_UNKNOWN_COMMAND_MSG" ) ) {
-                std::string msg = string_format( _( "Unknown command: \"%s\" (%ld)" ), evt.long_description(), ch );
+                std::string msg = string_format( _( "Unknown command: \"{}\" ({})" ), evt.long_description(), ch );
                 if( const cata::optional<std::string> hint =
                         press_x_if_bound( ACTION_KEYBINDINGS ) ) {
-                    msg = string_format( "%s\n%s", msg,
-                                         string_format( _( "%s at any time to see and edit keybindings relevant to "
+                    msg = string_format( "{}\n{}", msg,
+                                         string_format( _( "{} at any time to see and edit keybindings relevant to "
                                                            "the current context." ),
                                                         *hint ) );
                 }
@@ -2959,7 +2959,7 @@ bool game::handle_action()
 
     player_character.movecounter = ( !player_character.is_dead_state() ? ( before_action_moves -
                                      player_character.moves ) : 0 );
-    dbg( D_INFO ) << string_format( "%s: [%d] %d - %d = %d", action_ident( act ),
+    dbg( D_INFO ) << string_format( "{}: [{}] {} - {} = {}", action_ident( act ),
                                     to_turn<int>( calendar::turn ), before_action_moves, player_character.movecounter,
                                     player_character.moves );
     return !player_character.is_dead_state();

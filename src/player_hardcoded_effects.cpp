@@ -293,11 +293,11 @@ static void eff_fun_bleed( Character &u, effect &it )
             // the numerical values here coincide with the intensity thresholds at which the name of the effect changes
             // i.e. 0-5 intensity is displayed as "Minor Bleeding", 11-20 intensity is displayed as "Bad Bleeding", etc
             static const std::map<int, translation> intensity_strings = {
-                { 0, to_translation( "%1s drips from your %2s." ) },
-                { 6, to_translation( "%1s leaks from your %2s." ) },
-                { 11, to_translation( "%1s flows from your %2s." ) },
-                { 21, to_translation( "%1s pours from your %2s!" ) },
-                { 31, to_translation( "%1s gushes from your %2s!" ) }
+                { 0, to_translation( "{} drips from your {}." ) },
+                { 6, to_translation( "{} leaks from your {}." ) },
+                { 11, to_translation( "{} flows from your {}." ) },
+                { 21, to_translation( "{} pours from your {}!" ) },
+                { 31, to_translation( "{} gushes from your {}!" ) }
             };
             translation suffer_string = intensity_strings.at( 0 );
             // iterate in reverse to find the first string that we qualify for based on intensity
@@ -427,7 +427,7 @@ struct temperature_effect {
             u.mod_per_bonus( -per_pen );
         }
         if( !msg.empty() && !u.has_effect( effect_sleep ) && one_in( msg_chance ) ) {
-            u.add_msg_if_player( m_warning, "%s", msg.translated() );
+            u.add_msg_if_player( m_warning, "{}", msg.translated() );
         }
     }
 };
@@ -1108,7 +1108,7 @@ static void eff_fun_sleep( Character &u, effect &it )
         } else if( u.has_flag( json_flag_SEESLEEP ) ) {
             Creature *hostile_critter = g->is_hostile_very_close();
             if( hostile_critter != nullptr ) {
-                u.add_msg_if_player( _( "You see %s approaching!" ),
+                u.add_msg_if_player( _( "You see {} approaching!" ),
                                      hostile_critter->disp_name() );
                 it.set_duration( 0_turns );
                 woke_up = true;
@@ -1268,12 +1268,12 @@ void Character::hardcoded_effects( effect &it )
         ///\EFFECT_INT decreases occurrence of itching from formication effect
         if( x_in_y( intense, 600 + 300 * get_int() ) && !has_effect( effect_narcosis ) ) {
             if( !is_npc() ) {
-                //~ %s is bodypart in accusative.
-                add_msg( m_warning, _( "You start scratching your %s!" ),
+                //~ {} is bodypart in accusative.
+                add_msg( m_warning, _( "You start scratching your {}!" ),
                          body_part_name_accusative( bp ) );
             } else {
                 //~ 1$s is NPC name, 2$s is bodypart in accusative.
-                add_msg_if_player_sees( pos(), _( "%1$s starts scratching their %2$s!" ), get_name(),
+                add_msg_if_player_sees( pos(), _( "{1} starts scratching their {2}!" ), get_name(),
                                         body_part_name_accusative( bp ) );
             }
             moves -= 150;
@@ -1474,8 +1474,8 @@ void Character::hardcoded_effects( effect &it )
             recover_factor += get_lifestyle() / 10;
 
             if( x_in_y( recover_factor, 648000 ) ) {
-                //~ %s is bodypart name.
-                add_msg_if_player( m_good, _( "Your %s wound begins to feel better!" ),
+                //~ {} is bodypart name.
+                add_msg_if_player( m_good, _( "Your {} wound begins to feel better!" ),
                                    body_part_name( bp ) );
                 // Set ourselves up for removal
                 it.set_duration( 0_turns );
@@ -1526,8 +1526,8 @@ void Character::hardcoded_effects( effect &it )
             recover_factor += get_lifestyle() / 10;
 
             if( x_in_y( recover_factor, 5184000 ) ) {
-                //~ %s is bodypart name.
-                add_msg_if_player( m_good, _( "Your %s wound begins to feel better!" ),
+                //~ {} is bodypart name.
+                add_msg_if_player( m_good, _( "Your {} wound begins to feel better!" ),
                                    body_part_name( bp ) );
                 schedule_effect( effect_recover, 4 * dur );
                 // Set ourselves up for removal
@@ -1672,7 +1672,7 @@ void Character::hardcoded_effects( effect &it )
                         translate_marker( "arm" ), translate_marker( "hand" ), translate_marker( "leg" )
                     } );
                     add_msg_if_player( m_bad, string_format(
-                                           _( "Your %s suddenly jerks in an unexpected direction!" ), _( limb ) ) );
+                                           _( "Your {} suddenly jerks in an unexpected direction!" ), _( limb ) ) );
                     if( limb == "arm" ) {
                         mod_dex_bonus( -8 );
                         recoil = MAX_RECOIL;

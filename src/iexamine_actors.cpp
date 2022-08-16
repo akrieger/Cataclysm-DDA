@@ -25,7 +25,7 @@ void appliance_convert_examine_actor::load( const JsonObject &jo )
 
 void appliance_convert_examine_actor::call( Character &, const tripoint &examp ) const
 {
-    if( !query_yn( _( "Connect %s to grid?" ), item::nname( appliance_item ) ) ) {
+    if( !query_yn( _( "Connect {} to grid?" ), item::nname( appliance_item ) ) ) {
         return;
     }
     map &here = get_map();
@@ -42,17 +42,17 @@ void appliance_convert_examine_actor::call( Character &, const tripoint &examp )
 void appliance_convert_examine_actor::finalize() const
 {
     if( furn_set && !furn_set->is_valid() ) {
-        debugmsg( "Invalid furniture id %s in appliance_convert action", furn_set->str() );
+        debugmsg( "Invalid furniture id {} in appliance_convert action", furn_set->str() );
     }
     if( ter_set && !ter_set->is_valid() ) {
-        debugmsg( "Invalid terrain id %s in appliance_convert action", ter_set->str() );
+        debugmsg( "Invalid terrain id {} in appliance_convert action", ter_set->str() );
     }
 
     if( !appliance_item.is_valid() ) {
-        debugmsg( "Invalid appliance item %s in appliance_convert action", appliance_item.str() );
+        debugmsg( "Invalid appliance item {} in appliance_convert action", appliance_item.str() );
     } else if( !vpart_appliance_from_item( appliance_item ).is_valid() ) {
         // This will never actually trigger now, but is here if the semantics of vpart_appliance_from_item change
-        debugmsg( "In appliance_convert action, %s does not correspond to an appliance",
+        debugmsg( "In appliance_convert action, {} does not correspond to an appliance",
                   appliance_item.str() );
     }
 }
@@ -132,7 +132,7 @@ bool cardreader_examine_actor::apply( const tripoint &examp ) const
     if( map_regen ) {
         tripoint_abs_omt omt_pos( ms_to_omt_copy( here.getabs( examp ) ) );
         if( !run_mapgen_update_func( mapgen_id, omt_pos, nullptr, false ) ) {
-            debugmsg( "Failed to apply magen function %s", mapgen_id.str() );
+            debugmsg( "Failed to apply magen function {}", mapgen_id.str() );
         }
         here.set_seen_cache_dirty( examp );
         here.set_transparency_cache_dirty( examp.z );
@@ -221,7 +221,7 @@ void cardreader_examine_actor::finalize() const
 
     for( const flag_id &flag : allowed_flags ) {
         if( !flag.is_valid() ) {
-            debugmsg( "Cardreader uses flag %s that does not exist!", flag.str() );
+            debugmsg( "Cardreader uses flag {} that does not exist!", flag.str() );
         }
     }
 
@@ -264,7 +264,7 @@ void eoc_examine_actor::finalize() const
 {
     for( const effect_on_condition_id &eoc : eocs ) {
         if( !eoc.is_valid() ) {
-            debugmsg( "Invalid effect_on_condition_id: %s", eoc.str() );
+            debugmsg( "Invalid effect_on_condition_id: {}", eoc.str() );
         }
     }
 }

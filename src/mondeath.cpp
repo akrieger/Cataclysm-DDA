@@ -67,7 +67,7 @@ item *mdeath::normal( monster &z )
         }
 
         //Currently it is possible to get multiple messages that a monster died.
-        add_msg_if_player_sees( z, m_good, _( "The %s dies!" ), z.name() );
+        add_msg_if_player_sees( z, m_good, _( "The {} dies!" ), z.name() );
     }
 
     if( z.death_drops ) {
@@ -208,7 +208,7 @@ item *mdeath::splatter( monster &z )
 
 void mdeath::disappear( monster &z )
 {
-    add_msg_if_player_sees( z.pos(), m_good, _( "The %s disappears." ), z.name() );
+    add_msg_if_player_sees( z.pos(), m_good, _( "The {} disappears." ), z.name() );
 }
 
 void mdeath::broken( monster &z )
@@ -269,9 +269,9 @@ void mdeath::broken( monster &z )
 
     // TODO: make mdeath::splatter work for robots
     if( broken_mon.damage() >= broken_mon.max_damage() ) {
-        add_msg_if_player_sees( z.pos(), m_good, _( "The %s is destroyed!" ), z.name() );
+        add_msg_if_player_sees( z.pos(), m_good, _( "The {} is destroyed!" ), z.name() );
     } else {
-        add_msg_if_player_sees( z.pos(), m_good, _( "The %s collapses!" ), z.name() );
+        add_msg_if_player_sees( z.pos(), m_good, _( "The {} collapses!" ), z.name() );
     }
 }
 

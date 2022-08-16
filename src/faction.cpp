@@ -87,7 +87,7 @@ void faction_template::check_consistency()
     for( const faction_template &fac : npc_factions::all_templates ) {
         for( const auto &epi : fac.epilogue_data ) {
             if( !std::get<2>( epi ).is_valid() ) {
-                debugmsg( "There's no snippet with id %s", std::get<2>( epi ).str() );
+                debugmsg( "There's no snippet with id {}", std::get<2>( epi ).str() );
             }
         }
     }
@@ -497,7 +497,7 @@ faction *faction_manager::get( const faction_id &id, const bool complain )
     }
     // Sometimes we add new IDs to the map, sometimes we want to check if its already there.
     if( complain ) {
-        debugmsg( "Requested non-existing faction '%s'", id.str() );
+        debugmsg( "Requested non-existing faction '{}'", id.str() );
     }
     return nullptr;
 }
@@ -520,9 +520,9 @@ void basecamp::faction_display( const catacurses::window &fac_w, const int width
     if( direction != "center" ) {
         mvwprintz( fac_w, point( width, ++y ), c_light_gray, _( "Direction: to the " ) + direction );
     }
-    mvwprintz( fac_w, point( width, ++y ), col, _( "Location: %s" ), camp_pos.to_string() );
+    mvwprintz( fac_w, point( width, ++y ), col, _( "Location: {}" ), camp_pos.to_string() );
     faction *yours = player_character.get_faction();
-    std::string food_text = string_format( _( "Food Supply: %s %d calories" ),
+    std::string food_text = string_format( _( "Food Supply: {} {} calories" ),
                                            yours->food_supply_text(), yours->food_supply );
     nc_color food_col = yours->food_supply_color();
     mvwprintz( fac_w, point( width, ++y ), food_col, food_text );
@@ -536,10 +536,10 @@ void basecamp::faction_display( const catacurses::window &fac_w, const int width
 void faction::faction_display( const catacurses::window &fac_w, const int width ) const
 {
     int y = 2;
-    mvwprintz( fac_w, point( width, ++y ), c_light_gray, _( "Attitude to you:           %s" ),
+    mvwprintz( fac_w, point( width, ++y ), c_light_gray, _( "Attitude to you:           {}" ),
                fac_ranking_text( likes_u ) );
     fold_and_print( fac_w, point( width, ++y ), getmaxx( fac_w ) - width - 2, c_light_gray,
-                    "%s", desc );
+                    "{}", desc );
 }
 
 std::string npc::get_current_status() const
@@ -582,7 +582,7 @@ int npc::faction_display( const catacurses::window &fac_w, const int width ) con
                 dest_camp = *temp_camp;
                 dest_string = _( "traveling to: " ) + dest_camp->camp_name();
             } else {
-                dest_string = string_format( _( "traveling to: %s" ), dest->to_string() );
+                dest_string = string_format( _( "traveling to: {}" ), dest->to_string() );
             }
             mission_string = _( "Current Mission: " ) + dest_string;
         } else {
@@ -617,10 +617,10 @@ int npc::faction_display( const catacurses::window &fac_w, const int width ) con
         mvwprintz( fac_w, point( width, ++y ), col, _( "Direction: Nearby" ) );
     }
     if( is_stationed ) {
-        mvwprintz( fac_w, point( width, ++y ), col, _( "Location: %s, at camp: %s" ),
+        mvwprintz( fac_w, point( width, ++y ), col, _( "Location: {}, at camp: {}" ),
                    guy_abspos.to_string(), temp_camp->camp_name() );
     } else {
-        mvwprintz( fac_w, point( width, ++y ), col, _( "Location: %s" ), guy_abspos.to_string() );
+        mvwprintz( fac_w, point( width, ++y ), col, _( "Location: {}" ), guy_abspos.to_string() );
     }
     std::string can_see;
     nc_color see_color;
@@ -680,7 +680,7 @@ int npc::faction_display( const catacurses::window &fac_w, const int width ) con
         can_see = _( "Press enter to recall from their mission." );
         see_color = c_light_red;
     }
-    mvwprintz( fac_w, point( width, ++y ), see_color, "%s", can_see );
+    mvwprintz( fac_w, point( width, ++y ), see_color, "{}", can_see );
     nc_color status_col = col;
     if( current_target() != nullptr ) {
         status_col = c_light_red;
@@ -720,14 +720,14 @@ int npc::faction_display( const catacurses::window &fac_w, const int width ) con
     std::vector<std::string> skill_strs;
     for( size_t i = 0; i < skillslist.size() && count < 3; i++ ) {
         if( !skillslist[ i ]->is_combat_skill() ) {
-            std::string skill_str = string_format( "%s: %d", skillslist[i]->name(),
+            std::string skill_str = string_format( "{}: {}", skillslist[i]->name(),
                                                    get_skill_level( skillslist[i]->ident() ) );
             skill_strs.push_back( skill_str );
             count += 1;
         }
     }
     std::string best_three_noncombat = _( "Best other skills: " );
-    std::string best_skill_text = string_format( _( "Best combat skill: %s: %d" ),
+    std::string best_skill_text = string_format( _( "Best combat skill: {}: {}" ),
                                   best_skill().obj().name(), best_skill_level() );
     mvwprintz( fac_w, point( width, ++y ), col, best_skill_text );
     mvwprintz( fac_w, point( width, ++y ), col, best_three_noncombat + skill_strs[0] );
@@ -920,7 +920,7 @@ void faction_manager::display() const
                     for( size_t i = top_of_page; i < active_vec_size && i < top_of_page + entries_per_page; i++ ) {
                         const int y = i - top_of_page + 3;
                         trim_and_print( w_missions, point( 1, y ), 28, selection == i ? hilite( col ) : col,
-                                        string_format( "%s  %s", colorize( creatures[i]->sym,
+                                        string_format( "{}  {}", colorize( creatures[i]->sym,
                                                        selection == i ? hilite( creatures[i]->color ) : creatures[i]->color ),
                                                        creatures[i]->nname() ) );
                     }
@@ -991,7 +991,7 @@ void faction_manager::display() const
         };
         std::sort( lore.begin(), lore.end(), compare_second );
         if( tab < tab_mode::FIRST_TAB || tab >= tab_mode::NUM_TABS ) {
-            debugmsg( "The sanity check failed because tab=%d", static_cast<int>( tab ) );
+            debugmsg( "The sanity check failed because tab={}", static_cast<int>( tab ) );
             tab = tab_mode::FIRST_TAB;
         }
         creatures.clear();
@@ -1058,7 +1058,7 @@ void faction_manager::display() const
             if( tab == tab_mode::TAB_FOLLOWERS && guy ) {
                 if( guy->has_companion_mission() ) {
                     guy->reset_companion_mission();
-                    popup( _( "%s returns from their mission" ), guy->disp_name() );
+                    popup( _( "{} returns from their mission" ), guy->disp_name() );
                 } else if( interactable || radio_interactable ) {
                     player_character.talk_to( get_talker_for( *guy ), radio_interactable );
                 }

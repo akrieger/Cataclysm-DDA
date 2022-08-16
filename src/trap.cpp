@@ -371,7 +371,7 @@ void trap::check_consistency()
         for( const auto &i : t.components ) {
             const itype_id &item_type = std::get<0>( i );
             if( !item::type_is_defined( item_type ) ) {
-                debugmsg( "trap %s has unknown item as component %s", t.id.str(), item_type.str() );
+                debugmsg( "trap {} has unknown item as component {}", t.id.str(), item_type.str() );
             }
         }
     }
@@ -403,6 +403,6 @@ void trap::finalize()
 
 std::string trap::debug_describe() const
 {
-    return string_format( _( "Visible: %d\nAvoidance: %d\nDifficulty: %d\nBenign: %s" ), visibility,
+    return string_format( _( "Visible: {}\nAvoidance: {}\nDifficulty: {}\nBenign: {}" ), visibility,
                           avoidance, difficulty, is_benign() ? _( "Yes" ) : _( "No" ) );
 }

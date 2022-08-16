@@ -82,7 +82,7 @@ void test_lvalues( const std::string &expected, const char *const pattern, const
 }
 // Test whether formatting min and max values of a given type works. Uses old_pattern
 // for raw printf (which is assumed to match type) and new_pattern for use with
-// string_formatter, which may be different (e.g. "%lli" requires a long long int
+// string_formatter, which may be different (e.g. "{}" requires a long long int
 // in raw printf, but string_formatter will accept an int as well.
 template<typename T>
 void test_typed_printf( const char *const old_pattern, const char *const new_pattern )
@@ -103,36 +103,36 @@ void mingw_test( const char *const old_pattern, const char *const new_pattern, c
 
 TEST_CASE( "string_formatter" )
 {
-    test_typed_printf<signed char>( "%hhi", "%i" );
-    test_typed_printf<unsigned char>( "%hhu", "%u" );
+    test_typed_printf<signed char>( "{}", "{}" );
+    test_typed_printf<unsigned char>( "{}", "{}" );
 
-    test_typed_printf<signed short int>( "%hi", "%i" );
-    test_typed_printf<unsigned short int>( "%hu", "%u" );
+    test_typed_printf<signed short int>( "{}", "{}" );
+    test_typed_printf<unsigned short int>( "{}", "{}" );
 
-    test_typed_printf<signed int>( "%i", nullptr );
-    test_typed_printf<unsigned int>( "%u", nullptr );
+    test_typed_printf<signed int>( "{}", nullptr );
+    test_typed_printf<unsigned int>( "{}", nullptr );
 
-    test_typed_printf<size_t>( "%zu", "%u" );
-    test_typed_printf<ptrdiff_t>( "%td", "%d" );
+    test_typed_printf<size_t>( "{}", "{}" );
+    test_typed_printf<ptrdiff_t>( "{}", "{}" );
 
 #if !defined(__USE_MINGW_ANSI_STDIO) && (defined(__MINGW32__) || defined(__MINGW64__))
-    mingw_test( "%I32i", "%i", std::numeric_limits<signed long int>::max() );
-    mingw_test( "%I32u", "%u", std::numeric_limits<unsigned long int>::max() );
+    mingw_test( "{}", "{}", std::numeric_limits<signed long int>::max() );
+    mingw_test( "{}", "{}", std::numeric_limits<unsigned long int>::max() );
 #else
-    test_typed_printf<signed long int>( "%li", "%i" );
-    test_typed_printf<unsigned long int>( "%lu", "%u" );
+    test_typed_printf<signed long int>( "{}", "{}" );
+    test_typed_printf<unsigned long int>( "{}", "{}" );
 #endif
 
 #if !defined(__USE_MINGW_ANSI_STDIO) && (!defined(__MINGW32__) && defined(__MINGW64__))
-    mingw_test( "%I64i", "%i", std::numeric_limits<signed long long int>::max() );
-    mingw_test( "%I64u", "%u", std::numeric_limits<unsigned long long int>::max() );
+    mingw_test( "{}", "{}", std::numeric_limits<signed long long int>::max() );
+    mingw_test( "{}", "{}", std::numeric_limits<unsigned long long int>::max() );
 #else
-    test_typed_printf<signed long long int>( "%lli", "%i" );
-    test_typed_printf<unsigned long long int>( "%llu", "%u" );
+    test_typed_printf<signed long long int>( "{}", "{}" );
+    test_typed_printf<unsigned long long int>( "{}", "{}" );
 #endif
 
-    test_typed_printf<float>( "%f", "%f" );
-    test_typed_printf<double>( "%f", "%f" );
+    test_typed_printf<float>( "{}", "{}" );
+    test_typed_printf<double>( "{}", "{}" );
 
     // format string with width and precision
     test_new_old_pattern( "%-*.*f", nullptr, 4, 7, 100.44 );
@@ -141,33 +141,33 @@ TEST_CASE( "string_formatter" )
     // not supported, the result is either empty, or the input string
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat"
-    if( cata::string_formatter::raw_string_format( "%2$s||%1$s", "", "" ) == "||" ) {
+    if( cata::string_formatter::raw_string_format( "{2}||{1}", "", "" ) == "||" ) {
 #pragma GCC diagnostic pop
-        test_new_old_pattern( "%6$-*5$.*4$f%3$s%2$s%1$s", "%6$-*5$.*4$f", "", "", "", 7, 4, 100.44 );
+        test_new_old_pattern( "{}$-*5$.*4$f{3}{2}{1}", "{}$-*5$.*4$f", "", "", "", 7, 4, 100.44 );
     }
 
     test_for_expected( "", "", "whatever", 5, 0.4 );
-    test_for_expected( "1 2 3 4 5", "%d %d %d %d %d", 1, 2, 3, 4, 5 );
+    test_for_expected( "1 2 3 4 5", "{} {} {} {} {}", 1, 2, 3, 4, 5 );
 
     // test automatic type conversion
-    test_for_expected( "53", "%d", '5' );
-    test_for_expected( "5", "%c", '5' );
-    test_for_expected( "5", "%s", '5' );
-    test_for_expected( "5", "%c", '5' );
-    test_for_expected( "5", "%c", static_cast<int>( '5' ) );
-    test_for_expected( "5", "%s", '5' );
-    test_for_expected( "55", "%s", "55" );
-    test_for_expected( "5", "%s", 5 );
+    test_for_expected( "53", "{}", '5' );
+    test_for_expected( "5", "{}", '5' );
+    test_for_expected( "5", "{}", '5' );
+    test_for_expected( "5", "{}", '5' );
+    test_for_expected( "5", "{}", static_cast<int>( '5' ) );
+    test_for_expected( "5", "{}", '5' );
+    test_for_expected( "55", "{}", "55" );
+    test_for_expected( "5", "{}", 5 );
 
-    test_lvalues<std::string>( "foo", "%s", "foo" );
-    test_lvalues<const char *>( "bar", "%s", "bar" );
-    test_lvalues<int>( "0", "%i", 0 );
+    test_lvalues<std::string>( "foo", "{}", "foo" );
+    test_lvalues<const char *>( "bar", "{}", "bar" );
+    test_lvalues<int>( "0", "{}", 0 );
 
     {
         std::string long_string( 100000, 'a' );
         const std::string expected = "b" + long_string + "b";
         // moving into string_format should *not* consume the string.
-        test_for_expected( expected, "b%sb", std::move( long_string ) );
+        test_for_expected( expected, "b{}", std::move( long_string ) );
         // NOLINTNEXTLINE(bugprone-use-after-move)
         CHECK( long_string.size() == 100000 );
     }
@@ -181,7 +181,7 @@ TEST_CASE( "string_formatter" )
 
     importet_test( 1, "0.33", "%.*f", 2, 0.33333333 );
     importet_test( 2, "foo", "%.3s", "foobar" );
-    importet_test( 3, "     00004", "%10.5d", 4 );
+    importet_test( 3, "     00004", "{}.5d", 4 );
     importet_test( 416, "hi x\\n", "%*sx\\n", -3, "hi" );
     importet_test( 4, " 42", "% d", 42 );
     importet_test( 5, "-42", "% d", -42 );
@@ -195,12 +195,12 @@ TEST_CASE( "string_formatter" )
     importet_test( 13, "  -42", "%+5d", -42 );
     importet_test( 14, "            +42", "%+15d", 42 );
     importet_test( 15, "            -42", "%+15d", -42 );
-    importet_test( 16, "42", "%0d", 42 );
-    importet_test( 17, "-42", "%0d", -42 );
-    importet_test( 18, "00042", "%05d", 42 );
-    importet_test( 19, "-0042", "%05d", -42 );
-    importet_test( 20, "000000000000042", "%015d", 42 );
-    importet_test( 21, "-00000000000042", "%015d", -42 );
+    importet_test( 16, "42", "{}", 42 );
+    importet_test( 17, "-42", "{}", -42 );
+    importet_test( 18, "00042", "{}", 42 );
+    importet_test( 19, "-0042", "{}", -42 );
+    importet_test( 20, "000000000000042", "{}", 42 );
+    importet_test( 21, "-00000000000042", "{}", -42 );
     importet_test( 22, "42", "%-d", 42 );
     importet_test( 23, "-42", "%-d", -42 );
     importet_test( 24, "42   ", "%-5d", 42 );
@@ -213,27 +213,27 @@ TEST_CASE( "string_formatter" )
     importet_test( 31, "-42  ", "%-05d", -42 );
     importet_test( 32, "42             ", "%-015d", 42 );
     importet_test( 33, "-42            ", "%-015d", -42 );
-    importet_test( 34, "42", "%0-d", 42 );
-    importet_test( 35, "-42", "%0-d", -42 );
-    importet_test( 36, "42   ", "%0-5d", 42 );
-    importet_test( 37, "-42  ", "%0-5d", -42 );
-    importet_test( 38, "42             ", "%0-15d", 42 );
-    importet_test( 39, "-42            ", "%0-15d", -42 );
+    importet_test( 34, "42", "{}-d", 42 );
+    importet_test( 35, "-42", "{}-d", -42 );
+    importet_test( 36, "42   ", "{}-5d", 42 );
+    importet_test( 37, "-42  ", "{}-5d", -42 );
+    importet_test( 38, "42             ", "{}-15d", 42 );
+    importet_test( 39, "-42            ", "{}-15d", -42 );
     importet_test( 43, "42.90", "%.2f", 42.8952 );
 #if !(defined(__MINGW32__) || defined(__MINGW64__))
     // Omit this one that fails on Mingw
     importet_test( 44, "42.90", "%.2F", 42.8952 );
 #endif
     importet_test( 45, "42.8952000000", "%.10f", 42.8952 );
-    importet_test( 46, "42.90", "%1.2f", 42.8952 );
-    importet_test( 47, " 42.90", "%6.2f", 42.8952 );
+    importet_test( 46, "42.90", "{}.2f", 42.8952 );
+    importet_test( 47, " 42.90", "{}.2f", 42.8952 );
     importet_test( 49, "+42.90", "%+6.2f", 42.8952 );
-    importet_test( 50, "42.8952000000", "%5.10f", 42.8952 );
+    importet_test( 50, "42.8952000000", "{}.10f", 42.8952 );
     /* 51: anti-test */
     /* 52: anti-test */
     /* 53: excluded for C */
-    importet_test( 55, "Hot Pocket", "%1$s %2$s", "Hot", "Pocket" );
-    importet_test( 56, "12.0 Hot Pockets", "%1$.1f %2$s %3$ss", 12.0, "Hot", "Pocket" );
+    importet_test( 55, "Hot Pocket", "{1} {2}", "Hot", "Pocket" );
+    importet_test( 56, "12.0 Hot Pockets", "{}$.1f {2} {3}", 12.0, "Hot", "Pocket" );
     /* 58: anti-test */
     // importet_test( 59, "%(foo", "%(foo" ); // format is invalid
     importet_test( 60, " foo", "%*s", 4, "foo" );
@@ -241,12 +241,12 @@ TEST_CASE( "string_formatter" )
     importet_test( 63, "3.14      ", "%-*.*f", 10, 2, 3.14159265 );
     /* 64: anti-test */
     /* 65: anti-test */
-    importet_test( 66, "+hello+", "+%s+", "hello" );
-    importet_test( 67, "+10+", "+%d+", 10 );
-    importet_test( 68, "a", "%c", 'a' );
-    importet_test( 69, " ", "%c", 32 );
-    importet_test( 70, "$", "%c", 36 );
-    importet_test( 71, "10", "%d", 10 );
+    importet_test( 66, "+hello+", "+{}+", "hello" );
+    importet_test( 67, "+10+", "+{}+", 10 );
+    importet_test( 68, "a", "{}", 'a' );
+    importet_test( 69, " ", "{}", 32 );
+    importet_test( 70, "$", "{}", 36 );
+    importet_test( 71, "10", "{}", 10 );
     /* 72: anti-test */
     /* 73: anti-test */
     /* 74: excluded for C */
@@ -254,18 +254,18 @@ TEST_CASE( "string_formatter" )
     importet_test( 81, "    +100", "%+8lld", 100LL );
     importet_test( 82, "+00000100", "%+.8lld", 100LL );
     importet_test( 83, " +00000100", "%+10.8lld", 100LL );
-    // importet_test( 84, "%_1lld", "%_1lld", 100LL ); // format is invalid
+    // importet_test( 84, "{}", "{}", 100LL ); // format is invalid
     importet_test( 85, "-00100", "%-1.5lld", -100LL );
-    importet_test( 86, "  100", "%5lld", 100LL );
-    importet_test( 87, " -100", "%5lld", -100LL );
+    importet_test( 86, "  100", "{}", 100LL );
+    importet_test( 87, " -100", "{}", -100LL );
     importet_test( 88, "100  ", "%-5lld", 100LL );
     importet_test( 89, "-100 ", "%-5lld", -100LL );
     importet_test( 90, "00100", "%-.5lld", 100LL );
     importet_test( 91, "-00100", "%-.5lld", -100LL );
     importet_test( 92, "00100   ", "%-8.5lld", 100LL );
     importet_test( 93, "-00100  ", "%-8.5lld", -100LL );
-    importet_test( 94, "00100", "%05lld", 100LL );
-    importet_test( 95, "-0100", "%05lld", -100LL );
+    importet_test( 94, "00100", "{}", 100LL );
+    importet_test( 95, "-0100", "{}", -100LL );
     importet_test( 96, " 100", "% lld", 100LL );
     importet_test( 97, "-100", "% lld", -100LL );
     importet_test( 98, "  100", "% 5lld", 100LL );
@@ -305,50 +305,50 @@ TEST_CASE( "string_formatter" )
     // We are warning/erroring when not passing a format argument, i.e.
     // error: format not a string literal and no format arguments [-Werror=format-security]
     // importet_test( 145, "hello", "hello" );
-    // importet_test( 147, "%b", "%b" ); // 'b' is not valid format specifier
-    importet_test( 148, "  a", "%3c", 'a' );
-    importet_test( 149, "1234", "%3d", 1234 );
+    // importet_test( 147, "{}", "{}" ); // 'b' is not valid format specifier
+    importet_test( 148, "  a", "{}", 'a' );
+    importet_test( 149, "1234", "{}", 1234 );
     /* 150: excluded for C */
     importet_test( 152, "2", "%-1d", 2 );
-    importet_test( 153, "8.6000", "%2.4f", 8.6 );
-    importet_test( 154, "0.600000", "%0f", 0.6 );
+    importet_test( 153, "8.6000", "{}.4f", 8.6 );
+    importet_test( 154, "0.600000", "{}", 0.6 );
     importet_test( 155, "1", "%.0f", 0.6 );
-    importet_test( 161, "8.6", "%2.4g", 8.6 );
+    importet_test( 161, "8.6", "{}.4g", 8.6 );
     importet_test( 162, "-1", "%-i", -1 );
     importet_test( 163, "1", "%-i", 1 );
     importet_test( 164, "+1", "%+i", 1 );
-    importet_test( 165, "12", "%o", 10 );
+    importet_test( 165, "12", "{}", 10 );
     /* 166: excluded for C */
     /* 167: excluded for C */
-    importet_test( 169, "%%%%", "%s", "%%%%" );
-    // importet_test( 170, "4294967295", "%u", -1 ); // -1 is not a unsigned int
-    // importet_test( 171, "%w", "%w", -1 ); // 'w' is not a valid format specifier
+    importet_test( 169, "%%%%", "{}", "%%%%" );
+    // importet_test( 170, "4294967295", "{}", -1 ); // -1 is not a unsigned int
+    // importet_test( 171, "{}", "{}", -1 ); // 'w' is not a valid format specifier
     /* 172: excluded for C */
     /* 173: excluded for C */
     /* 174: excluded for C */
-    // importet_test( 176, "%H", "%H", -1 ); // 'H' is not a valid format specifier
+    // importet_test( 176, "{}", "{}", -1 ); // 'H' is not a valid format specifier
     // We are warning/erroring when not passing a format argument, i.e.
     // error: format not a string literal and no format arguments [-Werror=format-security]
-    // importet_test( 177, "%0", "%%0" );
-    // importet_test( 178, "2345", "%hx", 74565 ); // 74565 is not a valid short int, as required by %hx
-    importet_test( 179, "61", "%hhx", 'a' );
+    // importet_test( 177, "{}", "%{}" );
+    // importet_test( 178, "2345", "{}", 74565 ); // 74565 is not a valid short int, as required by {}
+    importet_test( 179, "61", "{}", 'a' );
     // We are warning/erroring when not passing a format argument, i.e.
     // error: format not a string literal and no format arguments [-Werror=format-security]
     // importet_test( 181, "Hallo heimur", "Hallo heimur" );
-    importet_test( 182, "Hallo heimur", "%s", "Hallo heimur" );
-    importet_test( 183, "1024", "%d", 1024 );
-    importet_test( 184, "-1024", "%d", -1024 );
-    importet_test( 185, "1024", "%i", 1024 );
-    importet_test( 186, "-1024", "%i", -1024 );
-    importet_test( 187, "1024", "%u", 1024 );
-    importet_test( 188, "4294966272", "%u", 4294966272U );
-    importet_test( 189, "777", "%o", 511 );
-    importet_test( 190, "37777777001", "%o", 4294966785U );
-    importet_test( 191, "1234abcd", "%x", 305441741 );
-    importet_test( 192, "edcb5433", "%x", 3989525555U );
-    importet_test( 193, "1234ABCD", "%X", 305441741 );
-    importet_test( 194, "EDCB5433", "%X", 3989525555U );
-    importet_test( 195, "x", "%c", 'x' );
+    importet_test( 182, "Hallo heimur", "{}", "Hallo heimur" );
+    importet_test( 183, "1024", "{}", 1024 );
+    importet_test( 184, "-1024", "{}", -1024 );
+    importet_test( 185, "1024", "{}", 1024 );
+    importet_test( 186, "-1024", "{}", -1024 );
+    importet_test( 187, "1024", "{}", 1024 );
+    importet_test( 188, "4294966272", "{}", 4294966272U );
+    importet_test( 189, "777", "{}", 511 );
+    importet_test( 190, "37777777001", "{}", 4294966785U );
+    importet_test( 191, "1234abcd", "{}", 305441741 );
+    importet_test( 192, "edcb5433", "{}", 3989525555U );
+    importet_test( 193, "1234ABCD", "{}", 305441741 );
+    importet_test( 194, "EDCB5433", "{}", 3989525555U );
+    importet_test( 195, "x", "{}", 'x' );
     // We are warning/erroring when not passing a format argument, i.e.
     // error: format not a string literal and no format arguments [-Werror=format-security]
     // importet_test( 196, "%", "%%" );
@@ -397,34 +397,34 @@ TEST_CASE( "string_formatter" )
     importet_test( 245, "0", "%#o", 0U );
     importet_test( 246, "0", "%#x", 0U );
     importet_test( 247, "0", "%#X", 0U );
-    importet_test( 248, "Hallo heimur", "%1s", "Hallo heimur" );
-    importet_test( 249, "1024", "%1d", 1024 );
-    importet_test( 250, "-1024", "%1d", -1024 );
-    importet_test( 251, "1024", "%1i", 1024 );
-    importet_test( 252, "-1024", "%1i", -1024 );
-    importet_test( 253, "1024", "%1u", 1024 );
-    importet_test( 254, "4294966272", "%1u", 4294966272U );
-    importet_test( 255, "777", "%1o", 511 );
-    importet_test( 256, "37777777001", "%1o", 4294966785U );
-    importet_test( 257, "1234abcd", "%1x", 305441741 );
-    importet_test( 258, "edcb5433", "%1x", 3989525555U );
-    importet_test( 259, "1234ABCD", "%1X", 305441741 );
-    importet_test( 260, "EDCB5433", "%1X", 3989525555U );
-    importet_test( 261, "x", "%1c", 'x' );
-    importet_test( 262, "               Hallo", "%20s", "Hallo" );
-    importet_test( 263, "                1024", "%20d", 1024 );
-    importet_test( 264, "               -1024", "%20d", -1024 );
-    importet_test( 265, "                1024", "%20i", 1024 );
-    importet_test( 266, "               -1024", "%20i", -1024 );
-    importet_test( 267, "                1024", "%20u", 1024 );
-    importet_test( 268, "          4294966272", "%20u", 4294966272U );
-    importet_test( 269, "                 777", "%20o", 511 );
-    importet_test( 270, "         37777777001", "%20o", 4294966785U );
-    importet_test( 271, "            1234abcd", "%20x", 305441741 );
-    importet_test( 272, "            edcb5433", "%20x", 3989525555U );
-    importet_test( 273, "            1234ABCD", "%20X", 305441741 );
-    importet_test( 274, "            EDCB5433", "%20X", 3989525555U );
-    importet_test( 275, "                   x", "%20c", 'x' );
+    importet_test( 248, "Hallo heimur", "{}", "Hallo heimur" );
+    importet_test( 249, "1024", "{}", 1024 );
+    importet_test( 250, "-1024", "{}", -1024 );
+    importet_test( 251, "1024", "{}", 1024 );
+    importet_test( 252, "-1024", "{}", -1024 );
+    importet_test( 253, "1024", "{}", 1024 );
+    importet_test( 254, "4294966272", "{}", 4294966272U );
+    importet_test( 255, "777", "{}", 511 );
+    importet_test( 256, "37777777001", "{}", 4294966785U );
+    importet_test( 257, "1234abcd", "{}", 305441741 );
+    importet_test( 258, "edcb5433", "{}", 3989525555U );
+    importet_test( 259, "1234ABCD", "{}", 305441741 );
+    importet_test( 260, "EDCB5433", "{}", 3989525555U );
+    importet_test( 261, "x", "{}", 'x' );
+    importet_test( 262, "               Hallo", "{}", "Hallo" );
+    importet_test( 263, "                1024", "{}", 1024 );
+    importet_test( 264, "               -1024", "{}", -1024 );
+    importet_test( 265, "                1024", "{}", 1024 );
+    importet_test( 266, "               -1024", "{}", -1024 );
+    importet_test( 267, "                1024", "{}", 1024 );
+    importet_test( 268, "          4294966272", "{}", 4294966272U );
+    importet_test( 269, "                 777", "{}", 511 );
+    importet_test( 270, "         37777777001", "{}", 4294966785U );
+    importet_test( 271, "            1234abcd", "{}", 305441741 );
+    importet_test( 272, "            edcb5433", "{}", 3989525555U );
+    importet_test( 273, "            1234ABCD", "{}", 305441741 );
+    importet_test( 274, "            EDCB5433", "{}", 3989525555U );
+    importet_test( 275, "                   x", "{}", 'x' );
     importet_test( 276, "Hallo               ", "%-20s", "Hallo" );
     importet_test( 277, "1024                ", "%-20d", 1024 );
     importet_test( 278, "-1024               ", "%-20d", -1024 );
@@ -439,18 +439,18 @@ TEST_CASE( "string_formatter" )
     importet_test( 287, "1234ABCD            ", "%-20X", 305441741 );
     importet_test( 288, "EDCB5433            ", "%-20X", 3989525555U );
     importet_test( 289, "x                   ", "%-20c", 'x' );
-    importet_test( 290, "00000000000000001024", "%020d", 1024 );
-    importet_test( 291, "-0000000000000001024", "%020d", -1024 );
-    importet_test( 292, "00000000000000001024", "%020i", 1024 );
-    importet_test( 293, "-0000000000000001024", "%020i", -1024 );
-    importet_test( 294, "00000000000000001024", "%020u", 1024 );
-    importet_test( 295, "00000000004294966272", "%020u", 4294966272U );
-    importet_test( 296, "00000000000000000777", "%020o", 511 );
-    importet_test( 297, "00000000037777777001", "%020o", 4294966785U );
-    importet_test( 298, "0000000000001234abcd", "%020x", 305441741 );
-    importet_test( 299, "000000000000edcb5433", "%020x", 3989525555U );
-    importet_test( 300, "0000000000001234ABCD", "%020X", 305441741 );
-    importet_test( 301, "000000000000EDCB5433", "%020X", 3989525555U );
+    importet_test( 290, "00000000000000001024", "{}", 1024 );
+    importet_test( 291, "-0000000000000001024", "{}", -1024 );
+    importet_test( 292, "00000000000000001024", "{}", 1024 );
+    importet_test( 293, "-0000000000000001024", "{}", -1024 );
+    importet_test( 294, "00000000000000001024", "{}", 1024 );
+    importet_test( 295, "00000000004294966272", "{}", 4294966272U );
+    importet_test( 296, "00000000000000000777", "{}", 511 );
+    importet_test( 297, "00000000037777777001", "{}", 4294966785U );
+    importet_test( 298, "0000000000001234abcd", "{}", 305441741 );
+    importet_test( 299, "000000000000edcb5433", "{}", 3989525555U );
+    importet_test( 300, "0000000000001234ABCD", "{}", 305441741 );
+    importet_test( 301, "000000000000EDCB5433", "{}", 3989525555U );
     importet_test( 302, "                0777", "%#20o", 511 );
     importet_test( 303, "        037777777001", "%#20o", 4294966785U );
     importet_test( 304, "          0x1234abcd", "%#20x", 305441741 );
@@ -463,13 +463,13 @@ TEST_CASE( "string_formatter" )
     importet_test( 311, "0x0000000000edcb5433", "%#020x", 3989525555U );
     importet_test( 312, "0X00000000001234ABCD", "%#020X", 305441741 );
     importet_test( 313, "0X0000000000EDCB5433", "%#020X", 3989525555U );
-    importet_test( 314, "Hallo               ", "%0-20s", "Hallo" );
-    importet_test( 315, "1024                ", "%0-20d", 1024 );
-    importet_test( 316, "-1024               ", "%0-20d", -1024 );
-    importet_test( 317, "1024                ", "%0-20i", 1024 );
-    importet_test( 318, "-1024               ", "%0-20i", -1024 );
-    importet_test( 319, "1024                ", "%0-20u", 1024 );
-    importet_test( 320, "4294966272          ", "%0-20u", 4294966272U );
+    importet_test( 314, "Hallo               ", "{}-20s", "Hallo" );
+    importet_test( 315, "1024                ", "{}-20d", 1024 );
+    importet_test( 316, "-1024               ", "{}-20d", -1024 );
+    importet_test( 317, "1024                ", "{}-20i", 1024 );
+    importet_test( 318, "-1024               ", "{}-20i", -1024 );
+    importet_test( 319, "1024                ", "{}-20u", 1024 );
+    importet_test( 320, "4294966272          ", "{}-20u", 4294966272U );
     importet_test( 321, "777                 ", "%-020o", 511 );
     importet_test( 322, "37777777001         ", "%-020o", 4294966785U );
     importet_test( 323, "1234abcd            ", "%-020x", 305441741 );
@@ -504,56 +504,56 @@ TEST_CASE( "string_formatter" )
     importet_test( 352, "000000000000edcb5433", "%.20x", 3989525555U );
     importet_test( 353, "0000000000001234ABCD", "%.20X", 305441741 );
     importet_test( 354, "000000000000EDCB5433", "%.20X", 3989525555U );
-    importet_test( 355, "               Hallo", "%20.5s", "Hallo heimur" );
-    importet_test( 356, "               01024", "%20.5d", 1024 );
-    importet_test( 357, "              -01024", "%20.5d", -1024 );
-    importet_test( 358, "               01024", "%20.5i", 1024 );
-    importet_test( 359, "              -01024", "%20.5i", -1024 );
-    importet_test( 360, "               01024", "%20.5u", 1024 );
-    importet_test( 361, "          4294966272", "%20.5u", 4294966272U );
-    importet_test( 362, "               00777", "%20.5o", 511 );
-    importet_test( 363, "         37777777001", "%20.5o", 4294966785U );
-    importet_test( 364, "            1234abcd", "%20.5x", 305441741 );
-    importet_test( 365, "          00edcb5433", "%20.10x", 3989525555U );
-    importet_test( 366, "            1234ABCD", "%20.5X", 305441741 );
-    importet_test( 367, "          00EDCB5433", "%20.10X", 3989525555U );
+    importet_test( 355, "               Hallo", "{}.5s", "Hallo heimur" );
+    importet_test( 356, "               01024", "{}.5d", 1024 );
+    importet_test( 357, "              -01024", "{}.5d", -1024 );
+    importet_test( 358, "               01024", "{}.5i", 1024 );
+    importet_test( 359, "              -01024", "{}.5i", -1024 );
+    importet_test( 360, "               01024", "{}.5u", 1024 );
+    importet_test( 361, "          4294966272", "{}.5u", 4294966272U );
+    importet_test( 362, "               00777", "{}.5o", 511 );
+    importet_test( 363, "         37777777001", "{}.5o", 4294966785U );
+    importet_test( 364, "            1234abcd", "{}.5x", 305441741 );
+    importet_test( 365, "          00edcb5433", "{}.10x", 3989525555U );
+    importet_test( 366, "            1234ABCD", "{}.5X", 305441741 );
+    importet_test( 367, "          00EDCB5433", "{}.10X", 3989525555U );
 #if !(defined(__MINGW32__) || defined(__MINGW64__))
     // Omit these ones that fail on Mingw
-    importet_test( 369, "               01024", "%020.5d", 1024 );
-    importet_test( 370, "              -01024", "%020.5d", -1024 );
-    importet_test( 371, "               01024", "%020.5i", 1024 );
-    importet_test( 372, "              -01024", "%020.5i", -1024 );
-    importet_test( 373, "               01024", "%020.5u", 1024 );
-    importet_test( 374, "          4294966272", "%020.5u", 4294966272U );
-    importet_test( 375, "               00777", "%020.5o", 511 );
-    importet_test( 376, "         37777777001", "%020.5o", 4294966785U );
-    importet_test( 377, "            1234abcd", "%020.5x", 305441741 );
-    importet_test( 378, "          00edcb5433", "%020.10x", 3989525555U );
-    importet_test( 379, "            1234ABCD", "%020.5X", 305441741 );
-    importet_test( 380, "          00EDCB5433", "%020.10X", 3989525555U );
+    importet_test( 369, "               01024", "{}.5d", 1024 );
+    importet_test( 370, "              -01024", "{}.5d", -1024 );
+    importet_test( 371, "               01024", "{}.5i", 1024 );
+    importet_test( 372, "              -01024", "{}.5i", -1024 );
+    importet_test( 373, "               01024", "{}.5u", 1024 );
+    importet_test( 374, "          4294966272", "{}.5u", 4294966272U );
+    importet_test( 375, "               00777", "{}.5o", 511 );
+    importet_test( 376, "         37777777001", "{}.5o", 4294966785U );
+    importet_test( 377, "            1234abcd", "{}.5x", 305441741 );
+    importet_test( 378, "          00edcb5433", "{}.10x", 3989525555U );
+    importet_test( 379, "            1234ABCD", "{}.5X", 305441741 );
+    importet_test( 380, "          00EDCB5433", "{}.10X", 3989525555U );
 #endif
     importet_test( 381, "", "%.0s", "Hallo heimur" );
-    importet_test( 382, "                    ", "%20.0s", "Hallo heimur" );
+    importet_test( 382, "                    ", "{}.0s", "Hallo heimur" );
     importet_test( 383, "", "%.s", "Hallo heimur" );
-    importet_test( 384, "                    ", "%20.s", "Hallo heimur" );
-    importet_test( 385, "                1024", "%20.0d", 1024 );
-    importet_test( 386, "               -1024", "%20.d", -1024 );
-    importet_test( 387, "                    ", "%20.d", 0 );
-    importet_test( 388, "                1024", "%20.0i", 1024 );
-    importet_test( 389, "               -1024", "%20.i", -1024 );
-    importet_test( 390, "                    ", "%20.i", 0 );
-    importet_test( 391, "                1024", "%20.u", 1024 );
-    importet_test( 392, "          4294966272", "%20.0u", 4294966272U );
-    importet_test( 393, "                    ", "%20.u", 0U );
-    importet_test( 394, "                 777", "%20.o", 511 );
-    importet_test( 395, "         37777777001", "%20.0o", 4294966785U );
-    importet_test( 396, "                    ", "%20.o", 0U );
-    importet_test( 397, "            1234abcd", "%20.x", 305441741 );
-    importet_test( 398, "            edcb5433", "%20.0x", 3989525555U );
-    importet_test( 399, "                    ", "%20.x", 0U );
-    importet_test( 400, "            1234ABCD", "%20.X", 305441741 );
-    importet_test( 401, "            EDCB5433", "%20.0X", 3989525555U );
-    importet_test( 402, "                    ", "%20.X", 0U );
+    importet_test( 384, "                    ", "{}.s", "Hallo heimur" );
+    importet_test( 385, "                1024", "{}.0d", 1024 );
+    importet_test( 386, "               -1024", "{}.d", -1024 );
+    importet_test( 387, "                    ", "{}.d", 0 );
+    importet_test( 388, "                1024", "{}.0i", 1024 );
+    importet_test( 389, "               -1024", "{}.i", -1024 );
+    importet_test( 390, "                    ", "{}.i", 0 );
+    importet_test( 391, "                1024", "{}.u", 1024 );
+    importet_test( 392, "          4294966272", "{}.0u", 4294966272U );
+    importet_test( 393, "                    ", "{}.u", 0U );
+    importet_test( 394, "                 777", "{}.o", 511 );
+    importet_test( 395, "         37777777001", "{}.0o", 4294966785U );
+    importet_test( 396, "                    ", "{}.o", 0U );
+    importet_test( 397, "            1234abcd", "{}.x", 305441741 );
+    importet_test( 398, "            edcb5433", "{}.0x", 3989525555U );
+    importet_test( 399, "                    ", "{}.x", 0U );
+    importet_test( 400, "            1234ABCD", "{}.X", 305441741 );
+    importet_test( 401, "            EDCB5433", "{}.0X", 3989525555U );
+    importet_test( 402, "                    ", "{}.X", 0U );
     importet_test( 403, "Hallo               ", "% -0+*.*s", 20, 5, "Hallo heimur" );
     importet_test( 404, "+01024              ", "% -0+*.*d", 20, 5, 1024 );
     importet_test( 405, "-01024              ", "% -0+*.*d", 20, 5, -1024 );
@@ -569,16 +569,16 @@ TEST_CASE( "string_formatter" )
 
 TEST_CASE( "string_formatter_errors" )
 {
-    CHECK_THROWS( test_for_error( "%6$-*5$.*4$f", 1, 2, 3 ) );
-    CHECK_THROWS( test_for_error( "%6$-*5$.*4$f", 1, 2, 3, 4 ) );
-    CHECK_THROWS( test_for_error( "%6$-*5$.*4$f", 1, 2, 3, 4, 5 ) );
+    CHECK_THROWS( test_for_error( "{}$-*5$.*4$f", 1, 2, 3 ) );
+    CHECK_THROWS( test_for_error( "{}$-*5$.*4$f", 1, 2, 3, 4 ) );
+    CHECK_THROWS( test_for_error( "{}$-*5$.*4$f", 1, 2, 3, 4, 5 ) );
 
     // invalid format specifier
-    CHECK_THROWS( test_for_error( "%k" ) );
+    CHECK_THROWS( test_for_error( "{}" ) );
     // can't print a void pointer
-    CHECK_THROWS( test_for_error( "%s", static_cast<void *>( nullptr ) ) );
-    CHECK_THROWS( test_for_error( "%d", static_cast<void *>( nullptr ) ) );
-    CHECK_THROWS( test_for_error( "%d", "some string" ) );
+    CHECK_THROWS( test_for_error( "{}", static_cast<void *>( nullptr ) ) );
+    CHECK_THROWS( test_for_error( "{}", static_cast<void *>( nullptr ) ) );
+    CHECK_THROWS( test_for_error( "{}", "some string" ) );
 
-    CHECK_THROWS( test_for_error( "%d %d %d %d %d", 1, 2, 3, 4 ) );
+    CHECK_THROWS( test_for_error( "{} {} {} {} {}", 1, 2, 3, 4 ) );
 }

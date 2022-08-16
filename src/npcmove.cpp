@@ -715,7 +715,7 @@ float npc::character_danger( const Character &uc ) const
 
     ret *= std::max( 0.5, uc.get_speed() / 100.0 );
 
-    add_msg_debug( debugmode::DF_NPC, "%s danger: %1f", uc.disp_name(), ret );
+    add_msg_debug( debugmode::DF_NPC, "{} danger: {}", uc.disp_name(), ret );
     return ret;
 }
 
@@ -809,7 +809,7 @@ void npc::move()
     if( !confident_range_cache ) {
         invalidate_range_cache();
     }
-    add_msg_debug( debugmode::DF_NPC, "NPC %s: target = %s, danger = %.1f, range = %d",
+    add_msg_debug( debugmode::DF_NPC, "NPC {}: target = {}, danger = %.1f, range = {}",
                    get_name(), target_name, ai_cache.danger, *confident_range_cache );
 
     Character &player_character = get_player_character();
@@ -818,7 +818,7 @@ void npc::move()
         if( is_player_ally() ) {
             mutiny();
         }
-        add_msg_debug( debugmode::DF_NPC, "NPC %s turning hostile because is guaranteed_hostile()",
+        add_msg_debug( debugmode::DF_NPC, "NPC {} turning hostile because is guaranteed_hostile()",
                        get_name() );
         if( op_of_u.fear > 10 + personality.aggression + personality.bravery ) {
             set_attitude( NPCATT_FLEE_TEMP );    // We don't want to take u on!
@@ -893,12 +893,12 @@ void npc::move()
             }
         }
         if( action == npc_investigate_sound ) {
-            add_msg_debug( debugmode::DF_NPC, "NPC %s: investigating sound at x(%d) y(%d)", get_name(),
+            add_msg_debug( debugmode::DF_NPC, "NPC {}: investigating sound at x({}) y({})", get_name(),
                            ai_cache.s_abs_pos.x, ai_cache.s_abs_pos.y );
         }
     } else if( ai_cache.sound_alerts.empty() && ai_cache.guard_pos ) {
         tripoint return_guard_pos = *ai_cache.guard_pos;
-        add_msg_debug( debugmode::DF_NPC, "NPC %s: returning to guard spot at x(%d) y(%d)", get_name(),
+        add_msg_debug( debugmode::DF_NPC, "NPC {}: returning to guard spot at x({}) y({})", get_name(),
                        return_guard_pos.x, return_guard_pos.y );
         action = npc_return_to_guard_pos;
     } else {
@@ -906,11 +906,11 @@ void npc::move()
         cleanup_on_no_danger();
 
         action = address_needs();
-        print_action( "address_needs %s", action );
+        print_action( "address_needs {}", action );
 
         if( action == npc_undecided ) {
             action = address_player();
-            print_action( "address_player %s", action );
+            print_action( "address_player {}", action );
         }
     }
 
@@ -988,7 +988,7 @@ void npc::move()
             return;
         } else if( !fetching_item ) {
             find_item();
-            print_action( "find_item %s", action );
+            print_action( "find_item {}", action );
         } else if( assigned_camp ) {
             // this should be covered above, but justincase to stop them zooming away.
             action = npc_pause;
@@ -1009,7 +1009,7 @@ void npc::move()
         if( action == npc_undecided ) {
             // Do our long-term action
             action = long_term_goal_action();
-            print_action( "long_term_goal_action %s", action );
+            print_action( "long_term_goal_action {}", action );
         }
     }
 
@@ -1030,7 +1030,7 @@ void npc::move()
         action = method_of_attack();
     }
 
-    add_msg_debug( debugmode::DF_NPC, "%s chose action %s.", get_name(), npc_action_name( action ) );
+    add_msg_debug( debugmode::DF_NPC, "{} chose action {}.", get_name(), npc_action_name( action ) );
     execute_action( action );
 }
 
@@ -1045,7 +1045,7 @@ void npc::execute_action( npc_action action )
         tar = cur->pos();
     }
     /*
-      debugmsg("%s ran execute_action() with target = %d! Action %s",
+      debugmsg("{} ran execute_action() with target = {}! Action {}",
                name, target, npc_action_name(action));
     */
 
@@ -1122,7 +1122,7 @@ void npc::execute_action( npc_action action )
                     activate_bionic_by_id( bio_soporific );
                     add_effect( effect_lying_down, 30_minutes, false, 1 );
                     if( !player_character.in_sleep_state() ) {
-                        add_msg_if_player_sees( *this, _( "%s lies down to sleep." ), get_name() );
+                        add_msg_if_player_sees( *this, _( "{} lies down to sleep." ), get_name() );
                     }
                 }
             } else {
@@ -1386,15 +1386,15 @@ void npc::execute_action( npc_action action )
             break;
 
         case npc_noop:
-            add_msg_debug( debugmode::DF_NPC, "%s skips turn (noop)", disp_name() );
+            add_msg_debug( debugmode::DF_NPC, "{} skips turn (noop)", disp_name() );
             return;
 
         default:
-            debugmsg( "Unknown NPC action (%d)", action );
+            debugmsg( "Unknown NPC action ({})", action );
     }
 
     if( oldmoves == moves ) {
-        add_msg_debug( debugmode::DF_NPC, "NPC didn't use its moves.  Action %s (%d).",
+        add_msg_debug( debugmode::DF_NPC, "NPC didn't use its moves.  Action {} ({}).",
                        npc_action_name( action ), action );
     }
 }
@@ -1435,7 +1435,7 @@ npc_action npc::method_of_attack()
     if( potential && *potential > 0 ) {
         return npc_do_attack;
     } else {
-        add_msg_debug( debugmode::debug_filter::DF_NPC, "%s can't figure out what to do", disp_name() );
+        add_msg_debug( debugmode::debug_filter::DF_NPC, "{} can't figure out what to do", disp_name() );
         return npc_undecided;
     }
 }
@@ -1764,7 +1764,7 @@ void outfit::activate_combat_items( npc &guy )
             }
             if( transform->can_use( guy, candidate, false, tripoint_zero ).success() ) {
                 transform->use( guy, candidate, false, tripoint_zero );
-                guy.add_msg_if_npc( _( "<npcname> activates their %s." ), candidate.display_name() );
+                guy.add_msg_if_npc( _( "<npcname> activates their {}." ), candidate.display_name() );
             }
         }
     }
@@ -1784,7 +1784,7 @@ void outfit::deactivate_combat_items( npc &guy )
                                               ( candidate.type->get_use( "transform" )->get_actor_ptr() );
             if( transform->can_use( guy, candidate, false, tripoint_zero ).success() ) {
                 transform->use( guy, candidate, false, tripoint_zero );
-                guy.add_msg_if_npc( _( "<npcname> deactivates their %s." ), candidate.display_name() );
+                guy.add_msg_if_npc( _( "<npcname> deactivates their {}." ), candidate.display_name() );
             }
         }
     }
@@ -2121,7 +2121,7 @@ int npc::confident_gun_mode_range( const gun_mode &gun, int at_recoil ) const
     double max_dispersion = get_weapon_dispersion( *( gun.target ) ).max() + at_recoil;
     double even_chance_range = range_with_even_chance_of_good_hit( max_dispersion );
     double confident_range = even_chance_range * confidence_mult();
-    add_msg_debug( debugmode::DF_NPC, "confident_gun (%s<=%.2f) at %.1f", gun.tname(), confident_range,
+    add_msg_debug( debugmode::DF_NPC, "confident_gun ({}<=%.2f) at %.1f", gun.tname(), confident_range,
                    max_dispersion );
     return std::max<int>( confident_range, 1 );
 }
@@ -2132,7 +2132,7 @@ int npc::confident_throw_range( const item &thrown, Creature *target ) const
     double even_chance_range = ( target == nullptr ? 0.5 : target->ranged_target_size() ) /
                                average_dispersion;
     double confident_range = even_chance_range * confidence_mult();
-    add_msg_debug( debugmode::DF_NPC, "confident_throw_range == %d",
+    add_msg_debug( debugmode::DF_NPC, "confident_throw_range == {}",
                    static_cast<int>( confident_range ) );
     return static_cast<int>( confident_range );
 }
@@ -2252,10 +2252,10 @@ bool npc::update_path( const tripoint &p, const bool no_bashing, bool force )
     if( new_path.empty() ) {
         if( !ai_cache.sound_alerts.empty() ) {
             ai_cache.sound_alerts.erase( ai_cache.sound_alerts.begin() );
-            add_msg_debug( debugmode::DF_NPC, "failed to path to sound alert %d,%d,%d->%d,%d,%d",
+            add_msg_debug( debugmode::DF_NPC, "failed to path to sound alert {},{},{}->{},{},{}",
                            posx(), posy(), posz(), p.x, p.y, p.z );
         }
-        add_msg_debug( debugmode::DF_NPC, "Failed to path %d,%d,%d->%d,%d,%d",
+        add_msg_debug( debugmode::DF_NPC, "Failed to path {},{},{}->{},{},{}",
                        posx(), posy(), posz(), p.x, p.y, p.z );
     }
 
@@ -2448,11 +2448,11 @@ void npc::move_to( const tripoint &pt, bool no_bashing, std::set<tripoint> *nomo
         ///\EFFECT_DEX_NPC increases chance to climb CLIMBABLE furniture or terrain
         int climb = get_dex();
         if( one_in( climb ) ) {
-            add_msg_if_npc( m_neutral, _( "%1$s tries to climb the %2$s but slips." ), get_name(),
+            add_msg_if_npc( m_neutral, _( "{1} tries to climb the {2} but slips." ), get_name(),
                             here.tername( p ) );
             moves -= 400;
         } else {
-            add_msg_if_npc( m_neutral, _( "%1$s climbs over the %2$s." ), get_name(), here.tername( p ) );
+            add_msg_if_npc( m_neutral, _( "{1} climbs over the {2}." ), get_name(), here.tername( p ) );
             moves -= ( 500 - ( rng( 0, climb ) * 20 ) );
             moved = true;
         }
@@ -3017,7 +3017,7 @@ void npc::find_item()
     }
 
     if( fetching_item && rl_dist( wanted_item_pos, pos() ) > 1 && is_walking_with() ) {
-        say( _( "Hold on, I want to pick up that %s." ), wanted_name );
+        say( _( "Hold on, I want to pick up that {}." ), wanted_name );
     }
 }
 
@@ -3028,7 +3028,7 @@ void npc::pick_up_item()
     }
 
     if( !rules.has_flag( ally_rule::allow_pick_up ) && is_player_ally() ) {
-        add_msg_debug( debugmode::DF_NPC, "%s::pick_up_item(); Canceling on player's request", get_name() );
+        add_msg_debug( debugmode::DF_NPC, "{}::pick_up_item(); Canceling on player's request", get_name() );
         fetching_item = false;
         moves -= 1;
         return;
@@ -3050,7 +3050,7 @@ void npc::pick_up_item()
         return;
     }
 
-    add_msg_debug( debugmode::DF_NPC, "%s::pick_up_item(); [ % d, % d, % d] => [ % d, % d, % d]",
+    add_msg_debug( debugmode::DF_NPC, "{}::pick_up_item(); [ % d, % d, % d] => [ % d, % d, % d]",
                    get_name(),
                    posx(), posy(), posz(), wanted_item_pos.x, wanted_item_pos.y, wanted_item_pos.z );
     if( const cata::optional<tripoint> dest = nearest_passable( wanted_item_pos, pos() ) ) {
@@ -3059,7 +3059,7 @@ void npc::pick_up_item()
 
     const int dist_to_pickup = rl_dist( pos(), wanted_item_pos );
     if( dist_to_pickup > 1 && !path.empty() ) {
-        add_msg_debug( debugmode::DF_NPC, "Moving; [%d, %d, %d] => [%d, %d, %d]",
+        add_msg_debug( debugmode::DF_NPC, "Moving; [{}, {}, {}] => [{}, {}, {}]",
                        posx(), posy(), posz(), path[0].x, path[0].y, path[0].z );
 
         move_to_next();
@@ -3094,14 +3094,14 @@ void npc::pick_up_item()
     bool u_see = player_view.sees( *this ) || player_view.sees( wanted_item_pos );
     if( u_see ) {
         if( picked_up.size() == 1 ) {
-            add_msg( _( "%1$s picks up a %2$s." ), get_name(), picked_up.front().tname() );
+            add_msg( _( "{1} picks up a {2}." ), get_name(), picked_up.front().tname() );
         } else if( picked_up.size() == 2 ) {
-            add_msg( _( "%1$s picks up a %2$s and a %3$s." ), get_name(), picked_up.front().tname(),
+            add_msg( _( "{1} picks up a {2} and a {3}." ), get_name(), picked_up.front().tname(),
                      picked_up.back().tname() );
         } else if( picked_up.size() > 2 ) {
-            add_msg( _( "%s picks up several items." ), get_name() );
+            add_msg( _( "{} picks up several items." ), get_name() );
         } else {
-            add_msg( _( "%s looks around nervously, as if searching for something." ), get_name() );
+            add_msg( _( "{} looks around nervously, as if searching for something." ), get_name() );
         }
     }
 
@@ -3163,8 +3163,8 @@ void npc::drop_items( const units::mass &drop_weight, const units::volume &drop_
     return;
 
     add_msg_debug( debugmode::DF_NPC,
-                   "%s is dropping items-%3.2f kg, %3.2f L (%d items, wgt %3.2f/%3.2f kg, "
-                   "vol %3.2f/%3.2f L)",
+                   "{} is dropping items-{}.2f kg, {}.2f L ({} items, wgt {}.2f/{}.2f kg, "
+                   "vol {}.2f/{}.2f L)",
                    get_name(), units::to_kilogram( drop_weight ), units::to_liter( drop_volume ), inv->size(),
                    units::to_kilogram( weight_carried() ), units::to_kilogram( weight_capacity() ),
                    units::to_liter( volume_carried() ), units::to_liter( volume_capacity() ) );
@@ -3238,7 +3238,7 @@ void npc::drop_items( const units::mass &drop_weight, const units::volume &drop_
             // Fix the rest of those indices.
             for( size_t i = 0; i < rVol.size(); i++ ) {
                 if( i > rVol.size() ) {
-                    debugmsg( "npc::drop_items() - looping through rVol - Size is %d, i is %d",
+                    debugmsg( "npc::drop_items() - looping through rVol - Size is {}, i is {}",
                               rVol.size(), i );
                 }
                 if( rVol[i].index > index ) {
@@ -3261,11 +3261,11 @@ void npc::drop_items( const units::mass &drop_weight, const units::volume &drop_
     }
     // Finally, describe the action if u can see it
     if( num_items_dropped >= 3 ) {
-        add_msg_if_player_sees( *this, n_gettext( "%s drops %d item.", "%s drops %d items.",
+        add_msg_if_player_sees( *this, n_gettext( "{} drops {} item.", "{} drops {} items.",
                                 num_items_dropped ), get_name(),
                                 num_items_dropped );
     } else {
-        add_msg_if_player_sees( *this, _( "%1$s drops a %2$s." ), get_name(), item_name );
+        add_msg_if_player_sees( *this, _( "{1} drops a {2}." ), get_name(), item_name );
     }
     update_worst_item_value();
 }
@@ -3410,7 +3410,7 @@ bool npc::do_player_activity()
             current_activity_id = activity.id();
         } else {
             if( is_player_ally() ) {
-                add_msg( m_info, string_format( _( "%s completed the assigned task." ), disp_name() ) );
+                add_msg( m_info, string_format( _( "{} completed the assigned task." ), disp_name() ) );
             }
             current_activity_id = activity_id::NULL_ID();
             revert_after_activity();
@@ -3483,13 +3483,13 @@ bool npc::wield_better_weapon()
     // Until then, the NPCs should reload the guns as a last resort
 
     if( best == &weap ) {
-        add_msg_debug( debugmode::DF_NPC, "Wielded %s is best at %.1f, not switching",
+        add_msg_debug( debugmode::DF_NPC, "Wielded {} is best at %.1f, not switching",
                        best->type->get_id().str(),
                        best_value );
         return false;
     }
 
-    add_msg_debug( debugmode::DF_NPC, "Wielding %s at value %.1f", best->type->get_id().str(),
+    add_msg_debug( debugmode::DF_NPC, "Wielding {} at value %.1f", best->type->get_id().str(),
                    best_value );
 
     wield( *best );
@@ -3498,7 +3498,7 @@ bool npc::wield_better_weapon()
 
 bool npc::scan_new_items()
 {
-    add_msg_debug( debugmode::DF_NPC, "%s scanning new items", get_name() );
+    add_msg_debug( debugmode::DF_NPC, "{} scanning new items", get_name() );
     if( wield_better_weapon() ) {
         return true;
     } else {
@@ -3512,7 +3512,7 @@ bool npc::scan_new_items()
 
 static void npc_throw( npc &np, item &it, const tripoint &pos )
 {
-    add_msg_if_player_sees( np, _( "%1$s throws a %2$s." ), np.get_name(), it.tname() );
+    add_msg_if_player_sees( np, _( "{1} throws a {2}." ), np.get_name(), it.tname() );
 
     int stack_size = -1;
     if( it.count_by_charges() ) {
@@ -3702,12 +3702,12 @@ void npc::heal_player( Character &patient )
     // Close enough to heal!
     bool u_see = player_view.sees( *this ) || player_view.sees( patient );
     if( u_see ) {
-        add_msg( _( "%1$s starts healing %2$s." ), disp_name(), patient.disp_name() );
+        add_msg( _( "{1} starts healing {2}." ), disp_name(), patient.disp_name() );
     }
 
     item &used = get_healing_item( ai_cache.can_heal );
     if( used.is_null() ) {
-        debugmsg( "%s tried to heal you but has no healing item", disp_name() );
+        debugmsg( "{} tried to heal you but has no healing item", disp_name() );
         return;
     }
     if( !is_hallucination() ) {
@@ -3722,7 +3722,7 @@ void npc::heal_player( Character &patient )
 void npc::pretend_heal( Character &patient, item used )
 {
     // you can tell that it's not real by looking at your HP though
-    add_msg_if_player_sees( *this, _( "%1$s heals %2$s." ), disp_name(),
+    add_msg_if_player_sees( *this, _( "{1} heals {2}." ), disp_name(),
                             patient.disp_name() );
     consume_charges( used, 1 ); // empty hallucination's inventory to avoid spammming
     moves -= 100; // consumes moves to avoid infinite loop
@@ -3766,11 +3766,11 @@ void npc::heal_self()
 
     item &used = get_healing_item( ai_cache.can_heal );
     if( used.is_null() ) {
-        debugmsg( "%s tried to heal self but has no healing item", disp_name() );
+        debugmsg( "{} tried to heal self but has no healing item", disp_name() );
         return;
     }
 
-    add_msg_if_player_sees( *this, _( "%1$s starts applying a %2$s." ), disp_name(), used.tname() );
+    add_msg_if_player_sees( *this, _( "{1} starts applying a {2}." ), disp_name(), used.tname() );
     warn_about( "heal_self", 1_turns );
 
     int charges_used = used.type->invoke( *this, used, pos(), "heal" ).value_or( 0 );
@@ -3788,7 +3788,7 @@ void npc::use_painkiller()
         debugmsg( "NPC tried to use painkillers, but has none!" );
         move_pause();
     } else {
-        add_msg_if_player_sees( *this, _( "%1$s takes some %2$s." ), disp_name(), it->tname() );
+        add_msg_if_player_sees( *this, _( "{1} takes some {2}." ), disp_name(), it->tname() );
         item_location loc = item_location( *this, it );
         const time_duration &consume_time = get_consume_time( *loc );
         moves -= to_moves<int>( consume_time );
@@ -4005,7 +4005,7 @@ bool npc::consume_food()
                 //       for a while.
                 moves -= to_moves<int>( consume_time );
             } else {
-                debugmsg( "%s failed to consume %s", get_name(), best_food->tname() );
+                debugmsg( "{} failed to consume {}", get_name(), best_food->tname() );
             }
         }
 
@@ -4037,10 +4037,10 @@ void npc::mug_player( Character &mark )
         // Describe the action
         if( mark.is_npc() ) {
             if( u_see ) {
-                add_msg( _( "%1$s takes %2$s's money!" ), get_name(), mark.get_name() );
+                add_msg( _( "{1} takes {2}'s money!" ), get_name(), mark.get_name() );
             }
         } else {
-            add_msg( m_bad, _( "%s takes your money!" ), get_name() );
+            add_msg( m_bad, _( "{} takes your money!" ), get_name() );
         }
         return;
     }
@@ -4084,10 +4084,10 @@ void npc::mug_player( Character &mark )
     }
     if( mark.is_npc() ) {
         if( u_see ) {
-            add_msg( _( "%1$s takes %2$s's %3$s." ), get_name(), mark.get_name(), stolen.tname() );
+            add_msg( _( "{1} takes {2}'s {3}." ), get_name(), mark.get_name(), stolen.tname() );
         }
     } else {
-        add_msg( m_bad, _( "%1$s takes your %2$s." ), get_name(), stolen.tname() );
+        add_msg( m_bad, _( "{1} takes your {2}." ), get_name(), stolen.tname() );
     }
     moves -= 100;
     if( !mark.is_npc() ) {
@@ -4162,7 +4162,7 @@ void npc::reach_omt_destination()
             if( rl_dist( player_character.pos(), pos() ) > SEEX * 2 ) {
                 if( player_character.has_item_with_flag( flag_TWO_WAY_RADIO, true ) &&
                     has_item_with_flag( flag_TWO_WAY_RADIO, true ) ) {
-                    add_msg_if_player_sees( pos(), m_info, _( "From your two-way radio you hear %s reporting in, "
+                    add_msg_if_player_sees( pos(), m_info, _( "From your two-way radio you hear {} reporting in, "
                                             "'I've arrived, boss!'" ), disp_name() );
                 }
             }
@@ -4352,7 +4352,7 @@ void npc::go_to_omt_destination()
         }
     }
     path = here.route( pos(), centre_sub, get_pathfinding_settings(), get_path_avoid() );
-    add_msg_debug( debugmode::DF_NPC, "%s going %s->%s", get_name(), omt_pos.to_string_writable(),
+    add_msg_debug( debugmode::DF_NPC, "{} going {}->{}", get_name(), omt_pos.to_string_writable(),
                    goal.to_string_writable() );
 
     if( !path.empty() ) {
@@ -4543,10 +4543,10 @@ void npc::warn_about( const std::string &type, const time_duration &d, const std
         complain_about( warning_name, d, snip, is_enemy(), spriority );
     } else {
         const std::string range_str = range < 1 ? "<punc>" :
-                                      string_format( _( " %s, %s" ),
+                                      string_format( _( " {}, {}" ),
                                               direction_name( direction_from( pos(), danger_pos ) ),
                                               distance_string( range ) );
-        const std::string speech = string_format( _( "%s %s%s" ), snip, _( name ), range_str );
+        const std::string speech = string_format( _( "{} {}{}" ), snip, _( name ), range_str );
         complain_about( warning_name, d, speech, is_enemy(), spriority );
     }
 }
@@ -4692,14 +4692,14 @@ bool npc::complain()
 void npc::do_reload( const item_location &it )
 {
     if( !it ) {
-        debugmsg( "do_reload failed: %s tried to reload a none", name );
+        debugmsg( "do_reload failed: {} tried to reload a none", name );
         return;
     }
 
     item::reload_option reload_opt = select_ammo( it );
 
     if( !reload_opt ) {
-        debugmsg( "do_reload failed: no usable ammo for %s", it->tname() );
+        debugmsg( "do_reload failed: no usable ammo for {}", it->tname() );
         return;
     }
 
@@ -4714,7 +4714,7 @@ void npc::do_reload( const item_location &it )
     // TODO: Consider printing this info to player too
     const std::string ammo_name = usable_ammo->tname();
     if( !target.reload( *this, std::move( usable_ammo ), qty ) ) {
-        debugmsg( "do_reload failed: item %s could not be reloaded with %ld charge(s) of %s",
+        debugmsg( "do_reload failed: item {} could not be reloaded with {} charge(s) of {}",
                   it->tname(), qty, ammo_name );
         return;
     }
@@ -4723,7 +4723,7 @@ void npc::do_reload( const item_location &it )
     recoil = MAX_RECOIL;
 
     if( get_player_view().sees( *this ) ) {
-        add_msg( _( "%1$s reloads their %2$s." ), get_name(), it->tname() );
+        add_msg( _( "{1} reloads their {2}." ), get_name(), it->tname() );
         sfx::play_variant_sound( "reload", it->typeId().str(), sfx::get_heard_volume( pos() ),
                                  sfx::get_heard_angle( pos() ) );
     }

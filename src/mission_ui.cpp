@@ -100,7 +100,7 @@ void game::list_missions()
             if( miss->get_npc_id().is_valid() ) {
                 npc *guy = g->find_npc( miss->get_npc_id() );
                 if( guy ) {
-                    for_npc = string_format( _( " for %s" ), guy->disp_name() );
+                    for_npc = string_format( _( " for {}" ), guy->disp_name() );
                 }
             }
 
@@ -111,7 +111,7 @@ void game::list_missions()
                 std::string formatted_description = description;
                 for( const auto &reward : rewards ) {
                     std::string token = "<reward_count:" + reward.second.str() + ">";
-                    formatted_description = string_replace( formatted_description, token, string_format( "%d",
+                    formatted_description = string_replace( formatted_description, token, string_format( "{}",
                                                             reward.first ) );
                 }
                 return formatted_description;
@@ -125,7 +125,7 @@ void game::list_missions()
             }
             if( miss->has_deadline() ) {
                 const time_point deadline = miss->get_deadline();
-                mvwprintz( w_missions, point( 41, ++y ), c_white, _( "Deadline: %s" ), to_string( deadline ) );
+                mvwprintz( w_missions, point( 41, ++y ), c_white, _( "Deadline: {}" ), to_string( deadline ) );
 
                 if( tab != tab_mode::TAB_COMPLETED ) {
                     // There's no point in displaying this for a completed mission.
@@ -141,13 +141,13 @@ void game::list_missions()
                         remaining_time = to_string_approx( remaining );
                     }
 
-                    mvwprintz( w_missions, point( 41, ++y ), c_white, _( "Time remaining: %s" ), remaining_time );
+                    mvwprintz( w_missions, point( 41, ++y ), c_white, _( "Time remaining: {}" ), remaining_time );
                 }
             }
             if( miss->has_target() ) {
                 const tripoint_abs_omt pos = u.global_omt_location();
                 // TODO: target does not contain a z-component, targets are assumed to be on z=0
-                mvwprintz( w_missions, point( 41, ++y ), c_white, _( "Target: %s   You: %s" ),
+                mvwprintz( w_missions, point( 41, ++y ), c_white, _( "Target: {}   You: {}" ),
                            miss->get_target().to_string(), pos.to_string() );
             }
         } else {
@@ -165,7 +165,7 @@ void game::list_missions()
     while( true ) {
         umissions.clear();
         if( tab < tab_mode::FIRST_TAB || tab >= tab_mode::NUM_TABS ) {
-            debugmsg( "The sanity check failed because tab=%d", static_cast<int>( tab ) );
+            debugmsg( "The sanity check failed because tab={}", static_cast<int>( tab ) );
             tab = tab_mode::FIRST_TAB;
         }
         switch( tab ) {
@@ -183,7 +183,7 @@ void game::list_missions()
         }
         if( ( !umissions.empty() && selection >= umissions.size() ) ||
             ( umissions.empty() && selection != 0 ) ) {
-            debugmsg( "Sanity check failed: selection=%d, size=%d", static_cast<int>( selection ),
+            debugmsg( "Sanity check failed: selection={}, size={}", static_cast<int>( selection ),
                       static_cast<int>( umissions.size() ) );
             selection = 0;
         }

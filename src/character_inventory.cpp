@@ -108,8 +108,8 @@ void Character::handle_contents_changed( const std::vector<item_location> &conta
             // We can drop the unhandled container now since the container and
             // its contents (with a larger depth) are not inside `sorted_containers`.
             add_msg_player_or_npc(
-                _( "To avoid spilling its contents, you set your %1$s on the %2$s." ),
-                _( "To avoid spilling its contents, <npcname> sets their %1$s on the %2$s." ),
+                _( "To avoid spilling its contents, you set your {1} on the {2}." ),
+                _( "To avoid spilling its contents, <npcname> sets their {1} on the {2}." ),
                 loc->display_name(), m.name( pos() )
             );
             item it_copy( *loc );
@@ -248,7 +248,7 @@ item Character::i_rem( const item *it )
         return &i == it;
     }, 1 );
     if( tmp.empty() ) {
-        debugmsg( "did not found item %s to remove it!", it->tname() );
+        debugmsg( "did not found item {} to remove it!", it->tname() );
         return item();
     }
     return tmp.front();
@@ -459,7 +459,7 @@ bool Character::has_active_item( const itype_id &id ) const
 ret_val<void> Character::can_drop( const item &it ) const
 {
     if( it.has_flag( flag_NO_UNWIELD ) ) {
-        return ret_val<void>::make_failure( _( "You cannot drop your %s." ), it.tname() );
+        return ret_val<void>::make_failure( _( "You cannot drop your {}." ), it.tname() );
     }
     return ret_val<void>::make_success();
 }
@@ -496,7 +496,7 @@ void outfit::holster_opts( std::vector<dispose_option> &opts, item_location obj,
         // check for attachable subpockets first (the parent item may be defined as a holster)
         if( e.get_contents().has_additional_pockets() && e.can_contain( *obj ).success() ) {
             opts.emplace_back( dispose_option{
-                string_format( _( "Store in %s" ), e.tname() ), true, e.invlet,
+                string_format( _( "Store in {}" ), e.tname() ), true, e.invlet,
                 guy.item_store_cost( *obj, e, false, e.insert_cost( *obj ) ),
                 [&guy, &e, obj] {
                     item &it = *item_location( obj );
@@ -511,7 +511,7 @@ void outfit::holster_opts( std::vector<dispose_option> &opts, item_location obj,
                     continue;
                 }
                 opts.emplace_back( dispose_option{
-                    string_format( "  >%s", it->tname() ), true, it->invlet,
+                    string_format( "  >{}", it->tname() ), true, it->invlet,
                     guy.item_store_cost( *obj, *it, false, it->insert_cost( *it ) ),
                     [&guy, it, con, obj] {
                         item &i = *item_location( obj );
@@ -524,7 +524,7 @@ void outfit::holster_opts( std::vector<dispose_option> &opts, item_location obj,
             const holster_actor *ptr = dynamic_cast<const holster_actor *>
                                        ( e.type->get_use( "holster" )->get_actor_ptr() );
             opts.emplace_back( dispose_option{
-                string_format( _( "Store in %s" ), e.tname() ), true, e.invlet,
+                string_format( _( "Store in {}" ), e.tname() ), true, e.invlet,
                 guy.item_store_cost( *obj, e, false, e.insert_cost( *obj ) ),
                 [&guy, ptr, &e, obj] {
                     // *obj by itself attempts to use the const version of the operator (in gcc9),
@@ -539,7 +539,7 @@ void outfit::holster_opts( std::vector<dispose_option> &opts, item_location obj,
 bool Character::dispose_item( item_location &&obj, const std::string &prompt )
 {
     uilist menu;
-    menu.text = prompt.empty() ? string_format( _( "Dispose of %s" ), obj->tname() ) : prompt;
+    menu.text = prompt.empty() ? string_format( _( "Dispose of {}" ), obj->tname() ) : prompt;
     std::vector<dispose_option> opts;
 
     const bool bucket = obj->will_spill() && !obj->is_container_empty();
@@ -599,7 +599,7 @@ bool Character::dispose_item( item_location &&obj, const std::string &prompt )
     menu.text += _( " | Moves  " );
 
     for( const dispose_option &e : opts ) {
-        menu.addentry( -1, e.enabled, e.invlet, string_format( e.enabled ? "%s | %-7d" : "%s |",
+        menu.addentry( -1, e.enabled, e.invlet, string_format( e.enabled ? "{} | %-7d" : "{} |",
                        e.prompt, e.moves ) );
     }
 

@@ -181,7 +181,7 @@ static void check_traits( const std::set<trait_id> &traits, const string_id<scen
 {
     for( const auto &t : traits ) {
         if( !t.is_valid() ) {
-            debugmsg( "trait %s for scenario %s does not exist", t.c_str(), ident.c_str() );
+            debugmsg( "trait {} for scenario {} does not exist", t.c_str(), ident.c_str() );
         }
     }
 }
@@ -190,14 +190,14 @@ void scenario::check_definition() const
 {
     for( const auto &p : professions ) {
         if( !p.is_valid() ) {
-            debugmsg( "profession %s for scenario %s does not exist", p.c_str(), id.c_str() );
+            debugmsg( "profession {} for scenario {} does not exist", p.c_str(), id.c_str() );
         }
     }
 
     std::unordered_set<string_id<profession>> professions_set;
     for( const auto &p : professions ) {
         if( professions_set.count( p ) == 1 ) {
-            debugmsg( "Duplicate profession %s in scenario %s.", p.c_str(), this->id.c_str() );
+            debugmsg( "Duplicate profession {} in scenario {}.", p.c_str(), this->id.c_str() );
         } else {
             professions_set.insert( p );
         }
@@ -205,13 +205,13 @@ void scenario::check_definition() const
 
     for( const start_location_id &l : _allowed_locs ) {
         if( !l.is_valid() ) {
-            debugmsg( "starting location %s for scenario %s does not exist", l.c_str(), id.c_str() );
+            debugmsg( "starting location {} for scenario {} does not exist", l.c_str(), id.c_str() );
         }
     }
 
     if( blacklist ) {
         if( professions.empty() ) {
-            debugmsg( "Scenario %s: Use an empty whitelist to whitelist everything.", id.c_str() );
+            debugmsg( "Scenario {}: Use an empty whitelist to whitelist everything.", id.c_str() );
         } else {
             permitted_professions(); // Debug msg if every profession is blacklisted
         }
@@ -222,28 +222,28 @@ void scenario::check_definition() const
     check_traits( _forbidden_traits, id );
 
     if( !_map_extra.is_valid() )  {
-        debugmsg( "there is no map extra with id %s", _map_extra.str() );
+        debugmsg( "there is no map extra with id {}", _map_extra.str() );
     }
 
     for( const auto &e : eoc() ) {
         if( !e.is_valid() ) {
-            debugmsg( "effect on condition %s for scenario %s does not exist", e.c_str(), id.c_str() );
+            debugmsg( "effect on condition {} for scenario {} does not exist", e.c_str(), id.c_str() );
         }
     }
 
     for( const auto &m : _missions ) {
         if( !m.is_valid() ) {
-            debugmsg( "starting mission %s for scenario %s does not exist", m.c_str(), id.c_str() );
+            debugmsg( "starting mission {} for scenario {} does not exist", m.c_str(), id.c_str() );
         }
 
         if( std::find( m->origins.begin(), m->origins.end(), ORIGIN_GAME_START ) == m->origins.end() ) {
-            debugmsg( "starting mission %s for scenario %s must include an origin of ORIGIN_GAME_START",
+            debugmsg( "starting mission {} for scenario {} must include an origin of ORIGIN_GAME_START",
                       m.c_str(), id.c_str() );
         }
     }
 
     if( _starting_vehicle && !_starting_vehicle.is_valid() ) {
-        debugmsg( "vehicle prototype %s for profession %s does not exist", _starting_vehicle.c_str(),
+        debugmsg( "vehicle prototype {} for profession {} does not exist", _starting_vehicle.c_str(),
                   id.c_str() );
     }
 }
@@ -375,7 +375,7 @@ std::vector<string_id<profession>> scenario::permitted_professions() const
             if( !conflicting_traits ) {
                 res.push_back( p.ident() );
             } else {
-                debugmsg( "Scenario %s and profession %s have conflicting trait requirements",
+                debugmsg( "Scenario {} and profession {} have conflicting trait requirements",
                           id.c_str(), p.ident().c_str() );
             }
         } else if( extra_professions ) {
@@ -575,11 +575,11 @@ ret_val<void> scenario::can_pick() const
                     _requirement.value()->id );
         if( !other_games ) {
             return ret_val<void>::make_failure(
-                       _( "You must complete the achievement \"%s\" to unlock this scenario." ),
+                       _( "You must complete the achievement \"{}\" to unlock this scenario." ),
                        _requirement.value()->name() );
         } else if( other_games->games_completed.empty() ) {
             return ret_val<void>::make_failure(
-                       _( "You must complete the achievement \"%s\" to unlock this scenario." ),
+                       _( "You must complete the achievement \"{}\" to unlock this scenario." ),
                        _requirement.value()->name() );
         }
     }

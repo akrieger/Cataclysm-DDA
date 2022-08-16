@@ -128,11 +128,11 @@ void distraction_manager_gui::show()
             const std::string status_string = distractions_status[i] ? _( "Enabled" ) : _( "Disabled" );
 
             // Print distraction types
-            mvwprintz( w, point( 1, i - startPosition ), line_color, "%s",
+            mvwprintz( w, point( 1, i - startPosition ), line_color, "{}",
                        _( configurable_distractions[i].first.c_str() ) );
 
             // Print "Enabled/Disabled" text
-            mvwprintz( w, point( 62, i - startPosition ), status_color, "%s", status_string );
+            mvwprintz( w, point( 62, i - startPosition ), status_color, "{}", status_string );
         }
 
         wnoutrefresh( w_header );

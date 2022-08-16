@@ -83,7 +83,7 @@ bool leap_actor::call( monster &z ) const
 
     for( const efftype_id &effect : forbidden_effects_any ) {
         if( z.has_effect( effect ) ) {
-            add_msg_debug( debugmode::DF_MATTACK, "Forbidden(any) effect %s found", effect.c_str() );
+            add_msg_debug( debugmode::DF_MATTACK, "Forbidden(any) effect {} found", effect.c_str() );
             return false;
         }
     }
@@ -92,7 +92,7 @@ bool leap_actor::call( monster &z ) const
         bool failed = true;
         for( const efftype_id &effect : forbidden_effects_all ) {
             if( !z.has_effect( effect ) ) {
-                add_msg_debug( debugmode::DF_MATTACK, "Forbidden(all) effect %s not found", effect.c_str() );
+                add_msg_debug( debugmode::DF_MATTACK, "Forbidden(all) effect {} not found", effect.c_str() );
                 failed = false;
             }
         }
@@ -106,7 +106,7 @@ bool leap_actor::call( monster &z ) const
         bool failed = true;
         for( const efftype_id &effect : required_effects_any ) {
             if( z.has_effect( effect ) ) {
-                add_msg_debug( debugmode::DF_MATTACK, "Required(any) effect %s found", effect.c_str() );
+                add_msg_debug( debugmode::DF_MATTACK, "Required(any) effect {} found", effect.c_str() );
                 failed = false;
             }
         }
@@ -118,7 +118,7 @@ bool leap_actor::call( monster &z ) const
 
     for( const efftype_id &effect : required_effects_all ) {
         if( !z.has_effect( effect ) ) {
-            add_msg_debug( debugmode::DF_MATTACK, "Lack of required(all) effect %s", effect.c_str() );
+            add_msg_debug( debugmode::DF_MATTACK, "Lack of required(all) effect {}", effect.c_str() );
             return false;
         }
     }
@@ -198,7 +198,7 @@ bool leap_actor::call( monster &z ) const
     z.setpos( chosen );
     seen |= player_view.sees( z ); // ... or we can see them land
     if( seen ) {
-        add_msg( _( "The %s leaps!" ), z.name() );
+        add_msg( _( "The {} leaps!" ), z.name() );
     }
 
     return true;
@@ -215,7 +215,7 @@ void mon_spellcasting_actor::load_internal( const JsonObject &obj, const std::st
     translation monster_message;
     optional( obj, was_loaded, "monster_message", monster_message,
               //~ "<Monster Display name> cast <Spell Name> on <Target name>!"
-              to_translation( "%1$s casts %2$s at %3$s!" ) );
+              to_translation( "{1} casts {2} at {3}!" ) );
     spell_data.trigger_message = monster_message;
     optional( obj, was_loaded, "forbidden_effects_any", forbidden_effects_any );
     optional( obj, was_loaded, "forbidden_effects_all", forbidden_effects_all );
@@ -237,7 +237,7 @@ bool mon_spellcasting_actor::call( monster &mon ) const
 
     for( const efftype_id &effect : forbidden_effects_any ) {
         if( mon.has_effect( effect ) ) {
-            add_msg_debug( debugmode::DF_MATTACK, "Forbidden(any) effect %s found", effect.c_str() );
+            add_msg_debug( debugmode::DF_MATTACK, "Forbidden(any) effect {} found", effect.c_str() );
             return false;
         }
     }
@@ -246,7 +246,7 @@ bool mon_spellcasting_actor::call( monster &mon ) const
         bool failed = true;
         for( const efftype_id &effect : forbidden_effects_all ) {
             if( !mon.has_effect( effect ) ) {
-                add_msg_debug( debugmode::DF_MATTACK, "Forbidden(all) effect %s not found", effect.c_str() );
+                add_msg_debug( debugmode::DF_MATTACK, "Forbidden(all) effect {} not found", effect.c_str() );
                 failed = false;
             }
         }
@@ -260,7 +260,7 @@ bool mon_spellcasting_actor::call( monster &mon ) const
         bool failed = true;
         for( const efftype_id &effect : required_effects_any ) {
             if( mon.has_effect( effect ) ) {
-                add_msg_debug( debugmode::DF_MATTACK, "Required(any) effect %s found", effect.c_str() );
+                add_msg_debug( debugmode::DF_MATTACK, "Required(any) effect {} found", effect.c_str() );
                 failed = false;
             }
         }
@@ -272,7 +272,7 @@ bool mon_spellcasting_actor::call( monster &mon ) const
 
     for( const efftype_id &effect : required_effects_all ) {
         if( !mon.has_effect( effect ) ) {
-            add_msg_debug( debugmode::DF_MATTACK, "Lack of required(all) effect %s", effect.c_str() );
+            add_msg_debug( debugmode::DF_MATTACK, "Lack of required(all) effect {}", effect.c_str() );
             return false;
         }
     }
@@ -342,21 +342,21 @@ void melee_actor::load_internal( const JsonObject &obj, const std::string & )
     optional( obj, was_loaded, "attack_upper", attack_upper, true );
 
     optional( obj, was_loaded, "miss_msg_u", miss_msg_u,
-              to_translation( "%s lunges at you, but you dodge!" ) );
+              to_translation( "{} lunges at you, but you dodge!" ) );
     optional( obj, was_loaded, "no_dmg_msg_u", no_dmg_msg_u,
-              to_translation( "%1$s bites your %2$s, but fails to penetrate armor!" ) );
+              to_translation( "{1} bites your {2}, but fails to penetrate armor!" ) );
     optional( obj, was_loaded, "hit_dmg_u", hit_dmg_u,
-              to_translation( "%1$s bites your %2$s!" ) );
+              to_translation( "{1} bites your {2}!" ) );
     optional( obj, was_loaded, "miss_msg_npc", miss_msg_npc,
-              to_translation( "%s lunges at <npcname>, but they dodge!" ) );
+              to_translation( "{} lunges at <npcname>, but they dodge!" ) );
     optional( obj, was_loaded, "no_dmg_msg_npc", no_dmg_msg_npc,
-              to_translation( "%1$s bites <npcname>'s %2$s, but fails to penetrate armor!" ) );
+              to_translation( "{1} bites <npcname>'s {2}, but fails to penetrate armor!" ) );
     optional( obj, was_loaded, "hit_dmg_npc", hit_dmg_npc,
-              to_translation( "%1$s bites <npcname>'s %2$s!" ) );
+              to_translation( "{1} bites <npcname>'s {2}!" ) );
     optional( obj, was_loaded, "throw_msg_u", throw_msg_u,
-              to_translation( "%s hits you with such a force that it sends you flying!" ) );
+              to_translation( "{} hits you with such a force that it sends you flying!" ) );
     optional( obj, was_loaded, "throw_msg_npc", throw_msg_npc,
-              to_translation( "%s hits <npcname> with such a force that it sends them flying!" ) );
+              to_translation( "{} hits <npcname> with such a force that it sends them flying!" ) );
 
     if( obj.has_array( "body_parts" ) ) {
         for( JsonArray sub : obj.get_array( "body_parts" ) ) {
@@ -425,14 +425,14 @@ Creature *melee_actor::find_target( monster &z ) const
 bool melee_actor::call( monster &z ) const
 {
     if( attack_chance != 100 && !x_in_y( attack_chance, 100 ) ) {
-        add_msg_debug( debugmode::DF_MATTACK, "%s's %s attack_chance roll failed (%d%% chance)", z.name(),
+        add_msg_debug( debugmode::DF_MATTACK, "{}'s {} attack_chance roll failed ({}%% chance)", z.name(),
                        id.c_str(), attack_chance );
         return false;
     }
 
     for( const efftype_id &effect : forbidden_effects_any ) {
         if( z.has_effect( effect ) ) {
-            add_msg_debug( debugmode::DF_MATTACK, "Forbidden(any) effect %s found", effect.c_str() );
+            add_msg_debug( debugmode::DF_MATTACK, "Forbidden(any) effect {} found", effect.c_str() );
             return false;
         }
     }
@@ -441,7 +441,7 @@ bool melee_actor::call( monster &z ) const
         bool failed = true;
         for( const efftype_id &effect : forbidden_effects_all ) {
             if( !z.has_effect( effect ) ) {
-                add_msg_debug( debugmode::DF_MATTACK, "Forbidden(all) effect %s not found", effect.c_str() );
+                add_msg_debug( debugmode::DF_MATTACK, "Forbidden(all) effect {} not found", effect.c_str() );
                 failed = false;
             }
         }
@@ -455,7 +455,7 @@ bool melee_actor::call( monster &z ) const
         bool failed = true;
         for( const efftype_id &effect : required_effects_any ) {
             if( z.has_effect( effect ) ) {
-                add_msg_debug( debugmode::DF_MATTACK, "Required(any) effect %s found", effect.c_str() );
+                add_msg_debug( debugmode::DF_MATTACK, "Required(any) effect {} found", effect.c_str() );
                 failed = false;
             }
         }
@@ -467,7 +467,7 @@ bool melee_actor::call( monster &z ) const
 
     for( const efftype_id &effect : required_effects_all ) {
         if( !z.has_effect( effect ) ) {
-            add_msg_debug( debugmode::DF_MATTACK, "Lack of required(all) effect %s", effect.c_str() );
+            add_msg_debug( debugmode::DF_MATTACK, "Lack of required(all) effect {}", effect.c_str() );
             return false;
         }
     }
@@ -565,7 +565,7 @@ bool melee_actor::call( monster &z ) const
     }
 
     int damage_total = dealt_damage.total_damage();
-    add_msg_debug( debugmode::DF_MATTACK, "%s's melee_attack did %d damage", z.name(), damage_total );
+    add_msg_debug( debugmode::DF_MATTACK, "{}'s melee_attack did {} damage", z.name(), damage_total );
     if( damage_total > 0 ) {
         on_damage( z, *target, dealt_damage );
     } else {
@@ -702,7 +702,7 @@ std::unique_ptr<mattack_actor> bite_actor::clone() const
     return std::make_unique<bite_actor>( *this );
 }
 
-gun_actor::gun_actor() : description( to_translation( "The %1$s fires its %2$s!" ) ),
+gun_actor::gun_actor() : description( to_translation( "The {1} fires its {2}!" ) ),
     targeting_sound( to_translation( "beep-beep-beep!" ) )
 {
 }
@@ -774,7 +774,7 @@ int gun_actor::get_max_range()  const
         max_range = std::max( std::max( max_range, e.first.first ), e.first.second );
     }
 
-    add_msg_debug( debugmode::DF_MATTACK, "Max range %d", max_range );
+    add_msg_debug( debugmode::DF_MATTACK, "Max range {}", max_range );
     return max_range;
 }
 
@@ -790,8 +790,8 @@ bool gun_actor::call( monster &z ) const
         if( !target ) {
             if( hostiles > 0 ) {
                 add_msg_if_player_sees( z, m_warning,
-                                        n_gettext( "Pointed in your direction, the %s emits an IFF warning beep.",
-                                                   "Pointed in your direction, the %s emits %d annoyed sounding beeps.",
+                                        n_gettext( "Pointed in your direction, the {} emits an IFF warning beep.",
+                                                   "Pointed in your direction, the {} emits {} annoyed sounding beeps.",
                                                    hostiles ),
                                         z.name(), hostiles );
             }
@@ -806,7 +806,7 @@ bool gun_actor::call( monster &z ) const
     }
 
     int dist = rl_dist( z.pos(), target->pos() );
-    add_msg_debug( debugmode::DF_MATTACK, "Target %s at range %d", target->disp_name(), dist );
+    add_msg_debug( debugmode::DF_MATTACK, "Target {} at range {}", target->disp_name(), dist );
     for( const auto &e : ranges ) {
         if( dist >= e.first.first && dist <= e.first.second ) {
             if( try_target( z, *target ) ) {
@@ -841,11 +841,11 @@ bool gun_actor::try_target( monster &z, Creature &target ) const
                            targeting_sound );
         }
         if( not_targeted ) {
-            add_msg_debug( debugmode::DF_MATTACK, "%s targeted", target.disp_name() );
+            add_msg_debug( debugmode::DF_MATTACK, "{} targeted", target.disp_name() );
             z.add_effect( effect_targeted, time_duration::from_turns( targeting_timeout ) );
         }
         if( not_laser_locked ) {
-            add_msg_debug( debugmode::DF_MATTACK, "%s laser-locked", target.disp_name() );
+            add_msg_debug( debugmode::DF_MATTACK, "{} laser-locked", target.disp_name() );
             target.add_effect( effect_laserlocked, time_duration::from_turns( targeting_timeout ) );
             target.add_effect( effect_was_laserlocked, time_duration::from_turns( targeting_timeout ) );
             target.add_msg_if_player( m_warning,
@@ -897,7 +897,7 @@ void gun_actor::shoot( monster &z, const tripoint &target, const gun_mode_id &mo
         return;
     }
 
-    add_msg_debug( debugmode::DF_MATTACK, "%d ammo (%s) remaining", z.ammo[ammo],
+    add_msg_debug( debugmode::DF_MATTACK, "{} ammo ({}) remaining", z.ammo[ammo],
                    gun.ammo_sort_name() );
 
     if( !gun.ammo_sufficient( nullptr ) ) {
@@ -927,7 +927,7 @@ void gun_actor::shoot( monster &z, const tripoint &target, const gun_mode_id &mo
                             tmp.get_wielded_item()->tname() );
 
     add_msg_debug( debugmode::DF_MATTACK,
-                   "Temp NPC:\nSTR %d, DEX %d, INT %d, PER %d\nGun skill (%s) %d",
+                   "Temp NPC:\nSTR {}, DEX {}, INT {}, PER {}\nGun skill ({}) {}",
                    tmp.str_cur, tmp.dex_cur, tmp.int_cur, tmp.per_cur,
                    gun.gun_skill().c_str(), tmp.get_skill_level( throwing ? skill_throw : skill_gun ) );
 

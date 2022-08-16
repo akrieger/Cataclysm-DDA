@@ -211,16 +211,16 @@ struct value_constraint {
     void check( const std::string &name, const cata_variant_type input_type ) const {
         if( equals_statistic_ ) {
             if( !equals_statistic_->is_valid() ) {
-                debugmsg( "constraint for event_transformation %s refers to invalid statistic %s",
+                debugmsg( "constraint for event_transformation {} refers to invalid statistic {}",
                           name, equals_statistic_->str() );
                 return;
             }
 
             cata_variant_type stat_type = ( *equals_statistic_ )->type();
             if( stat_type != input_type ) {
-                debugmsg( "constraint for event_transformation %s matches statistic %s of "
-                          "different type.  Statistic has type %s but value compared with it has "
-                          "type %s",
+                debugmsg( "constraint for event_transformation {} matches statistic {} of "
+                          "different type.  Statistic has type {} but value compared with it has "
+                          "type {}",
                           name, equals_statistic_->str(), io::enum_to_string( stat_type ),
                           io::enum_to_string( input_type ) );
             }
@@ -228,13 +228,13 @@ struct value_constraint {
 
         for( const cata_variant &e : equals_any_ ) {
             if( input_type != e.type() ) {
-                debugmsg( "constraint for event_transformation %s matches constant of type %s "
-                          "but value compared with it has type %s",
+                debugmsg( "constraint for event_transformation {} matches constant of type {} "
+                          "but value compared with it has type {}",
                           name, io::enum_to_string( e.type() ),
                           io::enum_to_string( input_type ) );
             }
             if( !e.is_valid() ) {
-                debugmsg( "constraint for event_transformation %s matches constant %s of type %s "
+                debugmsg( "constraint for event_transformation {} matches constant {} of type {} "
                           "but that is not a valid value of that type",
                           name, e.get_string(), io::enum_to_string( e.type() ) );
             }
@@ -260,7 +260,7 @@ struct new_field {
             auto it = event_field_transformations.find( transformation_name );
             if( it == event_field_transformations.end() ) {
                 m.throw_error(
-                    string_format( "unknown event field transformation '%s'", transformation_name )
+                    string_format( "unknown event field transformation '{}'", transformation_name )
                 );
             }
             transformation = it->second;
@@ -272,7 +272,7 @@ struct new_field {
                 const cata::event::fields_type &input_fields ) const {
         auto it = input_fields.find( input_field );
         if( it == input_fields.end() ) {
-            debugmsg( "event_transformation %s specifies transformation on field %s but no such "
+            debugmsg( "event_transformation {} specifies transformation on field {} but no such "
                       "field exists on the input", context_name, input_field );
             return;
         }
@@ -281,8 +281,8 @@ struct new_field {
             return;
         }
         if( it->second != transformation.argument_types[0] ) {
-            debugmsg( "event_transformation %s specifies transformation on field %s of incorrect "
-                      "type.  Transformation expects %s; field was %s.", context_name, input_field,
+            debugmsg( "event_transformation {} specifies transformation on field {} of incorrect "
+                      "type.  Transformation expects {}; field was {}.", context_name, input_field,
                       io::enum_to_string( transformation.argument_types[0] ),
                       io::enum_to_string( it->second ) );
         }
@@ -496,7 +496,7 @@ struct event_transformation_impl : public event_transformation::impl {
 
         for( const std::pair<std::string, new_field> &p : new_fields_ ) {
             if( input_fields.count( p.first ) ) {
-                debugmsg( "event_transformation %s tries to add field with name %s but a field "
+                debugmsg( "event_transformation {} tries to add field with name {} but a field "
                           "with that name already exists", name, p.first );
             }
             p.second.check( name, input_fields );
@@ -505,7 +505,7 @@ struct event_transformation_impl : public event_transformation::impl {
         for( const std::pair<std::string, value_constraint> &p : constraints_ ) {
             auto it = input_fields.find( p.first );
             if( it == input_fields.end() ) {
-                debugmsg( "event_transformation %s applies constraint to field %s, but no field "
+                debugmsg( "event_transformation {} applies constraint to field {}, but no field "
                           "with that name exists in the input", name, p.first );
             } else {
                 p.second.check( name, it->second );
@@ -514,7 +514,7 @@ struct event_transformation_impl : public event_transformation::impl {
 
         for( const std::string &drop_field_name : drop_fields_ ) {
             if( input_fields.find( drop_field_name ) == input_fields.end() ) {
-                debugmsg( "event_transformation %s lists field %s to be dropped, but no field "
+                debugmsg( "event_transformation {} lists field {} to be dropped, but no field "
                           "with that name exists in the input", name, drop_field_name );
             }
         }
@@ -714,13 +714,13 @@ struct event_statistic_field_summary : event_statistic::impl {
             auto get_first = []( const std::pair<const std::string, cata_variant_type> &p ) {
                 return p.first;
             };
-            debugmsg( "event_statistic %s refers to field %s in event source %s, but that source "
-                      "has no such field.  Its fields are %s.",
+            debugmsg( "event_statistic {} refers to field {} in event source {}, but that source "
+                      "has no such field.  Its fields are {}.",
                       name, field, source->debug_description(),
                       enumerate_as_string( event_fields, get_first ) );
         } else if( IntField && it->second != cata_variant_type::int_ ) {
-            debugmsg( "event_statistic %s refers to field %s in event source %s, and uses that "
-                      "field as if it were an int, but in fact that field has type %s.",
+            debugmsg( "event_statistic {} refers to field {} in event source {}, and uses that "
+                      "field as if it were an int, but in fact that field has type {}.",
                       name, field, source->debug_description(),
                       io::enum_to_string( it->second ) );
         }
@@ -1184,8 +1184,8 @@ std::string score::description( stats_tracker &stats ) const
         desc = stat_->description().translated();
     }
     if( description_.empty() ) {
-        //~ Default format for scores.  %1$s is statistic description; %2$s is value.
-        return string_format( _( "%2$s %1$s" ), desc, value_string );
+        //~ Default format for scores.  {1} is statistic description; {2} is value.
+        return string_format( _( "{2} {1}" ), desc, value_string );
     } else {
         return string_format( desc, value_string );
     }
@@ -1205,6 +1205,6 @@ void score::load( const JsonObject &jo, const std::string & )
 void score::check() const
 {
     if( !stat_.is_valid() ) {
-        debugmsg( "score %s refers to invalid statistic %s", id.str(), stat_.str() );
+        debugmsg( "score {} refers to invalid statistic {}", id.str(), stat_.str() );
     }
 }

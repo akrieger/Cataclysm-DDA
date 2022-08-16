@@ -222,7 +222,7 @@ dealt_damage_instance::dealt_damage_instance()
 void dealt_damage_instance::set_damage( damage_type dt, int amount )
 {
     if( static_cast<int>( dt ) < 0 || dt >= damage_type::NUM ) {
-        debugmsg( "Tried to set invalid damage type %d. damage_type::NUM is %d", dt, damage_type::NUM );
+        debugmsg( "Tried to set invalid damage type {}. damage_type::NUM is {}", dt, damage_type::NUM );
         return;
     }
 

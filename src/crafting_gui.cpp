@@ -70,8 +70,8 @@ enum CRAFTING_SPEED_STATE {
 static const std::map<const CRAFTING_SPEED_STATE, translation> craft_speed_reason_strings = {
     {TOO_DARK_TO_CRAFT, to_translation( "too dark to craft" )},
     {TOO_SLOW_TO_CRAFT, to_translation( "unable to craft" )},
-    {SLOW_BUT_CRAFTABLE, to_translation( "crafting is slow %d%%" )},
-    {FAST_CRAFTING, to_translation( "crafting is fast %d%%" )},
+    {SLOW_BUT_CRAFTABLE, to_translation( "crafting is slow {}%%" )},
+    {FAST_CRAFTING, to_translation( "crafting is fast {}%%" )},
     {NORMAL_CRAFTING, to_translation( "craftable" )}
 };
 
@@ -269,44 +269,44 @@ static std::vector<std::string> recipe_info(
 {
     std::ostringstream oss;
 
-    oss << string_format( _( "Primary skill: %s\n" ), recp.primary_skill_string( guy ) );
+    oss << string_format( _( "Primary skill: {}\n" ), recp.primary_skill_string( guy ) );
 
     if( !recp.required_skills.empty() ) {
-        oss << string_format( _( "Other skills: %s\n" ), recp.required_skills_string( guy ) );
+        oss << string_format( _( "Other skills: {}\n" ), recp.required_skills_string( guy ) );
     }
 
     const std::string req_profs = recp.required_proficiencies_string( &guy );
     if( !req_profs.empty() ) {
-        oss << string_format( _( "Proficiencies Required: %s\n" ), req_profs );
+        oss << string_format( _( "Proficiencies Required: {}\n" ), req_profs );
     }
     const std::string used_profs = recp.used_proficiencies_string( &guy );
     if( !used_profs.empty() ) {
-        oss << string_format( _( "Proficiencies Used: %s\n" ), used_profs );
+        oss << string_format( _( "Proficiencies Used: {}\n" ), used_profs );
     }
     const std::string missing_profs = recp.missing_proficiencies_string( &guy );
     if( !missing_profs.empty() ) {
-        oss << string_format( _( "Proficiencies Missing: %s\n" ), missing_profs );
+        oss << string_format( _( "Proficiencies Missing: {}\n" ), missing_profs );
     }
 
     const int expected_turns = guy.expected_time_to_craft( recp, batch_size )
                                / to_moves<int>( 1_turns );
-    oss << string_format( _( "Time to complete: <color_cyan>%s</color>\n" ),
+    oss << string_format( _( "Time to complete: <color_cyan>{}</color>\n" ),
                           to_string( time_duration::from_turns( expected_turns ) ) );
 
     const std::string batch_savings = recp.batch_savings_string();
     if( !batch_savings.empty() ) {
-        oss << string_format( _( "Batch time savings: <color_cyan>%s</color>\n" ), batch_savings );
+        oss << string_format( _( "Batch time savings: <color_cyan>{}</color>\n" ), batch_savings );
     }
 
-    oss << string_format( _( "Activity level: <color_cyan>%s</color>\n" ),
+    oss << string_format( _( "Activity level: <color_cyan>{}</color>\n" ),
                           display::activity_level_str( recp.exertion_level() ) );
 
     const int makes = recp.makes_amount();
     if( makes > 1 ) {
-        oss << string_format( _( "Recipe makes: <color_cyan>%d</color>\n" ), makes );
+        oss << string_format( _( "Recipe makes: <color_cyan>{}</color>\n" ), makes );
     }
 
-    oss << string_format( _( "Craftable in the dark?  <color_cyan>%s</color>\n" ),
+    oss << string_format( _( "Craftable in the dark?  <color_cyan>{}</color>\n" ),
                           recp.has_flag( flag_BLIND_EASY ) ? _( "Easy" ) :
                           recp.has_flag( flag_BLIND_HARD ) ? _( "Hard" ) :
                           _( "Impossible" ) );
@@ -321,9 +321,9 @@ static std::vector<std::string> recipe_info(
             // at some point you get too many to count at a glance and just know you have a lot
             nearby_string = _( "<color_red>It's Over 9000!!!</color>" );
         } else {
-            nearby_string = string_format( "<color_yellow>%d</color>", nearby_amount );
+            nearby_string = string_format( "<color_yellow>{}</color>", nearby_amount );
         }
-        oss << string_format( _( "Nearby: %s\n" ), nearby_string );
+        oss << string_format( _( "Nearby: {}\n" ), nearby_string );
     }
 
     const bool can_craft_this = avail.can_craft;
@@ -368,9 +368,9 @@ static std::vector<std::string> recipe_info(
             int amount = bp.second * batch_size;
             if( t->count_by_charges() ) {
                 amount *= t->charges_default();
-                oss << string_format( "> %s (%d)\n", t->nname( 1 ), amount );
+                oss << string_format( "> {} ({})\n", t->nname( 1 ), amount );
             } else {
-                oss << string_format( "> %d %s\n", amount,
+                oss << string_format( "> {} {}\n", amount,
                                       t->nname( static_cast<unsigned int>( amount ) ) );
             }
         }
@@ -395,7 +395,7 @@ static std::vector<std::string> recipe_info(
             []( const itype_id & type_id ) {
                 return colorize( item::nname( type_id ), c_cyan );
             } );
-            oss << string_format( _( "Written in: %s\n" ), enumerated_books );
+            oss << string_format( _( "Written in: {}\n" ), enumerated_books );
         } else {
             std::vector<const npc *> knowing_helpers;
             for( const npc *helper : guy.get_crafting_helpers() ) {
@@ -408,7 +408,7 @@ static std::vector<std::string> recipe_info(
                 []( const npc * helper ) {
                     return colorize( helper->get_name(), c_cyan );
                 } );
-                oss << string_format( _( "Known by: %s\n" ), enumerated_helpers );
+                oss << string_format( _( "Known by: {}\n" ), enumerated_helpers );
             }
         }
     }
@@ -424,7 +424,7 @@ static std::string practice_recipe_description( const recipe &recp,
     std::ostringstream oss;
     oss << recp.description.translated() << "\n\n";
     if( recp.practice_data->min_difficulty != recp.practice_data->max_difficulty ) {
-        std::string txt = string_format( _( "Difficulty range: %d to %d" ),
+        std::string txt = string_format( _( "Difficulty range: {} to {}" ),
                                          recp.practice_data->min_difficulty, recp.practice_data->max_difficulty );
         oss << txt << "\n";
     }
@@ -432,17 +432,17 @@ static std::string practice_recipe_description( const recipe &recp,
         const int player_skill_level = player_character.get_all_skills().get_skill_level( recp.skill_used );
         if( player_skill_level < recp.practice_data->min_difficulty ) {
             std::string txt = string_format(
-                                  _( "You do not possess the minimum <color_cyan>%s</color> skill level required to practice this." ),
+                                  _( "You do not possess the minimum <color_cyan>{}</color> skill level required to practice this." ),
                                   recp.skill_used->name() );
-            txt = string_format( "<color_red>%s</color>", txt );
+            txt = string_format( "<color_red>{}</color>", txt );
             oss << txt << "\n";
         }
         if( recp.practice_data->skill_limit != MAX_SKILL ) {
             std::string txt = string_format(
-                                  _( "This practice action will not increase your <color_cyan>%s</color> skill above %d." ),
+                                  _( "This practice action will not increase your <color_cyan>{}</color> skill above {}." ),
                                   recp.skill_used->name(), recp.practice_data->skill_limit );
             if( player_skill_level >= recp.practice_data->skill_limit ) {
-                txt = string_format( "<color_brown>%s</color>", txt );
+                txt = string_format( "<color_brown>{}</color>", txt );
             }
             oss << txt << "\n";
         }
@@ -543,7 +543,7 @@ void recipe_result_info_cache::get_item_header( item &dummy_item, const int quan
         //Add summary line.  Don't need to indicate count if there's only 1
         info.emplace_back( "DESCRIPTION",
                            "<bold>" + classification + ": </bold>" + dummy_item.display_name( total_quantity ) +
-                           ( total_quantity == 1 ? "" : string_format( " (%d)", total_quantity ) ) );
+                           ( total_quantity == 1 ? "" : string_format( " ({})", total_quantity ) ) );
     }
     if( dummy_item.has_flag( flag_VARSIZE ) &&
         dummy_item.has_flag( flag_FIT ) ) {
@@ -888,14 +888,14 @@ const recipe *select_crafting_recipe( int &batch_size_out, const recipe_id goto_
 
         // Keybinding tips
         static const translation inline_fmt = to_translation(
-                //~ %1$s: action description text before key,
-                //~ %2$s: key description,
-                //~ %3$s: action description text after key.
-                "keybinding", "%1$s[<color_yellow>%2$s</color>]%3$s" );
+                //~ {1}: action description text before key,
+                //~ {2}: key description,
+                //~ {3}: action description text after key.
+                "keybinding", "{1}[<color_yellow>{2}</color>]{3}" );
         static const translation separate_fmt = to_translation(
-                //~ %1$s: key description,
-                //~ %2$s: action description.
-                "keybinding", "[<color_yellow>%1$s</color>]%2$s" );
+                //~ {1}: key description,
+                //~ {2}: action description.
+                "keybinding", "[<color_yellow>{1}</color>]{2}" );
         std::vector<std::string> act_descs;
         const auto add_action_desc = [&]( const std::string & act, const std::string & txt ) {
             act_descs.emplace_back( ctxt.get_desc( act, txt, input_context::allow_all_keys,
@@ -1105,7 +1105,7 @@ const recipe *select_crafting_recipe( int &batch_size_out, const recipe_id goto_
         for( int i = istart; i < iend; ++i ) {
             std::string tmp_name = current[i]->result_name( /*decorated=*/true );
             if( batch ) {
-                tmp_name = string_format( _( "%2dx %s" ), i + 1, tmp_name );
+                tmp_name = string_format( _( "{} {}" ), i + 1, tmp_name );
             }
             const bool rcp_read = !highlight_unread_recipes ||
                                   uistate.read_recipes.count( current[i]->ident() );
@@ -1118,10 +1118,10 @@ const recipe *select_crafting_recipe( int &batch_size_out, const recipe_id goto_
             int rcp_name_trim_width = max_recipe_name_width;
             if( !rcp_read ) {
                 const point offset( max_recipe_name_width - new_recipe_str_width, 0 );
-                mvwprintz( w_data, print_from + offset, new_recipe_str_col, "%s", new_recipe_str );
+                mvwprintz( w_data, print_from + offset, new_recipe_str_col, "{}", new_recipe_str );
                 rcp_name_trim_width -= new_recipe_str_width + 1;
             }
-            mvwprintz( w_data, print_from, col, "%s", trim_by_length( tmp_name, rcp_name_trim_width ) );
+            mvwprintz( w_data, print_from, col, "{}", trim_by_length( tmp_name, rcp_name_trim_width ) );
         }
 
         const int batch_size = batch ? line + 1 : 1;
@@ -1228,7 +1228,7 @@ const recipe *select_crafting_recipe( int &batch_size_out, const recipe_id goto_
                     }
                     last_update = now;
                     double percent = 100.0 * at / out_of;
-                    popup.message( _( "Searching… %3.0f%%\n" ), percent );
+                    popup.message( _( "Searching… {}.0f%%\n" ), percent );
                     ui_manager::redraw();
                     refresh_display();
                     inp_mngr.pump_events();
@@ -1455,14 +1455,14 @@ const recipe *select_crafting_recipe( int &batch_size_out, const recipe_id goto_
                 std::string example_name = _( "shirt" );
                 int padding = max_example_length - utf8_width( example_name );
                 description += string_format(
-                                   _( "  <color_white>%s</color>%.*s    %s\n" ),
+                                   _( "  <color_white>{}</color>%.*s    {}\n" ),
                                    example_name, padding, spaces,
                                    _( "<color_cyan>name</color> of resulting item" ) );
 
                 std::string example_exclude = _( "clean" );
                 padding = max_example_length - utf8_width( example_exclude );
                 description += string_format(
-                                   _( "  <color_yellow>-</color><color_white>%s</color>%.*s   %s\n" ),
+                                   _( "  <color_yellow>-</color><color_white>{}</color>%.*s   {}\n" ),
                                    example_exclude, padding, spaces,
                                    _( "<color_cyan>names</color> to exclude" ) );
             }
@@ -1470,7 +1470,7 @@ const recipe *select_crafting_recipe( int &batch_size_out, const recipe_id goto_
             for( const auto &prefix : prefixes ) {
                 int padding = max_example_length - utf8_width( prefix.example.translated() );
                 description += string_format(
-                                   _( "  <color_yellow>%c</color><color_white>:%s</color>%.*s  %s\n" ),
+                                   _( "  <color_yellow>{}</color><color_white>:{}</color>%.*s  {}\n" ),
                                    prefix.key, prefix.example, padding, spaces, prefix.description );
             }
 
@@ -1586,11 +1586,11 @@ const recipe *select_crafting_recipe( int &batch_size_out, const recipe_id goto_
                                "This cannot be undone. <color_yellow>/!\\</color>" );
             } else if( filterstring.empty() ) {
                 query_str = string_format( _( "Mark recipes in this tab as read?  This cannot be undone.  "
-                                              "You can mark all recipes by choosing yes and pressing %s again." ),
+                                              "You can mark all recipes by choosing yes and pressing {} again." ),
                                            ctxt.get_desc( "MARK_ALL_RECIPES_READ" ) );
             } else {
                 query_str = string_format( _( "Mark filtered recipes as read?  This cannot be undone.  "
-                                              "You can mark all recipes by choosing yes and pressing %s again." ),
+                                              "You can mark all recipes by choosing yes and pressing {} again." ),
                                            ctxt.get_desc( "MARK_ALL_RECIPES_READ" ) );
             }
             if( query_yn( query_str ) ) {
@@ -1785,13 +1785,13 @@ static int craft_info_width( const int window_width )
 static void draw_hidden_amount( const catacurses::window &w, int amount, int num_recipe )
 {
     if( amount == 1 ) {
-        right_print( w, 1, 1, c_red, string_format( _( "* %s hidden recipe - %s in category *" ), amount,
+        right_print( w, 1, 1, c_red, string_format( _( "* {} hidden recipe - {} in category *" ), amount,
                      num_recipe ) );
     } else if( amount >= 2 ) {
-        right_print( w, 1, 1, c_red, string_format( _( "* %s hidden recipes - %s in category *" ), amount,
+        right_print( w, 1, 1, c_red, string_format( _( "* {} hidden recipes - {} in category *" ), amount,
                      num_recipe ) );
     } else if( amount == 0 ) {
-        right_print( w, 1, 1, c_green, string_format( _( "* No hidden recipe - %s in category *" ),
+        right_print( w, 1, 1, c_green, string_format( _( "* No hidden recipe - {} in category *" ),
                      num_recipe ) );
     }
     //Finish border connection with the recipe tabs

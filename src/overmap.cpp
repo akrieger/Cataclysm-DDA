@@ -621,7 +621,7 @@ void overmap_specials::check_consistency()
     } );
 
     if( actual_count > max_count ) {
-        debugmsg( "There are too many mandatory overmap specials (%d > %d). Some of them may not be placed.",
+        debugmsg( "There are too many mandatory overmap specials ({} > {}). Some of them may not be placed.",
                   actual_count, max_count );
     }
 
@@ -631,10 +631,10 @@ void overmap_specials::check_consistency()
     for( const overmap_special &os : specials.get_all() ) {
         overmap_special_id new_id = overmap_special_migration::migrate( os.id );
         if( new_id.is_null() ) {
-            debugmsg( "Overmap special id %s has been removed or migrated to a different type.",
+            debugmsg( "Overmap special id {} has been removed or migrated to a different type.",
                       os.id.str() );
         } else if( new_id != os.id ) {
-            debugmsg( "Overmap special id %s has been migrated.  Use %s instead.", os.id.str(),
+            debugmsg( "Overmap special id {} has been migrated.  Use {} instead.", os.id.str(),
                       new_id.str() );
         }
     }
@@ -860,7 +860,7 @@ void oter_type_t::load( const JsonObject &jo, const std::string &src )
                                            << id.c_str() << " (" << name << ")";
         }
         if( !jo.has_string( "sym" ) && jo.has_number( "sym" ) ) {
-            debugmsg( "sym is defined as number instead of string for overmap_terrain %s (%s)", id.c_str(),
+            debugmsg( "sym is defined as number instead of string for overmap_terrain {} ({})", id.c_str(),
                       name );
         }
         load_overmap_terrain_mapgens( jo, id.str() );
@@ -898,7 +898,7 @@ void oter_type_t::register_terrain( const oter_t &peer, size_t n, size_t max_n )
 
     if( peer.id.is_valid() ) {
         directional_peers[n] = peer.id.id();
-        debugmsg( "Can't register the new overmap terrain \"%s\". It already exists.", peer.id.c_str() );
+        debugmsg( "Can't register the new overmap terrain \"{}\". It already exists.", peer.id.c_str() );
     } else {
         directional_peers[n] = terrains.insert( peer ).id.id();
     }
@@ -913,7 +913,7 @@ oter_id oter_type_t::get_first() const
 oter_id oter_type_t::get_rotated( om_direction::type dir ) const
 {
     if( dir == om_direction::type::invalid ) {
-        debugmsg( "Invalid rotation was asked from overmap terrain \"%s\".", id.c_str() );
+        debugmsg( "Invalid rotation was asked from overmap terrain \"{}\".", id.c_str() );
         return ot_null;
     } else if( dir == om_direction::type::none || !is_rotatable() ) {
         return directional_peers.front();
@@ -925,11 +925,11 @@ oter_id oter_type_t::get_rotated( om_direction::type dir ) const
 oter_id oter_type_t::get_linear( size_t n ) const
 {
     if( !has_flag( oter_flags::line_drawing ) ) {
-        debugmsg( "Overmap terrain \"%s \" isn't drawn with lines.", id.c_str() );
+        debugmsg( "Overmap terrain \"{} \" isn't drawn with lines.", id.c_str() );
         return ot_null;
     }
     if( n >= om_lines::size ) {
-        debugmsg( "Invalid overmap line (%d) was asked from overmap terrain \"%s\".", n, id.c_str() );
+        debugmsg( "Invalid overmap line ({}) was asked from overmap terrain \"{}\".", n, id.c_str() );
         return ot_null;
     }
     cata_assert( directional_peers.size() == om_lines::size );
@@ -1062,7 +1062,7 @@ void overmap_terrains::check_consistency()
     for( const oter_type_t &elem : terrain_types.get_all() ) {
         elem.check();
         if( elem.static_spawns.group && !elem.static_spawns.group.is_valid() ) {
-            debugmsg( "Invalid monster group \"%s\" in spawns of \"%s\".", elem.static_spawns.group.c_str(),
+            debugmsg( "Invalid monster group \"{}\" in spawns of \"{}\".", elem.static_spawns.group.c_str(),
                       elem.id.c_str() );
         }
     }
@@ -1078,12 +1078,12 @@ void overmap_terrains::check_consistency()
 
         if( has_mapgen_for( mid ) ) {
             if( test_mode && exists_hardcoded ) {
-                debugmsg( "Mapgen terrain \"%s\" exists in both JSON and a hardcoded function.  Consider removing the latter.",
+                debugmsg( "Mapgen terrain \"{}\" exists in both JSON and a hardcoded function.  Consider removing the latter.",
                           mid.c_str() );
             }
             check_mapgen_consistent_with( mid, elem );
         } else if( !exists_hardcoded ) {
-            debugmsg( "No mapgen terrain exists for \"%s\".", mid.c_str() );
+            debugmsg( "No mapgen terrain exists for \"{}\".", mid.c_str() );
         }
     }
 }
@@ -1317,10 +1317,10 @@ struct fixed_overmap_special_data : overmap_special_data {
         for( const overmap_special_terrain &t : terrains ) {
             if( !t.terrain.is_valid() ) {
                 if( oter_str_id( t.terrain.str() + "_north" ).is_valid() ) {
-                    debugmsg( "In %s, terrain \"%s\" rotates, but is specified without a "
+                    debugmsg( "In {}, terrain \"{}\" rotates, but is specified without a "
                               "rotation.", context, t.terrain.str() );
                 } else {
-                    debugmsg( "In %s, terrain \"%s\" is invalid.", context, t.terrain.str() );
+                    debugmsg( "In {}, terrain \"{}\" is invalid.", context, t.terrain.str() );
                 }
             }
             std::string mapgen_id = t.terrain->get_mapgen_id();
@@ -1343,10 +1343,10 @@ struct fixed_overmap_special_data : overmap_special_data {
                     // this is a little redundant, but whatever
                     oter_str_id invalid( oter.str() + "_north" );
                     if( invalid.is_valid() ) {
-                        debugmsg( "In %s, terrain \"%s\" rotates, but is specified without a "
+                        debugmsg( "In {}, terrain \"{}\" rotates, but is specified without a "
                                   "rotation.", context, oter.str() );
                     } else  {
-                        debugmsg( "In %s, terrain \"%s\" is invalid.", context, oter.str() );
+                        debugmsg( "In {}, terrain \"{}\" is invalid.", context, oter.str() );
                     }
                     invalid_terrains.insert( oter );
                 }
@@ -1355,19 +1355,19 @@ struct fixed_overmap_special_data : overmap_special_data {
             const tripoint &pos = elem.p;
 
             if( points.count( pos ) > 0 ) {
-                debugmsg( "In %s, point %s is duplicated.", context, pos.to_string() );
+                debugmsg( "In {}, point {} is duplicated.", context, pos.to_string() );
             } else {
                 points.insert( pos );
             }
 
             if( elem.locations.empty() ) {
-                debugmsg( "In %s, no location is defined for point %s or the "
+                debugmsg( "In {}, no location is defined for point {} or the "
                           "overall special.", context, pos.to_string() );
             }
 
             for( const auto &l : elem.locations ) {
                 if( !l.is_valid() ) {
-                    debugmsg( "In %s, point %s, location \"%s\" is invalid.",
+                    debugmsg( "In {}, point {}, location \"{}\" is invalid.",
                               context, pos.to_string(), l.c_str() );
                 }
             }
@@ -1376,13 +1376,13 @@ struct fixed_overmap_special_data : overmap_special_data {
         for( const overmap_special_connection &elem : connections ) {
             const overmap_special_terrain &oter = get_terrain_at( elem.p );
             if( !elem.terrain ) {
-                debugmsg( "In %s, connection %s doesn't have a terrain.",
+                debugmsg( "In {}, connection {} doesn't have a terrain.",
                           context, elem.p.to_string() );
             } else if( !elem.existing && !elem.terrain->has_flag( oter_flags::line_drawing ) ) {
-                debugmsg( "In %s, connection %s \"%s\" isn't drawn with lines.",
+                debugmsg( "In {}, connection {} \"{}\" isn't drawn with lines.",
                           context, elem.p.to_string(), elem.terrain.c_str() );
             } else if( !elem.existing && oter.terrain && !oter.terrain->type_is( elem.terrain ) ) {
-                debugmsg( "In %s, connection %s overwrites \"%s\".",
+                debugmsg( "In {}, connection {} overwrites \"{}\".",
                           context, elem.p.to_string(), oter.terrain.c_str() );
             }
 
@@ -1399,8 +1399,8 @@ struct fixed_overmap_special_data : overmap_special_data {
                     case direction::WEST:
                         continue;
                     default:
-                        debugmsg( "In %s, connection %s is not directly north, "
-                                  "east, south or west of the defined \"from\" %s.",
+                        debugmsg( "In {}, connection {} is not directly north, "
+                                  "east, south or west of the defined \"from\" {}.",
                                   context, elem.p.to_string(), elem.from->to_string() );
                         break;
                 }
@@ -1578,14 +1578,14 @@ struct mutable_overmap_terrain_join {
         if( join_it != joins.end() ) {
             join = join_it->second;
         } else {
-            debugmsg( "invalid join id %s in %s", join_id, context );
+            debugmsg( "invalid join id {} in {}", join_id, context );
         }
         for( const std::string &alt_join_id : alternative_join_ids ) {
             auto alt_join_it = joins.find( alt_join_id );
             if( alt_join_it != joins.end() ) {
                 alternative_joins.insert( alt_join_it->second );
             } else {
-                debugmsg( "invalid join id %s in %s", alt_join_id, context );
+                debugmsg( "invalid join id {} in {}", alt_join_id, context );
             }
         }
     }
@@ -1615,7 +1615,7 @@ struct mutable_special_connection {
 
     void check( const std::string &context ) const {
         if( !connection.is_valid() ) {
-            debugmsg( "invalid connection id %s in %s", connection.str(), context );
+            debugmsg( "invalid connection id {} in {}", connection.str(), context );
         }
     }
 };
@@ -1640,22 +1640,22 @@ struct mutable_overmap_terrain {
 
     void check( const std::string &context ) const {
         if( !terrain.is_valid() ) {
-            debugmsg( "invalid overmap terrain id %s in %s", terrain.str(), context );
+            debugmsg( "invalid overmap terrain id {} in {}", terrain.str(), context );
         }
 
         if( locations.empty() ) {
-            debugmsg( "In %s, no locations are defined", context );
+            debugmsg( "In {}, no locations are defined", context );
         }
 
         for( const string_id<overmap_location> &loc : locations ) {
             if( !loc.is_valid() ) {
-                debugmsg( "invalid overmap location id %s in %s", loc.str(), context );
+                debugmsg( "invalid overmap location id {} in {}", loc.str(), context );
             }
         }
 
         for( const std::pair<const cube_direction, mutable_special_connection> &p :
              connections ) {
-            p.second.check( string_format( "connection %s in %s", io::enum_to_string( p.first ),
+            p.second.check( string_format( "connection {} in {}", io::enum_to_string( p.first ),
                                            context ) );
         }
     }
@@ -1724,12 +1724,12 @@ struct mutable_overmap_placement_rule {
         for( mutable_overmap_placement_rule_piece &piece : pieces ) {
             bool inserted = pieces_by_pos.emplace( piece.pos, &piece ).second;
             if( !inserted ) {
-                debugmsg( "phase of %s has chunk with duplicated position %s",
+                debugmsg( "phase of {} has chunk with duplicated position {}",
                           context, piece.pos.to_string() );
             }
             auto it = special_overmaps.find( piece.overmap_id );
             if( it == special_overmaps.end() ) {
-                cata_fatal( "phase of %s specifies overmap %s which is not defined for that "
+                cata_fatal( "phase of {} specifies overmap {} which is not defined for that "
                             "special", context, piece.overmap_id );
             } else {
                 piece.overmap = &it->second;
@@ -1754,16 +1754,16 @@ struct mutable_overmap_placement_rule {
                     auto opposite_om_join =
                         other_om.joins.find( other_side.dir - other_piece.rot );
                     if( opposite_om_join == other_om.joins.end() ) {
-                        debugmsg( "in phase of %s, %s has adjacent pieces %s at %s and %s at "
-                                  "%s where the former has a join %s pointed towards the latter, "
+                        debugmsg( "in phase of {}, {} has adjacent pieces {} at {} and {} at "
+                                  "{} where the former has a join {} pointed towards the latter, "
                                   "but the latter has no join pointed towards the former",
                                   context, description(), piece.overmap_id, piece.pos.to_string(),
                                   other_piece.overmap_id, other_piece.pos.to_string(),
                                   ter_join.join_id );
                     } else if( opposite_om_join->second.join_id != opposite_join ) {
-                        debugmsg( "in phase of %s, %s has adjacent pieces %s at %s and %s at "
-                                  "%s where the former has a join %s pointed towards the latter, "
-                                  "expecting a matching join %s whereas the latter has the join %s "
+                        debugmsg( "in phase of {}, {} has adjacent pieces {} at {} and {} at "
+                                  "{} where the former has a join {} pointed towards the latter, "
+                                  "expecting a matching join {} whereas the latter has the join {} "
                                   "pointed towards the former",
                                   context, description(), piece.overmap_id, piece.pos.to_string(),
                                   other_piece.overmap_id, other_piece.pos.to_string(),
@@ -1776,11 +1776,11 @@ struct mutable_overmap_placement_rule {
     }
     void check( const std::string &context ) const {
         if( pieces.empty() ) {
-            cata_fatal( "phase of %s has chunk with zero pieces" );
+            cata_fatal( "phase of {} has chunk with zero pieces" );
         }
         int min_max = max.minimum();
         if( min_max < 0 ) {
-            debugmsg( "phase of %s specifies max which might be as low as %d; this should "
+            debugmsg( "phase of {} specifies max which might be as low as {}; this should "
                       "be a positive number", context, min_max );
         }
     }
@@ -1909,7 +1909,7 @@ class joins_tracker
                     } else {
                         const join &unr_j = *unr.front();
                         cata_fatal( "postponed and unresolved should be disjoint but are not at "
-                                    "%s where unresolved has %s: %s",
+                                    "{} where unresolved has {}: {}",
                                     j_pos.to_string(), unr_j.where.p.to_string(), unr_j.join_id );
                     }
                 }
@@ -2315,7 +2315,7 @@ struct mutable_overmap_phase_remainder {
         }
         std::string joins_s = enumerate_as_string( unresolved.all_unresolved_at( pos ),
         []( const joins_tracker::join * j ) {
-            return string_format( "%s: %s", io::enum_to_string( j->where.dir ), j->join->id );
+            return string_format( "{}: {}", io::enum_to_string( j->where.dir ), j->join->id );
         } );
 
         if( satisfy_result *picked = options.pick() ) {
@@ -2324,8 +2324,8 @@ struct mutable_overmap_phase_remainder {
             picked->description =
                 string_format(
                     // NOLINTNEXTLINE(cata-translate-string-literal)
-                    "At %s chose '%s' rot %d with neighbours N:%s E:%s S:%s W:%s and constraints "
-                    "%s",
+                    "At {} chose '{}' rot {} with neighbours N:{} E:{} S:{} W:{} and constraints "
+                    "{}",
                     pos.to_string(), rule.description(), static_cast<int>( dir ),
                     om.ter( pos + point_north ).id().str(), om.ter( pos + point_east ).id().str(),
                     om.ter( pos + point_south ).id().str(), om.ter( pos + point_west ).id().str(),
@@ -2336,7 +2336,7 @@ struct mutable_overmap_phase_remainder {
             std::string rules_s = enumerate_as_string( rules,
             []( const mutable_overmap_placement_rule_remainder & rule ) {
                 if( rule.is_exhausted() ) {
-                    return string_format( "(%s)", rule.description() );
+                    return string_format( "({})", rule.description() );
                 } else {
                     return rule.description();
                 }
@@ -2344,8 +2344,8 @@ struct mutable_overmap_phase_remainder {
             std::string message =
                 string_format(
                     // NOLINTNEXTLINE(cata-translate-string-literal)
-                    "At %s FAILED to match on terrain %s with neighbours N:%s E:%s S:%s W:%s and "
-                    "constraints %s from amongst rules %s",
+                    "At {} FAILED to match on terrain {} with neighbours N:{} E:{} S:{} W:{} and "
+                    "constraints {} from amongst rules {}",
                     pos.to_string(), om.ter( pos ).id().str(),
                     om.ter( pos + point_north ).id().str(), om.ter( pos + point_east ).id().str(),
                     om.ter( pos + point_south ).id().str(), om.ter( pos + point_west ).id().str(),
@@ -2470,7 +2470,7 @@ struct mutable_overmap_special_data : overmap_special_data {
         }
         for( std::pair<const std::string, mutable_overmap_terrain> &p : overmaps ) {
             mutable_overmap_terrain &ter = p.second;
-            ter.finalize( string_format( "overmap %s in %s", p.first, context ), joins,
+            ter.finalize( string_format( "overmap {} in {}", p.first, context ), joins,
                           default_locations );
         }
         for( mutable_overmap_phase &phase : phases ) {
@@ -2491,27 +2491,27 @@ struct mutable_overmap_special_data : overmap_special_data {
 
     void check( const std::string &context ) const override {
         if( joins_vec.size() != joins.size() ) {
-            debugmsg( "duplicate join id in %s", context );
+            debugmsg( "duplicate join id in {}", context );
         }
         for( const mutable_overmap_join &join : joins_vec ) {
             if( join.opposite ) {
                 if( join.opposite->opposite_id != join.id ) {
-                    debugmsg( "in %1$s: join id %2$s specifies its opposite to be %3$s, but "
-                              "the opposite of %3$s is %4$s, when it should match the "
-                              "original id %2$s",
+                    debugmsg( "in {1}: join id {2} specifies its opposite to be {3}, but "
+                              "the opposite of {3} is {4}, when it should match the "
+                              "original id {2}",
                               context, join.id, join.opposite_id, join.opposite->opposite_id );
                 }
             } else {
-                debugmsg( "in %s: join id '%s' specified as opposite of '%s' not valid",
+                debugmsg( "in {}: join id '{}' specified as opposite of '{}' not valid",
                           context, join.opposite_id, join.id );
             }
         }
         for( const std::pair<const std::string, mutable_overmap_terrain> &p : overmaps ) {
             const mutable_overmap_terrain &ter = p.second;
-            ter.check( string_format( "overmap %s in %s", p.first, context ) );
+            ter.check( string_format( "overmap {} in {}", p.first, context ) );
         }
         if( !overmaps.count( root ) ) {
-            debugmsg( "root %s is not amongst the defined overmaps for %s", root, context );
+            debugmsg( "root {} is not amongst the defined overmaps for {}", root, context );
         }
         for( const mutable_overmap_phase &phase : phases ) {
             for( const mutable_overmap_placement_rule &rule : phase.rules ) {
@@ -2523,7 +2523,7 @@ struct mutable_overmap_special_data : overmap_special_data {
     overmap_special_terrain root_as_overmap_special_terrain() const {
         auto it = overmaps.find( root );
         if( it == overmaps.end() ) {
-            debugmsg( "root '%s' is not an overmap in this special", root );
+            debugmsg( "root '{}' is not an overmap in this special", root );
             return {};
         }
         const mutable_overmap_terrain &root_om = it->second;
@@ -2555,7 +2555,7 @@ struct mutable_overmap_special_data : overmap_special_data {
 
         auto it = overmaps.find( root );
         if( it == overmaps.end() ) {
-            debugmsg( "Invalid root %s", root );
+            debugmsg( "Invalid root {}", root );
             return { result, {} };
         }
 
@@ -2624,7 +2624,7 @@ struct mutable_overmap_special_data : overmap_special_data {
                 }
                 descriptions.push_back(
                     // NOLINTNEXTLINE(cata-translate-string-literal)
-                    string_format( "## Entering phase %td", current_phase - phases.begin() ) );
+                    string_format( "## Entering phase {}", current_phase - phases.begin() ) );
                 phase_remaining = current_phase->realise();
                 unresolved.restore_postponed();
             }
@@ -2640,19 +2640,19 @@ struct mutable_overmap_special_data : overmap_special_data {
             std::string joins = enumerate_as_string( unresolved.all_unresolved_at( p ),
             []( const joins_tracker::join * dir_join ) {
                 // NOLINTNEXTLINE(cata-translate-string-literal)
-                return string_format( "%s: %s", io::enum_to_string( dir_join->where.dir ),
+                return string_format( "{}: {}", io::enum_to_string( dir_join->where.dir ),
                                       dir_join->join->id );
             } );
 
-            debugmsg( "Spawn of mutable special %s had unresolved joins.  Existing terrain "
-                      "at %s was %s; joins were %s\nComplete record of placement follows:\n%s",
+            debugmsg( "Spawn of mutable special {} had unresolved joins.  Existing terrain "
+                      "at {} was {}; joins were {}\nComplete record of placement follows:\n{}",
                       parent_id.str(), p.to_string(), current_terrain.id().str(), joins,
                       join( descriptions, "\n" ) );
 
             om.add_note(
                 p, string_format(
                     // NOLINTNEXTLINE(cata-translate-string-literal)
-                    "U:R;DEBUG: unresolved joins %s at %s placing %s",
+                    "U:R;DEBUG: unresolved joins {} at {} placing {}",
                     joins, p.to_string(), parent_id.str() ) );
         }
 
@@ -2848,7 +2848,7 @@ void overmap_special::load( const JsonObject &jo, const std::string &src )
             break;
         }
         default:
-            jo.throw_error( string_format( "subtype %s not implemented",
+            jo.throw_error( string_format( "subtype {} not implemented",
                                            io::enum_to_string( subtype_ ) ) );
     }
 
@@ -2875,13 +2875,13 @@ void overmap_special::finalize_mapgen_parameters()
 {
     // Extract all the map_special-scoped params from the constituent terrains
     // and put them here
-    std::string context = string_format( "overmap_special %s", id.str() );
+    std::string context = string_format( "overmap_special {}", id.str() );
     data_->finalize_mapgen_parameters( mapgen_params_, context );
 }
 
 void overmap_special::check() const
 {
-    data_->check( string_format( "overmap special %s", id.str() ) );
+    data_->check( string_format( "overmap special {}", id.str() ) );
 }
 
 // *** BEGIN overmap FUNCTIONS ***
@@ -2891,7 +2891,7 @@ overmap::overmap( const point_abs_om &p ) : loc( p )
     t_regional_settings_map_citr rsit = region_settings_map.find( rsettings_id );
 
     if( rsit == region_settings_map.end() ) {
-        debugmsg( "overmap%s: can't find region '%s'", p.to_string(),
+        debugmsg( "overmap{}: can't find region '{}'", p.to_string(),
                   rsettings_id.c_str() ); // gonna die now =[
     }
     settings = &rsit->second;
@@ -2906,7 +2906,7 @@ void overmap::populate( overmap_special_batch &enabled_specials )
     try {
         open( enabled_specials );
     } catch( const std::exception &err ) {
-        debugmsg( "overmap (%d,%d) failed to load: %s", loc.x(), loc.y(), err.what() );
+        debugmsg( "overmap ({},{}) failed to load: {}", loc.x(), loc.y(), err.what() );
     }
 }
 
@@ -3181,7 +3181,7 @@ const std::string &overmap::note( const tripoint_om_omt &p ) const
 void overmap::add_note( const tripoint_om_omt &p, std::string message )
 {
     if( p.z() < -OVERMAP_DEPTH || p.z() > OVERMAP_HEIGHT ) {
-        debugmsg( "Attempting to add not to overmap for blank layer %d", p.z() );
+        debugmsg( "Attempting to add not to overmap for blank layer {}", p.z() );
         return;
     }
 
@@ -3261,7 +3261,7 @@ const map_extra_id &overmap::extra( const tripoint_om_omt &p ) const
 void overmap::add_extra( const tripoint_om_omt &p, const map_extra_id &id )
 {
     if( p.z() < -OVERMAP_DEPTH || p.z() > OVERMAP_HEIGHT ) {
-        debugmsg( "Attempting to add not to overmap for blank layer %d", p.z() );
+        debugmsg( "Attempting to add not to overmap for blank layer {}", p.z() );
         return;
     }
 
@@ -3314,7 +3314,7 @@ void overmap::add_extra_note( const tripoint_om_omt &p )
         const std::string note_symbol = symbol ? ( *symbol ).get_symbol_string() : extra->get_symbol();
         const nc_color note_color = symbol ? ( *symbol ).get_color() : extra->color;
         const std::string mx_note =
-            string_format( "%s:%s;<color_yellow>%s</color>: <color_white>%s</color>",
+            string_format( "{}:{};<color_yellow>{}</color>: <color_white>{}</color>",
                            note_symbol,
                            get_note_string_from_color( note_color ),
                            extra->name(),
@@ -3384,7 +3384,7 @@ void overmap::generate( const overmap *north, const overmap *east,
     const std::string overmap_pregenerated_path =
         get_option<std::string>( "OVERMAP_PREGENERATED_PATH" );
     if( !overmap_pregenerated_path.empty() ) {
-        const std::string fpath = string_format( "%s/%s/overmap_%d_%d.omap.gz",
+        const std::string fpath = string_format( "{}/{}/overmap_{}{}.omap.gz",
                                   PATH_INFO::moddir(),
                                   overmap_pregenerated_path, pos().x(), pos().y() );
         dbg( D_INFO ) << "trying" << fpath;
@@ -4206,11 +4206,11 @@ void overmap::signal_hordes( const tripoint_rel_sm &p_rel, const int sig_power )
                 const int min_inc_inter = 3; // Min interest increase to already targeted source
                 const int inc_roll = rng( min_inc_inter, calculated_inter );
                 mg.inc_interest( inc_roll );
-                add_msg_debug( debugmode::DF_OVERMAP, "horde inc interest %d dist %d", inc_roll, dist );
+                add_msg_debug( debugmode::DF_OVERMAP, "horde inc interest {} dist {}", inc_roll, dist );
             } else { // New signal source
                 mg.set_target( absp.xy() );
                 mg.set_interest( min_capped_inter );
-                add_msg_debug( debugmode::DF_OVERMAP, "horde set interest %d dist %d", min_capped_inter, dist );
+                add_msg_debug( debugmode::DF_OVERMAP, "horde set interest {} dist {}", min_capped_inter, dist );
             }
         }
     }
@@ -5639,7 +5639,7 @@ void overmap::build_connection(
         const overmap_connection::subtype *subtype = connection.pick_subtype_for( ter_id );
 
         if( !subtype ) {
-            debugmsg( "No suitable subtype of connection \"%s\" found for \"%s\".", connection.id.c_str(),
+            debugmsg( "No suitable subtype of connection \"{}\" found for \"{}\".", connection.id.c_str(),
                       ter_id.id().c_str() );
             return;
         }
@@ -5692,7 +5692,7 @@ void overmap::build_connection(
             }
 
             if( new_line == om_lines::invalid ) {
-                debugmsg( "Invalid path for connection \"%s\".", connection.id.c_str() );
+                debugmsg( "Invalid path for connection \"{}\".", connection.id.c_str() );
                 return;
             }
 
@@ -5918,7 +5918,7 @@ point om_direction::rotate( const point &p, type dir )
     switch( dir ) {
         case om_direction::type::invalid:
         case om_direction::type::last:
-            debugmsg( "Invalid overmap rotation (%d).", static_cast<int>( dir ) );
+            debugmsg( "Invalid overmap rotation ({}).", static_cast<int>( dir ) );
         // Intentional fallthrough.
         case om_direction::type::north:
             break;  // No need to do anything.
@@ -6469,13 +6469,13 @@ void overmap::place_radios()
                     radios.emplace_back( pos_sm, strength(), message );
                 }
             } else if( is_ot_match( "lmoe", ter( pos_omt ), ot_match_type::prefix ) ) {
-                message = string_format( _( "This is automated emergency shelter beacon %d%d."
+                message = string_format( _( "This is automated emergency shelter beacon {}{}."
                                             "  Supplies, amenities and shelter are stocked." ), i, j );
                 radios.emplace_back( pos_sm, strength() / 2, message );
             } else if( is_ot_match( "fema_entrance", ter( pos_omt ), ot_match_type::prefix ) ) {
-                message = string_format( _( "This is FEMA camp %d%d."
+                message = string_format( _( "This is FEMA camp {}{}."
                                             "  Supplies are limited, please bring supplemental food, water, and bedding."
-                                            "  This is FEMA camp %d%d.  A designated long-term emergency shelter." ), i, j, i, j );
+                                            "  This is FEMA camp {}{}.  A designated long-term emergency shelter." ), i, j, i, j );
                 radios.emplace_back( pos_sm, strength(), message );
             }
         }
@@ -6748,7 +6748,7 @@ void overmap_special_migration::check()
 {
     for( const overmap_special_migration &mig : migrations.get_all() ) {
         if( !mig.new_id.is_null() && !mig.new_id.is_valid() ) {
-            debugmsg( "Invalid new_id \"%s\" for overmap special migration \"%s\"", mig.new_id.c_str(),
+            debugmsg( "Invalid new_id \"{}\" for overmap special migration \"{}\"", mig.new_id.c_str(),
                       mig.id.c_str() );
         }
     }

@@ -219,7 +219,7 @@ TEST_CASE( "fire spreading", "[field][!mayfail]" )
             REQUIRE( m.get_field( p, fd_fire ) );
         }
         {
-            INFO( string_format( "Fire should've spread to the far point in under %d turns",
+            INFO( string_format( "Fire should've spread to the far point in under {} turns",
                                  time_limit_turns ) );
             CHECK( fields_test_turns() < time_limit_turns );
         }
@@ -271,7 +271,7 @@ TEST_CASE( "fd_fire and fd_fire_vent test", "[field]" )
     }
 
     {
-        INFO( string_format( "Should've converted to flame burst in under %d turns", time_limit_turns ) );
+        INFO( string_format( "Should've converted to flame burst in under {} turns", time_limit_turns ) );
         CHECK( fields_test_turns() < time_limit_turns );
     }
 
@@ -364,7 +364,7 @@ TEST_CASE( "radioactive field", "[field]" )
         m.process_fields();
     }
     {
-        INFO( string_format( "Terrain should be irradiated in no more than %d turns", time_limit_turns ) );
+        INFO( string_format( "Terrain should be irradiated in no more than {} turns", time_limit_turns ) );
         CHECK( fields_test_turns() <= time_limit_turns );
     }
 
@@ -395,7 +395,7 @@ TEST_CASE( "fungal haze test", "[field]" )
         }
     }
     {
-        INFO( string_format( "Terrain should be fungalized in below %d turns", time_limit_turns ) );
+        INFO( string_format( "Terrain should be fungalized in below {} turns", time_limit_turns ) );
         CHECK( fields_test_turns() < time_limit_turns );
     }
 
@@ -432,7 +432,7 @@ TEST_CASE( "player_in_field test", "[field][player]" )
         is_field_alive = sap_field && sap_field->is_field_alive();
     }
     {
-        INFO( string_format( "Sap should disappear in under %d turns", time_limit_turns ) );
+        INFO( string_format( "Sap should disappear in under {} turns", time_limit_turns ) );
         CHECK( fields_test_turns() < time_limit_turns );
     }
 

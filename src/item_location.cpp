@@ -297,7 +297,7 @@ class item_location::impl::item_on_person : public item_location::impl
                 who = g->critter_by_id<Character>( who_id );
                 if( !who ) {
                     // If we failed to find it throw a debug message cause we're probably going to crash soon
-                    debugmsg( "Failed to find item_location owner with character_id %d", who_id.get_value() );
+                    debugmsg( "Failed to find item_location owner with character_id {}", who_id.get_value() );
                     return false;
                 }
             }
@@ -610,7 +610,7 @@ class item_location::impl::item_in_container : public item_location::impl
             if( !target() ) {
                 return std::string();
             }
-            return string_format( _( "inside %s" ), container->tname() );
+            return string_format( _( "inside {}" ), container->tname() );
         }
 
         type where() const override {
@@ -672,7 +672,7 @@ class item_location::impl::item_in_container : public item_location::impl
 
             const int container_mv = container->obtain_cost( *target() );
             if( container_mv == 0 ) {
-                debugmsg( "ERROR: %s does not contain %s", container->tname(), target()->tname() );
+                debugmsg( "ERROR: {} does not contain {}", container->tname(), target()->tname() );
                 return 0;
             }
 

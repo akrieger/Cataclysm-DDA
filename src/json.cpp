@@ -140,10 +140,10 @@ void JsonObject::report_unvisited() const
                 try {
                     throw_error_at(
                         name,
-                        string_format( "Invalid or misplaced field name \"%s\" in JSON data, or "
+                        string_format( "Invalid or misplaced field name \"{}\" in JSON data, or "
                                        "value in unexpected format.", name ) );
                 } catch( const JsonError &e ) {
-                    debugmsg( "(json-error)\n%s", e.what() );
+                    debugmsg( "(json-error)\n{}", e.what() );
                 }
             }
         }
@@ -1779,11 +1779,11 @@ static std::string escape_property( std::string str )
         case error_log_format_t::human_readable:
             break;
         case error_log_format_t::github_action:
-            replace_substring( str, "%", "%25", true );
-            replace_substring( str, "\r", "%0D", true ); // NOLINT(cata-text-style)
-            replace_substring( str, "\n", "%0A", true );
-            replace_substring( str, ":", "%3A", true );
-            replace_substring( str, ",", "%2C", true );
+            replace_substring( str, "%", "{}", true );
+            replace_substring( str, "\r", "{}", true ); // NOLINT(cata-text-style)
+            replace_substring( str, "\n", "{}", true );
+            replace_substring( str, ":", "{}", true );
+            replace_substring( str, ",", "{}", true );
             break;
     }
     return str;
@@ -1799,9 +1799,9 @@ static std::string escape_data( std::string str )
         case error_log_format_t::human_readable:
             break;
         case error_log_format_t::github_action:
-            replace_substring( str, "%", "%25", true );
-            replace_substring( str, "\r", "%0D", true ); // NOLINT(cata-text-style)
-            replace_substring( str, "\n", "%0A", true );
+            replace_substring( str, "%", "{}", true );
+            replace_substring( str, "\r", "{}", true ); // NOLINT(cata-text-style)
+            replace_substring( str, "\n", "{}", true );
             break;
     }
     return str;

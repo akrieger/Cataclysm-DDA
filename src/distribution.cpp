@@ -29,7 +29,7 @@ struct fixed_distribution : int_distribution_impl {
 
     std::string description() const override {
         // NOLINTNEXTLINE(cata-translate-string-literal)
-        return string_format( "Fixed(%d)", value );
+        return string_format( "Fixed({})", value );
     }
 };
 

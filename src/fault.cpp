@@ -23,7 +23,7 @@ const fault &string_id<fault>::obj() const
 {
     const auto found = faults_all.find( *this );
     if( found == faults_all.end() ) {
-        debugmsg( "Tried to get invalid fault: %s", c_str() );
+        debugmsg( "Tried to get invalid fault: {}", c_str() );
         static const fault null_fault{};
         return null_fault;
     }
@@ -91,29 +91,29 @@ void fault::check_consistency()
     for( const auto &f : faults_all ) {
         for( const auto &m : f.second.mending_methods_ ) {
             if( !m.second.requirements.is_valid() ) {
-                debugmsg( "fault %s has invalid requirement id %s for mending method %s",
+                debugmsg( "fault {} has invalid requirement id {} for mending method {}",
                           f.second.id_.str(), m.second.requirements.str(), m.first );
             }
             if( m.second.time < 0_turns ) {
-                debugmsg( "fault %s requires negative mending time for mending method %s",
+                debugmsg( "fault {} requires negative mending time for mending method {}",
                           f.second.id_.str(), m.first );
             }
             for( const auto &sk : m.second.skills ) {
                 if( !sk.first.is_valid() ) {
-                    debugmsg( "fault %s requires unknown skill %s for mending method %s",
+                    debugmsg( "fault {} requires unknown skill {} for mending method {}",
                               f.second.id_.str(), sk.first.str(), m.first );
                 }
                 if( sk.second <= 0 ) {
-                    debugmsg( "fault %s requires non-positive level of skill %s for mending method %s",
+                    debugmsg( "fault {} requires non-positive level of skill {} for mending method {}",
                               f.second.id_.str(), sk.first.str(), m.first );
                 }
             }
             if( m.second.turns_into && !m.second.turns_into->is_valid() ) {
-                debugmsg( "fault %s has invalid turns_into fault id %s for mending method %s",
+                debugmsg( "fault {} has invalid turns_into fault id {} for mending method {}",
                           f.second.id_.str(), m.second.turns_into->str(), m.first );
             }
             if( m.second.also_mends && !m.second.also_mends->is_valid() ) {
-                debugmsg( "fault %s has invalid also_mends fault id %s for mending method %s",
+                debugmsg( "fault {} has invalid also_mends fault id {} for mending method {}",
                           f.second.id_.str(), m.second.also_mends->str(), m.first );
             }
         }

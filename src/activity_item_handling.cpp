@@ -187,8 +187,8 @@ static bool handle_spillable_contents( Character &c, item &it, map &m )
         // rest of the contents
         if( !it.empty() ) {
             c.add_msg_player_or_npc(
-                _( "To avoid spilling its contents, you set your %1$s on the %2$s." ),
-                _( "To avoid spilling its contents, <npcname> sets their %1$s on the %2$s." ),
+                _( "To avoid spilling its contents, you set your {1} on the {2}." ),
+                _( "To avoid spilling its contents, <npcname> sets their {1} on the {2}." ),
                 it.display_name(), m.name( c.pos() )
             );
             m.add_item_or_charges( c.pos(), it );
@@ -249,34 +249,34 @@ static void put_into_vehicle( Character &c, item_drop_reason reason, const std::
         switch( reason ) {
             case item_drop_reason::deliberate:
                 c.add_msg_player_or_npc(
-                    n_gettext( "You put your %1$s in the %2$s's %3$s.",
-                               "You put your %1$s in the %2$s's %3$s.", dropcount ),
-                    n_gettext( "<npcname> puts their %1$s in the %2$s's %3$s.",
-                               "<npcname> puts their %1$s in the %2$s's %3$s.", dropcount ),
+                    n_gettext( "You put your {1} in the {2}'s {3}.",
+                               "You put your {1} in the {2}'s {3}.", dropcount ),
+                    n_gettext( "<npcname> puts their {1} in the {2}'s {3}.",
+                               "<npcname> puts their {1} in the {2}'s {3}.", dropcount ),
                     it_name, veh.name, part_name
                 );
                 break;
             case item_drop_reason::too_large:
                 c.add_msg_if_player(
                     n_gettext(
-                        "There's no room in your inventory for the %s, so you drop it into the %s's %s.",
-                        "There's no room in your inventory for the %s, so you drop them into the %s's %s.",
+                        "There's no room in your inventory for the {}, so you drop it into the {}'s {}.",
+                        "There's no room in your inventory for the {}, so you drop them into the {}'s {}.",
                         dropcount ),
                     it_name, veh.name, part_name
                 );
                 break;
             case item_drop_reason::too_heavy:
                 c.add_msg_if_player(
-                    n_gettext( "The %s is too heavy to carry, so you drop it into the %s's %s.",
-                               "The %s are too heavy to carry, so you drop them into the %s's %s.", dropcount ),
+                    n_gettext( "The {} is too heavy to carry, so you drop it into the {}'s {}.",
+                               "The {} are too heavy to carry, so you drop them into the {}'s {}.", dropcount ),
                     it_name, veh.name, part_name
                 );
                 break;
             case item_drop_reason::tumbling:
                 c.add_msg_if_player(
                     m_bad,
-                    n_gettext( "Your %s tumbles into the %s's %s.",
-                               "Your %s tumble into the %s's %s.", dropcount ),
+                    n_gettext( "Your {} tumbles into the {}'s {}.",
+                               "Your {} tumble into the {}'s {}.", dropcount ),
                     it_name, veh.name, part_name
                 );
                 break;
@@ -285,8 +285,8 @@ static void put_into_vehicle( Character &c, item_drop_reason reason, const std::
         switch( reason ) {
             case item_drop_reason::deliberate:
                 c.add_msg_player_or_npc(
-                    _( "You put several items in the %1$s's %2$s." ),
-                    _( "<npcname> puts several items in the %1$s's %2$s." ),
+                    _( "You put several items in the {1}'s {2}." ),
+                    _( "<npcname> puts several items in the {1}'s {2}." ),
                     veh.name, part_name
                 );
                 break;
@@ -294,7 +294,7 @@ static void put_into_vehicle( Character &c, item_drop_reason reason, const std::
             case item_drop_reason::too_heavy:
             case item_drop_reason::tumbling:
                 c.add_msg_if_player(
-                    m_bad, _( "Some items tumble into the %1$s's %2$s." ),
+                    m_bad, _( "Some items tumble into the {1}'s {2}." ),
                     veh.name, part_name
                 );
                 break;
@@ -305,15 +305,15 @@ static void put_into_vehicle( Character &c, item_drop_reason reason, const std::
         if( into_vehicle_count > 0 ) {
             c.add_msg_if_player(
                 m_warning,
-                n_gettext( "The %s is full, so something fell to the %s.",
-                           "The %s is full, so some items fell to the %s.", fallen_count ),
+                n_gettext( "The {} is full, so something fell to the {}.",
+                           "The {} is full, so some items fell to the {}.", fallen_count ),
                 part_name, ter_name
             );
         } else {
             c.add_msg_if_player(
                 m_warning,
-                n_gettext( "The %s is full, so it fell to the %s.",
-                           "The %s is full, so they fell to the %s.", fallen_count ),
+                n_gettext( "The {} is full, so it fell to the {}.",
+                           "The {} is full, so they fell to the {}.", fallen_count ),
                 part_name, ter_name
             );
         }
@@ -340,41 +340,41 @@ void drop_on_map( Character &you, item_drop_reason reason, const std::list<item>
             case item_drop_reason::deliberate:
                 if( can_move_there ) {
                     you.add_msg_player_or_npc(
-                        n_gettext( "You drop your %1$s on the %2$s.",
-                                   "You drop your %1$s on the %2$s.", dropcount ),
-                        n_gettext( "<npcname> drops their %1$s on the %2$s.",
-                                   "<npcname> drops their %1$s on the %2$s.", dropcount ),
+                        n_gettext( "You drop your {1} on the {2}.",
+                                   "You drop your {1} on the {2}.", dropcount ),
+                        n_gettext( "<npcname> drops their {1} on the {2}.",
+                                   "<npcname> drops their {1} on the {2}.", dropcount ),
                         it_name, ter_name
                     );
                 } else {
                     you.add_msg_player_or_npc(
-                        n_gettext( "You put your %1$s in the %2$s.",
-                                   "You put your %1$s in the %2$s.", dropcount ),
-                        n_gettext( "<npcname> puts their %1$s in the %2$s.",
-                                   "<npcname> puts their %1$s in the %2$s.", dropcount ),
+                        n_gettext( "You put your {1} in the {2}.",
+                                   "You put your {1} in the {2}.", dropcount ),
+                        n_gettext( "<npcname> puts their {1} in the {2}.",
+                                   "<npcname> puts their {1} in the {2}.", dropcount ),
                         it_name, ter_name
                     );
                 }
                 break;
             case item_drop_reason::too_large:
                 you.add_msg_if_player(
-                    n_gettext( "There's no room in your inventory for the %s, so you drop it.",
-                               "There's no room in your inventory for the %s, so you drop them.", dropcount ),
+                    n_gettext( "There's no room in your inventory for the {}, so you drop it.",
+                               "There's no room in your inventory for the {}, so you drop them.", dropcount ),
                     it_name
                 );
                 break;
             case item_drop_reason::too_heavy:
                 you.add_msg_if_player(
-                    n_gettext( "The %s is too heavy to carry, so you drop it.",
-                               "The %s is too heavy to carry, so you drop them.", dropcount ),
+                    n_gettext( "The {} is too heavy to carry, so you drop it.",
+                               "The {} is too heavy to carry, so you drop them.", dropcount ),
                     it_name
                 );
                 break;
             case item_drop_reason::tumbling:
                 you.add_msg_if_player(
                     m_bad,
-                    n_gettext( "Your %1$s tumbles to the %2$s.",
-                               "Your %1$s tumble to the %2$s.", dropcount ),
+                    n_gettext( "Your {1} tumbles to the {2}.",
+                               "Your {1} tumble to the {2}.", dropcount ),
                     it_name, ter_name
                 );
                 break;
@@ -384,14 +384,14 @@ void drop_on_map( Character &you, item_drop_reason reason, const std::list<item>
             case item_drop_reason::deliberate:
                 if( can_move_there ) {
                     you.add_msg_player_or_npc(
-                        _( "You drop several items on the %s." ),
-                        _( "<npcname> drops several items on the %s." ),
+                        _( "You drop several items on the {}." ),
+                        _( "<npcname> drops several items on the {}." ),
                         ter_name
                     );
                 } else {
                     you.add_msg_player_or_npc(
-                        _( "You put several items in the %s." ),
-                        _( "<npcname> puts several items in the %s." ),
+                        _( "You put several items in the {}." ),
+                        _( "<npcname> puts several items in the {}." ),
                         ter_name
                     );
                 }
@@ -399,7 +399,7 @@ void drop_on_map( Character &you, item_drop_reason reason, const std::list<item>
             case item_drop_reason::too_large:
             case item_drop_reason::too_heavy:
             case item_drop_reason::tumbling:
-                you.add_msg_if_player( m_bad, _( "Some items tumble to the %s." ), ter_name );
+                you.add_msg_if_player( m_bad, _( "Some items tumble to the {}." ), ter_name );
                 break;
         }
     }
@@ -469,7 +469,7 @@ void activity_handlers::washing_finish( player_activity *act, Character *you )
     const inventory &crafting_inv = you->crafting_inventory();
     if( !crafting_inv.has_charges( itype_water, required.water, is_liquid_crafting_component ) &&
         !crafting_inv.has_charges( itype_water_clean, required.water, is_liquid_crafting_component ) ) {
-        you->add_msg_if_player( _( "You need %1$i charges of water or clean water to wash these items." ),
+        you->add_msg_if_player( _( "You need {1} charges of water or clean water to wash these items." ),
                                 required.water );
         act->set_to_null();
         return;
@@ -477,7 +477,7 @@ void activity_handlers::washing_finish( player_activity *act, Character *you )
                !crafting_inv.has_charges( itype_detergent, required.cleanser ) &&
                !crafting_inv.has_charges( itype_liquid_soap, required.cleanser,
                                           is_liquid_crafting_component ) ) {
-        you->add_msg_if_player( _( "You need %1$i charges of cleansing agent to wash these items." ),
+        you->add_msg_if_player( _( "You need {1} charges of cleansing agent to wash these items." ),
                                 required.cleanser );
         act->set_to_null();
         return;
@@ -785,7 +785,7 @@ static std::vector<tripoint_bub_ms> route_best_workbench(
                         best_bench_multi_a = wb_info->multiplier;
                     }
                 } else {
-                    debugmsg( "part '%s' with WORKBENCH flag has no workbench info", vp->part().name() );
+                    debugmsg( "part '{}' with WORKBENCH flag has no workbench info", vp->part().name() );
                 }
             }
         }
@@ -804,7 +804,7 @@ static std::vector<tripoint_bub_ms> route_best_workbench(
                         best_bench_multi_b = wb_info->multiplier;
                     }
                 } else {
-                    debugmsg( "part '%s' with WORKBENCH flag has no workbench info", vp->part().name() );
+                    debugmsg( "part '{}' with WORKBENCH flag has no workbench info", vp->part().name() );
                 }
             }
         }
@@ -1760,7 +1760,7 @@ static std::vector<std::tuple<tripoint_bub_ms, itype_id, int>> requirements_map(
         }
     }
     for( const std::tuple<tripoint_bub_ms, itype_id, int> &elem : final_map ) {
-        add_msg_debug( debugmode::DF_REQUIREMENTS_MAP, "%s is fetching %s from %s ",
+        add_msg_debug( debugmode::DF_REQUIREMENTS_MAP, "{} is fetching {} from {} ",
                        you.disp_name(),
                        std::get<1>( elem ).str(), std::get<0>( elem ).to_string_writable() );
     }
@@ -1929,7 +1929,7 @@ static bool fetch_activity(
                                                      you.backlog.front().id() == ACT_MULTIPLE_MINE ||
                                                      you.backlog.front().id() == ACT_MULTIPLE_MOP ) ) {
                     if( it.volume() > volume_allowed || it.weight() > weight_allowed ) {
-                        add_msg_if_player_sees( you, _( "%1s failed to fetch tools." ), you.name );
+                        add_msg_if_player_sees( you, _( "{} failed to fetch tools." ), you.name );
                         continue;
                     }
                     item leftovers = it;
@@ -1947,9 +1947,9 @@ static bool fetch_activity(
                     if( you.is_npc() ) {
                         if( pickup_count == 1 ) {
                             const std::string item_name = it.tname();
-                            add_msg( _( "%1$s picks up a %2$s." ), you.disp_name(), item_name );
+                            add_msg( _( "{1} picks up a {2}." ), you.disp_name(), item_name );
                         } else {
-                            add_msg( _( "%s picks up several items." ),  you.disp_name() );
+                            add_msg( _( "{} picks up several items." ),  you.disp_name() );
                         }
                     }
                     items_there.erase( item_iter );
@@ -2132,7 +2132,7 @@ void activity_on_turn_move_loot( player_activity &act, Character &you )
 
                 // check if we found path to source / adjacent tile
                 if( route.empty() ) {
-                    add_msg( m_info, _( "%s can't reach the source tile.  Try to sort out loot without a cart." ),
+                    add_msg( m_info, _( "{} can't reach the source tile.  Try to sort out loot without a cart." ),
                              you.disp_name() );
                     continue;
                 }
@@ -2364,7 +2364,7 @@ void activity_on_turn_move_loot( player_activity &act, Character &you )
     }
 
     // If we got here without restarting the activity, it means we're done
-    add_msg( m_info, _( "%s sorted out every item possible." ), you.disp_name( false, true ) );
+    add_msg( m_info, _( "{} sorted out every item possible." ), you.disp_name( false, true ) );
     if( you.is_npc() ) {
         npc *guy = dynamic_cast<npc *>( &you );
         guy->revert_after_activity();
@@ -2745,7 +2745,7 @@ static requirement_check_result generic_multi_activity_check_requirement(
         // we can do it, but we need to fetch some stuff first
         // before we set the task to fetch components - is it even worth it? are the components anywhere?
         if( you.is_npc() ) {
-            add_msg_if_player_sees( you, m_info, _( "%s is trying to find necessary items to do the job" ),
+            add_msg_if_player_sees( you, m_info, _( "{} is trying to find necessary items to do the job" ),
                                     you.disp_name() );
         }
         requirement_id what_we_need;

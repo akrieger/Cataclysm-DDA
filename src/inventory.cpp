@@ -72,7 +72,7 @@ invlet_favorites::invlet_favorites( const std::unordered_map<itype_id, std::stri
         for( char invlet : p.second ) {
             uint8_t invlet_u = invlet;
             if( !ids_by_invlet[invlet_u].is_empty() ) {
-                debugmsg( "Duplicate invlet: %s and %s both mapped to %c",
+                debugmsg( "Duplicate invlet: {} and {} both mapped to {}",
                           ids_by_invlet[invlet_u].str(), p.first.str(), invlet );
             }
             ids_by_invlet[invlet_u] = p.first;
@@ -148,7 +148,7 @@ const_invslice inventory::const_slice() const
 const std::list<item> &inventory::const_stack( int i ) const
 {
     if( i < 0 || i >= static_cast<int>( items.size() ) ) {
-        debugmsg( "Attempted to access stack %d in an inventory (size %d)", i, items.size() );
+        debugmsg( "Attempted to access stack {} in an inventory (size {})", i, items.size() );
         static const std::list<item> nullstack{};
         return nullstack;
     }
@@ -841,7 +841,7 @@ void inventory::rust_iron_items()
                 //Freshwater without oxygen rusts slower than air
                 here.water_from( player_character.pos() ).typeId() == itype_salt_water ) {
                 elem_stack_iter.inc_damage( damage_type::ACID ); // rusting never completely destroys an item
-                add_msg( m_bad, _( "Your %s is damaged by rust." ), elem_stack_iter.tname() );
+                add_msg( m_bad, _( "Your {} is damaged by rust." ), elem_stack_iter.tname() );
             }
         }
     }
@@ -1029,7 +1029,7 @@ void inventory::assign_empty_invlet( item &it, const Character &p, const bool fo
             return;
         }
     }
-    debugmsg( "could not find a hotkey for %s", it.tname() );
+    debugmsg( "could not find a hotkey for {}", it.tname() );
 }
 
 void inventory::reassign_item( item &it, char invlet, bool remove_old )

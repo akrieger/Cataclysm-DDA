@@ -43,11 +43,11 @@ auto format_as(E e) { return fmt::underlying(e); }
  * replaced with formatted data from the further arguments. The further arguments must have
  * a type that matches the type expected by the placeholder.
  * The placeholders look like this:
- * - `%s` expects an argument of type `const char*` or `std::string` or numeric (which is
+ * - `{}` expects an argument of type `const char*` or `std::string` or numeric (which is
  *   converted to a string via `to_string`), which is inserted as is.
- * - `%d` expects an argument of an integer type (int, short, ...), which is formatted as
+ * - `{}` expects an argument of an integer type (int, short, ...), which is formatted as
  *   decimal number.
- * - `%f` expects a numeric argument (integer / floating point), which is formatted as
+ * - `{}` expects a numeric argument (integer / floating point), which is formatted as
  *   decimal number.
  *
  * There are more placeholders and options to them (see documentation of `printf`).

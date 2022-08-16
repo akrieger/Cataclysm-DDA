@@ -243,7 +243,7 @@ class string_id
         /**
          * Interface to the plain C-string of the id. This function mimics the std::string
          * object. Ids are often used in debug messages, where they are forwarded as C-strings
-         * to be included in the format string, e.g. debugmsg("invalid id: %s", id.c_str())
+         * to be included in the format string, e.g. debugmsg("invalid id: {}", id.c_str())
          */
         const char *c_str() const {
             return _id.str().c_str();

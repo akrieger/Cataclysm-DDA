@@ -33,7 +33,7 @@ TEST_CASE( "TranslationDocument loads all core MO", "[translations]" )
     const std::unordered_set<std::string> languages =
         TranslationManager::GetInstance().GetAvailableLanguages();
     for( const std::string &lang : languages ) {
-        const std::string path = string_format( "./lang/mo/%s/LC_MESSAGES/cataclysm-dda.mo", lang );
+        const std::string path = string_format( "./lang/mo/{}/LC_MESSAGES/cataclysm-dda.mo", lang );
         CAPTURE( path );
         REQUIRE( file_exist( path ) );
         REQUIRE_NOTHROW( LoadMODocument( path.c_str() ) );
@@ -45,7 +45,7 @@ TEST_CASE( "No string buffer overlap in TranslationDocument", "[translations]" )
     const std::unordered_set<std::string> languages =
         TranslationManager::GetInstance().GetAvailableLanguages();
     for( const std::string &lang : languages ) {
-        const std::string path = string_format( "./lang/mo/%s/LC_MESSAGES/cataclysm-dda.mo", lang );
+        const std::string path = string_format( "./lang/mo/{}/LC_MESSAGES/cataclysm-dda.mo", lang );
         CAPTURE( path );
         REQUIRE( file_exist( path ) );
         TranslationDocument document( path );
@@ -169,7 +169,7 @@ TEST_CASE( "TranslationPluralRulesEvaluator", "[translations]" )
         };
         const std::string arabic_rules =
             // NOLINTNEXTLINE(cata-text-style)
-            "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;";
+            "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n{}>=3 && n{}<=10 ? 3 : n{}>=11 && n{}<=99 ? 4 : 5;";
         TranslationPluralRulesEvaluator arabic_evaluator( arabic_rules );
         CheckPluralEvaluation( arabic_evaluator, arabic_ground_truth );
     }
@@ -199,7 +199,7 @@ TEST_CASE( "TranslationPluralRulesEvaluator", "[translations]" )
         };
         const std::string russian_rules =
             // NOLINTNEXTLINE(cata-text-style)
-            "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);";
+            "Plural-Forms: nplurals=4; plural=(n{}==1 && n{}!=11 ? 0 : n{}>=2 && n{}<=4 && (n{}<12 || n{}>14) ? 1 : n{}==0 || (n{}>=5 && n{}<=9) || (n{}>=11 && n{}<=14)? 2 : 3);";
         TranslationPluralRulesEvaluator russian_evaluator( russian_rules );
         CheckPluralEvaluation( russian_evaluator, russian_ground_truth );
     }

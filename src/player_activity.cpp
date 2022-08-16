@@ -187,7 +187,7 @@ cata::optional<std::string> player_activity::get_progress_message( const avatar 
                     u.get_skill_level_object( skill ).can_train() && u.has_identified( book->typeId() ) ) {
                     const SkillLevel &skill_level = u.get_skill_level_object( skill );
                     //~ skill_name current_skill_level -> next_skill_level (% to next level)
-                    extra_info = string_format( pgettext( "reading progress", "%s %d -> %d (%d%%)" ),
+                    extra_info = string_format( pgettext( "reading progress", "{} {} -> {} ({}%%)" ),
                                                 skill.obj().name(),
                                                 skill_level.knowledgeLevel(),
                                                 skill_level.knowledgeLevel() + 1,
@@ -207,7 +207,7 @@ cata::optional<std::string> player_activity::get_progress_message( const avatar 
           ) {
             const int percentage = ( ( moves_total - moves_left ) * 100 ) / moves_total;
 
-            extra_info = string_format( "%d%%", percentage );
+            extra_info = string_format( "{}%%", percentage );
         }
 
         if( type == ACT_BUILD ) {
@@ -217,7 +217,7 @@ cata::optional<std::string> player_activity::get_progress_message( const avatar 
                 int counter = std::min( pc->counter, 10000000 );
                 const int percentage = counter / 100000;
 
-                extra_info = string_format( "%d%%", percentage );
+                extra_info = string_format( "{}%%", percentage );
             }
         }
     }
@@ -226,8 +226,8 @@ cata::optional<std::string> player_activity::get_progress_message( const avatar 
         extra_info = actor->get_progress_message( *this );
     }
 
-    return extra_info.empty() ? string_format( _( "%s…" ),
-            get_verb().translated() ) : string_format( _( "%s: %s" ),
+    return extra_info.empty() ? string_format( _( "{}…" ),
+            get_verb().translated() ) : string_format( _( "{}: {}" ),
                     get_verb().translated(), extra_info );
 }
 
@@ -494,7 +494,7 @@ std::map<distraction_type, std::string> player_activity::get_distractions() cons
             Creature *hostile_critter = g->is_hostile_very_close( true );
             if( hostile_critter != nullptr ) {
                 res.emplace( distraction_type::hostile_spotted_near,
-                             string_format( _( "The %s is dangerously close!" ),
+                             string_format( _( "The {} is dangerously close!" ),
                                             g->is_hostile_very_close( true )->get_name() ) );
             }
         }
@@ -502,7 +502,7 @@ std::map<distraction_type, std::string> player_activity::get_distractions() cons
             !is_distraction_ignored( distraction_type::dangerous_field ) ) {
             field_entry *field = g->is_in_dangerous_field();
             if( field != nullptr ) {
-                res.emplace( distraction_type::dangerous_field, string_format( _( "You stand in %s!" ),
+                res.emplace( distraction_type::dangerous_field, string_format( _( "You stand in {}!" ),
                              g->is_in_dangerous_field()->name() ) );
             }
         }

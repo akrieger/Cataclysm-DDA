@@ -10,7 +10,7 @@ InvalidTranslationDocumentException::InvalidTranslationDocumentException(
     const std::string &path,
     const std::string &message )
 {
-    this->error_message = string_format( "Invalid MO document %1$s: %2$s", path, message );
+    this->error_message = string_format( "Invalid MO document {1}: {2}", path, message );
 }
 
 const char *InvalidTranslationDocumentException::what() const noexcept
@@ -98,19 +98,19 @@ TranslationDocument::TranslationDocument( const std::string &path )
     constexpr std::uint32_t supported_version = 0;
     if( version != supported_version ) {
         throw InvalidTranslationDocumentException( path,
-                string_format( "unsupported MO format revision %zu, expect %zu", version, supported_version ) );
+                string_format( "unsupported MO format revision {}, expect {}", version, supported_version ) );
     }
     number_of_strings = GetUint32( 8 );
     original_strings_table_offset = GetUint32( 12 );
     translated_strings_table_offset = GetUint32( 16 );
     if( original_strings_table_offset + 8ULL * number_of_strings > data.size() ) {
         throw InvalidTranslationDocumentException( path,
-                string_format( "original strings table offset %zu with %zu entries exceeds buffer size %zu",
+                string_format( "original strings table offset {} with {} entries exceeds buffer size {}",
                                original_strings_table_offset, number_of_strings, data.size() ) );
     }
     if( translated_strings_table_offset + 8ULL * number_of_strings > data.size() ) {
         throw InvalidTranslationDocumentException( path,
-                string_format( "translated strings table offset %zu with %zu entries exceeds buffer size %zu",
+                string_format( "translated strings table offset {} with {} entries exceeds buffer size {}",
                                translated_strings_table_offset, number_of_strings, data.size() ) );
     }
     original_offsets.reserve( number_of_strings );
@@ -120,12 +120,12 @@ TranslationDocument::TranslationDocument( const std::string &path )
         std::size_t offset = GetUint32( original_strings_table_offset + 8 * i + 4 );
         if( offset >= data.size() || length >= data.size() || offset + length >= data.size() ) {
             throw InvalidTranslationDocumentException( path,
-                    string_format( "original string %zu offset %zu with length %zu exceeds buffer size %zu",
+                    string_format( "original string {} offset {} with length {} exceeds buffer size {}",
                                    i, offset, length, data.size() ) );
         }
         if( data[offset + length] != '\0' ) {
             throw InvalidTranslationDocumentException( path,
-                    string_format( "original string %zu offset %zu with length %zu not terminated by '\\0'",
+                    string_format( "original string {} offset {} with length {} not terminated by '\\0'",
                                    i, offset, length ) );
         }
         original_offsets.emplace_back( offset );
@@ -136,12 +136,12 @@ TranslationDocument::TranslationDocument( const std::string &path )
         std::size_t offset = GetUint32( translated_strings_table_offset + 8 * i + 4 );
         if( offset >= data.size() || length >= data.size() || offset + length >= data.size() ) {
             throw InvalidTranslationDocumentException( path,
-                    string_format( "translated string %zu offset %zu with length %zu exceeds buffer size %zu",
+                    string_format( "translated string {} offset {} with length {} exceeds buffer size {}",
                                    i, offset, length, data.size() ) );
         }
         if( data[offset + length] != '\0' ) {
             throw InvalidTranslationDocumentException( path,
-                    string_format( "translated string %zu offset %zu with length %zu not terminated by '\\0'",
+                    string_format( "translated string {} offset {} with length {} not terminated by '\\0'",
                                    i, offset, length ) );
         }
         offsets.emplace_back( offset );
@@ -170,17 +170,17 @@ TranslationDocument::TranslationDocument( const std::string &path )
         } catch( TranslationPluralRulesEvaluator::HeaderError &e ) {
             DebugLog( D_ERROR, DC_ALL ) << "Error reading plural forms rules header of " << path << " : " <<
                                         e.what();
-            throw InvalidTranslationDocumentException( path, string_format( "Plural forms HeaderError: %s",
+            throw InvalidTranslationDocumentException( path, string_format( "Plural forms HeaderError: {}",
                     e.what() ) );
         } catch( TranslationPluralRulesEvaluator::LexicalError &e ) {
             DebugLog( D_ERROR, DC_ALL ) << "Invalid plural forms rules expression in " << path << " : " <<
                                         e.what();
-            throw InvalidTranslationDocumentException( path, string_format( "Plural forms LexicalError: %s",
+            throw InvalidTranslationDocumentException( path, string_format( "Plural forms LexicalError: {}",
                     e.what() ) );
         } catch( TranslationPluralRulesEvaluator::ParseError &e ) {
             DebugLog( D_ERROR, DC_ALL ) << "Error parsing plural forms rules expression in " << path << " : "
                                         << e.what();
-            throw InvalidTranslationDocumentException( path, string_format( "Plural forms ParseError: %s",
+            throw InvalidTranslationDocumentException( path, string_format( "Plural forms ParseError: {}",
                     e.what() ) );
         }
     }

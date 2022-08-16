@@ -61,7 +61,7 @@ void load( const JsonObject &jo, const std::string &src )
 
         if( strict && found ) {
             jo.throw_error_at(
-                tuple_key, string_format( "Symbol %ld was already defined.", *iter ) );
+                tuple_key, string_format( "Symbol {} was already defined.", *iter ) );
         }
 
         rotatable_symbol &entry = found ? *entry_iter : temp_entry;

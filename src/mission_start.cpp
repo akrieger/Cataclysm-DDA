@@ -62,11 +62,11 @@ void mission_start::place_dog( mission *miss )
     const tripoint_abs_omt house = mission_util::random_house_in_closest_city();
     npc *dev = g->find_npc( miss->npc_id );
     if( dev == nullptr ) {
-        debugmsg( "Couldn't find NPC!  %d", miss->npc_id.get_value() );
+        debugmsg( "Couldn't find NPC!  {}", miss->npc_id.get_value() );
         return;
     }
     get_player_character().i_add( item( "dog_whistle", calendar::turn_zero ) );
-    add_msg( _( "%s gave you a dog whistle." ), dev->get_name() );
+    add_msg( _( "{} gave you a dog whistle." ), dev->get_name() );
 
     miss->target = house;
     overmap_buffer.reveal( house, 6 );
@@ -95,7 +95,7 @@ void mission_start::kill_horde_master( mission *miss )
 {
     npc *p = g->find_npc( miss->npc_id );
     if( p == nullptr ) {
-        debugmsg( "could not find mission NPC %d", miss->npc_id.get_value() );
+        debugmsg( "could not find mission NPC {}", miss->npc_id.get_value() );
         return;
     }
     // Npc joins you
@@ -217,11 +217,11 @@ void mission_start::place_npc_software( mission *miss )
 {
     npc *dev = g->find_npc( miss->npc_id );
     if( dev == nullptr ) {
-        debugmsg( "Couldn't find NPC!  %d", miss->npc_id.get_value() );
+        debugmsg( "Couldn't find NPC!  {}", miss->npc_id.get_value() );
         return;
     }
     get_player_character().i_add( item( "usb_drive", calendar::turn_zero ) );
-    add_msg( _( "%s gave you a USB drive." ), dev->get_name() );
+    add_msg( _( "{} gave you a USB drive." ), dev->get_name() );
 
     std::string type = "house";
 
@@ -259,7 +259,7 @@ void mission_start::place_npc_software( mission *miss )
 
     compmap.i_clear( comppoint );
     compmap.furn_set( comppoint, f_console );
-    computer *tmpcomp = compmap.add_computer( comppoint, string_format( _( "%s's Terminal" ),
+    computer *tmpcomp = compmap.add_computer( comppoint, string_format( _( "{}'s Terminal" ),
                         dev->get_name() ), 0 );
     tmpcomp->set_mission( miss->get_id() );
     tmpcomp->add_option( _( "Download Software" ), COMPACT_DOWNLOAD_SOFTWARE, 0 );
@@ -291,7 +291,7 @@ void mission_start::place_deposit_box( mission *miss )
 {
     npc *p = g->find_npc( miss->npc_id );
     if( p == nullptr ) {
-        debugmsg( "could not find mission NPC %d", miss->npc_id.get_value() );
+        debugmsg( "could not find mission NPC {}", miss->npc_id.get_value() );
         return;
     }
     // Npc joins you

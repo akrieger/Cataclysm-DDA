@@ -35,13 +35,13 @@ extern const int savegame_version;
 
 static std::string find_quad_path( const std::string &dirname, const tripoint_abs_omt &om_addr )
 {
-    return string_format( "%s/%d.%d.%d.map", dirname, om_addr.x(), om_addr.y(), om_addr.z() );
+    return string_format( "{}/{}.{}.{}.map", dirname, om_addr.x(), om_addr.y(), om_addr.z() );
 }
 
 static std::string find_dirname( const tripoint_abs_omt &om_addr )
 {
     const tripoint_abs_seg segment_addr = project_to<coords::seg>( om_addr );
-    return string_format( "%s/maps/%d.%d.%d", PATH_INFO::world_base_save_path(), segment_addr.x(),
+    return string_format( "{}/maps/{}.{}.{}", PATH_INFO::world_base_save_path(), segment_addr.x(),
                           segment_addr.y(), segment_addr.z() );
 }
 
@@ -95,7 +95,7 @@ void mapbuffer::remove_submap( tripoint_abs_sm addr )
 {
     auto m_target = submaps.find( addr );
     if( m_target == submaps.end() ) {
-        debugmsg( "Tried to remove non-existing submap %s", addr.to_string() );
+        debugmsg( "Tried to remove non-existing submap {}", addr.to_string() );
         return;
     }
     submaps.erase( m_target );
@@ -111,7 +111,7 @@ submap *mapbuffer::lookup_submap( const tripoint_abs_sm &p )
         try {
             return unserialize_submaps( p );
         } catch( const std::exception &err ) {
-            debugmsg( "Failed to load submap %s: %s", p.to_string(), err.what() );
+            debugmsg( "Failed to load submap {}: {}", p.to_string(), err.what() );
         }
         return nullptr;
     }
@@ -139,7 +139,7 @@ void mapbuffer::save( bool delete_after_save )
     for( auto &elem : submaps ) {
         auto now = std::chrono::steady_clock::now();
         if( last_update + update_interval < now ) {
-            popup.message( _( "Please wait as the map saves [%d/%d]" ),
+            popup.message( _( "Please wait as the map saves [{}/{}]" ),
                            num_saved_submaps, num_total_submaps );
             ui_manager::redraw();
             refresh_display();
@@ -279,7 +279,7 @@ submap *mapbuffer::unserialize_submaps( const tripoint_abs_sm &p )
         return nullptr;
     }
     if( submaps.count( p ) == 0 ) {
-        debugmsg( "file %s did not contain the expected submap %s", quad_path, p.to_string() );
+        debugmsg( "file {} did not contain the expected submap {}", quad_path, p.to_string() );
         return nullptr;
     }
     return submaps[ p ].get();
@@ -308,7 +308,7 @@ void mapbuffer::deserialize( JsonIn &jsin )
         }
 
         if( !add_submap( submap_coordinates, sm ) ) {
-            debugmsg( "submap %s was already loaded", submap_coordinates.to_string() );
+            debugmsg( "submap {} was already loaded", submap_coordinates.to_string() );
         }
     }
 }

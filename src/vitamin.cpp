@@ -24,7 +24,7 @@ const vitamin &string_id<vitamin>::obj() const
 {
     const auto found = vitamins_all.find( *this );
     if( found == vitamins_all.end() ) {
-        debugmsg( "Tried to get invalid vitamin: %s", c_str() );
+        debugmsg( "Tried to get invalid vitamin: {}", c_str() );
         static const vitamin null_vitamin{};
         return null_vitamin;
     }
@@ -95,11 +95,11 @@ void vitamin::check_consistency()
 {
     for( const auto &v : vitamins_all ) {
         if( !( v.second.deficiency_.is_null() || v.second.deficiency_.is_valid() ) ) {
-            debugmsg( "vitamin %s has unknown deficiency %s", v.second.id_.c_str(),
+            debugmsg( "vitamin {} has unknown deficiency {}", v.second.id_.c_str(),
                       v.second.deficiency_.c_str() );
         }
         if( !( v.second.excess_.is_null() || v.second.excess_.is_valid() ) ) {
-            debugmsg( "vitamin %s has unknown excess %s", v.second.id_.c_str(), v.second.excess_.c_str() );
+            debugmsg( "vitamin {} has unknown excess {}", v.second.id_.c_str(), v.second.excess_.c_str() );
         }
     }
 }

@@ -29,13 +29,13 @@ ret_val<T> try_parse_integer( const std::string &s, bool use_locale )
     buffer >> result;
     if( !buffer ) {
         return ret_val<T>::make_failure(
-                   0, string_format( _( "Could not convert '%s' to an integer" ), s ) );
+                   0, string_format( _( "Could not convert '{}' to an integer" ), s ) );
     }
     char c;
     buffer >> c;
     if( buffer ) {
         return ret_val<T>::make_failure(
-                   0, string_format( _( "Stray characters after integer in '%s'" ), s ) );
+                   0, string_format( _( "Stray characters after integer in '{}'" ), s ) );
     }
     return ret_val<T>::make_success( result );
 }

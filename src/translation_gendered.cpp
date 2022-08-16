@@ -24,7 +24,7 @@ static void sanity_check_genders( const std::vector<std::string> &language_gende
 
     for( const std::string &gender : language_genders ) {
         if( find( all_genders.begin(), all_genders.end(), gender ) == all_genders.end() ) {
-            debugmsg( "Unexpected gender '%s' in grammatical gender list for "
+            debugmsg( "Unexpected gender '{}' in grammatical gender list for "
                       "this language", gender );
         }
     }

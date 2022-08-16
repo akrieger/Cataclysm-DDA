@@ -191,7 +191,7 @@ static void deserialize( weak_ptr_fast<monster> &obj, JsonIn &jsin )
         const auto monp = g->critter_tracker->find( temp_pos );
 
         if( monp == nullptr ) {
-            debugmsg( "no monster found at %s", temp_pos.to_string_writable() );
+            debugmsg( "no monster found at {}", temp_pos.to_string_writable() );
             return;
         }
 
@@ -795,7 +795,7 @@ void Character::load( const JsonObject &data )
             traits_to_add.emplace( rules.trait->trait );
         } else {
             if( rules.error ) {
-                debugmsg( "character %s has invalid trait %s, it will be ignored", get_name(), tid.str() );
+                debugmsg( "character {} has invalid trait {}, it will be ignored", get_name(), tid.str() );
             }
         }
         it = my_traits.erase( it );
@@ -825,7 +825,7 @@ void Character::load( const JsonObject &data )
             add_it->second.variant = added->variant( added_var );
         } else {
             if( rules.error ) {
-                debugmsg( "character %s has invalid mutation %s, it will be ignored", get_name(), mid.str() );
+                debugmsg( "character {} has invalid mutation {}, it will be ignored", get_name(), mid.str() );
             }
         }
         it = my_mutations.erase( it );
@@ -1143,7 +1143,7 @@ void Character::load( const JsonObject &data )
                 if( bionic_uid parent_uid = find_parent( bio.id ) ) {
                     bio.set_parent_uid( parent_uid );
                 } else {
-                    debugmsg( "Migration failed when trying to find a candidate parent bionic for \"%s\"",
+                    debugmsg( "Migration failed when trying to find a candidate parent bionic for \"{}\"",
                               bio.id.str() );
                 }
             }
@@ -1627,7 +1627,7 @@ void avatar::load( const JsonObject &data )
     } else {
         const scenario *generic_scenario = scenario::generic();
 
-        debugmsg( "Tried to use non-existent scenario '%s'. Setting to generic '%s'.",
+        debugmsg( "Tried to use non-existent scenario '{}'. Setting to generic '{}'.",
                   scen_ident.c_str(), generic_scenario->ident().c_str() );
         set_scenario( generic_scenario );
     }
@@ -2434,7 +2434,7 @@ void inventory::json_load_invcache( JsonIn &jsin )
         }
         invlet_cache = invlet_favorites{ map };
     } catch( const JsonError &jsonerr ) {
-        debugmsg( "bad invcache json:\n%s", jsonerr.c_str() );
+        debugmsg( "bad invcache json:\n{}", jsonerr.c_str() );
     }
 }
 
@@ -3034,7 +3034,7 @@ void item::io( Archive &archive )
                 put_in( item( type ), item_pocket::pocket_type::MIGRATION );
             }
         } else if( charge_removal_blacklist.count( type->get_id() ) == 0 ) {
-            debugmsg( "Item %s was loaded with charges, but can not have any!",
+            debugmsg( "Item {} was loaded with charges, but can not have any!",
                       type->get_id().str() );
         }
         charges = 0;
@@ -3811,7 +3811,7 @@ void Creature::load( const JsonObject &jsin )
             for( const auto &maps : tmp_map ) {
                 const efftype_id id( maps.first );
                 if( !id.is_valid() ) {
-                    debugmsg( "Invalid effect: %s", id.c_str() );
+                    debugmsg( "Invalid effect: {}", id.c_str() );
                     continue;
                 }
                 for( const auto &i : maps.second ) {
@@ -4891,7 +4891,7 @@ void submap::load( JsonIn &jsin, const std::string &member_name, int version )
             const point p( i, j );
 
             if( !jsin.read( itm[p.x][p.y], false ) ) {
-                debugmsg( "Items array is corrupt in submap at: %s, skipping", p.to_string() );
+                debugmsg( "Items array is corrupt in submap at: {}, skipping", p.to_string() );
             }
             // some portion could've been read even if error occurred
             for( item &it : itm[p.x][p.y] ) {

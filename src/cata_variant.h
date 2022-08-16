@@ -466,7 +466,7 @@ class cata_variant
         template<cata_variant_type Type>
         auto get() const -> typename cata_variant_detail::convert<Type>::type {
             if( type_ != Type ) {
-                debugmsg( "Tried to extract type %s from cata_variant which contained %s",
+                debugmsg( "Tried to extract type {} from cata_variant which contained {}",
                           io::enum_to_string( Type ),
                           io::enum_to_string( type_ ) );
                 return {};

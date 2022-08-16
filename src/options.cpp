@@ -142,8 +142,8 @@ void option_slider::check() const
     std::set<int> lvls;
     for( const option_slider_level &lvl : _levels ) {
         if( lvl.level() < 0 || lvl.level() >= static_cast<int>( _levels.size() ) ) {
-            debugmsg( "Option slider level \"%s\" (from option slider \"%s\") has a numeric "
-                      "level of %d, but must be between 0 and %d (total number of levels minus 1)",
+            debugmsg( "Option slider level \"{}\" (from option slider \"{}\") has a numeric "
+                      "level of {}, but must be between 0 and {} (total number of levels minus 1)",
                       lvl.name().translated().c_str(), id.c_str(), lvl.level(),
                       static_cast<int>( _levels.size() ) - 1 );
         }
@@ -151,13 +151,13 @@ void option_slider::check() const
     }
 
     if( lvls.size() != _levels.size() ) {
-        debugmsg( "Option slider \"%s\" has duplicate slider levels.  Each slider level must "
-                  "be unique, from 0 (zero) to %d (total number of levels minus 1)",
+        debugmsg( "Option slider \"{}\" has duplicate slider levels.  Each slider level must "
+                  "be unique, from 0 (zero) to {} (total number of levels minus 1)",
                   id.c_str(), static_cast<int>( _levels.size() ) - 1 );
     }
 
     if( lvls.count( _default_level ) == 0 ) {
-        debugmsg( "Default slider level (%d) for option slider \"%s\" does not match any of the "
+        debugmsg( "Default slider level ({}) for option slider \"{}\" does not match any of the "
                   "defined levels", _default_level, id.c_str() );
     }
 }
@@ -495,7 +495,7 @@ void options_manager::add( const std::string &sNameIn, const std::string &sPageI
     thisOpt.eType = get_value_type( thisOpt.sType );
     thisOpt.verbose = verbose;
 
-    thisOpt.format = "%i";
+    thisOpt.format = "{}";
 
     thisOpt.hide = opt_hide;
 
@@ -563,7 +563,7 @@ void options_manager::cOpt::setPrerequisites( const std::string &sOption,
 {
     const bool hasOption = get_options().has_option( sOption );
     if( !hasOption ) {
-        debugmsg( "setPrerequisite: unknown option %s", sType );
+        debugmsg( "setPrerequisite: unknown option {}", sType );
         return;
     }
 
@@ -578,7 +578,7 @@ void options_manager::cOpt::setPrerequisites( const std::string &sOption,
     }
 
     if( !isOfSupportType ) {
-        debugmsg( "setPrerequisite: option %s not of supported type", sType );
+        debugmsg( "setPrerequisite: option {} not of supported type", sType );
         return;
     }
 
@@ -695,7 +695,7 @@ bool options_manager::cOpt::operator==( const cOpt &rhs ) const
     } else if( sType == "VOID" ) {
         return true;
     } else {
-        debugmsg( "unknown option type %s", sType );
+        debugmsg( "unknown option type {}", sType );
         return false;
     }
 }
@@ -727,7 +727,7 @@ template<>
 std::string options_manager::cOpt::value_as<std::string>() const
 {
     if( eType != CVT_STRING ) {
-        debugmsg( "%s tried to get string value from option of type %s", sName, sType );
+        debugmsg( "{} tried to get string value from option of type {}", sName, sType );
     }
     return sSet;
 }
@@ -736,7 +736,7 @@ template<>
 bool options_manager::cOpt::value_as<bool>() const
 {
     if( eType != CVT_BOOL ) {
-        debugmsg( "%s tried to get boolean value from option of type %s", sName, sType );
+        debugmsg( "{} tried to get boolean value from option of type {}", sName, sType );
     }
     return bSet;
 }
@@ -745,7 +745,7 @@ template<>
 float options_manager::cOpt::value_as<float>() const
 {
     if( eType != CVT_FLOAT ) {
-        debugmsg( "%s tried to get float value from option of type %s", sName, sType );
+        debugmsg( "{} tried to get float value from option of type {}", sName, sType );
     }
     return fSet;
 }
@@ -754,7 +754,7 @@ template<>
 int options_manager::cOpt::value_as<int>() const
 {
     if( eType != CVT_INT ) {
-        debugmsg( "%s tried to get integer value from option of type %s", sName, sType );
+        debugmsg( "{} tried to get integer value from option of type {}", sName, sType );
     }
     return iSet;
 }
@@ -777,7 +777,7 @@ std::string options_manager::cOpt::getValueName() const
         const cata::optional<int_and_option> opt = findInt( iSet );
         if( opt ) {
             if( verbose ) {
-                return string_format( _( "%d: %s" ), iSet, opt->second );
+                return string_format( _( "{}: {}" ), iSet, opt->second );
             } else {
                 return opt->second.translated();
             }
@@ -800,24 +800,24 @@ std::string options_manager::cOpt::getDefaultText( const bool bTranslated ) cons
         [bTranslated]( const id_and_option & elem ) {
             return bTranslated ? elem.second.translated() : elem.first;
         }, enumeration_conjunction::none );
-        return string_format( _( "Default: %s - Values: %s" ), defaultName, sItems );
+        return string_format( _( "Default: {} - Values: {}" ), defaultName, sItems );
 
     } else if( sType == "string_input" ) {
-        return string_format( _( "Default: %s" ), sDefault );
+        return string_format( _( "Default: {}" ), sDefault );
 
     } else if( sType == "bool" ) {
         return bDefault ? _( "Default: True" ) : _( "Default: False" );
 
     } else if( sType == "int" ) {
-        return string_format( _( "Default: %d - Min: %d, Max: %d" ), iDefault, iMin, iMax );
+        return string_format( _( "Default: {} - Min: {}, Max: {}" ), iDefault, iMin, iMax );
 
     } else if( sType == "int_map" ) {
         const cata::optional<int_and_option> opt = findInt( iDefault );
         if( opt ) {
             if( verbose ) {
-                return string_format( _( "Default: %d: %s" ), iDefault, opt->second );
+                return string_format( _( "Default: {}: {}" ), iDefault, opt->second );
             } else {
-                return string_format( _( "Default: %s" ), opt->second );
+                return string_format( _( "Default: {}" ), opt->second );
             }
         }
 
@@ -963,7 +963,7 @@ void options_manager::cOpt::setPrev()
 void options_manager::cOpt::setValue( float fSetIn )
 {
     if( sType != "float" ) {
-        debugmsg( "tried to set a float value to a %s option", sType );
+        debugmsg( "tried to set a float value to a {} option", sType );
         return;
     }
     fSet = fSetIn;
@@ -976,7 +976,7 @@ void options_manager::cOpt::setValue( float fSetIn )
 void options_manager::cOpt::setValue( int iSetIn )
 {
     if( sType != "int" ) {
-        debugmsg( "tried to set an int value to a %s option", sType );
+        debugmsg( "tried to set an int value to a {} option", sType );
         return;
     }
     iSet = iSetIn;
@@ -1014,7 +1014,7 @@ void options_manager::cOpt::setValue( const std::string &sSetIn )
                 iSet = iDefault;
             }
         } else {
-            debugmsg( "Error parsing option as integer: %s", val.str() );
+            debugmsg( "Error parsing option as integer: {}", val.str() );
             iSet = iDefault;
         }
 
@@ -1029,7 +1029,7 @@ void options_manager::cOpt::setValue( const std::string &sSetIn )
                 iSet = iDefault;
             }
         } else {
-            debugmsg( "Error parsing option as integer: %s", val.str() );
+            debugmsg( "Error parsing option as integer: {}", val.str() );
             iSet = iDefault;
         }
 
@@ -1041,7 +1041,7 @@ void options_manager::cOpt::setValue( const std::string &sSetIn )
         if( ssTemp ) {
             setValue( tmpFloat );
         } else {
-            debugmsg( "invalid floating point option: %s", sSetIn );
+            debugmsg( "invalid floating point option: {}", sSetIn );
         }
     }
 }
@@ -1089,7 +1089,7 @@ static std::vector<options_manager::id_and_option> build_resource_list(
             resource_names.emplace_back( resource_name,
                                          view_name.empty() ? no_translation( resource_name ) : to_translation( view_name ) );
             if( resource_option.count( resource_name ) != 0 ) {
-                debugmsg( "Found \"%s\" duplicate with name \"%s\" (new definition will be ignored)",
+                debugmsg( "Found \"{}\" duplicate with name \"{}\" (new definition will be ignored)",
                           operation_name, resource_name );
             } else {
                 resource_option.insert( std::pair<std::string, std::string>( resource_name, resource_dir ) );
@@ -2364,12 +2364,12 @@ void options_manager::add_options_world_default()
 
     add( "MONSTER_SPEED", "world_default", to_translation( "Monster speed" ),
          to_translation( "Determines the movement rate of monsters.  A higher value increases monster speed and a lower reduces it.  Requires world reset." ),
-         1, 1000, 100, COPT_NO_HIDE, "%i%%"
+         1, 1000, 100, COPT_NO_HIDE, "{}%%"
        );
 
     add( "MONSTER_RESILIENCE", "world_default", to_translation( "Monster resilience" ),
          to_translation( "Determines how much damage monsters can take.  A higher value makes monsters more resilient and a lower makes them more flimsy.  Requires world reset." ),
-         1, 1000, 100, COPT_NO_HIDE, "%i%%"
+         1, 1000, 100, COPT_NO_HIDE, "{}%%"
        );
 
     add_empty_line();
@@ -2801,7 +2801,7 @@ static void refresh_tiles( bool used_tiles_changed, bool pixel_minimap_height_ch
             g->mark_main_ui_adaptor_resize();
             closetilecontext->do_tile_loading_report();
         } catch( const std::exception &err ) {
-            popup( _( "Loading the tileset failed: %s" ), err.what() );
+            popup( _( "Loading the tileset failed: {}" ), err.what() );
             use_tiles = false;
             use_tiles_overmap = false;
         }
@@ -2818,7 +2818,7 @@ static void refresh_tiles( bool used_tiles_changed, bool pixel_minimap_height_ch
                 g->mark_main_ui_adaptor_resize();
                 fartilecontext->do_tile_loading_report();
             } catch( const std::exception &err ) {
-                popup( _( "Loading the far tileset failed: %s" ), err.what() );
+                popup( _( "Loading the far tileset failed: {}" ), err.what() );
                 use_tiles = false;
                 use_tiles_overmap = false;
             }
@@ -2833,7 +2833,7 @@ static void refresh_tiles( bool used_tiles_changed, bool pixel_minimap_height_ch
             g->mark_main_ui_adaptor_resize();
             overmap_tilecontext->do_tile_loading_report();
         } catch( const std::exception &err ) {
-            popup( _( "Loading the overmap tileset failed: %s" ), err.what() );
+            popup( _( "Loading the overmap tileset failed: {}" ), err.what() );
             use_tiles = false;
             use_tiles_overmap = false;
         }
@@ -3032,7 +3032,7 @@ std::string options_manager::show( bool ingame, const bool world_options_only, b
 
             int line_pos = i - iStartPos; // Current line position in window.
 
-            mvwprintz( w_options, point( 1, line_pos ), c_white, "%d", i + 1 - iBlankOffset );
+            mvwprintz( w_options, point( 1, line_pos ), c_white, "{}", i + 1 - iBlankOffset );
 
             if( iCurrentLine == i ) {
                 mvwprintz( w_options, point( name_col, line_pos ), c_yellow, ">> " );
@@ -3091,7 +3091,7 @@ std::string options_manager::show( bool ingame, const bool world_options_only, b
                              _( "Current world" ) );
                 } else {
                     wprintz( w_options_header, iCurrentPage == i ? hilite( c_light_green ) : c_light_green,
-                             "%s", pages_[i].get().name_ );
+                             "{}", pages_[i].get().name_ );
                 }
                 wprintz( w_options_header, c_white, "]" );
                 wputch( w_options_header, BORDER_COLOR, LINE_OXOX );
@@ -3118,8 +3118,8 @@ std::string options_manager::show( bool ingame, const bool world_options_only, b
             new_window_width = projected_window_width();
 
             fold_and_print( w_options_tooltip, point_zero, iMinScreenWidth - 2, c_white,
-                            n_gettext( "%s #%s - The window will be %d pixel wide with the selected value.",
-                                       "%s #%s - The window will be %d pixels wide with the selected value.",
+                            n_gettext( "{} #{} - The window will be {} pixel wide with the selected value.",
+                                       "{} #{} - The window will be {} pixels wide with the selected value.",
                                        new_window_width ),
                             current_opt.getTooltip(),
                             current_opt.getDefaultText(),
@@ -3133,8 +3133,8 @@ std::string options_manager::show( bool ingame, const bool world_options_only, b
             new_window_height = projected_window_height();
 
             fold_and_print( w_options_tooltip, point_zero, iMinScreenWidth - 2, c_white,
-                            n_gettext( "%s #%s -- The window will be %d pixel tall with the selected value.",
-                                       "%s #%s -- The window will be %d pixels tall with the selected value.",
+                            n_gettext( "{} #{} -- The window will be {} pixel tall with the selected value.",
+                                       "{} #{} -- The window will be {} pixels tall with the selected value.",
                                        new_window_height ),
                             current_opt.getTooltip(),
                             current_opt.getDefaultText(),
@@ -3142,14 +3142,14 @@ std::string options_manager::show( bool ingame, const bool world_options_only, b
         } else
 #endif
         {
-            fold_and_print( w_options_tooltip, point_zero, iMinScreenWidth - 2, c_white, "%s #%s",
+            fold_and_print( w_options_tooltip, point_zero, iMinScreenWidth - 2, c_white, "{} #{}",
                             current_opt.getTooltip(),
                             current_opt.getDefaultText() );
         }
 
         if( ingame && iCurrentPage == iWorldOptPage ) {
-            mvwprintz( w_options_tooltip, point( 3, 5 ), c_light_red, "%s", _( "Note: " ) );
-            wprintz( w_options_tooltip, c_white, "%s",
+            mvwprintz( w_options_tooltip, point( 3, 5 ), c_light_red, "{}", _( "Note: " ) );
+            wprintz( w_options_tooltip, c_white, "{}",
                      _( "Some of these options may produce unexpected results if changed." ) );
         }
         wnoutrefresh( w_options_tooltip );
@@ -3229,7 +3229,7 @@ std::string options_manager::show( bool ingame, const bool world_options_only, b
 
         if( hasPrerequisite && !hasPrerequisiteFulfilled &&
             ( action == "RIGHT" || action == "LEFT" || action == "CONFIRM" ) ) {
-            popup( _( "Prerequisite for this option not met!\n(%s)" ),
+            popup( _( "Prerequisite for this option not met!\n({})" ),
                    get_options().get_option( current_opt.getPrerequisite() ).getMenuText() );
             continue;
         }
@@ -3384,7 +3384,7 @@ std::string options_manager::show( bool ingame, const bool world_options_only, b
     if( options_changed ) {
         if( query_yn( _( "Save changes?" ) ) ) {
             static_popup popup;
-            popup.message( "%s", _( "Please wait…\nApplying option changes…" ) );
+            popup.message( "{}", _( "Please wait…\nApplying option changes…" ) );
             ui_manager::redraw();
             refresh_display();
 
@@ -3556,7 +3556,7 @@ options_manager::cOpt &options_manager::get_option( const std::string &name )
 {
     std::unordered_map<std::string, cOpt>::iterator opt = options.find( name );
     if( opt == options.end() ) {
-        debugmsg( "requested non-existing option %s", name );
+        debugmsg( "requested non-existing option {}", name );
     }
     if( !world_options.has_value() ) {
         // Global options contains the default for new worlds, which is good enough here.

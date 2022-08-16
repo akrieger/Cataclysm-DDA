@@ -194,20 +194,20 @@ static bool get_liquid_target( item &liquid, const item *const source, const int
     map &here = get_map();
     const std::string liquid_name = liquid.display_name( liquid.charges );
     if( source_pos != nullptr ) {
-        //~ %1$s: liquid name, %2$s: terrain name
-        menu.text = string_format( pgettext( "liquid", "What to do with the %1$s from %2$s?" ), liquid_name,
+        //~ {1}: liquid name, {2}: terrain name
+        menu.text = string_format( pgettext( "liquid", "What to do with the {1} from {2}?" ), liquid_name,
                                    here.name( *source_pos ) );
     } else if( source_veh != nullptr ) {
-        //~ %1$s: liquid name, %2$s: vehicle name
-        menu.text = string_format( pgettext( "liquid", "What to do with the %1$s from %2$s?" ), liquid_name,
+        //~ {1}: liquid name, {2}: vehicle name
+        menu.text = string_format( pgettext( "liquid", "What to do with the {1} from {2}?" ), liquid_name,
                                    source_veh->disp_name() );
     } else if( source_mon != nullptr ) {
-        //~ %1$s: liquid name, %2$s: monster name
-        menu.text = string_format( pgettext( "liquid", "What to do with the %1$s from the %2$s?" ),
+        //~ {1}: liquid name, {2}: monster name
+        menu.text = string_format( pgettext( "liquid", "What to do with the {1} from the {2}?" ),
                                    liquid_name, source_mon->get_name() );
     } else {
-        //~ %s: liquid name
-        menu.text = string_format( pgettext( "liquid", "What to do with the %s?" ), liquid_name );
+        //~ {}: liquid name
+        menu.text = string_format( pgettext( "liquid", "What to do with the {}?" ), liquid_name );
     }
     std::vector<std::function<void()>> actions;
     if( player_character.can_consume_as_is( liquid ) && !source_mon && ( source_veh || source_pos ) ) {
@@ -262,7 +262,7 @@ static bool get_liquid_target( item &liquid, const item *const source, const int
                 }
             }
         } else {
-            menu.addentry( -1, true, MENU_AUTOASSIGN, _( "Fill nearby vehicle %s" ), veh->name );
+            menu.addentry( -1, true, MENU_AUTOASSIGN, _( "Fill nearby vehicle {}" ), veh->name );
             actions.emplace_back( [ &, veh]() {
                 target.veh = veh;
                 target.dest_opt = LD_VEH;
@@ -278,7 +278,7 @@ static bool get_liquid_target( item &liquid, const item *const source, const int
             continue;
         }
         const std::string dir = direction_name( direction_from( player_character.pos(), target_pos ) );
-        menu.addentry( -1, true, MENU_AUTOASSIGN, _( "Pour into an adjacent keg (%s)" ), dir );
+        menu.addentry( -1, true, MENU_AUTOASSIGN, _( "Pour into an adjacent keg ({})" ), dir );
         actions.emplace_back( [ &, target_pos]() {
             target.pos = target_pos;
             target.dest_opt = LD_KEG;
@@ -290,11 +290,11 @@ static bool get_liquid_target( item &liquid, const item *const source, const int
         // From infinite source to the ground somewhere else. The target has
         // infinite space and the liquid can not be used from there anyway.
         if( liquid.has_infinite_charges() && source_pos != nullptr ) {
-            add_msg( m_info, _( "Clearing out the %s would take forever." ), here.name( *source_pos ) );
+            add_msg( m_info, _( "Clearing out the {} would take forever." ), here.name( *source_pos ) );
             return;
         }
 
-        const std::string liqstr = string_format( _( "Pour %s where?" ), liquid_name );
+        const std::string liqstr = string_format( _( "Pour {} where?" ), liquid_name );
 
         const cata::optional<tripoint> target_pos_ = choose_adjacent( liqstr );
         if( !target_pos_ ) {
@@ -401,7 +401,7 @@ bool perform_liquid_transfer( item &liquid, const tripoint *const source_pos,
             };
 
             const units::volume stack = units::legacy_volume_factor / liquid.type->stack_size;
-            const std::string title = string_format( _( "Select target tank for <color_%s>%.1fL %s</color>" ),
+            const std::string title = string_format( _( "Select target tank for <color_{}>%.1fL {}</color>" ),
                                       get_all_colors().get_name( liquid.color() ),
                                       round_up( to_liter( liquid.charges * stack ), 1 ),
                                       liquid.tname() );
@@ -455,7 +455,7 @@ bool can_handle_liquid( const item &liquid )
         return false;
     }
     if( !liquid.made_of( phase_id::LIQUID ) ) {
-        add_msg( _( "The %s froze solid before you could finish." ), liquid.tname() );
+        add_msg( _( "The {} froze solid before you could finish." ), liquid.tname() );
         return false;
     }
     return true;

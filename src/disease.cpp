@@ -57,7 +57,7 @@ void disease_type::check_disease_consistency()
     for( const disease_type &dis : get_all() ) {
         const efftype_id &symp = dis.symptoms;
         if( !symp.is_valid() ) {
-            debugmsg( "disease_type %s has invalid efftype_id %s in symptoms", dis.id.c_str(),  symp.c_str() );
+            debugmsg( "disease_type {} has invalid efftype_id {} in symptoms", dis.id.c_str(),  symp.c_str() );
         }
     }
 }

@@ -82,7 +82,7 @@ mapgendata::mapgendata( const tripoint_abs_omt &over, map &mp, const float densi
                 *maybe_args = special.get_args( *this );
                 mapgen_args_ = **maybe_args;
             } else {
-                debugmsg( "mapgen params expected but no overmap special found for terrain %s",
+                debugmsg( "mapgen params expected but no overmap special found for terrain {}",
                           terrain_type_.id().str() );
             }
         }
@@ -143,7 +143,7 @@ void mapgendata::set_dir( int dir_in, int val )
             nw_fac = val;
             break;
         default:
-            debugmsg( "Invalid direction for mapgendata::set_dir.  dir_in = %d", dir_in );
+            debugmsg( "Invalid direction for mapgendata::set_dir.  dir_in = {}", dir_in );
             break;
     }
 }
@@ -180,7 +180,7 @@ int &mapgendata::dir( int dir_in )
         case 7:
             return nw_fac;
         default:
-            debugmsg( "Invalid direction for mapgendata::set_dir.  dir_in = %d", dir_in );
+            debugmsg( "Invalid direction for mapgendata::set_dir.  dir_in = {}", dir_in );
             //return something just so the compiler doesn't freak out. Not really correct, though.
             return n_fac;
     }
@@ -234,7 +234,7 @@ const oter_id &mapgendata::neighbor_at( om_direction::type dir ) const
             break;
     }
 
-    debugmsg( "Tried to get neighbor from invalid direction %d", dir );
+    debugmsg( "Tried to get neighbor from invalid direction {}", dir );
     return north();
 }
 
@@ -266,7 +266,7 @@ const oter_id &mapgendata::neighbor_at( direction dir ) const
             break;
     }
 
-    debugmsg( "Neighbor not supported for direction %d", io::enum_to_string( dir ) );
+    debugmsg( "Neighbor not supported for direction {}", io::enum_to_string( dir ) );
     return north();
 }
 

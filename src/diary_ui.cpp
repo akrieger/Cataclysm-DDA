@@ -235,7 +235,7 @@ void diary::show_diary_ui( diary *c_diary )
 
         print_list_scrollable( &w_pages, c_diary->get_pages_list(), &selected[window_mode::PAGE_WIN],
                                currwin == window_mode::PAGE_WIN, true, report_color_error::yes );
-        center_print( w_pages, 0, c_light_gray, string_format( _( "pages: %d" ),
+        center_print( w_pages, 0, c_light_gray, string_format( _( "pages: {}" ),
                       c_diary->get_pages_list().size() ) );
 
         wnoutrefresh( w_pages );
@@ -257,8 +257,8 @@ void diary::show_diary_ui( diary *c_diary )
         werase( w_desc );
 
         draw_border( w_desc );
-        center_print( w_desc, 0, c_light_gray, string_format( _( "%s´s Diary" ), c_diary->owner ) );
-        std::string desc = string_format( _( "%s, %s, %s, %s" ),
+        center_print( w_desc, 0, c_light_gray, string_format( _( "{}´s Diary" ), c_diary->owner ) );
+        std::string desc = string_format( _( "{}, {}, {}, {}" ),
                                           ctxt.get_desc( "NEW_PAGE", _( "New page" ), input_context::allow_all_keys ),
                                           ctxt.get_desc( "CONFIRM", _( "Edit text" ), input_context::allow_all_keys ),
                                           ctxt.get_desc( "DELETE PAGE", _( "Delete page" ), input_context::allow_all_keys ),
@@ -287,7 +287,7 @@ void diary::show_diary_ui( diary *c_diary )
         draw_border( w_info );
         center_print( w_info, 0, c_light_gray, string_format( _( "Info" ) ) );
         if( currwin == window_mode::CHANGE_WIN || currwin == window_mode::TEXT_WIN ) {
-            fold_and_print( w_info, point_south_east, getmaxx( w_info ) - 2, c_white, string_format( "%s",
+            fold_and_print( w_info, point_south_east, getmaxx( w_info ) - 2, c_white, string_format( "{}",
                             c_diary->get_desc_map()[selected[window_mode::CHANGE_WIN]] ) );
         }
 
@@ -385,7 +385,7 @@ void diary::edit_page_ui( const std::function<catacurses::window()> &create_wind
                                 : input_context::allow_all_keys;
         const std::string action = query_popup()
                                    .context( "YESNOQUIT" )
-                                   .message( "%s", _( "Save entry?" ) )
+                                   .message( "{}", _( "Save entry?" ) )
                                    .option( "YES", allow_key )
                                    .option( "NO", allow_key )
                                    .allow_cancel( true )

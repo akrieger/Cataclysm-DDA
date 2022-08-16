@@ -565,7 +565,7 @@ static void damage_targets( const spell &sp, Creature &caster,
             cr->deal_projectile_attack( &caster, atk, true );
         } else if( sp.damage() < 0 ) {
             sp.heal( target );
-            add_msg_if_player_sees( cr->pos(), m_good, _( "%s wounds are closing up!" ),
+            add_msg_if_player_sees( cr->pos(), m_good, _( "{} wounds are closing up!" ),
                                     cr->disp_name( true ) );
         }
         // TODO: randomize hit location
@@ -620,7 +620,7 @@ static void magical_polymorph( monster &victim, Creature &caster, const spell &s
         return;
     }
 
-    add_msg_if_player_sees( victim, _( "The %s transforms into a %s." ),
+    add_msg_if_player_sees( victim, _( "The {} transforms into a {}." ),
                             victim.type->nname(), new_id->nname() );
     victim.poly( new_id );
 
@@ -859,7 +859,7 @@ static void handle_remove_fd_fatigue_field( const std::pair<field, tripoint> &fd
             case 1:
 
                 if( sees_field ) {
-                    caster.add_msg_if_player( m_neutral, _( "The %s fades.  You feel strange." ), intensity_name );
+                    caster.add_msg_if_player( m_neutral, _( "The {} fades.  You feel strange." ), intensity_name );
                 } else {
                     caster.add_msg_if_player( m_neutral, _( "You suddenly feel strange." ) );
                 }
@@ -868,7 +868,7 @@ static void handle_remove_fd_fatigue_field( const std::pair<field, tripoint> &fd
                 break;
             case 2:
                 if( sees_field ) {
-                    caster.add_msg_if_player( m_neutral, _( "The %s dissipates.  You feel strange." ), intensity_name );
+                    caster.add_msg_if_player( m_neutral, _( "The {} dissipates.  You feel strange." ), intensity_name );
                 } else {
                     caster.add_msg_if_player( m_neutral, _( "You suddenly feel strange." ) );
                 }
@@ -883,7 +883,7 @@ static void handle_remove_fd_fatigue_field( const std::pair<field, tripoint> &fd
                 }
 
                 caster.add_msg_if_player( m_bad,
-                                          _( "%s %s pulls you in as it closes and ejects you violently!" ),
+                                          _( "{} {} pulls you in as it closes and ejects you violently!" ),
                                           message_prefix, intensity_name );
                 caster.as_character()->hurtall( 10, nullptr );
                 caster.add_effect( effect_teleglow, 630_minutes );
@@ -906,7 +906,7 @@ void spell_effect::remove_field( const spell &sp, Creature &caster, const tripoi
             if( fd.first.id() == fd_fatigue ) {
                 handle_remove_fd_fatigue_field( field_removed, caster );
             } else {
-                caster.add_msg_if_player( m_neutral, _( "The %s dissipates." ),
+                caster.add_msg_if_player( m_neutral, _( "The {} dissipates." ),
                                           fd.second.get_intensity_level().name );
             }
         }
@@ -1122,7 +1122,7 @@ void spell_effect::recover_energy( const spell &sp, Creature &caster, const trip
     } else if( energy_source == "HEALTH" ) {
         you->mod_livestyle( healing );
     } else {
-        debugmsg( "Invalid effect_str %s for spell %s", energy_source, sp.name() );
+        debugmsg( "Invalid effect_str {} for spell {}", energy_source, sp.name() );
     }
     sp.make_sound( caster.pos() );
 }
@@ -1247,7 +1247,7 @@ void spell_effect::translocate( const spell &sp, Creature &caster, const tripoin
 
 void spell_effect::none( const spell &sp, Creature &, const tripoint & )
 {
-    debugmsg( "ERROR: %s has invalid spell effect.", sp.name() );
+    debugmsg( "ERROR: {} has invalid spell effect.", sp.name() );
 }
 
 void spell_effect::transform_blast( const spell &sp, Creature &caster,
@@ -1332,12 +1332,12 @@ void spell_effect::morale( const spell &sp, Creature &caster, const tripoint &ta
 {
     const std::set<tripoint> area = spell_effect_area( sp, target, caster );
     if( sp.effect_data().empty() ) {
-        debugmsg( "ERROR: %s must have a valid morale_type as effect_str.  None specified.",
+        debugmsg( "ERROR: {} must have a valid morale_type as effect_str.  None specified.",
                   sp.id().c_str() );
         return;
     }
     if( !morale_type( sp.effect_data() ).is_valid() ) {
-        debugmsg( "ERROR: %s must have a valid morale_type as effect_str.  %s is invalid.", sp.id().c_str(),
+        debugmsg( "ERROR: {} must have a valid morale_type as effect_str.  {} is invalid.", sp.id().c_str(),
                   sp.effect_data() );
         return;
     }
@@ -1430,12 +1430,12 @@ void spell_effect::guilt( const spell &sp, Creature &caster, const tripoint &tar
         const int guilt_mult = sp.get_level();
 
         // different message as we kill more of the same monster
-        std::string msg = _( "You feel guilty for killing %s." ); // default guilt message
+        std::string msg = _( "You feel guilty for killing {}." ); // default guilt message
         game_message_type msgtype = m_bad; // default guilt message type
         std::map<int, std::string> guilt_thresholds;
-        guilt_thresholds[75] = _( "You feel ashamed for killing %s." );
-        guilt_thresholds[50] = _( "You regret killing %s." );
-        guilt_thresholds[25] = _( "You feel remorse for killing %s." );
+        guilt_thresholds[75] = _( "You feel ashamed for killing {}." );
+        guilt_thresholds[50] = _( "You regret killing {}." );
+        guilt_thresholds[25] = _( "You feel remorse for killing {}." );
 
         Character &guy = *guilt_target;
         if( guy.has_trait( trait_PSYCHOPATH ) || guy.has_trait( trait_KILLER ) ||
@@ -1447,8 +1447,8 @@ void spell_effect::guilt( const spell &sp, Creature &caster, const tripoint &tar
         if( kill_count >= max_kills ) {
             // player no longer cares
             if( kill_count == max_kills ) {
-                //~ Message after killing a lot of monsters which would normally affect the morale negatively. %s is the monster name, it most likely will be pluralized.
-                guy.add_msg_if_player( m_good, _( "After killing so many bloody %s you no longer care "
+                //~ Message after killing a lot of monsters which would normally affect the morale negatively. {} is the monster name, it most likely will be pluralized.
+                guy.add_msg_if_player( m_good, _( "After killing so many bloody {} you no longer care "
                                                   "about their deaths anymore." ), z.name( max_kills ) );
             }
             return;
@@ -1688,7 +1688,7 @@ void spell_effect::banishment( const spell &sp, Creature &caster, const tripoint
             }
         }
 
-        caster.add_msg_if_player( m_good, string_format( _( "%s banished." ), mon->name() ) );
+        caster.add_msg_if_player( m_good, string_format( _( "{} banished." ), mon->name() ) );
         // banished monsters take their stuff with them
         mon->death_drops = false;
         mon->die( &caster );

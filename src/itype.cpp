@@ -176,7 +176,7 @@ cata::optional<int> itype::invoke( Character &p, item &it, const tripoint &pos,
 {
     const use_function *use = get_use( iuse_name );
     if( use == nullptr ) {
-        debugmsg( "Tried to invoke %s on a %s, which doesn't have this use_function",
+        debugmsg( "Tried to invoke {} on a {}, which doesn't have this use_function",
                   iuse_name, nname( 1 ) );
         return 0;
     }

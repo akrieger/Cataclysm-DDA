@@ -80,7 +80,7 @@ bool creature_tracker::add( const shared_ptr_fast<monster> &critter_ptr )
         } else if( critter.is_hallucination() ) {
             return false;
         } else {
-            debugmsg( "there's already a monster at %s", critter.get_location().to_string_writable() );
+            debugmsg( "there's already a monster at {}", critter.get_location().to_string_writable() );
             return false;
         }
     }
@@ -128,7 +128,7 @@ bool creature_tracker::update_pos( const monster &critter, const tripoint_abs_ms
         if( othermon.is_hallucination() ) {
             othermon.die( nullptr );
         } else {
-            debugmsg( "update_zombie_pos: wanted to move %s to %s, but new location already has %s",
+            debugmsg( "update_zombie_pos: wanted to move {} to {}, but new location already has {}",
                       critter.disp_name(), new_pos.to_string_writable(), othermon.disp_name() );
             return false;
         }
@@ -145,7 +145,7 @@ bool creature_tracker::update_pos( const monster &critter, const tripoint_abs_ms
     } else {
         // We're changing the x/y/z coordinates of a zombie that hasn't been added
         // to the game yet. `add` will update monsters_by_location for us.
-        debugmsg( "update_zombie_pos: no %s at %s (moving to %s)",
+        debugmsg( "update_zombie_pos: no {} at {} (moving to {})",
                   critter.disp_name(), old_pos.to_string_writable(), new_pos.to_string_writable() );
         // Rebuild cache in case the monster actually IS in the game, just bugged
         rebuild_cache();
@@ -179,7 +179,7 @@ void creature_tracker::remove( const monster &critter )
         return ptr.get() == &critter;
     } );
     if( iter == monsters_list.end() ) {
-        debugmsg( "Tried to remove invalid monster %s", critter.name() );
+        debugmsg( "Tried to remove invalid monster {}", critter.name() );
         return;
     }
 
@@ -267,7 +267,7 @@ bool creature_tracker::kill_marked_for_death()
         if( !critter.is_dead() ) {
             continue;
         }
-        dbg( D_INFO ) << string_format( "cleanup_dead: critter at %s hp:%d %s",
+        dbg( D_INFO ) << string_format( "cleanup_dead: critter at {} hp:{} {}",
                                         critter.get_location().to_string_writable(),
                                         critter.get_hp(), critter.name() );
         critter.die( nullptr );

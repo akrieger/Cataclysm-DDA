@@ -427,7 +427,7 @@ void mission_type::check_consistency()
 {
     for( const mission_type &m : get_all() ) {
         if( !m.item_id.is_empty() && !item::type_is_defined( m.item_id ) ) {
-            debugmsg( "Mission %s has undefined item id %s", m.id.c_str(), m.item_id.c_str() );
+            debugmsg( "Mission {} has undefined item id {}", m.id.c_str(), m.item_id.c_str() );
         }
     }
 }
@@ -523,7 +523,7 @@ mission_type_id mission_type::from_legacy( int old_id )
         return old_id_vec[ old_id ];
     }
 
-    debugmsg( "Invalid legacy mission id: %d", old_id );
+    debugmsg( "Invalid legacy mission id: {}", old_id );
     return mission_MISSION_NULL;
 }
 

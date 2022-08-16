@@ -226,7 +226,7 @@ const item_action &item_action_generator::get_action( const item_action_id &id )
         return iter->second;
     }
 
-    debugmsg( "Couldn't find item action named %s", id.c_str() );
+    debugmsg( "Couldn't find item action named {}", id.c_str() );
     return nullaction;
 }
 
@@ -247,7 +247,7 @@ void item_action_generator::check_consistency() const
     for( const auto &elem : item_actions ) {
         const item_action &action = elem.second;
         if( !item_controller->has_iuse( action.id ) ) {
-            debugmsg( "Item action \"%s\" isn't known to the game.  Check item action definitions in JSON.",
+            debugmsg( "Item action \"{}\" isn't known to the game.  Check item action definitions in JSON.",
                       action.id.c_str() );
         }
     }
@@ -316,10 +316,10 @@ void game::item_action_menu( item_location loc )
         if( elem.second->ammo_required() ) {
 
             if( elem.second->has_flag( flag_USES_BIONIC_POWER ) ) {
-                ss += string_format( "(%d kJ)", elem.second->ammo_required() );
+                ss += string_format( "({} kJ)", elem.second->ammo_required() );
             } else {
                 auto iter = elem.second->type->ammo_scale.find( elem.first );
-                ss += string_format( "(-%d)", int( elem.second->ammo_required() * ( iter ==
+                ss += string_format( "(-{})", int( elem.second->ammo_required() * ( iter ==
                                                    elem.second->type->ammo_scale.end() ? 1 : double( iter->second ) ) ) );
             }
 

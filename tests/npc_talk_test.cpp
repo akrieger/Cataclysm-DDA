@@ -100,9 +100,9 @@ static void gen_response_lines( dialogue &d, size_t expected_count )
         response.create_option_line( d, input_event() );
     }
     if( d.responses.size() != expected_count ) {
-        printf( "Test failure in %s\n", d.topic_stack.back().id.c_str() );
+        printf( "Test failure in {}\n", d.topic_stack.back().id.c_str() );
         for( talk_response &response : d.responses ) {
-            printf( "response: %s\n", response.text.c_str() );
+            printf( "response: {}\n", response.text.c_str() );
         }
     }
     CAPTURE( d.responses );

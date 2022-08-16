@@ -181,7 +181,7 @@ static cata::optional<std::string> prompt_world_name( const std::string &title,
 
     input_context ctxt( "STRING_INPUT" );
     popup.description( string_format(
-                           _( "Press [<color_c_yellow>%s</color>] to randomize the world name." ),
+                           _( "Press [<color_c_yellow>{}</color>] to randomize the world name." ),
                            ctxt.get_desc( "PICK_RANDOM_WORLDNAME", 1U ) ) );
 
     popup.custom_actions.emplace_back( "PICK_RANDOM_WORLDNAME", translation() );
@@ -565,7 +565,7 @@ WORLD *worldfactory::pick_world( bool show_prompt, bool empty_only )
                                             world_list_top_left + point( world_list_width - 1, i ) );
             button_map.emplace( i, btn );
 
-            mvwprintz( w_worlds, point( 0, static_cast<int>( i ) ), c_white, "%d", i + 1 );
+            mvwprintz( w_worlds, point( 0, static_cast<int>( i ) ), c_white, "{}", i + 1 );
             wmove( w_worlds, point( 4, static_cast<int>( i ) ) );
 
             std::string world_name = ( world_pages[selpage] )[i];
@@ -577,7 +577,7 @@ WORLD *worldfactory::pick_world( bool show_prompt, bool empty_only )
                 wprintz( w_worlds, c_yellow, "  " );
             }
 
-            const std::string txt = string_format( "%s (%lu)", world_name, saves_num );
+            const std::string txt = string_format( "{} ({})", world_name, saves_num );
             const int remaining = world_list_width - ( utf8_width( txt, true ) + 6 );
             wprintz( w_worlds, sel_this ? hilite( c_white ) : c_white, txt );
             if( sel_this && remaining > 0 ) {
@@ -593,7 +593,7 @@ WORLD *worldfactory::pick_world( bool show_prompt, bool empty_only )
             if( !world_pages[i].empty() ) {
                 nc_color tabcolor = ( selpage == i ) ? hilite( c_white ) : c_white;
                 wprintz( w_worlds_header, c_white, "[" );
-                wprintz( w_worlds_header, tabcolor, _( "Page %lu" ), i + 1 );
+                wprintz( w_worlds_header, tabcolor, _( "Page {}" ), i + 1 );
                 wprintz( w_worlds_header, c_white, "]" );
                 wputch( w_worlds_header, BORDER_COLOR, LINE_OXOX );
             }
@@ -866,7 +866,7 @@ std::map<int, inclusive_rectangle<point>> worldfactory::draw_mod_list( const cat
                         mod_entry_name = _( "N/A" );
 
                     }
-                    mod_entry_name += string_format( _( " [%s]" ), mod_entry_id.str() );
+                    mod_entry_name += string_format( _( " [{}]" ), mod_entry_id.str() );
                     trim_and_print( w, point( 4, iNum - start ), wwidth, mod_entry_color, mod_entry_name );
                     ent_map.emplace( std::distance( mods.begin(), iter ),
                                      inclusive_rectangle<point>( point( 1, iNum - start ), point( 3 + wwidth, iNum - start ) ) );
@@ -1264,7 +1264,7 @@ int worldfactory::show_worldgen_tab_modselection( const catacurses::window &win,
             if( num_lines > window_height ) {
                 // The description didn't fit in the window, so provide a
                 // hint for how to see the whole thing
-                std::string message = string_format( _( "…%s = View full description " ),
+                std::string message = string_format( _( "…{} = View full description " ),
                                                      ctxt.get_desc( "VIEW_MOD_DESCRIPTION" ) );
                 nc_color color = c_green;
                 print_colored_text( w_description, point( window_width - utf8_width( message ), window_height - 1 ),
@@ -1278,7 +1278,7 @@ int worldfactory::show_worldgen_tab_modselection( const catacurses::window &win,
         for( size_t i = 0; i < get_mod_list_tabs().size(); i++ ) {
             wprintz( win, c_white, "[" );
             wprintz( win, ( iCurrentTab == i ) ? hilite( c_light_green ) : c_light_green,
-                     "%s", get_mod_list_tabs()[i].second );
+                     "{}", get_mod_list_tabs()[i].second );
             wprintz( win, c_white, "]" );
             wputch( win, BORDER_COLOR, LINE_OXOX );
             point tabpos( point( 2 + ++xpos, 4 ) );
@@ -1295,7 +1295,7 @@ int worldfactory::show_worldgen_tab_modselection( const catacurses::window &win,
             fpopup->query_string( /*loop=*/false, /*draw_only=*/true );
         } else {
             mvwprintz( win, filter_pos, c_light_gray, "< " );
-            const char *help = current_filter.empty() ? _( "[%s] Filter" ) : _( "[%s] Filter: " );
+            const char *help = current_filter.empty() ? _( "[{}] Filter" ) : _( "[{}] Filter: " );
             wprintz( win, c_light_gray, help, ctxt.get_desc( "FILTER" ) );
             wprintz( win, c_white, current_filter );
             wprintz( win, c_light_gray, " >" );
@@ -1525,7 +1525,7 @@ int worldfactory::show_worldgen_tab_modselection( const catacurses::window &win,
             }
         } else if( action == "VIEW_MOD_DESCRIPTION" ) {
             if( const MOD_INFORMATION *selmod = get_selected_mod() ) {
-                popup( "%s", mman_ui->get_information( selmod ) );
+                popup( "{}", mman_ui->get_information( selmod ) );
             }
         } else if( action == "QUIT" ) {
             tab_output = -999;
@@ -1729,7 +1729,7 @@ int worldfactory::show_worldgen_basic( WORLD *world )
             nc_color acc_clr = get_clr( c_yellow, sel_opt == static_cast<int>( wg_sliders.size() + 1 ) );
             nc_color acc_clr2 = get_clr( c_light_green, sel_opt == static_cast<int>( wg_sliders.size() + 1 ) );
             nc_color base_clr = get_clr( c_white, sel_opt == static_cast<int>( wg_sliders.size() + 1 ) );
-            std::string btn_txt = string_format( "%s%s%s %s %s", colorize( "[", acc_clr ),
+            std::string btn_txt = string_format( "{}{}{} {} {}", colorize( "[", acc_clr ),
                                                  colorize( ctxt.get_desc( "FINALIZE", 1U ), acc_clr2 ),
                                                  colorize( "][", acc_clr ), _( "Finish" ), colorize( "]", acc_clr ) );
             const point finish_pos( win_width / 4 - utf8_width( btn_txt, true ) / 2, y );
@@ -1740,7 +1740,7 @@ int worldfactory::show_worldgen_basic( WORLD *world )
             acc_clr = get_clr( c_yellow, sel_opt == static_cast<int>( wg_sliders.size() + 2 ) );
             acc_clr2 = get_clr( c_light_green, sel_opt == static_cast<int>( wg_sliders.size() + 2 ) );
             base_clr = get_clr( c_white, sel_opt == static_cast<int>( wg_sliders.size() + 2 ) );
-            btn_txt = string_format( "%s%s%s %s %s", colorize( "[", acc_clr ),
+            btn_txt = string_format( "{}{}{} {} {}", colorize( "[", acc_clr ),
                                      colorize( ctxt.get_desc( "RESET", 1U ), acc_clr2 ),
                                      colorize( "][", acc_clr ), _( "Reset" ), colorize( "]", acc_clr ) );
             const point reset_pos( win_width / 2 - utf8_width( btn_txt, true ) / 2, y );
@@ -1751,7 +1751,7 @@ int worldfactory::show_worldgen_basic( WORLD *world )
             acc_clr = get_clr( c_yellow, sel_opt == static_cast<int>( wg_sliders.size() + 3 ) );
             acc_clr2 = get_clr( c_light_green, sel_opt == static_cast<int>( wg_sliders.size() + 3 ) );
             base_clr = get_clr( c_white, sel_opt == static_cast<int>( wg_sliders.size() + 3 ) );
-            btn_txt = string_format( "%s%s%s %s %s", colorize( "[", acc_clr ),
+            btn_txt = string_format( "{}{}{} {} {}", colorize( "[", acc_clr ),
                                      colorize( ctxt.get_desc( "RANDOMIZE", 1U ), acc_clr2 ),
                                      colorize( "][", acc_clr ), _( "Randomize" ), colorize( "]", acc_clr ) );
             const point rand_pos( ( win_width * 3 ) / 4 - utf8_width( btn_txt, true ) / 2, y++ );
@@ -1779,10 +1779,10 @@ int worldfactory::show_worldgen_basic( WORLD *world )
 
         // Hint text
         std::string hint_txt =
-            string_format( _( "Press [<color_yellow>%s</color>] to pick a random name for your world.\n"
+            string_format( _( "Press [<color_yellow>{}</color>] to pick a random name for your world.\n"
                               "Navigate options with [<color_yellow>directional keys</color>] "
-                              "and confirm with [<color_yellow>%s</color>].\n"
-                              "Press [<color_yellow>%s</color>] to see additional control information." ),
+                              "and confirm with [<color_yellow>{}</color>].\n"
+                              "Press [<color_yellow>{}</color>] to see additional control information." ),
                            ctxt.get_desc( "PICK_RANDOM_WORLDNAME", 1U ), ctxt.get_desc( "CONFIRM", 1U ),
                            ctxt.get_desc( "HELP_KEYBINDINGS", 1U ) );
         if( !custom_opts && sel_opt > 0 && sel_opt <= static_cast<int>( wg_sliders.size() ) ) {
@@ -1793,13 +1793,13 @@ int worldfactory::show_worldgen_basic( WORLD *world )
 
         // Advanced settings legend
         nc_color dummy = c_light_gray;
-        std::string sctxt = string_format( _( "[<color_yellow>%s</color>] - Advanced options" ),
+        std::string sctxt = string_format( _( "[<color_yellow>{}</color>] - Advanced options" ),
                                            ctxt.get_desc( "ADVANCED_SETTINGS", 1U ) );
         mvwprintz( w_confirmation, point( 2, win_height - 4 ), c_light_gray, _( "Advanced settings:" ) );
         print_colored_text( w_confirmation, point( 2, win_height - 3 ), dummy, c_light_gray, sctxt );
         btn_map.emplace( wg_sliders.size() + 4, inclusive_rectangle<point>( point( 2, win_height - 3 ),
                          point( 2 + utf8_width( sctxt, true ), win_height - 3 ) ) );
-        sctxt = string_format( _( "[<color_yellow>%s</color>] - Open mod manager" ),
+        sctxt = string_format( _( "[<color_yellow>{}</color>] - Open mod manager" ),
                                ctxt.get_desc( "PICK_MODS", 1U ) );
         print_colored_text( w_confirmation, point( 2, win_height - 2 ), dummy, c_light_gray, sctxt );
         btn_map.emplace( wg_sliders.size() + 5, inclusive_rectangle<point>( point( 2, win_height - 2 ),
@@ -1997,12 +1997,12 @@ void worldfactory::draw_modselection_borders( const catacurses::window &win,
 
     // Add tips & hints
     fold_and_print( win, point( 2, TERMY - 10 ), getmaxx( win ) - 4, c_light_gray,
-                    _( "[<color_yellow>%s</color>] = save <color_cyan>Mod Load Order</color> as default <color_red>|</color> "
-                       "[<color_yellow>%s</color>/<color_yellow>%s</color>] = switch Main-Tab <color_red>|</color> "
-                       "[<color_yellow>%s</color>/<color_yellow>%s</color>] = switch "
+                    _( "[<color_yellow>{}</color>] = save <color_cyan>Mod Load Order</color> as default <color_red>|</color> "
+                       "[<color_yellow>{}</color>/<color_yellow>{}</color>] = switch Main-Tab <color_red>|</color> "
+                       "[<color_yellow>{}</color>/<color_yellow>{}</color>] = switch "
                        "<color_cyan>Mod List</color> and <color_cyan>Mod Load Order</color> <color_red>|</color> "
-                       "[<color_yellow>%s</color>/<color_yellow>%s</color>] = switch <color_cyan>Mod List</color> Tab <color_red>|</color> "
-                       "[<color_yellow>%s</color>] = keybindings" ),
+                       "[<color_yellow>{}</color>/<color_yellow>{}</color>] = switch <color_cyan>Mod List</color> Tab <color_red>|</color> "
+                       "[<color_yellow>{}</color>] = keybindings" ),
                     ctxtp.get_desc( "SAVE_DEFAULT_MODS" ),
                     ctxtp.get_desc( "PREV_TAB" ),
                     ctxtp.get_desc( "NEXT_TAB" ),
@@ -2042,9 +2042,9 @@ bool worldfactory::valid_worldname( const std::string &name, bool automated ) co
     if( name.empty() ) {
         msg = _( "World name cannot be empty!" );
     } else if( name == "save" || name == "TUTORIAL" || name == "DEFENSE" ) {
-        msg = string_format( _( "%s is a reserved name!" ), name );
+        msg = string_format( _( "{} is a reserved name!" ), name );
     } else if( has_world( name ) ) {
-        msg = string_format( _( "A world named %s already exists!" ), name );
+        msg = string_format( _( "A world named {} already exists!" ), name );
     } else {
         // just check the raw bytes because unicode characters are always acceptable
         bool allowed = true;
@@ -2054,9 +2054,9 @@ bool worldfactory::valid_worldname( const std::string &name, bool automated ) co
             const unsigned char uc = static_cast<unsigned char>( ch );
             if( !is_char_allowed( uc ) ) {
                 if( std::isprint( uc ) ) {
-                    msg = string_format( _( "World name contains invalid character: '%c'" ), uc );
+                    msg = string_format( _( "World name contains invalid character: '{}'" ), uc );
                 } else {
-                    msg = string_format( _( "World name contains invalid character: 0x%x" ), uc );
+                    msg = string_format( _( "World name contains invalid character: 0x{}" ), uc );
                 }
                 allowed = false;
                 break;
@@ -2157,7 +2157,7 @@ WORLD *worldfactory::get_world( const std::string &name )
 {
     const auto iter = all_worlds.find( name );
     if( iter == all_worlds.end() ) {
-        debugmsg( "Requested non-existing world %s, prepare for crash", name );
+        debugmsg( "Requested non-existing world {}, prepare for crash", name );
         return nullptr;
     }
     return iter->second.get();

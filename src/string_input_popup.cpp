@@ -266,7 +266,7 @@ void string_input_popup::draw( ui_adaptor *const ui, const utf8_wrapper &ret,
     mvwprintw( w_title_and_entry, point( _startx, _starty ), std::string( std::max( 0, scrmax ),
                ' ' ) );
     // Print the whole input string in default color
-    mvwprintz( w_title_and_entry, point( _startx, _starty ), _string_color, "%s", ds.c_str() );
+    mvwprintz( w_title_and_entry, point( _startx, _starty ), _string_color, "{}", ds.c_str() );
     size_t sx = ds.display_width();
     // Print the cursor in its own color
     point cursor_pos;
@@ -281,7 +281,7 @@ void string_input_popup::draw( ui_adaptor *const ui, const utf8_wrapper &ret,
         }
         const size_t left_over = ret.substr( 0, a ).display_width() - shift;
         cursor_pos = point( _startx + left_over, _starty );
-        mvwprintz( w_title_and_entry, cursor_pos, _cursor_color, "%s", cursor.c_str() );
+        mvwprintz( w_title_and_entry, cursor_pos, _cursor_color, "{}", cursor.c_str() );
         start_x_edit += left_over;
     } else if( _max_length > 0
                && ret.display_width() >= static_cast<size_t>( _max_length ) ) {
@@ -314,7 +314,7 @@ void string_input_popup::draw( ui_adaptor *const ui, const utf8_wrapper &ret,
         }
     }
     if( !edit.empty() ) {
-        mvwprintz( w_title_and_entry, point( start_x_edit, _starty ), _cursor_color, "%s", edit.c_str() );
+        mvwprintz( w_title_and_entry, point( start_x_edit, _starty ), _cursor_color, "{}", edit.c_str() );
     }
     wnoutrefresh( w_title_and_entry );
 

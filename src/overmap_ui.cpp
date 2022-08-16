@@ -457,7 +457,7 @@ static point_abs_omt draw_notes( const tripoint_abs_omt &origin )
         nmenu.additional_actions.emplace_back( "MARK_DANGER", translation() );
         const input_context ctxt( nmenu.input_category, keyboard_mode::keycode );
         nmenu.text = string_format(
-                         _( "<%s> - center on note, <%s> - edit note, <%s> - mark as dangerous, <%s> - delete note, <%s> - close window" ),
+                         _( "<{}> - center on note, <{}> - edit note, <{}> - mark as dangerous, <{}> - delete note, <{}> - close window" ),
                          colorize( ctxt.get_desc( "CONFIRM", 1 ), c_yellow ),
                          colorize( ctxt.get_desc( "EDIT_NOTE", 1 ), c_yellow ),
                          colorize( ctxt.get_desc( "MARK_DANGER", 1 ), c_red ),
@@ -466,7 +466,7 @@ static point_abs_omt draw_notes( const tripoint_abs_omt &origin )
                      );
         int row = 0;
         overmapbuffer::t_notes_vector notes = overmap_buffer.get_all_notes( origin.z() );
-        nmenu.title = string_format( _( "Map notes (%d)" ), notes.size() );
+        nmenu.title = string_format( _( "Map notes ({})" ), notes.size() );
         for( const auto &point_with_note : notes ) {
             const point_abs_omt p = point_with_note.first;
             if( p == origin.xy() ) {
@@ -487,14 +487,14 @@ static point_abs_omt draw_notes( const tripoint_abs_omt &origin )
             const bool is_dangerous =
                 overmap_buffer.is_marked_dangerous( tripoint_abs_omt( p, origin.z() ) );
             nmenu.addentry_desc(
-                string_format( _( "[%s] %s" ), colorize( note_symbol, note_color ), note_text ),
+                string_format( _( "[{}] {}" ), colorize( note_symbol, note_color ), note_text ),
                 string_format(
-                    _( "<color_red>LEVEL %i, %d'%d, %d'%d</color>: %s "
-                       "(Distance: <color_white>%d</color>) <color_red>%s</color>" ),
+                    _( "<color_red>LEVEL {}, {}'{}, {}'{}</color>: {} "
+                       "(Distance: <color_white>{}</color>) <color_red>{}</color>" ),
                     origin.z(), p_om.x(), p_omt.x(), p_om.y(), p_omt.y(), location_desc,
                     distance_player, is_dangerous ? "DANGEROUS AREA!" : "" ) );
             nmenu.entries[row].ctxt =
-                string_format( _( "<color_light_gray>Distance: </color><color_white>%d</color>" ),
+                string_format( _( "<color_light_gray>Distance: </color><color_white>{}</color>" ),
                                distance_player );
             row++;
         }
@@ -1046,16 +1046,16 @@ static void draw_om_sidebar(
             int line_number = 6;
             for( mongroup * const &mgroup : mgroups ) {
                 mvwprintz( wbar, point( 3, line_number++ ),
-                           c_blue, "  Species: %s", mgroup->type.c_str() );
+                           c_blue, "  Species: {}", mgroup->type.c_str() );
                 mvwprintz( wbar, point( 3, line_number++ ),
-                           c_blue, "# monsters: %d", mgroup->population + mgroup->monsters.size() );
+                           c_blue, "# monsters: {}", mgroup->population + mgroup->monsters.size() );
                 if( !mgroup->horde ) {
                     continue;
                 }
                 mvwprintz( wbar, point( 3, line_number++ ),
-                           c_blue, "  Interest: %d", mgroup->interest );
+                           c_blue, "  Interest: {}", mgroup->interest );
                 mvwprintz( wbar, point( 3, line_number ),
-                           c_blue, "  Target: %s", mgroup->target.to_string() );
+                           c_blue, "  Target: {}", mgroup->target.to_string() );
                 mvwprintz( wbar, point( 3, line_number++ ),
                            c_red, "x" );
             }
@@ -1071,7 +1071,7 @@ static void draw_om_sidebar(
         }
     } else {
         // NOLINTNEXTLINE(cata-use-named-point-constants)
-        mvwprintz( wbar, point( 1, 1 ), oter_unexplored.obj().get_color(), _( "%s %s" ),
+        mvwprintz( wbar, point( 1, 1 ), oter_unexplored.obj().get_color(), _( "{} {}" ),
                    oter_unexplored.obj().get_symbol(), oter_unexplored.obj().get_name() );
     }
 
@@ -1091,24 +1091,24 @@ static void draw_om_sidebar(
 
     if( ( data.debug_editor && center_seen ) || data.debug_info ) {
         mvwprintz( wbar, point( 1, ++lines ), c_white,
-                   "abs_omt: %s", center.to_string() );
+                   "abs_omt: {}", center.to_string() );
         const oter_t &oter = overmap_buffer.ter( center ).obj();
-        mvwprintz( wbar, point( 1, ++lines ), c_white, "oter: %s (rot %d)", oter.id.str(),
+        mvwprintz( wbar, point( 1, ++lines ), c_white, "oter: {} (rot {})", oter.id.str(),
                    oter.get_rotation() );
         mvwprintz( wbar, point( 1, ++lines ), c_white,
-                   "oter_type: %s", oter.get_type_id().str() );
+                   "oter_type: {}", oter.get_type_id().str() );
         std::vector<oter_id> predecessors = overmap_buffer.predecessors( center );
         if( !predecessors.empty() ) {
             mvwprintz( wbar, point( 1, ++lines ), c_white, "predecessors:" );
             for( auto pred = predecessors.rbegin(); pred != predecessors.rend(); ++pred ) {
-                mvwprintz( wbar, point( 1, ++lines ), c_white, "- %s", pred->id().str() );
+                mvwprintz( wbar, point( 1, ++lines ), c_white, "- {}", pred->id().str() );
             }
         }
         cata::optional<mapgen_arguments> *args = overmap_buffer.mapgen_args( center );
         if( args ) {
             if( *args ) {
                 for( const std::pair<const std::string, cata_variant> &arg : ( **args ).map ) {
-                    mvwprintz( wbar, point( 1, ++lines ), c_white, "%s = %s",
+                    mvwprintz( wbar, point( 1, ++lines ), c_white, "{} = {}",
                                arg.first, arg.second.get_string() );
                 }
             } else {
@@ -1118,17 +1118,17 @@ static void draw_om_sidebar(
 
         for( cube_direction dir : all_enum_values<cube_direction>() ) {
             if( std::string *join = overmap_buffer.join_used_at( { center, dir } ) ) {
-                mvwprintz( wbar, point( 1, ++lines ), c_white, "join %s: %s",
+                mvwprintz( wbar, point( 1, ++lines ), c_white, "join {}: {}",
                            io::enum_to_string( dir ), *join );
             }
         }
 
         for( const mongroup *mg : overmap_buffer.monsters_at( center ) ) {
-            mvwprintz( wbar, point( 1, ++lines ), c_red, "mongroup %s (%zu/%u), %s %s%s%s",
+            mvwprintz( wbar, point( 1, ++lines ), c_red, "mongroup {} ({}/{}), {} {}{}{}",
                        mg->type.str(), mg->monsters.size(), mg->population,
                        io::enum_to_string( mg->behaviour ),
                        mg->dying ? "x" : "", mg->horde ? "h" : "", mg->diffuse ? "d" : "" );
-            mvwprintz( wbar, point( 1, ++lines ), c_red, "target: %s (%d)",
+            mvwprintz( wbar, point( 1, ++lines ), c_red, "target: {} ({})",
                        project_to<coords::omt>( mg->target ).to_string(), mg->interest );
         }
     }
@@ -1136,7 +1136,7 @@ static void draw_om_sidebar(
     if( has_target ) {
         const int distance = rl_dist( center, target );
         mvwprintz( wbar, point( 1, ++lines ), c_white, _( "Distance to active mission:" ) );
-        mvwprintz( wbar, point( 1, ++lines ), c_white, _( "%d tiles" ), distance );
+        mvwprintz( wbar, point( 1, ++lines ), c_white, _( "{} tiles" ), distance );
 
         const int above_below = target.z() - orig.z();
         std::string msg;
@@ -1146,7 +1146,7 @@ static void draw_om_sidebar(
             msg = _( "Below us" );
         }
         if( above_below != 0 ) {
-            mvwprintz( wbar, point( 1, ++lines ), c_white, _( "%s" ), msg );
+            mvwprintz( wbar, point( 1, ++lines ), c_white, _( "{}" ), msg );
         }
     }
 
@@ -1164,7 +1164,7 @@ static void draw_om_sidebar(
         int y = 16;
 
         const auto print_hint = [&]( const std::string & action, nc_color color = c_magenta ) {
-            y += fold_and_print( wbar, point( 1, y ), getmaxx( wbar ) - 1, color, string_format( _( "%s - %s" ),
+            y += fold_and_print( wbar, point( 1, y ), getmaxx( wbar ) - 1, color, string_format( _( "{} - {}" ),
                                  inp_ctxt->get_desc( action ),
                                  inp_ctxt->get_action_name( action ) ) );
         };
@@ -1232,7 +1232,7 @@ static void draw(
 
 static void create_note( const tripoint_abs_omt &curs )
 {
-    std::string color_notes = string_format( "%s\n\n\n",
+    std::string color_notes = string_format( "{}\n\n\n",
                               _( "Add a note to the map.  "
                                  "For a custom GLYPH or COLOR follow the examples below.  "
                                  "Default GLYPH and COLOR looks like this: "
@@ -1241,12 +1241,12 @@ static void create_note( const tripoint_abs_omt &curs )
     color_notes += _( "Color codes: " );
     for( const std::pair<const std::string, note_color> &color_pair : get_note_color_names() ) {
         // The color index is not translatable, but the name is.
-        //~ %1$s: note color abbreviation, %2$s: note color name
-        color_notes += string_format( pgettext( "note color", "%1$s:%2$s, " ), color_pair.first,
+        //~ {1}: note color abbreviation, {2}: note color name
+        color_notes += string_format( pgettext( "note color", "{1}:{2}, " ), color_pair.first,
                                       colorize( color_pair.second.name, color_pair.second.color ) );
     }
 
-    std::string helper_text = string_format( ".\n\n%s\n%s\n%s\n\n",
+    std::string helper_text = string_format( ".\n\n{}\n{}\n{}\n\n",
                               _( "Type GLYPH<color_yellow>:</color>TEXT to set a custom glyph." ),
                               _( "Type COLOR<color_yellow>;</color>TEXT to set a custom color." ),
                               // NOLINTNEXTLINE(cata-text-style): literal exclamation mark
@@ -1404,28 +1404,28 @@ static bool search( const ui_adaptor &om_ui, tripoint_abs_omt &curs, const tripo
 
         // NOLINTNEXTLINE(cata-use-named-point-constants)
         mvwprintz( w_search, point( 1, 1 ), c_light_blue, _( "Search:" ) );
-        mvwprintz( w_search, point( align_width, 1 ), c_light_red, "%s", term );
+        mvwprintz( w_search, point( align_width, 1 ), c_light_red, "{}", term );
 
         mvwprintz( w_search, point( 1, 2 ), c_light_blue,
                    locations.size() == 1 ? _( "Result:" ) : _( "Results:" ) );
-        mvwprintz( w_search, point( align_width, 2 ), c_light_red, "%d/%d     ", i + 1,
+        mvwprintz( w_search, point( align_width, 2 ), c_light_red, "{}/{}     ", i + 1,
                    locations.size() );
 
         mvwprintz( w_search, point( 1, 3 ), c_light_blue, _( "Direction:" ) );
-        mvwprintz( w_search, point( align_width, 3 ), c_light_red, "%d %s",
+        mvwprintz( w_search, point( align_width, 3 ), c_light_red, "{} {}",
                    static_cast<int>( trig_dist( orig, tripoint_abs_omt( locations[i], orig.z() ) ) ),
                    direction_name_short( direction_from( orig, tripoint_abs_omt( locations[i], orig.z() ) ) ) );
 
         if( locations.size() > 1 ) {
             fold_and_print( w_search, point( 1, 6 ), search_width, c_white,
-                            _( "Press [<color_yellow>%s</color>] or [<color_yellow>%s</color>] "
+                            _( "Press [<color_yellow>{}</color>] or [<color_yellow>{}</color>] "
                                "to cycle through search results." ),
                             ctxt.get_desc( "NEXT_TAB" ), ctxt.get_desc( "PREV_TAB" ) );
         }
         fold_and_print( w_search, point( 1, 10 ), search_width, c_white,
-                        _( "Press [<color_yellow>%s</color>] to confirm." ), ctxt.get_desc( "CONFIRM" ) );
+                        _( "Press [<color_yellow>{}</color>] to confirm." ), ctxt.get_desc( "CONFIRM" ) );
         fold_and_print( w_search, point( 1, 11 ), search_width, c_white,
-                        _( "Press [<color_yellow>%s</color>] to quit." ), ctxt.get_desc( "QUIT" ) );
+                        _( "Press [<color_yellow>{}</color>] to quit." ), ctxt.get_desc( "QUIT" ) );
         draw_border( w_search );
         wnoutrefresh( w_search );
     } );
@@ -1464,7 +1464,7 @@ static void place_ter_or_special( const ui_adaptor &om_ui, tripoint_abs_omt &cur
         pmenu.title = _( "Select terrain to place:" );
         for( const oter_t &oter : overmap_terrains::get_all() ) {
             const std::string entry_text = string_format(
-                                               _( "sym: [ %s %s ], color: [ %s %s], name: [ %s ], id: [ %s ]" ),
+                                               _( "sym: [ {} {} ], color: [ {} {}], name: [ {} ], id: [ {} ]" ),
                                                colorize( oter.get_symbol(), oter.get_color() ),
                                                colorize( oter.get_symbol( true ), oter.get_color( true ) ),
                                                colorize( string_from_color( oter.get_color() ), oter.get_color() ),
@@ -1537,7 +1537,7 @@ static void place_ter_or_special( const ui_adaptor &om_ui, tripoint_abs_omt &cur
             const std::string &rotation = om_direction::name( uistate.omedit_rotation );
 
             mvwprintz( w_editor, point( 1, 3 ), c_light_gray, "                         " );
-            mvwprintz( w_editor, point( 1, 3 ), c_light_gray, _( "Rotation: %s %s" ), rotation,
+            mvwprintz( w_editor, point( 1, 3 ), c_light_gray, _( "Rotation: {} {}" ), rotation,
                        can_rotate ? "" : _( "(fixed)" ) );
             mvwprintz( w_editor, point( 1, 5 ), c_red, _( "Areas highlighted in red" ) );
             mvwprintz( w_editor, point( 1, 6 ), c_red, _( "already have map content" ) );
@@ -1547,10 +1547,10 @@ static void place_ter_or_special( const ui_adaptor &om_ui, tripoint_abs_omt &cur
             mvwprintz( w_editor, point( 1, 9 ), c_red, _( "their contents." ) );
             if( ( terrain && uistate.place_terrain->is_rotatable() ) ||
                 ( !terrain && uistate.place_special->is_rotatable() ) ) {
-                mvwprintz( w_editor, point( 1, 11 ), c_white, _( "[%s] Rotate" ),
+                mvwprintz( w_editor, point( 1, 11 ), c_white, _( "[{}] Rotate" ),
                            ctxt.get_desc( "ROTATE" ) );
             }
-            mvwprintz( w_editor, point( 1, 12 ), c_white, _( "[%s] Apply" ),
+            mvwprintz( w_editor, point( 1, 12 ), c_white, _( "[{}] Apply" ),
                        ctxt.get_desc( "CONFIRM" ) );
             mvwprintz( w_editor, point( 1, 13 ), c_white, _( "[ESCAPE/Q] Cancel" ) );
             wnoutrefresh( w_editor );
@@ -1619,7 +1619,7 @@ static void set_special_args( tripoint_abs_omt &curs )
         const mapgen_parameter &param = p.second;
         std::vector<std::string> possible_values = param.all_possible_values( params );
         uilist arg_menu;
-        arg_menu.title = string_format( _( "Select value for mapgen argument %s: " ), param_name );
+        arg_menu.title = string_format( _( "Select value for mapgen argument {}: " ), param_name );
         for( size_t i = 0; i != possible_values.size(); ++i ) {
             const std::string &v = possible_values[i];
             arg_menu.addentry( i, true, 0, v );
@@ -2020,10 +2020,10 @@ void ui::omap::setup_cities_menu( uilist &cities_menu, std::vector<city> &cities
         for( const city &c : cities_container ) {
             uilist_entry entry( c.database_id, true, -1, c.name,
                                 string_format(
-                                    _( "Location: <color_white>%s</color>:<color_white>%s</color>" ),
+                                    _( "Location: <color_white>{}</color>:<color_white>{}</color>" ),
                                     c.pos_om.to_string(), c.pos.to_string() ),
                                 //~ "pop" refers to population count
-                                string_format( _( "(pop <color_white>%s</color>)" ), c.population ) );
+                                string_format( _( "(pop <color_white>{}</color>)" ), c.population ) );
             cities_menu.entries.emplace_back( entry );
         }
         cities_menu.w_height_setup = TERMY - 4;

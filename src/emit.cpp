@@ -26,7 +26,7 @@ const emit &string_id<emit>::obj() const
 {
     const auto found = emits_all.find( *this );
     if( found == emits_all.end() ) {
-        debugmsg( "Tried to get invalid emission data: %s", c_str() );
+        debugmsg( "Tried to get invalid emission data: {}", c_str() );
         static const emit null_emit{};
         return null_emit;
     }
@@ -70,15 +70,15 @@ void emit::check_consistency()
     for( auto &e : emits_all ) {
         const int max_intensity = e.second.field_.obj().get_max_intensity();
         if( e.second.intensity_ > max_intensity || e.second.intensity_ < 1 ) {
-            debugmsg( "emission intensity of %s out of range (%d of max %d)", e.second.id_.c_str(),
+            debugmsg( "emission intensity of {} out of range ({} of max {})", e.second.id_.c_str(),
                       e.second.intensity_, max_intensity );
             e.second.intensity_ = max_intensity;
         }
         if( e.second.qty_ <= 0 ) {
-            debugmsg( "emission qty of %s out of range", e.second.id_.c_str() );
+            debugmsg( "emission qty of {} out of range", e.second.id_.c_str() );
         }
         if( e.second.chance_ > 100 || e.second.chance_ <= 0 ) {
-            debugmsg( "emission chance of %s out of range (%d of min 1 max 100)", e.second.id_.c_str(),
+            debugmsg( "emission chance of {} out of range ({} of min 1 max 100)", e.second.id_.c_str(),
                       e.second.chance_ );
             e.second.chance_ = std::max( std::min( e.second.chance_, 100 ), 1 );
         }

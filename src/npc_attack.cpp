@@ -100,7 +100,7 @@ void npc_attack_spell::use( npc &source, const tripoint &location ) const
         !sp.has_flag( spell_flag::NO_HANDS ) ) {
         source.unwield();
     }
-    add_msg_debug( debugmode::debug_filter::DF_NPC, "%s is casting %s", source.disp_name(), sp.name() );
+    add_msg_debug( debugmode::debug_filter::DF_NPC, "{} is casting {}", source.disp_name(), sp.name() );
     source.cast_spell( sp, false, location );
 }
 
@@ -239,7 +239,7 @@ void npc_attack_melee::use( npc &source, const tripoint &location ) const
     }
     if( !source.is_adjacent( critter, true ) ) {
         if( rl_dist( source.pos(), location ) <= weapon.reach_range( source ) ) {
-            add_msg_debug( debugmode::debug_filter::DF_NPC, "%s is attempting a reach attack",
+            add_msg_debug( debugmode::debug_filter::DF_NPC, "{} is attempting a reach attack",
                            source.disp_name() );
             // check for friendlies in the line of fire
             std::vector<tripoint> path = line_to( source.pos(), location );
@@ -248,7 +248,7 @@ void npc_attack_melee::use( npc &source, const tripoint &location ) const
             for( const tripoint &path_point : path ) {
                 Creature *inter = get_creature_tracker().creature_at( path_point );
                 if( inter != nullptr && source.attitude_to( *inter ) == Creature::Attitude::FRIENDLY ) {
-                    add_msg_debug( debugmode::debug_filter::DF_NPC, "%s aborted a reach attack; ally in the way",
+                    add_msg_debug( debugmode::debug_filter::DF_NPC, "{} aborted a reach attack; ally in the way",
                                    source.disp_name() );
                     can_attack = false;
                     break;
@@ -274,7 +274,7 @@ void npc_attack_melee::use( npc &source, const tripoint &location ) const
                     if( source.can_use_offensive_cbm() ) {
                         source.activate_bionic_by_id( bio_hydraulics );
                     }
-                    add_msg_debug( debugmode::debug_filter::DF_NPC, "%s is attempting a melee attack",
+                    add_msg_debug( debugmode::debug_filter::DF_NPC, "{} is attempting a melee attack",
                                    source.disp_name() );
                     source.melee_attack( *critter, true );
                 }
@@ -283,7 +283,7 @@ void npc_attack_melee::use( npc &source, const tripoint &location ) const
             }
         }
     } else {
-        add_msg_debug( debugmode::debug_filter::DF_NPC, "%s is attempting a melee attack",
+        add_msg_debug( debugmode::debug_filter::DF_NPC, "{} is attempting a melee attack",
                        source.disp_name() );
         source.melee_attack( *critter, true );
     }
@@ -393,7 +393,7 @@ void npc_attack_gun::use( npc &source, const tripoint &location ) const
         // todo: make gun an item_location instead of getting wielded item here
         // but since wielding is required before this, it should be fine
         source.do_reload( source.get_wielded_item() );
-        add_msg_debug( debugmode::debug_filter::DF_NPC, "%s is reloading %s", source.disp_name(),
+        add_msg_debug( debugmode::debug_filter::DF_NPC, "{} is reloading {}", source.disp_name(),
                        gun.display_name() );
         return;
     }
@@ -415,7 +415,7 @@ void npc_attack_gun::use( npc &source, const tripoint &location ) const
     // TODO: Get distance to closest enemy
     if( dist > 1 && source.aim_per_move( gun, source.recoil ) > 0 &&
         source.confident_gun_mode_range( gunmode, source.recoil ) < dist ) {
-        add_msg_debug( debugmode::debug_filter::DF_NPC, "%s is aiming", source.disp_name() );
+        add_msg_debug( debugmode::debug_filter::DF_NPC, "{} is aiming", source.disp_name() );
         source.aim( Target_attributes( source.pos(), location ) );
     } else {
         if( source.is_hallucination() ) {
@@ -424,7 +424,7 @@ void npc_attack_gun::use( npc &source, const tripoint &location ) const
         } else {
             source.fire_gun( location );
         }
-        add_msg_debug( debugmode::debug_filter::DF_NPC, "%s fires %s", source.disp_name(),
+        add_msg_debug( debugmode::debug_filter::DF_NPC, "{} fires {}", source.disp_name(),
                        gun.display_name() );
     }
 }
@@ -548,7 +548,7 @@ npc_attack_rating npc_attack_gun::evaluate_tripoint(
 void npc_attack_activate_item::use( npc &source, const tripoint &/*location*/ ) const
 {
     if( !source.wield( activatable_item ) ) {
-        debugmsg( "%s can't wield %s it tried to activate", source.disp_name(),
+        debugmsg( "{} can't wield {} it tried to activate", source.disp_name(),
                   activatable_item.display_name() );
     }
     source.activate_item( activatable_item );
@@ -610,7 +610,7 @@ void npc_attack_throw::use( npc &source, const tripoint &location ) const
     }
 
     item_location weapon = source.get_wielded_item();
-    add_msg_debug( debugmode::debug_filter::DF_NPC, "%s throws the %s", source.disp_name(),
+    add_msg_debug( debugmode::debug_filter::DF_NPC, "{} throws the {}", source.disp_name(),
                    weapon->display_name() );
     item thrown( *weapon );
     if( weapon->count_by_charges() && weapon->charges > 1 ) {

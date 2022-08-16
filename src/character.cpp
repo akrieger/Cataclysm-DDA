@@ -601,9 +601,9 @@ Character &Character::operator=( Character && ) noexcept( list_is_noexcept ) = d
 void Character::setID( character_id i, bool force )
 {
     if( id.is_valid() && !force ) {
-        debugmsg( "tried to set id of a npc/player, but has already a id: %d", id.get_value() );
+        debugmsg( "tried to set id of a npc/player, but has already a id: {}", id.get_value() );
     } else if( !i.is_valid() && !force ) {
-        debugmsg( "tried to set invalid id of a npc/player: %d", i.get_value() );
+        debugmsg( "tried to set invalid id of a npc/player: {}", i.get_value() );
     } else {
         id = i;
     }
@@ -785,7 +785,7 @@ std::string Character::disp_name( bool possessive, bool capitalize_first ) const
         if( is_avatar() ) {
             return capitalize_first ? _( "Your" ) : _( "your" );
         }
-        return string_format( _( "%s's" ), get_name() );
+        return string_format( _( "{}'s" ), get_name() );
     }
 }
 
@@ -1387,7 +1387,7 @@ bool Character::check_outbounds_activity( const player_activity &act, bool check
             activity = player_activity();
         }
         add_msg_debug( debugmode::DF_CHARACTER,
-                       "npc %s at pos %s, activity target is not inbounds at %s therefore "
+                       "npc {} at pos {}, activity target is not inbounds at {} therefore "
                        "activity was stashed",
                        disp_name(), pos().to_string_writable(),
                        act.placement.to_string_writable() );
@@ -1431,7 +1431,7 @@ void Character::mount_creature( monster &z )
     z.mounted_player_id = getID();
     if( z.has_effect( effect_harnessed ) ) {
         z.remove_effect( effect_harnessed );
-        add_msg_if_player( m_info, _( "You remove the %s's harness." ), z.get_name() );
+        add_msg_if_player( m_info, _( "You remove the {}'s harness." ), z.get_name() );
     }
     mounted_creature = mons;
     mons->mounted_player = this;
@@ -1450,13 +1450,13 @@ void Character::mount_creature( monster &z )
         guy.setpos( pnt );
     }
     z.facing = facing;
-    add_msg_if_player( m_good, _( "You climb on the %s." ), z.get_name() );
+    add_msg_if_player( m_good, _( "You climb on the {}." ), z.get_name() );
     if( z.has_flag( MF_RIDEABLE_MECH ) ) {
         if( !z.type->mech_weapon.is_empty() ) {
             item mechwep = item( z.type->mech_weapon );
             set_wielded_item( mechwep );
         }
-        add_msg_if_player( m_good, _( "You hear your %s whir to life." ), z.get_name() );
+        add_msg_if_player( m_good, _( "You hear your {} whir to life." ), z.get_name() );
     }
     // some rideable mechs have night-vision
     recalc_sight_limits();
@@ -1477,7 +1477,7 @@ bool Character::check_mount_will_move( const tripoint &dest_loc )
             Attitude att = critter.attitude_to( *this );
             if( att == Attitude::HOSTILE && sees( critter ) && rl_dist( pos(), critter.pos() ) <= 15 &&
                 rl_dist( dest_loc, critter.pos() ) < rl_dist( pos(), critter.pos() ) ) {
-                add_msg_if_player( _( "You fail to budge your %s!" ), mounted_creature->get_name() );
+                add_msg_if_player( _( "You fail to budge your {}!" ), mounted_creature->get_name() );
                 return false;
             }
         }
@@ -1783,7 +1783,7 @@ bool Character::uncanny_dodge()
         if( is_u ) {
             add_msg( _( "Time seems to slow down, and you instinctively dodge!" ) );
         } else if( seen ) {
-            add_msg( _( "%s dodges… so fast!" ), this->disp_name() );
+            add_msg( _( "{} dodges… so fast!" ), this->disp_name() );
 
         }
         return true;
@@ -1791,7 +1791,7 @@ bool Character::uncanny_dodge()
     if( is_u ) {
         add_msg( _( "You try to dodge, but there's no room!" ) );
     } else if( seen ) {
-        add_msg( _( "%s tries to dodge, but there's no room!" ), this->disp_name() );
+        add_msg( _( "{} tries to dodge, but there's no room!" ), this->disp_name() );
     }
     return false;
 }
@@ -1806,7 +1806,7 @@ void Character::handle_skill_warning( const skill_id &id, bool force_warning )
         std::string skill_name = skill.name();
         int curLevel = level.level();
 
-        add_msg( m_info, _( "This task is too simple to train your %s beyond %d." ),
+        add_msg( m_info, _( "This task is too simple to train your {} beyond {}." ),
                  skill_name, curLevel );
     }
 }
@@ -2039,7 +2039,7 @@ void Character::process_turn()
         if( i.incapacitated_time > 0_turns ) {
             i.incapacitated_time -= 1_turns;
             if( i.incapacitated_time == 0_turns ) {
-                add_msg_if_player( m_bad, _( "Your %s bionic comes back online." ), i.info().name );
+                add_msg_if_player( m_bad, _( "Your {} bionic comes back online." ), i.info().name );
             }
         }
     }
@@ -2137,7 +2137,7 @@ void Character::process_turn()
 
         if( !martial_arts_data->has_martialart( ma ) && can_autolearn( ma ) ) {
             martial_arts_data->add_martialart( ma );
-            add_msg_if_player( m_info, _( "You have learned a new style: %s!" ), ma.obj().name );
+            add_msg_if_player( m_info, _( "You have learned a new style: {}!" ), ma.obj().name );
         }
     }
 
@@ -2464,17 +2464,17 @@ bool Character::practice( const skill_id &id, int amount, int cap, bool suppress
             get_event_bus().send<event_type::gains_skill_level>( getID(), id, new_practical_level );
         }
         if( is_avatar() && new_practical_level > old_practical_level ) {
-            add_msg( m_good, _( "Your practical skill in %s has increased to %d!" ), skill_name,
+            add_msg( m_good, _( "Your practical skill in {} has increased to {}!" ), skill_name,
                      new_practical_level );
             level_up = true;
         }
         if( is_avatar() && new_theoretical_level > old_theoretical_level ) {
-            add_msg( m_good, _( "Your theoretical understanding of %s has increased to %d!" ), skill_name,
+            add_msg( m_good, _( "Your theoretical understanding of {} has increased to {}!" ), skill_name,
                      new_theoretical_level );
         }
         if( is_avatar() && new_practical_level > cap ) {
             //inform player immediately that the current recipe can't be used to train further
-            add_msg( m_info, _( "You feel that %s tasks of this level are becoming trivial." ),
+            add_msg( m_info, _( "You feel that {} tasks of this level are becoming trivial." ),
                      skill_name );
         }
 
@@ -2615,7 +2615,7 @@ void Character::conduct_blood_analysis()
     } );
     ui.mark_resize();
     ui.on_redraw( [&]( const ui_adaptor & ) {
-        draw_border( w, c_red, string_format( " %s ", _( "Blood Test Results" ) ) );
+        draw_border( w, c_red, string_format( " {} ", _( "Blood Test Results" ) ) );
         if( effect_descriptions.empty() ) {
             trim_and_print( w, point( 2, 1 ), win_w - 3, c_white, _( "No effects." ) );
         } else {
@@ -2932,14 +2932,14 @@ bool Character::can_use( const item &it, const item &context ) const
         const std::string unmet( enumerate_unmet_requirements( it, ctx ) );
 
         if( &it == &ctx ) {
-            //~ %1$s - list of unmet requirements, %2$s - item name.
-            add_msg_player_or_npc( m_bad, _( "You need at least %1$s to use this %2$s." ),
-                                   _( "<npcname> needs at least %1$s to use this %2$s." ),
+            //~ {1} - list of unmet requirements, {2} - item name.
+            add_msg_player_or_npc( m_bad, _( "You need at least {1} to use this {2}." ),
+                                   _( "<npcname> needs at least {1} to use this {2}." ),
                                    unmet, it.tname() );
         } else {
-            //~ %1$s - list of unmet requirements, %2$s - item name, %3$s - indirect item name.
-            add_msg_player_or_npc( m_bad, _( "You need at least %1$s to use this %2$s with your %3$s." ),
-                                   _( "<npcname> needs at least %1$s to use this %2$s with their %3$s." ),
+            //~ {1} - list of unmet requirements, {2} - item name, {3} - indirect item name.
+            add_msg_player_or_npc( m_bad, _( "You need at least {1} to use this {2} with your {3}." ),
+                                   _( "<npcname> needs at least {1} to use this {2} with their {3}." ),
                                    unmet, it.tname(), ctx.tname() );
         }
 
@@ -2957,7 +2957,7 @@ ret_val<void> Character::can_unwield( const item &it ) const
         cata::optional<bionic *> bio_opt = find_bionic_by_uid( get_weapon_bionic_uid() );
         if( !is_wielding( it ) || it.ethereal || !bio_opt ||
             !can_deactivate_bionic( **bio_opt ).success() ) {
-            return ret_val<void>::make_failure( _( "You cannot unwield your %s." ), it.tname() );
+            return ret_val<void>::make_failure( _( "You cannot unwield your {}." ), it.tname() );
         }
     }
 
@@ -3087,7 +3087,7 @@ std::string Character::enumerate_unmet_requirements( const item &it, const item 
 
     const auto check_req = [ &unmet_reqs ]( const std::string & name, int cur, int req ) {
         if( cur < req ) {
-            unmet_reqs.push_back( string_format( "%s %d", name, req ) );
+            unmet_reqs.push_back( string_format( "{} {}", name, req ) );
         }
     };
 
@@ -3195,7 +3195,7 @@ void Character::die( Creature *nkiller )
         if( eoc->type == eoc_type::NPC_DEATH ) {
             eoc->activate( d );
         } else {
-            debugmsg( "Tried to use non NPC_DEATH eoc_type %s for an npc death.", eoc.c_str() );
+            debugmsg( "Tried to use non NPC_DEATH eoc_type {} for an npc death.", eoc.c_str() );
         }
     }
 
@@ -3261,13 +3261,13 @@ void Character::do_skill_rust()
         const int oldSkillLevel = skill_level_obj.level();
         if( skill_level_obj.rust( rust_resist, mutation_value( "skill_rust_multiplier" ) ) ) {
             add_msg_if_player( m_warning,
-                               _( "Your knowledge of %s begins to fade, but your memory banks retain it!" ), aSkill.name() );
+                               _( "Your knowledge of {} begins to fade, but your memory banks retain it!" ), aSkill.name() );
             mod_power_level( -bio_memory->power_trigger );
         }
         const int newSkill = skill_level_obj.level();
         if( newSkill < oldSkillLevel ) {
             add_msg_if_player( m_bad,
-                               _( "Your practical skill in %s may need some refreshing.  It has dropped to %d." ), aSkill.name(),
+                               _( "Your practical skill in {} may need some refreshing.  It has dropped to {}." ), aSkill.name(),
                                newSkill );
         }
     }
@@ -3893,7 +3893,7 @@ void Character::print_health() const
     auto iter = msg_categories.lower_bound( current_health );
     if( iter != msg_categories.end() && !iter->second.empty() ) {
         const translation msg = SNIPPET.random_from_category( iter->second ).value_or( translation() );
-        add_msg_if_player( current_health > 0 ? m_good : m_bad, "%s", msg );
+        add_msg_if_player( current_health > 0 ? m_good : m_bad, "{}", msg );
     }
 }
 
@@ -4023,7 +4023,7 @@ std::string Character::debug_weary_info() const
     int weight = units::to_gram<int>( bodyweight() );
     float bmi = get_bmi();
 
-    return string_format( "Weariness: %s Max Full Exert: %s Mult: %g\n BMR: %d CARDIO FITNESS: %d\n %s Thresh: %d At: %d\n Kcal: %d/%d Fatigue: %d Morale: %d Wgt: %d (BMI %.1f)",
+    return string_format( "Weariness: {} Max Full Exert: {} Mult: {}\n BMR: {} CARDIO FITNESS: {}\n {} Thresh: {} At: {}\n Kcal: {}/{} Fatigue: {} Morale: {} Wgt: {} (BMI %.1f)",
                           amt, max_act, move_mult, bmr, cardio_mult, weary_internals, thresh, current,
                           get_stored_kcal(), get_healthy_kcal(), fatigue, morale, weight, bmi );
 }
@@ -4244,7 +4244,7 @@ void Character::on_damage_of_type( int adjusted_damage, damage_type type, const 
                 // The chance to incapacitate is as high as 50% if the attack deals damage equal to one third of the body part's current health.
                 if( x_in_y( adjusted_damage * 3, bp_hp ) && one_in( 2 ) ) {
                     if( i.incapacitated_time == 0_turns ) {
-                        add_msg_if_player( m_bad, _( "Your %s bionic shorts out!" ), info.name );
+                        add_msg_if_player( m_bad, _( "Your {} bionic shorts out!" ), info.name );
                     }
                     i.incapacitated_time += rng( min_disable_time, 10 * min_disable_time );
                 }
@@ -4301,7 +4301,7 @@ void Character::regen( int rate_multiplier )
             if( get_part_damage_bandaged( bp ) <= 0 ) {
                 set_part_damage_bandaged( bp, 0 );
                 remove_effect( effect_bandaged, bp );
-                add_msg_if_player( _( "Bandaged wounds on your %s healed." ), body_part_name( bp ) );
+                add_msg_if_player( _( "Bandaged wounds on your {} healed." ), body_part_name( bp ) );
             }
         }
         if( get_part_damage_disinfected( bp ) > 0 ) {
@@ -4309,7 +4309,7 @@ void Character::regen( int rate_multiplier )
             if( get_part_damage_disinfected( bp ) <= 0 ) {
                 set_part_damage_disinfected( bp, 0 );
                 remove_effect( effect_disinfected, bp );
-                add_msg_if_player( _( "Disinfected wounds on your %s healed." ), body_part_name( bp ) );
+                add_msg_if_player( _( "Disinfected wounds on your {} healed." ), body_part_name( bp ) );
             }
         }
 
@@ -4317,12 +4317,12 @@ void Character::regen( int rate_multiplier )
         if( has_effect( effect_bandaged, bp.id() ) && is_part_at_max_hp( bp ) ) {
             set_part_damage_bandaged( bp, 0 );
             remove_effect( effect_bandaged, bp );
-            add_msg_if_player( _( "Bandaged wounds on your %s healed." ), body_part_name( bp ) );
+            add_msg_if_player( _( "Bandaged wounds on your {} healed." ), body_part_name( bp ) );
         }
         if( has_effect( effect_disinfected, bp.id() ) && is_part_at_max_hp( bp ) ) {
             set_part_damage_disinfected( bp, 0 );
             remove_effect( effect_disinfected, bp );
-            add_msg_if_player( _( "Disinfected wounds on your %s healed." ), body_part_name( bp ) );
+            add_msg_if_player( _( "Disinfected wounds on your {} healed." ), body_part_name( bp ) );
         }
     }
 
@@ -4371,7 +4371,7 @@ void Character::update_health()
         set_daily_health( roll_remainder( get_daily_health() * 0.95f ) );
     }
 
-    add_msg_debug( debugmode::DF_CHAR_HEALTH, "Lifestyle: %d, Daily health: %d", get_lifestyle(),
+    add_msg_debug( debugmode::DF_CHAR_HEALTH, "Lifestyle: {}, Daily health: {}", get_lifestyle(),
                    get_daily_health() );
 }
 
@@ -4604,7 +4604,7 @@ void Character::update_needs( int rate_multiplier )
     }
     if( is_avatar() && wasnt_fatigued && get_fatigue() > fatigue_levels::DEAD_TIRED && !lying ) {
         if( !activity ) {
-            add_msg_if_player( m_warning, _( "You're feeling tired.  %s to lie down for sleep." ),
+            add_msg_if_player( m_warning, _( "You're feeling tired.  {} to lie down for sleep." ),
                                press_x( ACTION_SLEEP ) );
         } else {
             g->cancel_activity_query( _( "You're feeling tired." ) );
@@ -4723,7 +4723,7 @@ void Character::calc_sleep_recovery_rate( needs_rates &rates ) const
 item Character::reduce_charges( item *it, int quantity )
 {
     if( !has_item( *it ) ) {
-        debugmsg( "invalid item (name %s) for reduce_charges", it->tname() );
+        debugmsg( "invalid item (name {}) for reduce_charges", it->tname() );
         return item();
     }
     if( it->charges <= quantity ) {
@@ -4977,7 +4977,7 @@ void Character::get_sick()
     float health_factor = std::pow( 2.0f, get_lifestyle() / 50.0f );
 
     int disease_rarity = static_cast<int>( checks_per_year * health_factor / base_diseases_per_year );
-    add_msg_debug( debugmode::DF_CHAR_HEALTH, "disease_rarity = %d", disease_rarity );
+    add_msg_debug( debugmode::DF_CHAR_HEALTH, "disease_rarity = {}", disease_rarity );
     if( one_in( disease_rarity ) ) {
         if( one_in( 6 ) ) {
             // The flu typically lasts 3-10 days.
@@ -5012,7 +5012,7 @@ void Character::toolmod_add( item_location tool, item_location mod )
         return;
     }
 
-    if( !query_yn( _( "Permanently install your %1$s in your %2$s?" ),
+    if( !query_yn( _( "Permanently install your {1} in your {2}?" ),
                    colorize( mod->tname(), mod->color_in_inventory() ),
                    colorize( tool->tname(), tool->color_in_inventory() ) ) ) {
         add_msg_if_player( _( "Never mind." ) );
@@ -5536,7 +5536,7 @@ bool Character::pour_into( item &container, item &liquid, bool ignore_settings )
             add_msg_if_player( m_bad, err );
         } else {
             //~ you filled <container> to the brim with <liquid>
-            add_msg_if_player( _( "You filled %1$s to the brim with %2$s." ), container.tname(),
+            add_msg_if_player( _( "You filled {1} to the brim with {2}." ), container.tname(),
                                liquid.tname() );
         }
         return false;
@@ -5547,7 +5547,7 @@ bool Character::pour_into( item &container, item &liquid, bool ignore_settings )
         amount = std::min( amount, liquid.charges );
     }
 
-    add_msg_if_player( _( "You pour %1$s into the %2$s." ), liquid.tname(), container.tname() );
+    add_msg_if_player( _( "You pour {1} into the {2}." ), liquid.tname(), container.tname() );
 
     liquid.charges -= container.fill_with( liquid, amount, false, false, ignore_settings );
     inv->unsort();
@@ -5566,7 +5566,7 @@ bool Character::pour_into( const vpart_reference &vp, item &liquid ) const
     }
 
     //~ $1 - vehicle name, $2 - part name, $3 - liquid type
-    add_msg_if_player( _( "You refill the %1$s's %2$s with %3$s." ),
+    add_msg_if_player( _( "You refill the {1}'s {2} with {3}." ),
                        vp.vehicle().name, vp.part().name(), liquid.type_name() );
 
     if( liquid.charges > 0 ) {
@@ -5587,9 +5587,9 @@ std::string Character::extended_description() const
     std::string ss;
     if( is_avatar() ) {
         // <bad>This is me, <player_name>.</bad>
-        ss += string_format( _( "This is you - %s." ), get_name() );
+        ss += string_format( _( "This is you - {}." ), get_name() );
     } else {
-        ss += string_format( _( "This is %s." ), get_name() );
+        ss += string_format( _( "This is {}." ), get_name() );
     }
 
     ss += "\n--\n";
@@ -5742,7 +5742,7 @@ float Character::mutation_value( const std::string &val ) const
     const auto found = mutation_value_map.find( val );
 
     if( found == mutation_value_map.end() ) {
-        debugmsg( "Invalid mutation value name %s", val );
+        debugmsg( "Invalid mutation value name {}", val );
         return 0.0f;
     } else {
         return found->second( cached_mutations );
@@ -5777,7 +5777,7 @@ float Character::healing_rate( float at_rest_quality ) const
     // Most common case: awake player with no regenerative abilities
     // ~7e-5 is 1 hp per day, anything less than that is totally negligible
     static constexpr float eps = 0.000007f;
-    add_msg_debug( debugmode::DF_CHAR_HEALTH, "%s healing: %.6f", get_name(), final_rate );
+    add_msg_debug( debugmode::DF_CHAR_HEALTH, "{} healing: %.6f", get_name(), final_rate );
     if( std::abs( final_rate ) < eps ) {
         return 0.0f;
     }
@@ -5884,7 +5884,7 @@ int Character::age() const
 std::string Character::age_string() const
 {
     //~ how old the character is in years. try to limit number of characters to fit on the screen
-    std::string unformatted = _( "%d years" );
+    std::string unformatted = _( "{} years" );
     return string_format( unformatted, age() );
 }
 
@@ -5939,14 +5939,14 @@ std::string Character::height_string() const
     const bool metric = get_option<std::string>( "DISTANCE_UNITS" ) == "metric";
 
     if( metric ) {
-        std::string metric_string = _( "%d cm" );
+        std::string metric_string = _( "{} cm" );
         return string_format( metric_string, height() );
     }
 
     int total_inches = std::round( height() / 2.54 );
     int feet = std::floor( total_inches / 12 );
     int remainder_inches = total_inches % 12;
-    return string_format( "%d\'%d\"", feet, remainder_inches );
+    return string_format( "{}\'{}\"", feet, remainder_inches );
 }
 
 int Character::height() const
@@ -6006,11 +6006,11 @@ void Character::mend_item( item_location &&obj, bool interactive )
         for( const auto &f : obj->faults_potential() ) {
             opts.emplace_back( f, !!obj->faults.count( f ) );
             menu.addentry( -1, true, -1, string_format(
-                               opts.back().second ? pgettext( "fault", "Mend: %s" ) : pgettext( "fault", "Set: %s" ),
+                               opts.back().second ? pgettext( "fault", "Mend: {}" ) : pgettext( "fault", "Set: {}" ),
                                f.obj().name() ) );
         }
         if( opts.empty() ) {
-            add_msg( m_info, _( "The %s doesn't have any faults to toggle." ), obj->tname() );
+            add_msg( m_info, _( "The {} doesn't have any faults to toggle." ), obj->tname() );
             return;
         }
         menu.query();
@@ -6050,7 +6050,7 @@ void Character::mend_item( item_location &&obj, bool interactive )
 
     if( mending_options.empty() ) {
         if( interactive ) {
-            add_msg( m_info, _( "The %s doesn't have any faults to mend." ), obj->tname() );
+            add_msg( m_info, _( "The {} doesn't have any faults to mend." ), obj->tname() );
             if( obj->damage() > obj->damage_floor( false ) ) {
                 const std::set<itype_id> &rep = obj->repaired_with();
                 if( rep.empty() ) {
@@ -6061,8 +6061,8 @@ void Character::mend_item( item_location &&obj, bool interactive )
                         return item::nname( e );
                     }, enumeration_conjunction::or_ );
 
-                    add_msg( m_info, _( "It is damaged, and could be repaired with %s.  "
-                                        "%s to use one of those items." ),
+                    add_msg( m_info, _( "It is damaged, and could be repaired with {}.  "
+                                        "{} to use one of those items." ),
                              repair_options, press_x( ACTION_USE ) );
                 }
             }
@@ -6089,32 +6089,32 @@ void Character::mend_item( item_location &&obj, bool interactive )
 
             std::string descr;
             if( method.turns_into ) {
-                descr += string_format( _( "Turns into: <color_cyan>%s</color>\n" ),
+                descr += string_format( _( "Turns into: <color_cyan>{}</color>\n" ),
                                         method.turns_into->obj().name() );
             }
             if( method.also_mends ) {
-                descr += string_format( _( "Also mends: <color_cyan>%s</color>\n" ),
+                descr += string_format( _( "Also mends: <color_cyan>{}</color>\n" ),
                                         method.also_mends->obj().name() );
             }
-            descr += string_format( _( "Time required: <color_cyan>%s</color>\n" ),
+            descr += string_format( _( "Time required: <color_cyan>{}</color>\n" ),
                                     to_string_approx( method.time ) );
             if( method.skills.empty() ) {
                 descr += string_format( _( "Skills: <color_cyan>none</color>\n" ) );
             } else {
-                descr += string_format( _( "Skills: %s\n" ),
+                descr += string_format( _( "Skills: {}\n" ),
                                         enumerate_as_string( method.skills.begin(), method.skills.end(),
                 [this]( const std::pair<skill_id, int> &sk ) -> std::string {
                     if( get_skill_level( sk.first ) >= sk.second )
                     {
                         return string_format( pgettext( "skill requirement",
-                                                        //~ %1$s: skill name, %2$s: current skill level, %3$s: required skill level
-                                                        "<color_cyan>%1$s</color> <color_green>(%2$d/%3$d)</color>" ),
+                                                        //~ {1}: skill name, {2}: current skill level, {3}: required skill level
+                                                        "<color_cyan>{1}</color> <color_green>({2}/{3})</color>" ),
                                               sk.first->name(), get_skill_level( sk.first ), sk.second );
                     } else
                     {
                         return string_format( pgettext( "skill requirement",
-                                                        //~ %1$s: skill name, %2$s: current skill level, %3$s: required skill level
-                                                        "<color_cyan>%1$s</color> <color_red>(%2$d/%3$d)</color>" ),
+                                                        //~ {1}: skill name, {2}: current skill level, {3}: required skill level
+                                                        "<color_cyan>{1}</color> <color_red>({2}/{3})</color>" ),
                                               sk.first->name(), get_skill_level( sk.first ), sk.second );
                     }
                 } ) );
@@ -6142,7 +6142,7 @@ void Character::mend_item( item_location &&obj, bool interactive )
         const mending_option &opt = mending_options[sel];
         if( !opt.doable ) {
             if( interactive ) {
-                add_msg( m_info, _( "You are currently unable to mend the %s this way." ), obj->tname() );
+                add_msg( m_info, _( "You are currently unable to mend the {} this way." ), obj->tname() );
             }
             return;
         }
@@ -6301,7 +6301,7 @@ void Character::burn_move_stamina( int moves )
     burn_ratio *= move_mode->stamina_mult();
     mod_stamina( -( ( moves * burn_ratio ) / 100.0 ) * get_modifier(
                      character_modifier_stamina_move_cost_mod ) );
-    add_msg_debug( debugmode::DF_CHARACTER, "Stamina burn: %d", -( ( moves * burn_ratio ) / 100 ) );
+    add_msg_debug( debugmode::DF_CHARACTER, "Stamina burn: {}", -( ( moves * burn_ratio ) / 100 ) );
     // Chance to suffer pain if overburden and stamina runs out or has trait BADBACK
     // Starts at 1 in 25, goes down by 5 for every 50% more carried
     if( ( current_weight > max_weight ) && ( has_trait( trait_BADBACK ) || get_stamina() == 0 ) &&
@@ -6372,7 +6372,7 @@ void Character::update_stamina( int turns )
     // Roll to determine actual stamina recovery over this period
     int recover_amount = std::ceil( stamina_recovery * turns );
     mod_stamina( recover_amount );
-    add_msg_debug( debugmode::DF_CHARACTER, "Stamina recovery: %d", recover_amount );
+    add_msg_debug( debugmode::DF_CHARACTER, "Stamina recovery: {}", recover_amount );
 
     // Cap at max
     set_stamina( std::min( std::max( get_stamina(), 0 ), max_stam ) );
@@ -6448,7 +6448,7 @@ bool Character::invoke_item( item *used, const std::string &method, const tripoi
                              int pre_obtain_moves )
 {
     if( used->is_broken() ) {
-        add_msg_if_player( m_bad, _( "Your %s was broken and won't turn on." ), used->tname() );
+        add_msg_if_player( m_bad, _( "Your {} was broken and won't turn on." ), used->tname() );
         return false;
     }
     if( !used->ammo_sufficient( this, method ) ) {
@@ -6456,21 +6456,21 @@ bool Character::invoke_item( item *used, const std::string &method, const tripoi
         std::string it_name = used->tname();
         if( used->has_flag( flag_USE_UPS ) ) {
             add_msg_if_player( m_info,
-                               n_gettext( "Your %s needs %d charge from some UPS.",
-                                          "Your %s needs %d charges from some UPS.",
+                               n_gettext( "Your {} needs {} charge from some UPS.",
+                                          "Your {} needs {} charges from some UPS.",
                                           ammo_req ),
                                it_name, ammo_req );
         } else if( used->has_flag( flag_USES_BIONIC_POWER ) ) {
             add_msg_if_player( m_info,
-                               n_gettext( "Your %s needs %d bionic power.",
-                                          "Your %s needs %d bionic power.",
+                               n_gettext( "Your {} needs {} bionic power.",
+                                          "Your {} needs {} bionic power.",
                                           ammo_req ),
                                it_name, ammo_req );
         } else {
             int ammo_rem = used->ammo_remaining();
             add_msg_if_player( m_info,
-                               n_gettext( "Your %s has %d charge, but needs %d.",
-                                          "Your %s has %d charges, but needs %d.",
+                               n_gettext( "Your {} has {} charge, but needs {}.",
+                                          "Your {} has {} charges, but needs {}.",
                                           ammo_rem ),
                                it_name, ammo_rem, ammo_req );
         }
@@ -6480,7 +6480,7 @@ bool Character::invoke_item( item *used, const std::string &method, const tripoi
 
     item *actually_used = used->get_usable_item( method );
     if( actually_used == nullptr ) {
-        debugmsg( "Tried to invoke a method %s on item %s, which doesn't have this method",
+        debugmsg( "Tried to invoke a method {} on item {}, which doesn't have this method",
                   method.c_str(), used->tname() );
         moves = pre_obtain_moves;
         return false;
@@ -6668,7 +6668,7 @@ void Character::wake_up()
     recalc_sight_limits();
 
     if( has_effect( effect_nightmares ) ) {
-        add_msg_if_player( m_bad, "%s",
+        add_msg_if_player( m_bad, "{}",
                            SNIPPET.random_from_category( "nightmares" ).value_or( translation() ) );
         add_morale( morale_nightmare, -15, -30, 30_minutes );
     }
@@ -7116,7 +7116,7 @@ ret_val<void> Character::can_wield( const item &it ) const
     }
 
     if( is_armed() && !can_unwield( weapon ).success() ) {
-        return ret_val<void>::make_failure( _( "The %s is preventing you from wielding the %s." ),
+        return ret_val<void>::make_failure( _( "The {} is preventing you from wielding the {}." ),
                                             weapname(), it.tname() );
     }
     monster *mount = mounted_creature.get();
@@ -7128,10 +7128,10 @@ ret_val<void> Character::can_wield( const item &it ) const
             return ret_val<void>::make_failure(
                        _( "Something you are wearing hinders the use of both hands." ) );
         } else if( it.has_flag( flag_ALWAYS_TWOHAND ) ) {
-            return ret_val<void>::make_failure( _( "The %s can't be wielded with only one arm." ),
+            return ret_val<void>::make_failure( _( "The {} can't be wielded with only one arm." ),
                                                 it.tname() );
         } else {
-            return ret_val<void>::make_failure( _( "You are too weak to wield %s with only one arm." ),
+            return ret_val<void>::make_failure( _( "You are too weak to wield {} with only one arm." ),
                                                 it.tname() );
         }
     }
@@ -7164,7 +7164,7 @@ bool Character::unwield()
         return bio_opt && can_deactivate_bionic( **bio_opt ).success();
     }
 
-    const std::string query = string_format( _( "Stop wielding %s?" ), weapon.tname() );
+    const std::string query = string_format( _( "Stop wielding {}?" ), weapon.tname() );
 
     if( !dispose_item( item_location( *this, &weapon ), query ) ) {
         return false;
@@ -7182,10 +7182,10 @@ std::string Character::weapname() const
     const std::string ammo = weapname_ammo();
 
     if( !mode.empty() ) {
-        name = string_format( "%s %s", mode, name );
+        name = string_format( "{} {}", mode, name );
     }
     if( !ammo.empty() ) {
-        name = string_format( "%s %s", name, ammo );
+        name = string_format( "{} {}", name, ammo );
     }
 
     return name;
@@ -7254,7 +7254,7 @@ std::string Character::weapname_ammo() const
                 } else {
                     charges_color = c_light_green;
                 }
-                mag_ammo = string_format( "(%s)", colorize( string_format( "%i/%i", cur_ammo, max_ammo ),
+                mag_ammo = string_format( "({})", colorize( string_format( "{}/{}", cur_ammo, max_ammo ),
                                           charges_color ) );
             }
         }
@@ -7282,10 +7282,10 @@ void Character::on_hit( Creature *source, bodypart_id bp_hit,
     const units::energy trigger_cost_base = bio_ods->power_trigger;
     if( has_active_bionic( bio_ods ) && get_power_level() > ( 5 * trigger_cost_base ) ) {
         if( is_avatar() ) {
-            add_msg( m_good, _( "Your offensive defense system shocks %s in mid-attack!" ),
+            add_msg( m_good, _( "Your offensive defense system shocks {} in mid-attack!" ),
                      source->disp_name() );
         } else if( u_see ) {
-            add_msg( _( "%1$s's offensive defense system shocks %2$s in mid-attack!" ),
+            add_msg( _( "{1}'s offensive defense system shocks {2} in mid-attack!" ),
                      disp_name(),
                      source->disp_name() );
         }
@@ -7301,12 +7301,12 @@ void Character::on_hit( Creature *source, bodypart_id bp_hit,
         int spine = rng( 1, has_trait( trait_QUILLS ) ? 20 : 8 );
         if( !is_avatar() ) {
             if( u_see ) {
-                add_msg( _( "%1$s's %2$s puncture %3$s in mid-attack!" ), get_name(),
+                add_msg( _( "{1}'s {2} puncture {3} in mid-attack!" ), get_name(),
                          ( has_trait( trait_QUILLS ) ? _( "quills" ) : _( "spines" ) ),
                          source->disp_name() );
             }
         } else {
-            add_msg( m_good, _( "Your %1$s puncture %2$s in mid-attack!" ),
+            add_msg( m_good, _( "Your {1} puncture {2} in mid-attack!" ),
                      ( has_trait( trait_QUILLS ) ? _( "quills" ) : _( "spines" ) ),
                      source->disp_name() );
         }
@@ -7318,11 +7318,11 @@ void Character::on_hit( Creature *source, bodypart_id bp_hit,
         ( !source->has_weapon() ) ) {
         if( !is_avatar() ) {
             if( u_see ) {
-                add_msg( _( "%1$s's %2$s scrape %3$s in mid-attack!" ), get_name(),
+                add_msg( _( "{1}'s {2} scrape {3} in mid-attack!" ), get_name(),
                          _( "thorns" ), source->disp_name() );
             }
         } else {
-            add_msg( m_good, _( "Your thorns scrape %s in mid-attack!" ), source->disp_name() );
+            add_msg( m_good, _( "Your thorns scrape {} in mid-attack!" ), source->disp_name() );
         }
         int thorn = rng( 1, 4 );
         damage_instance thorn_damage;
@@ -7334,11 +7334,11 @@ void Character::on_hit( Creature *source, bodypart_id bp_hit,
     if( ( !wearing_something_on( bp_hit ) ) && has_trait( trait_CF_HAIR ) ) {
         if( !is_avatar() ) {
             if( u_see ) {
-                add_msg( _( "%1$s gets a load of %2$s's %3$s stuck in!" ), source->disp_name(),
+                add_msg( _( "{1} gets a load of {2}'s {3} stuck in!" ), source->disp_name(),
                          get_name(), _( "hair" ) );
             }
         } else {
-            add_msg( m_good, _( "Your hairs detach into %s!" ), source->disp_name() );
+            add_msg( m_good, _( "Your hairs detach into {}!" ), source->disp_name() );
         }
         source->add_effect( effect_stunned, 2_turns );
         if( one_in( 3 ) ) { // In the eyes!
@@ -7363,7 +7363,7 @@ void Character::on_hit( Creature *source, bodypart_id bp_hit,
         if( stability_roll() < dice( rolls, 10 ) ) {
             if( !is_avatar() ) {
                 if( u_see ) {
-                    add_msg( _( "%1$s loses their balance while being hit!" ), get_name() );
+                    add_msg( _( "{1} loses their balance while being hit!" ), get_name() );
                 }
             } else {
                 add_msg( m_bad, _( "You lose your balance while being hit!" ) );
@@ -7406,7 +7406,7 @@ void Character::apply_damage( Creature *source, bodypart_id hurt, int dam,
 
     if( !weapon.is_null() && !can_wield( weapon ).success() &&
         can_drop( weapon ).success() ) {
-        add_msg_if_player( _( "You are no longer able to wield your %s and drop it!" ),
+        add_msg_if_player( _( "You are no longer able to wield your {} and drop it!" ),
                            weapon.display_name() );
         put_into_vehicle_or_drop( *this, item_drop_reason::tumbling, { weapon } );
         i_rem( &weapon );
@@ -7473,10 +7473,10 @@ dealt_damage_instance Character::deal_damage( Creature *source, bodypart_id bp,
     if( source && has_trait( trait_ACIDBLOOD ) && !one_in( 3 ) &&
         ( dam >= 4 || cut_dam > 0 ) && ( rl_dist( player_character.pos(), source->pos() ) <= 1 ) ) {
         if( is_avatar() ) {
-            add_msg( m_good, _( "Your acidic blood splashes %s in mid-attack!" ),
+            add_msg( m_good, _( "Your acidic blood splashes {} in mid-attack!" ),
                      source->disp_name() );
         } else if( u_see ) {
-            add_msg( _( "%1$s's acidic blood splashes on %2$s in mid-attack!" ),
+            add_msg( _( "{1}'s acidic blood splashes on {2} in mid-attack!" ),
                      disp_name(), source->disp_name() );
         }
         damage_instance acidblood_damage;
@@ -7519,18 +7519,18 @@ dealt_damage_instance Character::deal_damage( Creature *source, bodypart_id bp,
 
             if( has_grab_break_tec() && dodged_grab ) {
                 if( has_effect( effect_grabbed ) ) {
-                    add_msg_if_player( m_warning, _( "The %s tries to grab you as well, but you bat it away!" ),
+                    add_msg_if_player( m_warning, _( "The {} tries to grab you as well, but you bat it away!" ),
                                        source->disp_name() );
                 } else {
-                    add_msg_player_or_npc( m_info, _( "The %s tries to grab you, but you break its grab!" ),
-                                           _( "The %s tries to grab <npcname>, but they break its grab!" ),
+                    add_msg_player_or_npc( m_info, _( "The {} tries to grab you, but you break its grab!" ),
+                                           _( "The {} tries to grab <npcname>, but they break its grab!" ),
                                            source->disp_name() );
                 }
             } else {
                 const int prev_effect = get_effect_int( effect_grabbed, body_part_torso );
                 add_effect( effect_grabbed, 2_turns,  body_part_torso, false, prev_effect + 2 );
                 source->add_effect( effect_grabbing, 2_turns );
-                add_msg_player_or_npc( m_bad, _( "You are grabbed by %s!" ), _( "<npcname> is grabbed by %s!" ),
+                add_msg_player_or_npc( m_bad, _( "You are grabbed by {}!" ), _( "<npcname> is grabbed by {}!" ),
                                        source->disp_name() );
             }
         }
@@ -7582,17 +7582,17 @@ int Character::reduce_healing_effect( const efftype_id &eff_id, int remove_med,
     int intensity = e.get_intensity();
     if( remove_med < intensity ) {
         if( eff_id == effect_bandaged ) {
-            add_msg_if_player( m_bad, _( "Bandages on your %s were damaged!" ), body_part_name( hurt ) );
+            add_msg_if_player( m_bad, _( "Bandages on your {} were damaged!" ), body_part_name( hurt ) );
         } else  if( eff_id == effect_disinfected ) {
-            add_msg_if_player( m_bad, _( "You got some filth on your disinfected %s!" ),
+            add_msg_if_player( m_bad, _( "You got some filth on your disinfected {}!" ),
                                body_part_name( hurt ) );
         }
     } else {
         if( eff_id == effect_bandaged ) {
-            add_msg_if_player( m_bad, _( "Bandages on your %s were destroyed!" ),
+            add_msg_if_player( m_bad, _( "Bandages on your {} were destroyed!" ),
                                body_part_name( hurt ) );
         } else  if( eff_id == effect_disinfected ) {
-            add_msg_if_player( m_bad, _( "Your %s is no longer disinfected!" ), body_part_name( hurt ) );
+            add_msg_if_player( m_bad, _( "Your {} is no longer disinfected!" ), body_part_name( hurt ) );
         }
     }
     e.mod_duration( -6_hours * remove_med );
@@ -7607,19 +7607,19 @@ void Character::heal_bp( bodypart_id bp, int dam )
 void Character::heal( const bodypart_id &healed, int dam )
 {
     if( !is_limb_broken( healed ) && ( dam != 0 || healed->has_flag( json_flag_ALWAYS_HEAL ) ) ) {
-        add_msg_debug( debugmode::DF_CHAR_HEALTH, "Base healing of %s = %d", body_part_name( healed ),
+        add_msg_debug( debugmode::DF_CHAR_HEALTH, "Base healing of {} = {}", body_part_name( healed ),
                        dam );
         if( healed->has_flag( json_flag_HEAL_OVERRIDE ) ) {
             dam = healed->heal_bonus;
-            add_msg_debug( debugmode::DF_CHAR_HEALTH, "Heal override, new healing %d", dam );
+            add_msg_debug( debugmode::DF_CHAR_HEALTH, "Heal override, new healing {}", dam );
         } else {
             dam += healed->heal_bonus;
-            add_msg_debug( debugmode::DF_CHAR_HEALTH, "Healing after bodypart heal bonus %d", dam );
+            add_msg_debug( debugmode::DF_CHAR_HEALTH, "Healing after bodypart heal bonus {}", dam );
         }
         int effective_heal = std::min( dam,
                                        get_part_hp_max( healed ) - get_part_hp_cur( healed ) ) ;
         mod_part_hp_cur( healed, effective_heal );
-        add_msg_debug( debugmode::DF_CHAR_HEALTH, "Final healing of %s = %d", body_part_name( healed ),
+        add_msg_debug( debugmode::DF_CHAR_HEALTH, "Final healing of {} = {}", body_part_name( healed ),
                        dam );
         get_event_bus().send<event_type::character_heals_damage>( getID(), effective_heal );
     }
@@ -7680,7 +7680,7 @@ void Character::on_hurt( Creature *source, bool disturb /*= true*/ )
             if( source != nullptr ) {
                 if( sees( *source ) ) {
                     g->cancel_activity_or_ignore_query( distraction_type::attacked,
-                                                        string_format( _( "You were attacked by %s!" ), source->disp_name() ) );
+                                                        string_format( _( "You were attacked by {}!" ), source->disp_name() ) );
                 } else {
                     g->cancel_activity_or_ignore_query( distraction_type::attacked,
                                                         _( "You were attacked by something you can't see!" ) );
@@ -8146,9 +8146,9 @@ void Character::fall_asleep()
         }
     } else if( item_name != "nothing" ) {
         if( one_in( 15 ) ) {
-            add_msg_if_player( _( "You snuggle your %s to keep warm." ), item_name );
+            add_msg_if_player( _( "You snuggle your {} to keep warm." ), item_name );
         } else {
-            add_msg_if_player( _( "You use your %s to keep warm." ), item_name );
+            add_msg_if_player( _( "You use your {} to keep warm." ), item_name );
         }
     }
     if( has_bionic( bio_sleep_shutdown ) ) {
@@ -8191,8 +8191,8 @@ void Character::migrate_items_to_storage( bool disintegrate )
             if( try_add( *it, /*avoid=*/nullptr, it ) == item_location::nowhere ) {
                 std::string profession_id = "<none>";
                 profession_id = prof->ident().str();
-                debugmsg( "ERROR: Could not put %s (%s) into inventory.  Check if the "
-                          "profession (%s) has enough space.",
+                debugmsg( "ERROR: Could not put {} ({}) into inventory.  Check if the "
+                          "profession ({}) has enough space.",
                           it->tname(), it->typeId().str(), profession_id );
                 return VisitResponse::ABORT;
             }
@@ -8481,8 +8481,8 @@ std::list<item> Character::use_amount( const itype_id &it, int quantity,
         } );
         while( quantity != static_cast<int>( tmp.size() ) && quantity > 0 && !tmp.empty() ) {
             uilist imenu;
-            //~ Select components from inventory to consume. %d = number of components left to consume.
-            imenu.title = string_format( _( "Select which component to use (%d left)" ), quantity );
+            //~ Select components from inventory to consume. {} = number of components left to consume.
+            imenu.title = string_format( _( "Select which component to use ({} left)" ), quantity );
             for( const item *itm : tmp ) {
                 imenu.addentry( itm->display_name() );
             }
@@ -8938,19 +8938,19 @@ bool Character::crush_frozen_liquid( item_location loc )
 {
     if( has_quality( qual_HAMMER ) ) {
         item hammering_item = item_with_best_of_quality( qual_HAMMER, true );
-        //~ %1$s: item to be crushed, %2$s: hammer name
-        if( query_yn( _( "Do you want to crush up %1$s with your %2$s?\n"
+        //~ {1}: item to be crushed, {2}: hammer name
+        if( query_yn( _( "Do you want to crush up {1} with your {2}?\n"
                          "<color_red>Be wary of fragile items nearby!</color>" ),
                       loc.get_item()->display_name(), hammering_item.tname() ) ) {
 
             //Risk smashing tile with hammering tool, risk is lower with higher dex, damage lower with lower strength
             if( one_in( 1 + dex_cur / 4 ) ) {
-                add_msg_if_player( colorize( _( "You swing your %s wildly!" ), c_red ),
+                add_msg_if_player( colorize( _( "You swing your {} wildly!" ), c_red ),
                                    hammering_item.tname() );
                 int smashskill = get_arm_str() + hammering_item.damage_melee( damage_type::BASH );
                 get_map().bash( loc.position(), smashskill );
             }
-            add_msg_if_player( _( "You crush up and gather %s" ), loc.get_item()->display_name() );
+            add_msg_if_player( _( "You crush up and gather {}" ), loc.get_item()->display_name() );
             return true;
         }
     } else {
@@ -9546,16 +9546,16 @@ void Character::process_one_effect( effect &it, bool is_new )
         if( is_new || it.activated( calendar::turn, "HURT", val, reduced, mod ) ) {
             if( bp == bodypart_str_id::NULL_ID() ) {
                 if( val > 5 ) {
-                    add_msg_if_player( _( "Your %s HURTS!" ), body_part_name_accusative( body_part_torso ) );
+                    add_msg_if_player( _( "Your {} HURTS!" ), body_part_name_accusative( body_part_torso ) );
                 } else {
-                    add_msg_if_player( _( "Your %s hurts!" ), body_part_name_accusative( body_part_torso ) );
+                    add_msg_if_player( _( "Your {} hurts!" ), body_part_name_accusative( body_part_torso ) );
                 }
                 apply_damage( nullptr, body_part_torso, val, true );
             } else {
                 if( val > 5 ) {
-                    add_msg_if_player( _( "Your %s HURTS!" ), body_part_name_accusative( bp ) );
+                    add_msg_if_player( _( "Your {} HURTS!" ), body_part_name_accusative( bp ) );
                 } else {
-                    add_msg_if_player( _( "Your %s hurts!" ), body_part_name_accusative( bp ) );
+                    add_msg_if_player( _( "Your {} hurts!" ), body_part_name_accusative( bp ) );
                 }
                 apply_damage( nullptr, bp, val, true );
             }
@@ -9723,7 +9723,7 @@ int Character::sleep_spot( const tripoint &p ) const
     const int current_stim = get_stim();
     const comfort_response_t comfort_info = base_comfort_value( p );
     if( comfort_info.aid != nullptr ) {
-        add_msg_if_player( m_info, _( "You use your %s for comfort." ), comfort_info.aid->tname() );
+        add_msg_if_player( m_info, _( "You use your {} for comfort." ), comfort_info.aid->tname() );
     }
 
     int sleepy = static_cast<int>( comfort_info.level );
@@ -10078,8 +10078,8 @@ bool Character::add_or_drop_with_msg( item &it, const bool /*unloading*/, const 
             put_into_vehicle_or_drop( *this, item_drop_reason::tumbling, { it } );
         } else {
             // successfully added
-            add_msg( _( "You put the %s in your inventory." ), ni->tname() );
-            add_msg( m_info, "%c - %s", ni->invlet == 0 ? ' ' : ni->invlet, ni->tname() );
+            add_msg( _( "You put the {} in your inventory." ), ni->tname() );
+            add_msg( m_info, "{} - {}", ni->invlet == 0 ? ' ' : ni->invlet, ni->tname() );
         }
     }
     return true;
@@ -10091,7 +10091,7 @@ bool Character::unload( item_location &loc, bool bypass_activity )
     // Unload a container consuming moves per item successfully removed
     if( it.is_container() ) {
         if( it.empty() ) {
-            add_msg( m_info, _( "The %s is already empty!" ), it.tname() );
+            add_msg( m_info, _( "The {} is already empty!" ), it.tname() );
             return false;
         }
         if( !it.can_unload_liquid() ) {
@@ -10150,24 +10150,24 @@ bool Character::unload( item_location &loc, bool bypass_activity )
     // Next check for any reasons why the item cannot be unloaded
     if( !target->has_flag( flag_BRASS_CATCHER ) ) {
         if( !target->is_magazine() && !target->uses_magazine() ) {
-            add_msg( m_info, _( "You can't unload a %s!" ), target->tname() );
+            add_msg( m_info, _( "You can't unload a {}!" ), target->tname() );
             return false;
         }
 
         if( target->has_flag( flag_NO_UNLOAD ) ) {
             if( target->has_flag( flag_RECHARGE ) || target->has_flag( flag_USE_UPS ) ) {
-                add_msg( m_info, _( "You can't unload a rechargeable %s!" ), target->tname() );
+                add_msg( m_info, _( "You can't unload a rechargeable {}!" ), target->tname() );
             } else {
-                add_msg( m_info, _( "You can't unload a %s!" ), target->tname() );
+                add_msg( m_info, _( "You can't unload a {}!" ), target->tname() );
             }
             return false;
         }
 
         if( !target->magazine_current() && target->ammo_remaining() <= 0 && target->casings_count() <= 0 ) {
             if( target->is_tool() ) {
-                add_msg( m_info, _( "Your %s isn't charged." ), target->tname() );
+                add_msg( m_info, _( "Your {} isn't charged." ), target->tname() );
             } else {
-                add_msg( m_info, _( "Your %s isn't loaded." ), target->tname() );
+                add_msg( m_info, _( "Your {} isn't loaded." ), target->tname() );
             }
             return false;
         }
@@ -10240,7 +10240,7 @@ bool Character::unload( item_location &loc, bool bypass_activity )
         target->type->invoke( *this, *target, this->pos() );
     }
 
-    add_msg( _( "You unload your %s." ), target->tname() );
+    add_msg( _( "You unload your {}." ), target->tname() );
 
     if( it.has_flag( flag_MAG_DESTROY ) && it.ammo_remaining() == 0 ) {
         loc.remove_item();
@@ -10463,9 +10463,9 @@ const Character *Character::get_book_reader( const item &book,
     const Character *reader = nullptr;
 
     if( !book.is_book() ) {
-        reasons.push_back( is_avatar() ? string_format( _( "Your %s is not good reading material." ),
+        reasons.push_back( is_avatar() ? string_format( _( "Your {} is not good reading material." ),
                            book.tname() ) :
-                           string_format( _( "The %s is not good reading material." ), book.tname() )
+                           string_format( _( "The {} is not good reading material." ), book.tname() )
                          );
         return nullptr;
     }
@@ -10485,13 +10485,13 @@ const Character *Character::get_book_reader( const item &book,
         // Low morale still permits skimming
         reasons.emplace_back( is_avatar() ?
                               _( "What's the point of studying?  (Your morale is too low!)" )  :
-                              string_format( _( "What's the point of studying?  (%s)'s morale is too low!)" ), disp_name() ) );
+                              string_format( _( "What's the point of studying?  ({})'s morale is too low!)" ), disp_name() ) );
         return nullptr;
     }
     if( get_book_mastery( book ) == book_mastery::CANT_UNDERSTAND ) {
-        reasons.push_back( is_avatar() ? string_format( _( "%s %d needed to understand.  You have %d" ),
+        reasons.push_back( is_avatar() ? string_format( _( "{} {} needed to understand.  You have {}" ),
                            book_skill->name(), book_skill_requirement, get_knowledge_level( book_skill ) ) :
-                           string_format( _( "%s %d needed to understand.  %s has %d" ), book_skill->name(),
+                           string_format( _( "{} {} needed to understand.  {} has {}" ), book_skill->name(),
                                           book_skill_requirement, disp_name(), get_knowledge_level( book_skill ) ) );
         return nullptr;
     }
@@ -10499,13 +10499,13 @@ const Character *Character::get_book_reader( const item &book,
     // Check for conditions that disqualify us only if no NPCs can read to us
     if( book_requires_intelligence && has_trait( trait_ILLITERATE ) ) {
         reasons.emplace_back( is_avatar() ? _( "You're illiterate!" ) : string_format(
-                                  _( "%s is illiterate!" ), disp_name() ) );
+                                  _( "{} is illiterate!" ), disp_name() ) );
     } else if( has_flag( json_flag_HYPEROPIC ) &&
                !worn_with_flag( STATIC( flag_id( "FIX_FARSIGHT" ) ) ) &&
                !has_effect( effect_contacts ) &&
                !has_flag( STATIC( json_character_flag( "ENHANCED_VISION" ) ) ) ) {
         reasons.emplace_back( is_avatar() ? _( "Your eyes won't focus without reading glasses." ) :
-                              string_format( _( "%s's eyes won't focus without reading glasses." ), disp_name() ) );
+                              string_format( _( "{}'s eyes won't focus without reading glasses." ), disp_name() ) );
     } else if( fine_detail_vision_mod() > 4 ) {
         // Too dark to read only applies if the player can read to himself
         reasons.emplace_back( _( "It's too dark to read!" ) );
@@ -10532,30 +10532,30 @@ const Character *Character::get_book_reader( const item &book,
     for( const npc *elem : candidates ) {
         // Check for disqualifying factors:
         if( book_requires_intelligence && elem->has_trait( trait_ILLITERATE ) ) {
-            reasons.push_back( string_format( _( "%s is illiterate!" ),
+            reasons.push_back( string_format( _( "{} is illiterate!" ),
                                               elem->disp_name() ) );
         } else if( elem->get_book_mastery( book ) == book_mastery::CANT_UNDERSTAND ) {
-            reasons.push_back( string_format( _( "%s %d needed to understand.  %s has %d" ),
+            reasons.push_back( string_format( _( "{} {} needed to understand.  {} has {}" ),
                                               book_skill->name(), book_skill_requirement, elem->disp_name(),
                                               elem->get_knowledge_level( book_skill ) ) );
         } else if( elem->has_flag( json_flag_HYPEROPIC ) &&
                    !elem->worn_with_flag( STATIC( flag_id( "FIX_FARSIGHT" ) ) ) &&
                    !elem->has_effect( effect_contacts ) ) {
-            reasons.push_back( string_format( _( "%s needs reading glasses!" ),
+            reasons.push_back( string_format( _( "{} needs reading glasses!" ),
                                               elem->disp_name() ) );
         } else if( std::min( fine_detail_vision_mod(), elem->fine_detail_vision_mod() ) > 4 ) {
             reasons.push_back( string_format(
-                                   _( "It's too dark for %s to read!" ),
+                                   _( "It's too dark for {} to read!" ),
                                    elem->disp_name() ) );
         } else if( !elem->sees( *this ) ) {
-            reasons.push_back( string_format( _( "%s could read that to you, but they can't see you." ),
+            reasons.push_back( string_format( _( "{} could read that to you, but they can't see you." ),
                                               elem->disp_name() ) );
         } else if( !elem->fun_to_read( book ) && !elem->has_morale_to_read() &&
                    has_identified( book.typeId() ) ) {
             // Low morale still permits skimming
-            reasons.push_back( string_format( _( "%s morale is too low!" ), elem->disp_name( true ) ) );
+            reasons.push_back( string_format( _( "{} morale is too low!" ), elem->disp_name( true ) ) );
         } else if( elem->is_blind() ) {
-            reasons.push_back( string_format( _( "%s is blind." ), elem->disp_name() ) );
+            reasons.push_back( string_format( _( "{} is blind." ), elem->disp_name() ) );
         } else {
             time_duration proj_time = time_to_read( book, *elem );
             if( proj_time < time_taken ) {
@@ -10955,7 +10955,7 @@ int Character::impact( const int force, const tripoint &p )
 
     if( !slam && mod < 1.0f && mod * force < 5 ) {
         // Perfect landing, no damage (regardless of armor)
-        add_msg_if_player( m_warning, _( "You land on %s." ), target_name );
+        add_msg_if_player( m_warning, _( "You land on {}." ), target_name );
         return 0;
     }
 
@@ -10984,10 +10984,10 @@ int Character::impact( const int force, const tripoint &p )
 
     if( total_dealt > 0 && is_avatar() ) {
         // "You slam against the dirt" is fine
-        add_msg( m_bad, _( "You are slammed against %1$s for %2$d damage." ),
+        add_msg( m_bad, _( "You are slammed against {1} for {2} damage." ),
                  target_name, total_dealt );
     } else if( is_avatar() && shock_absorbers ) {
-        add_msg( m_bad, _( "You are slammed against %s!" ),
+        add_msg( m_bad, _( "You are slammed against {}!" ),
                  target_name, total_dealt );
         add_msg( m_good, _( "…but your shock absorbers negate the damage!" ) );
     } else if( slam ) {
@@ -10995,12 +10995,12 @@ int Character::impact( const int force, const tripoint &p )
         // Non-players should only get this one: player doesn't know how much damage was dealt
         // and landing messages for each slammed creature would be too much
         add_msg_player_or_npc( m_bad,
-                               _( "You are slammed against %s." ),
-                               _( "<npcname> is slammed against %s." ),
+                               _( "You are slammed against {}." ),
+                               _( "<npcname> is slammed against {}." ),
                                target_name );
     } else {
         // No landing message for NPCs
-        add_msg_if_player( m_warning, _( "You land on %s." ), target_name );
+        add_msg_if_player( m_warning, _( "You land on {}." ), target_name );
     }
 
     if( x_in_y( mod, 1.0f ) && !here.has_flag( ter_furn_flag::TFLAG_DEEP_WATER, p ) ) {
@@ -11033,7 +11033,7 @@ void Character::knock_back_to( const tripoint &to )
         }
         critter->check_dead_state();
 
-        add_msg_player_or_npc( _( "You bounce off a %s!" ), _( "<npcname> bounces off a %s!" ),
+        add_msg_player_or_npc( _( "You bounce off a {}!" ), _( "<npcname> bounces off a {}!" ),
                                critter->name() );
         return;
     }
@@ -11043,7 +11043,7 @@ void Character::knock_back_to( const tripoint &to )
                      damage_instance( damage_type::BASH, static_cast<float>( np->get_size() ) ) );
         add_effect( effect_stunned, 1_turns );
         np->deal_damage( this, bodypart_id( "torso" ), damage_instance( damage_type::BASH, 3 ) );
-        add_msg_player_or_npc( _( "You bounce off %s!" ), _( "<npcname> bounces off %s!" ),
+        add_msg_player_or_npc( _( "You bounce off {}!" ), _( "<npcname> bounces off {}!" ),
                                np->get_name() );
         np->check_dead_state();
         return;
@@ -11063,7 +11063,7 @@ void Character::knock_back_to( const tripoint &to )
         // TODO: who knocked us back? Maybe that creature should be the source of the damage?
         apply_damage( nullptr, bodypart_id( "torso" ), 3 );
         add_effect( effect_stunned, 2_turns );
-        add_msg_player_or_npc( _( "You bounce off a %s!" ), _( "<npcname> bounces off a %s!" ),
+        add_msg_player_or_npc( _( "You bounce off a {}!" ), _( "<npcname> bounces off a {}!" ),
                                here.obstacle_name( to ) );
 
     } else { // It's no wall
@@ -11092,7 +11092,7 @@ void Character::siphon( vehicle &veh, const itype_id &desired_liquid )
 {
     int qty = veh.fuel_left( desired_liquid );
     if( qty <= 0 ) {
-        add_msg( m_bad, _( "There is not enough %s left to siphon it." ),
+        add_msg( m_bad, _( "There is not enough {} left to siphon it." ),
                  item::nname( desired_liquid ) );
         return;
     }
@@ -11185,7 +11185,7 @@ void Character::search_surroundings()
         }
         if( has_active_bionic( bio_ground_sonar ) && !knows_trap( tp ) && tr.detected_by_ground_sonar() ) {
             const std::string direction = direction_name( direction_from( pos(), tp ) );
-            add_msg_if_player( m_warning, _( "Your ground sonar detected a %1$s to the %2$s!" ),
+            add_msg_if_player( m_warning, _( "Your ground sonar detected a {1} to the {2}!" ),
                                tr.name(), direction );
             add_known_trap( tp, tr );
         }
@@ -11206,7 +11206,7 @@ void Character::search_surroundings()
                 // Seeing a trap set properly gives you a little bonus to trapsetting profs.
                 practice_proficiency( proficiency_prof_traps, 10_seconds );
                 practice_proficiency( proficiency_prof_trapsetting, 10_seconds );
-                add_msg_if_player( _( "You've spotted a %1$s to the %2$s!" ),
+                add_msg_if_player( _( "You've spotted a {1} to the {2}!" ),
                                    tr.name(), direction );
             }
             add_known_trap( tp, tr );
@@ -11230,7 +11230,7 @@ bool Character::wield_contents( item &container, item *internal_item, bool penal
 
     const ret_val<void> ret = can_wield( *internal_item );
     if( !ret.success() ) {
-        add_msg_if_player( m_info, "%s", ret.c_str() );
+        add_msg_if_player( m_info, "{}", ret.c_str() );
         return false;
     }
 
@@ -11333,7 +11333,7 @@ void Character::use( item_location loc, int pre_obtain_moves )
 
     if( used.is_tool() ) {
         if( !used.type->has_use() ) {
-            add_msg_if_player( _( "You can't do anything interesting with your %s." ), used.tname() );
+            add_msg_if_player( _( "You can't do anything interesting with your {}." ), used.tname() );
             moves = pre_obtain_moves;
             return;
         }
@@ -11384,7 +11384,7 @@ void Character::use( item_location loc, int pre_obtain_moves )
         if( !is_armed() ) {
             add_msg( m_info, _( "You are not wielding anything you could use." ) );
         } else {
-            add_msg( m_info, _( "You can't do anything interesting with your %s." ), used.tname() );
+            add_msg( m_info, _( "You can't do anything interesting with your {}." ), used.tname() );
         }
         moves = pre_obtain_moves;
     }

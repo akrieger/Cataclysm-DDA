@@ -402,9 +402,9 @@ static void line_to_comparison( const int iterations )
             const long long diff2 =
                 std::chrono::duration_cast<std::chrono::microseconds>( end2 - start2 ).count();
 
-            printf( "line_to() executed %d times in %lld microseconds.\n",
+            printf( "line_to() executed {} times in {} microseconds.\n",
                     iterations, diff1 );
-            printf( "canonical_line_to() executed %d times in %lld microseconds.\n",
+            printf( "canonical_line_to() executed {} times in {} microseconds.\n",
                     iterations, diff2 );
         }
     }

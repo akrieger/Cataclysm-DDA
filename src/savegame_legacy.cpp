@@ -196,7 +196,7 @@ std::string convert_talk_topic( talk_topic_enum const old_value )
 #undef WRAP
     const auto iter = talk_topic_enum_mapping.find( old_value );
     if( iter == talk_topic_enum_mapping.end() ) {
-        debugmsg( "could not convert %d to new talk topic string", static_cast<int>( old_value ) );
+        debugmsg( "could not convert {} to new talk topic string", static_cast<int>( old_value ) );
         return "TALK_NONE";
     }
     return iter->second;
@@ -254,7 +254,7 @@ void player_activity::deserialize_legacy_type( int legacy_type, activity_id &des
     };
 
     if( legacy_type < 0 || static_cast<size_t>( legacy_type ) >= legacy_map.size() ) {
-        debugmsg( "Bad legacy activity data.  Got %d, expected something from 0 to %d", legacy_type,
+        debugmsg( "Bad legacy activity data.  Got {}, expected something from 0 to {}", legacy_type,
                   legacy_map.size() );
         dest = activity_id::NULL_ID();
         return;

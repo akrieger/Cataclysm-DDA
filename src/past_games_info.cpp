@@ -42,7 +42,7 @@ past_game_info::past_game_info( const JsonObject &jo )
         jo.read( "achievements", *achievements_ );
         jo.read( "scores", scores_ );
     } else {
-        throw JsonError( string_format( "unexpected memorial version %d", version ) );
+        throw JsonError( string_format( "unexpected memorial version {}", version ) );
     }
 
     // Extract the "standard" game info from the game started event
@@ -52,7 +52,7 @@ past_game_info::past_game_info( const JsonObject &jo )
         if( counts.empty() ) {
             throw too_old_memorial_file_error( "memorial file lacks game_start event" );
         }
-        debugmsg( "Unexpected number of game start events: %d\n", counts.size() );
+        debugmsg( "Unexpected number of game start events: {}\n", counts.size() );
         return;
     }
     const cata::event::data_type &event_data = counts.begin()->first;
@@ -87,7 +87,7 @@ void past_games_info::ensure_loaded()
     loaded_ = true;
 
     static_popup popup;
-    popup.message( "%s", _( "Please wait while past game data loads…" ) );
+    popup.message( "{}", _( "Please wait while past game data loads…" ) );
     ui_manager::redraw();
     refresh_display();
 
@@ -99,7 +99,7 @@ void past_games_info::ensure_loaded()
     for( const std::string &filename : filenames ) {
         std::vector<std::string> components = string_split( filename, '-' );
         if( components.size() < 7 ) {
-            debugmsg( "Unexpected memorial filename %s", filename );
+            debugmsg( "Unexpected memorial filename {}", filename );
             continue;
         }
 
@@ -117,7 +117,7 @@ void past_games_info::ensure_loaded()
             JsonIn jsin( iss );
             info_.emplace_back( jsin.get_object() );
         } catch( const JsonError &err ) {
-            debugmsg( "Error reading memorial file %s: %s", filename, err.what() );
+            debugmsg( "Error reading memorial file {}: {}", filename, err.what() );
         } catch( const too_old_memorial_file_error & ) {
             // do nothing
         }

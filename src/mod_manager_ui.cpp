@@ -42,9 +42,9 @@ std::string mod_ui::get_information( const MOD_INFORMATION *mod )
         const auto &deps = mod->dependencies;
         auto str = enumerate_as_string( deps.begin(), deps.end(), [&]( const mod_id & e ) {
             if( e.is_valid() ) {
-                return string_format( "[%s]", e->name() );
+                return string_format( "[{}]", e->name() );
             } else {
-                return string_format( "[<color_red>%s</color>]", e.c_str() );
+                return string_format( "[<color_red>{}</color>]", e.c_str() );
             }
         } );
         info += colorize( n_gettext( "Dependency", "Dependencies", deps.size() ),
@@ -76,7 +76,7 @@ void mod_ui::try_add( const mod_id &mod_to_add,
         return;
     }
     if( !mod_to_add.is_valid() ) {
-        debugmsg( "Unable to load mod \"%s\".", mod_to_add.c_str() );
+        debugmsg( "Unable to load mod \"{}\".", mod_to_add.c_str() );
         return;
     }
     const MOD_INFORMATION &mod = *mod_to_add;

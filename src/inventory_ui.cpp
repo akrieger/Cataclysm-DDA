@@ -168,9 +168,9 @@ struct container_data {
     std::string to_formatted_string( const bool compact = true ) const {
         std::string string_to_format;
         if( compact ) {
-            string_to_format = _( "%s/%s : %s/%s : max %s" );
+            string_to_format = _( "{}/{} : {}/{} : max {}" );
         } else {
-            string_to_format = _( "(remains %s, %s) max length %s" );
+            string_to_format = _( "(remains {}, {}) max length {}" );
         }
         return string_format( string_to_format,
                               unit_to_string( total_capacity - actual_capacity, true, true ),
@@ -202,11 +202,11 @@ class selection_column_preset : public inventory_selector_preset
             const item_location &item = entry.any_item();
 
             if( entry.chosen_count > 0 && entry.chosen_count < available_count ) {
-                //~ %1$d: chosen count, %2$d: available count
-                res += string_format( pgettext( "count", "%1$d of %2$d" ), entry.chosen_count,
+                //~ {1}: chosen count, {2}: available count
+                res += string_format( pgettext( "count", "{1} of {2}" ), entry.chosen_count,
                                       available_count ) + " ";
             } else if( available_count != 1 ) {
-                res += string_format( "%d ", available_count );
+                res += string_format( "{} ", available_count );
             }
             if( item->is_money() ) {
                 cata_assert( available_count == entry.get_stack_size() );
@@ -612,7 +612,7 @@ std::string inventory_selector_preset::get_caption( const inventory_entry &entry
         disp_name = entry.any_item()->display_name( count );
     }
 
-    return ( count > 1 ) ? string_format( "%d %s", count, disp_name ) : disp_name;
+    return ( count > 1 ) ? string_format( "{} {}", count, disp_name ) : disp_name;
 }
 
 std::string inventory_selector_preset::get_denial( const inventory_entry &entry ) const
@@ -624,7 +624,7 @@ std::string inventory_selector_preset::get_cell_text( const inventory_entry &ent
         size_t cell_index ) const
 {
     if( cell_index >= cells.size() ) {
-        debugmsg( "Invalid cell index %d.", cell_index );
+        debugmsg( "Invalid cell index {}.", cell_index );
         return "it's a bug!";
     }
     if( !entry ) {
@@ -657,7 +657,7 @@ std::string inventory_selector_preset::get_cell_text( const inventory_entry &ent
                     };
                     std::string formatted_string = container_data.to_formatted_string( false );
 
-                    text = text + string_format( " %s", formatted_string );
+                    text = text + string_format( " {}", formatted_string );
                 }
             }
         }
@@ -698,7 +698,7 @@ void inventory_selector_preset::append_cell( const
         return cell.title == title;
     } );
     if( iter != cells.end() ) {
-        debugmsg( "Tried to append a duplicate cell \"%s\": ignored.", title.c_str() );
+        debugmsg( "Tried to append a duplicate cell \"{}\": ignored.", title.c_str() );
         return;
     }
     cells.emplace_back( func, title, stub );
@@ -926,7 +926,7 @@ void inventory_column::set_height( size_t new_height )
 {
     if( height != new_height ) {
         if( new_height <= 1 ) {
-            debugmsg( "Unable to assign height <= 1 (was %zd).", new_height );
+            debugmsg( "Unable to assign height <= 1 (was {}).", new_height );
             return;
         }
         height = new_height;
@@ -1534,7 +1534,7 @@ void inventory_column::draw( const catacurses::window &win, const point &p,
     }
 
     if( pages_count() > 1 ) {
-        mvwprintw( win, p + point( 0, height - 1 ), _( "Page %d/%d" ), page_index() + 1, pages_count() );
+        mvwprintw( win, p + point( 0, height - 1 ), _( "Page {}/{}" ), page_index() + 1, pages_count() );
     }
 }
 
@@ -1625,7 +1625,7 @@ const item_category *inventory_selector::naturalize_category( const item_categor
 
     if( dist != 0 ) {
         const std::string suffix = direction_suffix( u.pos(), pos );
-        const item_category_id id = item_category_id( string_format( "%s_%s", category.get_id().c_str(),
+        const item_category_id id = item_category_id( string_format( "{}{}", category.get_id().c_str(),
                                     suffix.c_str() ) );
 
         const auto *existing = find_cat_by_id( id );
@@ -1633,7 +1633,7 @@ const item_category *inventory_selector::naturalize_category( const item_categor
             return existing;
         }
 
-        const std::string name = string_format( "%s %s", category.name(), suffix.c_str() );
+        const std::string name = string_format( "{} {}", category.name(), suffix.c_str() );
         const int sort_rank = category.sort_rank() + dist;
         const item_category new_category( id, no_translation( name ), sort_rank );
 
@@ -2107,15 +2107,15 @@ inventory_selector::stats inventory_selector::get_weight_and_volume_stats(
     const units::volume &holster_volume, const int used_holsters, const int total_holsters )
 {
     // This is a bit of a hack, we're prepending two entries to the weight and length stat blocks.
-    std::string length_weight_caption = string_format( _( "Longest Length (%s): %s Weight (%s):" ),
+    std::string length_weight_caption = string_format( _( "Longest Length ({}): {} Weight ({}):" ),
                                         length_units( longest_length ),
                                         colorize( std::to_string( convert_length( longest_length ) ), c_light_gray ), weight_units() );
-    std::string volume_caption = string_format( _( "Free Volume (%s): %s Volume (%s):" ),
+    std::string volume_caption = string_format( _( "Free Volume ({}): {} Volume ({}):" ),
                                  volume_units_abbr(),
                                  colorize( format_volume( largest_free_volume ), c_light_gray ),
                                  volume_units_abbr() );
 
-    std::string holster_caption = string_format( _( "Free Holster Volume (%s): %s Used Holsters:" ),
+    std::string holster_caption = string_format( _( "Free Holster Volume ({}): {} Used Holsters:" ),
                                   volume_units_abbr(),
                                   colorize( format_volume( holster_volume ), c_light_gray ) );
     return {
@@ -2136,7 +2136,7 @@ inventory_selector::stats inventory_selector::get_weight_and_volume_stats(
                           used_holsters,
                           total_holsters, []( int v )
             {
-                return string_format( "%d", v );
+                return string_format( "{}", v );
             } )
         }
     };
@@ -2160,7 +2160,7 @@ std::vector<std::string> inventory_selector::get_stats() const
     std::array<size_t, num_stats> widths;
     // Add first cells and spaces after them.
     for( size_t i = 0; i < stats.size(); ++i ) {
-        lines[i] += string_format( "%s", stats[i][0] ) + " ";
+        lines[i] += string_format( "{}", stats[i][0] ) + " ";
     }
     // Now add the rest of the cells and align them to the right.
     for( size_t j = 1; j < stats.front().size(); ++j ) {
@@ -2176,7 +2176,7 @@ std::vector<std::string> inventory_selector::get_stats() const
             if( max_w > widths[i] ) {
                 lines[i] += std::string( max_w - widths[i], ' ' );
             }
-            lines[i] += string_format( "%s", stats[i][j] );
+            lines[i] += string_format( "{}", stats[i][j] );
         }
     }
     // Construct the final result.
@@ -2353,7 +2353,7 @@ void inventory_selector::draw_footer( const catacurses::window &w ) const
     } else {
         int filter_offset = 0;
         if( has_available_choices() || !filter.empty() ) {
-            std::string text = string_format( filter.empty() ? _( "[%s] Filter" ) : _( "[%s] Filter: " ),
+            std::string text = string_format( filter.empty() ? _( "[{}] Filter" ) : _( "[{}] Filter: " ),
                                               ctxt.get_desc( "INVENTORY_FILTER" ) );
             filter_offset = utf8_width( text + filter ) + 6;
 
@@ -2796,7 +2796,7 @@ void inventory_selector::action_examine( const item_location &sitem )
 
     sitem->info( true, vThisItem );
     vThisItem.insert( vThisItem.begin(),
-    { {}, string_format( _( "Location: %s" ), sitem.describe( &u ) ) } );
+    { {}, string_format( _( "Location: {}" ), sitem.describe( &u ) ) } );
 
     item_info_data data( sitem->tname(), sitem->type_name(), vThisItem, vDummy );
     data.handle_scrolling = true;
@@ -3024,7 +3024,7 @@ drop_locations inventory_multiselector::execute()
 
         if( input.action == "CONFIRM" ) {
             if( to_use.empty() ) {
-                popup_getkey( _( "No items were selected.  Use %s to select them." ),
+                popup_getkey( _( "No items were selected.  Use {} to select them." ),
                               ctxt.get_desc( "TOGGLE_ENTRY" ) );
                 continue;
             }
@@ -3075,7 +3075,7 @@ std::pair<const item *, const item *> inventory_compare_selector::execute()
                 }
             }
         } else if( input.action == "CONFIRM" ) {
-            popup_getkey( _( "You need two items for comparison.  Use %s to select them." ),
+            popup_getkey( _( "You need two items for comparison.  Use {} to select them." ),
                           ctxt.get_desc( "TOGGLE_ENTRY" ) );
         } else if( input.action == "QUIT" ) {
             return std::make_pair( nullptr, nullptr );
@@ -3231,7 +3231,7 @@ drop_locations inventory_drop_selector::execute()
         const inventory_input input = get_input();
         if( input.action == "CONFIRM" ) {
             if( to_use.empty() ) {
-                popup_getkey( _( "No items were selected.  Use %s to select them." ),
+                popup_getkey( _( "No items were selected.  Use {} to select them." ),
                               ctxt.get_desc( "TOGGLE_ENTRY" ) );
                 continue;
             }
@@ -3297,7 +3297,7 @@ pickup_selector::pickup_selector( Character &p, const inventory_selector_preset 
 #endif
 
     set_hint( string_format(
-                  _( "To pick x items, type a number before selecting.\nPress %s to examine, %s to wield, %s to wear." ),
+                  _( "To pick x items, type a number before selecting.\nPress {} to examine, {} to wield, {} to wear." ),
                   ctxt.get_desc( "EXAMINE" ),
                   ctxt.get_desc( "WIELD" ),
                   ctxt.get_desc( "WEAR" ) ) );
@@ -3324,7 +3324,7 @@ drop_locations pickup_selector::execute()
 
         if( input.action == "CONFIRM" ) {
             if( to_use.empty() ) {
-                popup_getkey( _( "No items were selected.  Use %s to select them." ),
+                popup_getkey( _( "No items were selected.  Use {} to select them." ),
                               ctxt.get_desc( "TOGGLE_ENTRY" ) );
                 continue;
             }
@@ -3367,7 +3367,7 @@ bool pickup_selector::wield( int &count )
         u.assign_activity( player_activity( wield_activity_actor( it, charges ) ) );
         return true;
     } else {
-        popup_getkey( _( "You can't wield the %s." ), it->display_name() );
+        popup_getkey( _( "You can't wield the {}." ), it->display_name() );
     }
 
     return false;
@@ -3386,7 +3386,7 @@ bool pickup_selector::wear()
         u.assign_activity( player_activity( wear_activity_actor( items, quantities ) ) );
         return true;
     } else {
-        popup_getkey( _( "You can't wear the %s." ), items.front()->display_name() );
+        popup_getkey( _( "You can't wear the {}." ), items.front()->display_name() );
     }
 
     return false;

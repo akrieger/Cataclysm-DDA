@@ -196,7 +196,7 @@ void effect_on_conditions::queue_effect_on_condition( time_duration duration,
     } else if( eoc->type == eoc_type::ACTIVATION || eoc->type == eoc_type::RECURRING ) {
         you.queued_effect_on_conditions.push( new_eoc );
     } else {
-        debugmsg( "Invalid effect_on_condition and/or target.  EOC: %s", eoc->id.c_str() );
+        debugmsg( "Invalid effect_on_condition and/or target.  EOC: {}", eoc->id.c_str() );
     }
 }
 

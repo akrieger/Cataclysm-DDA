@@ -65,12 +65,12 @@ static void show_pickup_message( const PickupMap &mapPickup )
 {
     for( const auto &entry : mapPickup ) {
         if( entry.second.first.invlet != 0 ) {
-            add_msg( _( "You pick up: %d %s [%c]" ), entry.second.second,
+            add_msg( _( "You pick up: {} {} [{}]" ), entry.second.second,
                      entry.second.first.display_name( entry.second.second ), entry.second.first.invlet );
         } else if( entry.second.first.count_by_charges() ) {
-            add_msg( _( "You pick up: %s" ), entry.second.first.display_name( entry.second.second ) );
+            add_msg( _( "You pick up: {}" ), entry.second.first.display_name( entry.second.second ) );
         } else {
-            add_msg( _( "You pick up: %d %s" ), entry.second.second,
+            add_msg( _( "You pick up: {} {}" ), entry.second.second,
                      entry.second.first.display_name( entry.second.second ) );
         }
     }
@@ -98,7 +98,7 @@ static pickup_answer handle_problematic_pickup( const item &it, const std::strin
     amenu.text = explain;
 
     if( it.is_bucket_nonempty() ) {
-        amenu.addentry( SPILL, u.can_stash( it ), 's', _( "Spill contents of %s, then pick up %s" ),
+        amenu.addentry( SPILL, u.can_stash( it ), 's', _( "Spill contents of {}, then pick up {}" ),
                         it.tname(), it.display_name() );
     }
 
@@ -122,7 +122,7 @@ bool Pickup::query_thief()
                          .preferred_keyboard_mode( keyboard_mode::keycode )
                          .allow_cancel( false )
                          .context( "YES_NO_ALWAYS_NEVER" )
-                         .message( "%s", force_uc && !is_keycode_mode_supported()
+                         .message( "{}", force_uc && !is_keycode_mode_supported()
                                    ? _( "Picking up this item will be considered stealing, continue?  (Case sensitive)" )
                                    : _( "Picking up this item will be considered stealing, continue?" ) )
                          .option( "YES", allow_key ) // yes, steal all items in this location that is selected
@@ -150,7 +150,7 @@ bool Pickup::query_thief()
         return false;
     } else {
         // error
-        debugmsg( "Not a valid option [ %s ]", answer );
+        debugmsg( "Not a valid option [ {} ]", answer );
     }
     return false;
 }
@@ -208,7 +208,7 @@ static bool pick_one_up( item_location &loc, int quantity, bool &got_water, Pick
         stash_successful = false;
     } else if( newit.is_bucket_nonempty() ) {
         if( !autopickup ) {
-            const std::string &explain = string_format( _( "Can't stash %s while it's not empty" ),
+            const std::string &explain = string_format( _( "Can't stash {} while it's not empty" ),
                                          newit.display_name() );
             option = handle_problematic_pickup( newit, explain );
             did_prompt = true;

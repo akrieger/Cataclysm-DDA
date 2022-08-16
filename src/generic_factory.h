@@ -236,7 +236,7 @@ class generic_factory
 
             if( jo.has_string( abstract_member_name ) ) {
                 if( jo.has_string( id_member_name ) || jo.has_string( legacy_id_member_name ) ) {
-                    jo.throw_error( string_format( "cannot specify both '%s' and '%s'/'%s'",
+                    jo.throw_error( string_format( "cannot specify both '{}' and '{}'/'{}'",
                                                    abstract_member_name, id_member_name, legacy_id_member_name ) );
                 }
                 restore_on_out_of_scope<check_plural_t> restore_check_plural( check_plural );
@@ -294,7 +294,7 @@ class generic_factory
                     insert( def );
                 }
                 if( jo.has_member( alias_member_name ) ) {
-                    jo.throw_error( string_format( "can not specify '%s' when '%s' is array",
+                    jo.throw_error( string_format( "can not specify '{}' when '{}' is array",
                                                    alias_member_name, id_member_name ) );
                 }
 
@@ -326,12 +326,12 @@ class generic_factory
                     insert( def );
                 }
                 if( jo.has_member( alias_member_name ) ) {
-                    jo.throw_error( string_format( "can not specify '%s' when '%s' is array",
+                    jo.throw_error( string_format( "can not specify '{}' when '{}' is array",
                                                    alias_member_name, legacy_id_member_name ) );
                 }
 
             } else if( !jo.has_string( abstract_member_name ) ) {
-                jo.throw_error( string_format( "must specify either '%s' or '%s'/'%s'",
+                jo.throw_error( string_format( "must specify either '{}' or '{}'/'{}'",
                                                abstract_member_name, id_member_name, legacy_id_member_name ) );
             }
         }
@@ -429,7 +429,7 @@ class generic_factory
          */
         const T &obj( const int_id<T> &id ) const {
             if( !is_valid( id ) ) {
-                debugmsg( "invalid %s id \"%d\"", type_name, id.to_i() );
+                debugmsg( "invalid {} id \"{}\"", type_name, id.to_i() );
                 return dummy_obj;
             }
             return list[id.to_i()];
@@ -444,7 +444,7 @@ class generic_factory
         const T &obj( const string_id<T> &id ) const {
             int_id<T> i_id;
             if( !find_id( id, i_id ) ) {
-                debugmsg( "invalid %s id \"%s\"", type_name, id.c_str() );
+                debugmsg( "invalid {} id \"{}\"", type_name, id.c_str() );
                 return dummy_obj;
             }
             return list[i_id.to_i()];
@@ -475,7 +475,7 @@ class generic_factory
                 return result;
             }
             if( warn ) {
-                debugmsg( "invalid %s id \"%s\"", type_name, id.c_str() );
+                debugmsg( "invalid {} id \"{}\"", type_name, id.c_str() );
             }
             return null_id;
         }
@@ -706,7 +706,7 @@ inline bool handle_proportional( const JsonObject &jo, const std::string &name, 
         JsonObject proportional = jo.get_object( "proportional" );
         proportional.allow_omitted_members();
         if( proportional.has_member( name ) ) {
-            debugmsg( "Member %s of type %s does not support proportional", name,
+            debugmsg( "Member {} of type {} does not support proportional", name,
                       demangle( typeid( MemberType ).name() ) );
         }
     }
@@ -731,7 +731,7 @@ inline bool handle_proportional( const JsonObject &jo, const std::string &name, 
         if( proportional.has_float( name ) ) {
             double scalar = proportional.get_float( name );
             if( scalar <= 0 || scalar == 1 ) {
-                debugmsg( "Invalid scalar %g for %s", scalar, name );
+                debugmsg( "Invalid scalar {} for {}", scalar, name );
                 return false;
             }
             member *= scalar;
@@ -757,7 +757,7 @@ inline bool handle_relative( const JsonObject &jo, const std::string &name, Memb
         if( !relative.has_member( name ) ) {
             return false;
         }
-        debugmsg( "Member %s of type %s does not support relative", name,
+        debugmsg( "Member {} of type {} does not support relative", name,
                   demangle( typeid( MemberType ).name() ) );
     }
     return false;
@@ -1076,7 +1076,7 @@ class generic_typed_reader
                 if( !relative.has_member( name ) ) {
                     return false;
                 }
-                debugmsg( "Member %s of type %s does not support relative", name, demangle( typeid( C ).name() ) );
+                debugmsg( "Member {} of type {} does not support relative", name, demangle( typeid( C ).name() ) );
             }
             return false;
         }
@@ -1234,7 +1234,7 @@ class typed_flag_reader : public generic_typed_reader<typed_flag_reader<T>>
             const auto iter = flag_map.find( flag );
 
             if( iter == flag_map.cend() ) {
-                jv.throw_error( string_format( "invalid %s: \"%s\"", flag_type, flag ) );
+                jv.throw_error( string_format( "invalid {}: \"{}\"", flag_type, flag ) );
             }
 
             return iter->second;
@@ -1266,7 +1266,7 @@ class enum_flags_reader : public generic_typed_reader<enum_flags_reader<E>>
             try {
                 return io::string_to_enum<E>( flag );
             } catch( const io::InvalidEnumString & ) {
-                jv.throw_error( string_format( "invalid %s: \"%s\"", flag_type, flag ) );
+                jv.throw_error( string_format( "invalid {}: \"{}\"", flag_type, flag ) );
                 throw; // ^^ throws already
             }
         }

@@ -1804,8 +1804,8 @@ static void burned_ground_parser( map &m, const tripoint &loc )
                 tripoint_abs_omt pos = project_to<coords::omt>( m.getglobal( loc ) );
                 oter_id terrain_type = overmap_buffer.ter( pos );
                 tripoint veh_origin = vehicle.v->global_pos3();
-                debugmsg( "burned_ground_parser: Vehicle %s (origin %s; rotation (%f,%f)) has "
-                          "out of bounds part at %s in terrain_type %s\n",
+                debugmsg( "burned_ground_parser: Vehicle {} (origin {}; rotation ({},{})) has "
+                          "out of bounds part at {} in terrain_type {}\n",
                           vehicle.v->name, veh_origin.to_string(),
                           vehicle.v->face_vec().x, vehicle.v->face_vec().y,
                           t.to_string(), terrain_type->get_type_id().str() );
@@ -2712,7 +2712,7 @@ map_extra_pointer get_function( const map_extra_id &name )
 {
     const auto iter = builtin_functions.find( name );
     if( iter == builtin_functions.end() ) {
-        debugmsg( "no built-in map extra function with id %s", name.str() );
+        debugmsg( "no built-in map extra function with id {}", name.str() );
         return nullptr;
     }
     return iter->second;
@@ -2821,7 +2821,7 @@ void debug_spawn_test()
         for( std::pair<const int, map_extra_id> &r : sorted_results ) {
             results_menu.entries.emplace_back(
                 static_cast<int>( results_menu.entries.size() ), true, -2,
-                string_format( "%d x %s", r.first, r.second.str() ) );
+                string_format( "{} x {}", r.first, r.second.str() ) );
         }
         results_menu.query();
     }
@@ -2876,7 +2876,7 @@ void map_extra::check() const
         case map_extra_method::map_extra_function: {
             const map_extra_pointer mx_func = MapExtras::get_function( map_extra_id( generator_id ) );
             if( mx_func == nullptr ) {
-                debugmsg( "invalid map extra function (%s) defined for map extra (%s)", generator_id, id.str() );
+                debugmsg( "invalid map extra function ({}) defined for map extra ({})", generator_id, id.str() );
                 break;
             }
             MapExtras::all_function_names.push_back( id );
@@ -2890,7 +2890,7 @@ void map_extra::check() const
             const auto update_mapgen_func = update_mapgens.find( update_mapgen_id( generator_id ) );
             if( update_mapgen_func == update_mapgens.end() ||
                 update_mapgen_func->second.funcs().empty() ) {
-                debugmsg( "invalid update mapgen function (%s) defined for map extra (%s)", generator_id,
+                debugmsg( "invalid update mapgen function ({}) defined for map extra ({})", generator_id,
                           id.str() );
                 break;
             }

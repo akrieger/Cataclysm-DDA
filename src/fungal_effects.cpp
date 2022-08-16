@@ -45,7 +45,7 @@ void fungal_effects::fungalize( const tripoint &p, Creature *origin, double spor
     if( monster *const mon_ptr = get_creature_tracker().creature_at<monster>( p ) ) {
         monster &critter = *mon_ptr;
         if( !critter.type->in_species( species_FUNGUS ) ) {
-            add_msg_if_player_sees( p, _( "The %s is covered in tiny spores!" ), critter.name() );
+            add_msg_if_player_sees( p, _( "The {} is covered in tiny spores!" ), critter.name() );
         }
         if( !critter.make_fungus() ) {
             // Don't insta-kill non-fungables. Jabberwocks, for example
@@ -223,7 +223,7 @@ void fungal_effects::spread_fungus_one_tile( const tripoint &p, const int growth
             } );
             if( seed == items.end() || !seed->is_seed() ) {
                 DebugLog( D_ERROR, DC_ALL ) << "No seed item in the PLANT terrain at position " <<
-                                            string_format( "%d,%d,%d.", p.x, p.y, p.z );
+                                            string_format( "{},{},{}.", p.x, p.y, p.z );
             } else {
                 *seed = item( "fungal_seeds", calendar::turn );
             }

@@ -113,13 +113,13 @@ void catacurses::wmove( const window &win, const point &p )
 
 void catacurses::mvwprintw( const window &win, const point &p, const std::string &text )
 {
-    return curses_check_result( ::mvwprintw( win.get<::WINDOW>(), p.y, p.x, "%s", text.c_str() ),
+    return curses_check_result( ::mvwprintw( win.get<::WINDOW>(), p.y, p.x, "{}", text.c_str() ),
                                 OK, "mvwprintw" );
 }
 
 void catacurses::wprintw( const window &win, const std::string &text )
 {
-    return curses_check_result( ::wprintw( win.get<::WINDOW>(), "%s", text.c_str() ),
+    return curses_check_result( ::wprintw( win.get<::WINDOW>(), "{}", text.c_str() ),
                                 OK, "wprintw" );
 }
 
@@ -448,18 +448,18 @@ void ensure_term_size()
         if( maxy < minHeight && maxx < minWidth ) {
             fold_and_print( catacurses::stdscr, point_zero, maxx, c_white,
                             _( "Whoa!  Your terminal is tiny!  This game requires a minimum terminal size of "
-                               "%dx%d to work properly.  %dx%d just won't do.  Maybe a smaller font would help?" ),
+                               "{}{} to work properly.  {}{} just won't do.  Maybe a smaller font would help?" ),
                             minWidth, minHeight, maxx, maxy );
         } else if( maxx < minWidth ) {
             fold_and_print( catacurses::stdscr, point_zero, maxx, c_white,
                             _( "Oh!  Hey, look at that.  Your terminal is just a little too narrow.  This game "
-                               "requires a minimum terminal size of %dx%d to function.  It just won't work "
-                               "with only %dx%d.  Can you stretch it out sideways a bit?" ),
+                               "requires a minimum terminal size of {}{} to function.  It just won't work "
+                               "with only {}{}.  Can you stretch it out sideways a bit?" ),
                             minWidth, minHeight, maxx, maxy );
         } else {
             fold_and_print( catacurses::stdscr, point_zero, maxx, c_white,
                             _( "Woah, woah, we're just a little short on space here.  The game requires a "
-                               "minimum terminal size of %dx%d to run.  %dx%d isn't quite enough!  Can you "
+                               "minimum terminal size of {}{} to run.  {}{} isn't quite enough!  Can you "
                                "make the terminal just a smidgen taller?" ),
                             minWidth, minHeight, maxx, maxy );
         }

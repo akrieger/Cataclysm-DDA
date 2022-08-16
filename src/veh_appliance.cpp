@@ -45,7 +45,7 @@ vpart_id vpart_appliance_from_item( const itype_id &item_id )
             return vp.get_id();
         }
     }
-    debugmsg( "item %s is not base item of any appliance!", item_id.c_str() );
+    debugmsg( "item {} is not base item of any appliance!", item_id.c_str() );
     return vpart_ap_standing_lamp;
 }
 
@@ -185,7 +185,7 @@ void veh_app_interact::draw_info()
                        battery.first == battery.second ? c_light_green : c_yellow;
         }
         mvwprintz( w_info, point( 0, row ), c_white, _( "Onboard battery power: " ) );
-        wprintz( w_info, batt_col, string_format( "%d/%d", battery.first, battery.second ) );
+        wprintz( w_info, batt_col, string_format( "{}/{}", battery.first, battery.second ) );
         row++;
     }
 
@@ -297,7 +297,7 @@ static vehicle_part *pick_part( const std::vector<vehicle_part *> &parts,
                 double vcur = to_liter( vpr->ammo_remaining() * mult );
                 double vmax = to_liter( vpr->ammo_capacity( vpr->get_base().only_item().ammo_type() ) * mult );
                 //~ Vehicle part name, capacity (current/max L) and name of contents
-                enttxt = string_format( _( "%1$s (%2$.1f/%3$.1fL %4$s)" ), vname, round_up( vcur, 1 ),
+                enttxt = string_format( _( "{1} ({}$.1f/{}$.1fL {4})" ), vname, round_up( vcur, 1 ),
                                         round_up( vmax, 1 ), item::nname( vpr->ammo_current() ) );
             } else {
                 enttxt = vname;
@@ -345,7 +345,7 @@ void veh_app_interact::refill()
     };
 
     // Setup the refill activity
-    item_location target = g->inv_map_splice( validate, string_format( _( "Refill %s" ), pt->name() ),
+    item_location target = g->inv_map_splice( validate, string_format( _( "Refill {}" ), pt->name() ),
                            1 );
     if( target ) {
         act = player_activity( ACT_VEHICLE, 1000, static_cast<int>( 'f' ) );
@@ -430,8 +430,8 @@ void veh_app_interact::remove()
 
     if( !can_remove ) {
         popup( msg );
-        //~ Prompt the player if they want to remove the appliance. %s = appliance name.
-    } else if( query_yn( _( "Are you sure you want to take down the %s?" ), veh->name ) ) {
+        //~ Prompt the player if they want to remove the appliance. {} = appliance name.
+    } else if( query_yn( _( "Are you sure you want to take down the {}?" ), veh->name ) ) {
         act = player_activity( ACT_VEHICLE, time, static_cast<int>( 'O' ) );
         act.str_values.push_back( vpinfo.get_id().str() );
         const point q = veh->coord_translate( vp.mount );

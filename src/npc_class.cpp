@@ -135,7 +135,7 @@ void npc_class::check_consistency()
 {
     for( const npc_class_id &legacy : legacy_ids ) {
         if( !npc_class_factory.is_valid( legacy ) ) {
-            debugmsg( "Missing legacy npc class %s (at index %d)",
+            debugmsg( "Missing legacy npc class {} (at index {})",
                       legacy.c_str(), &legacy - legacy_ids.data() );
         }
     }
@@ -143,30 +143,30 @@ void npc_class::check_consistency()
     for( const npc_class &cl : npc_class_factory.get_all() ) {
         for( const shopkeeper_item_group &ig : cl.shop_item_groups ) {
             if( !item_group::group_is_defined( ig.id ) ) {
-                debugmsg( "Missing shopkeeper item group %s", ig.id.c_str() );
+                debugmsg( "Missing shopkeeper item group {}", ig.id.c_str() );
             }
         }
 
         if( !cl.worn_override.is_empty() && !item_group::group_is_defined( cl.worn_override ) ) {
-            debugmsg( "Missing worn override item group %s", cl.worn_override.c_str() );
+            debugmsg( "Missing worn override item group {}", cl.worn_override.c_str() );
         }
 
         if( !cl.carry_override.is_empty() && !item_group::group_is_defined( cl.carry_override ) ) {
-            debugmsg( "Missing carry override item group %s", cl.carry_override.c_str() );
+            debugmsg( "Missing carry override item group {}", cl.carry_override.c_str() );
         }
 
         if( !cl.weapon_override.is_empty() && !item_group::group_is_defined( cl.weapon_override ) ) {
-            debugmsg( "Missing weapon override item group %s", cl.weapon_override.c_str() );
+            debugmsg( "Missing weapon override item group {}", cl.weapon_override.c_str() );
         }
 
         for( const auto &pr : cl.skills ) {
             if( !pr.first.is_valid() ) {
-                debugmsg( "Invalid skill %s", pr.first.c_str() );
+                debugmsg( "Invalid skill {}", pr.first.c_str() );
             }
         }
 
         if( !cl.traits.is_valid() ) {
-            debugmsg( "Trait group %s is undefined", cl.traits.c_str() );
+            debugmsg( "Trait group {} is undefined", cl.traits.c_str() );
         }
     }
 }
@@ -286,7 +286,7 @@ void npc_class::load( const JsonObject &jo, const std::string & )
             const std::string &ig_str = jo.get_string( "shopkeeper_item_group" );
             shop_item_groups.emplace_back( ig_str, 0, false );
         } else {
-            jo.throw_error( string_format( "invalid format for shopkeeper_item_group in npc class %s", name ) );
+            jo.throw_error( string_format( "invalid format for shopkeeper_item_group in npc class {}", name ) );
         }
     }
     optional( jo, was_loaded, "shopkeeper_price_rules", shop_price_rules, faction_price_rules_reader {} );
@@ -331,7 +331,7 @@ void npc_class::load( const JsonObject &jo, const std::string & )
             };
             if( std::find_if( mutation_categories.begin(), mutation_categories.end(),
                               category_match ) == mutation_categories.end() ) {
-                debugmsg( "Unrecognized mutation category %s", mutation.str() );
+                debugmsg( "Unrecognized mutation category {}", mutation.str() );
                 continue;
             }
             JsonObject distrib = member.get_object();
@@ -370,7 +370,7 @@ void npc_class::load( const JsonObject &jo, const std::string & )
 const npc_class_id &npc_class::from_legacy_int( int i )
 {
     if( i < 0 || static_cast<size_t>( i ) >= legacy_ids.size() ) {
-        debugmsg( "Invalid legacy class id: %d", i );
+        debugmsg( "Invalid legacy class id: {}", i );
         return npc_class_id::NULL_ID();
     }
 
@@ -529,7 +529,7 @@ distribution distribution::rng_roll( int from, int to )
 distribution distribution::dice_roll( int sides, int size )
 {
     if( sides < 1 || size < 1 ) {
-        debugmsg( "Invalid dice: %d sides, %d sizes", sides, size );
+        debugmsg( "Invalid dice: {} sides, {} sizes", sides, size );
         return distribution();
     }
 

@@ -233,7 +233,7 @@ void item_pricing::set_values( int ip_count )
             vol /= charges;
             weight /= charges;
         } else {
-            debugmsg( "item %s has zero or negative charges", i_p->typeId().str() );
+            debugmsg( "item {} has zero or negative charges", i_p->typeId().str() );
         }
     }
 }

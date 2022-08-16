@@ -251,7 +251,7 @@ class options_manager
                   const translation &sMenuTextIn, const translation &sTooltipIn,
                   int iMinIn, int iMaxIn, int iDefaultIn,
                   copt_hide_t opt_hide = COPT_NO_HIDE,
-                  const std::string &format = "%i" );
+                  const std::string &format = "{}" );
 
         //add int map option
         void add( const std::string &sNameIn, const std::string &sPageIn,

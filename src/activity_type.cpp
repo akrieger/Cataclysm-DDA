@@ -26,7 +26,7 @@ const activity_type &string_id<activity_type>::obj() const
 {
     const auto found = activity_type_all.find( *this );
     if( found == activity_type_all.end() ) {
-        debugmsg( "Tried to get invalid activity_type: %s", c_str() );
+        debugmsg( "Tried to get invalid activity_type: {}", c_str() );
         static const activity_type null_activity_type {};
         return null_activity_type;
     }
@@ -56,7 +56,7 @@ void activity_type::load( const JsonObject &jo )
 
     std::string activity_level = jo.get_string( "activity_level", "" );
     if( activity_level.empty() ) {
-        debugmsg( "Warning.  %s has undefined activity level.  defaulting to LIGHT_EXERCISE",
+        debugmsg( "Warning.  {} has undefined activity level.  defaulting to LIGHT_EXERCISE",
                   result.id().c_str() );
         activity_level = "LIGHT_EXERCISE";
     }
@@ -65,7 +65,7 @@ void activity_type::load( const JsonObject &jo )
     result.based_on_ = io::string_to_enum_look_up( based_on_type_values, jo.get_string( "based_on" ) );
 
     if( activity_type_all.find( result.id_ ) != activity_type_all.end() ) {
-        debugmsg( "Redefinition of %s", result.id_.c_str() );
+        debugmsg( "Redefinition of {}", result.id_.c_str() );
     } else {
         activity_type_all.insert( { result.id_, result } );
     }
@@ -75,7 +75,7 @@ void activity_type::check_consistency()
 {
     for( const auto &pair : activity_type_all ) {
         if( pair.second.verb_.empty() ) {
-            debugmsg( "%s doesn't have a verb", pair.first.c_str() );
+            debugmsg( "{} doesn't have a verb", pair.first.c_str() );
         }
         const bool has_actor = activity_actors::deserialize_functions.find( pair.second.id_ ) !=
                                activity_actors::deserialize_functions.end();
@@ -83,21 +83,21 @@ void activity_type::check_consistency()
                                    activity_handlers::do_turn_functions.end();
 
         if( pair.second.based_on_ == based_on_type::NEITHER && !( has_turn_func || has_actor ) ) {
-            debugmsg( "%s needs a do_turn function or activity actor if it's not based on time or speed.",
+            debugmsg( "{} needs a do_turn function or activity actor if it's not based on time or speed.",
                       pair.second.id_.c_str() );
         }
     }
 
     for( const auto &pair : activity_handlers::do_turn_functions ) {
         if( activity_type_all.find( pair.first ) == activity_type_all.end() ) {
-            debugmsg( "The do_turn function %s doesn't correspond to a valid activity_type.",
+            debugmsg( "The do_turn function {} doesn't correspond to a valid activity_type.",
                       pair.first.c_str() );
         }
     }
 
     for( const auto &pair : activity_handlers::finish_functions ) {
         if( activity_type_all.find( pair.first ) == activity_type_all.end() ) {
-            debugmsg( "The finish_function %s doesn't correspond to a valid activity_type",
+            debugmsg( "The finish_function {} doesn't correspond to a valid activity_type",
                       pair.first.c_str() );
         }
     }
@@ -130,5 +130,5 @@ void activity_type::reset()
 
 std::string activity_type::stop_phrase() const
 {
-    return string_format( _( "Stop %s?" ), verb_ );
+    return string_format( _( "Stop {}?" ), verb_ );
 }

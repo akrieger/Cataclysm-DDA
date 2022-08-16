@@ -1058,7 +1058,7 @@ struct conditional_name {
     std::string condition;
     // Used for variables and snippets to identify the specific value
     std::string value;
-    // Name to apply (i.e. "Luigi lasagne" or "smoked mutant"). Can use %s which will
+    // Name to apply (i.e. "Luigi lasagne" or "smoked mutant"). Can use {} which will
     // be replaced by the item's normal name and/or preceding conditional names.
     translation name;
 };

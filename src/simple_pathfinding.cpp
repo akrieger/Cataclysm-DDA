@@ -147,7 +147,7 @@ const tripoint &direction_to_tripoint( direction dir )
         case direction::BELOWCENTER:
             return tripoint_below;
         default:
-            debugmsg( "Unexpected direction: %d", static_cast<int>( dir ) );
+            debugmsg( "Unexpected direction: {}", static_cast<int>( dir ) );
             return tripoint_zero;
     }
 }

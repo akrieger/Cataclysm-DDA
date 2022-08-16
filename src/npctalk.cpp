@@ -130,7 +130,7 @@ std::string talk_trial::name() const
         }
     };
     if( static_cast<size_t>( type ) >= texts.size() ) {
-        debugmsg( "invalid trial type %d", static_cast<int>( type ) );
+        debugmsg( "invalid trial type {}", static_cast<int>( type ) );
         return std::string();
     }
     return texts[type].empty() ? std::string() : _( texts[type] );
@@ -398,7 +398,7 @@ static skill_id skill_select_menu( const Character &c, const std::string &prompt
     nmenu.text = prompt;
     for( const std::pair<const skill_id, SkillLevel> &s : *c._skills ) {
         bool enabled = s.second.level() > 0;
-        std::string entry = string_format( "%s (%d)", s.first.str(), s.second.level() );
+        std::string entry = string_format( "{} ({})", s.first.str(), s.second.level() );
         nmenu.addentry( i, enabled, MENU_AUTOASSIGN, entry );
         i++;
     }
@@ -435,7 +435,7 @@ static void npc_temp_orders_menu( const std::vector<npc *> &npc_list )
 
     while( !done ) {
         int override_count = 0;
-        std::string output_string = string_format( _( "%s currently has these temporary orders:" ),
+        std::string output_string = string_format( _( "{} currently has these temporary orders:" ),
                                     guy->get_name() );
         for( const auto &rule : ally_rule_strs ) {
             if( guy->rules.has_override_enable( rule.second.rule ) ) {
@@ -629,7 +629,7 @@ void game::chat()
     if( !available.empty() ) {
         const npc *guy = available.front();
         nmenu.addentry( NPC_CHAT_TALK, true, 't', available_count == 1 ?
-                        string_format( _( "Talk to %s" ), guy->name_and_activity() ) :
+                        string_format( _( "Talk to {}" ), guy->name_and_activity() ) :
                         _( "Talk to…" )
                       );
     }
@@ -653,7 +653,7 @@ void game::chat()
     }
     if( !guards.empty() ) {
         nmenu.addentry( NPC_CHAT_FOLLOW, true, 'f', guard_count == 1 ?
-                        string_format( _( "Tell %s to follow" ), guards.front()->get_name() ) :
+                        string_format( _( "Tell {} to follow" ), guards.front()->get_name() ) :
                         _( "Tell someone to follow…" )
                       );
     }
@@ -663,7 +663,7 @@ void game::chat()
                         enable_seminar ? _( "Start a training seminar" ) :
                         _( "Start a training seminar (You've already taught enough for now)" ) );
         nmenu.addentry( NPC_CHAT_GUARD, true, 'g', follower_count == 1 ?
-                        string_format( _( "Tell %s to guard" ), followers.front()->get_name() ) :
+                        string_format( _( "Tell {} to guard" ), followers.front()->get_name() ) :
                         _( "Tell someone to guard…" )
                       );
         nmenu.addentry( NPC_CHAT_AWAKE, true, 'w', _( "Tell everyone on your team to wake up" ) );
@@ -751,7 +751,7 @@ void game::chat()
                 yell_msg = _( "Everyone guard here!" );
             } else {
                 talk_function::assign_guard( *followers[npcselect] );
-                yell_msg = string_format( _( "Guard here, %s!" ), followers[npcselect]->get_name() );
+                yell_msg = string_format( _( "Guard here, {}!" ), followers[npcselect]->get_name() );
             }
             break;
         }
@@ -767,7 +767,7 @@ void game::chat()
                 yell_msg = _( "Everyone follow me!" );
             } else {
                 talk_function::stop_guard( *guards[npcselect] );
-                yell_msg = string_format( _( "Follow me, %s!" ), guards[npcselect]->get_name() );
+                yell_msg = string_format( _( "Follow me, {}!" ), guards[npcselect]->get_name() );
             }
             break;
         }
@@ -827,11 +827,11 @@ void game::chat()
     }
 
     if( !yell_msg.empty() ) {
-        message = string_format( _( "\"%s\"" ), yell_msg );
+        message = string_format( _( "\"{}\"" ), yell_msg );
     }
     if( !message.empty() ) {
-        add_msg( _( "You yell %s" ), message );
-        u.shout( string_format( _( "%s yelling %s" ), u.disp_name(), message ), is_order );
+        add_msg( _( "You yell {}" ), message );
+        u.shout( string_format( _( "{} yelling {}" ), u.disp_name(), message ), is_order );
     }
 
     u.moves -= 100;
@@ -845,7 +845,7 @@ void npc::handle_sound( const sounds::sound_t spriority, const std::string &desc
     const tripoint_abs_ms my_abs_pos = get_location();
 
     add_msg_debug( debugmode::DF_NPC,
-                   "%s heard '%s', priority %d at volume %d from %d:%d, my pos %d:%d",
+                   "{} heard '{}', priority {} at volume {} from {}:{}, my pos {}:{}",
                    disp_name(), description, static_cast<int>( spriority ), heard_volume,
                    s_abs_pos.x(), s_abs_pos.y(), my_abs_pos.x(), my_abs_pos.y() );
 
@@ -866,11 +866,11 @@ void npc::handle_sound( const sounds::sound_t spriority, const std::string &desc
     // but only for bantering purposes, not for investigating.
     if( spriority < sounds::sound_t::alarm ) {
         if( player_ally ) {
-            add_msg_debug( debugmode::DF_NPC, "Allied NPC ignored same faction %s", get_name() );
+            add_msg_debug( debugmode::DF_NPC, "Allied NPC ignored same faction {}", get_name() );
             return;
         }
         if( npc_ally ) {
-            add_msg_debug( debugmode::DF_NPC, "NPC ignored same faction %s", get_name() );
+            add_msg_debug( debugmode::DF_NPC, "NPC ignored same faction {}", get_name() );
             return;
         }
     }
@@ -878,7 +878,7 @@ void npc::handle_sound( const sounds::sound_t spriority, const std::string &desc
     // and listener is friendly and sound source is combat or alert only.
     if( spriority < sounds::sound_t::alarm && player_character.sees( spos ) ) {
         if( is_player_ally() ) {
-            add_msg_debug( debugmode::DF_NPC, "NPC %s ignored low priority noise that player can see",
+            add_msg_debug( debugmode::DF_NPC, "NPC {} ignored low priority noise that player can see",
                            get_name() );
             return;
             // discount if sound source is player, or seen by player,
@@ -919,7 +919,7 @@ void npc::handle_sound( const sounds::sound_t spriority, const std::string &desc
                 }
             }
             if( should_check ) {
-                add_msg_debug( debugmode::DF_NPC, "%s added noise at pos %d:%d", get_name(),
+                add_msg_debug( debugmode::DF_NPC, "{} added noise at pos {}:{}", get_name(),
                                s_abs_pos.x(), s_abs_pos.y() );
                 dangerous_sound temp_sound;
                 // TODO: fix point types
@@ -995,7 +995,7 @@ void avatar::talk_to( std::unique_ptr<talker> talk_with, bool radio_contact,
     if( uistate.distraction_conversation &&
         !d.actor( true )->has_effect( effect_under_operation, bodypart_str_id::NULL_ID() ) ) {
         g->cancel_activity_or_ignore_query( distraction_type::talked_to,
-                                            string_format( _( "%s talked to you." ),
+                                            string_format( _( "{} talked to you." ),
                                                     d.actor( true )->disp_name() ) );
     }
 }
@@ -1017,7 +1017,7 @@ std::string dialogue::dynamic_line( const talk_topic &the_topic ) const
     }
 
     if( topic == "TALK_NPC_NOFACE" ) {
-        return string_format( _( "&%s stays silent." ), actor( true )->disp_name() );
+        return string_format( _( "&{} stays silent." ), actor( true )->disp_name() );
     }
 
     if( topic == "TALK_NOFACE" ) {
@@ -1027,21 +1027,21 @@ std::string dialogue::dynamic_line( const talk_topic &the_topic ) const
 
     } else if( topic == "TALK_DEAF_ANGRY" ) {
         return string_format(
-                   _( "&You are deaf and can't talk.  When you don't respond, %s becomes angry!" ),
+                   _( "&You are deaf and can't talk.  When you don't respond, {} becomes angry!" ),
                    actor( true )->disp_name() );
     } else if( topic == "TALK_MUTE" ) {
         return _( "&You are mute and can't talk." );
 
     } else if( topic == "TALK_MUTE_ANGRY" ) {
         return string_format(
-                   _( "&You are mute and can't talk.  When you don't respond, %s becomes angry!" ),
+                   _( "&You are mute and can't talk.  When you don't respond, {} becomes angry!" ),
                    actor( true )->disp_name() );
     }
     avatar &player_character = get_avatar();
     if( topic == "TALK_SEDATED" ) {
-        return string_format( _( "%1$s is sedated and can't be moved or woken up until the "
+        return string_format( _( "{1} is sedated and can't be moved or woken up until the "
                                  "medication or sedation wears off.\nYou estimate it will wear "
-                                 "off in %2$s." ),
+                                 "off in {2}." ),
                               actor( true )->disp_name(),
                               to_string_approx( player_character.estimate_effect_dur( skill_firstaid,
                                                 effect_narcosis, 90_minutes, 60_minutes, 6,
@@ -1065,7 +1065,7 @@ std::string dialogue::dynamic_line( const talk_topic &the_topic ) const
         // TODO: make it a member of the mission class, maybe at mission instance specific data
         const std::string &ret = miss->dialogue_for_topic( topic );
         if( ret.empty() ) {
-            debugmsg( "Bug in npctalk.cpp:dynamic_line.  Wrong mission_id(%s) or topic(%s)",
+            debugmsg( "Bug in npctalk.cpp:dynamic_line.  Wrong mission_id({}) or topic({})",
                       type.id.c_str(), topic.c_str() );
             return "";
         }
@@ -1125,7 +1125,7 @@ std::string dialogue::dynamic_line( const talk_topic &the_topic ) const
         if( actor( false )->can_see() ) {
             return "&" + actor( true )->short_description();
         } else {
-            return string_format( _( "&You're blind and can't look at %s." ), actor( true )->disp_name() );
+            return string_format( _( "&You're blind and can't look at {}." ), actor( true )->disp_name() );
         }
     } else if( topic == "TALK_OPINION" ) {
         return "&" + actor( true )->opinion_text();
@@ -1135,7 +1135,7 @@ std::string dialogue::dynamic_line( const talk_topic &the_topic ) const
         }
     }
 
-    debugmsg( "I don't know what to say for %s. (BUG (npctalk.cpp:dynamic_line))", topic );
+    debugmsg( "I don't know what to say for {}. (BUG (npctalk.cpp:dynamic_line))", topic );
     return "";
 }
 
@@ -1321,16 +1321,16 @@ void dialogue::gen_responses( const talk_topic &the_topic )
                 if( !styleid.is_valid() ) {
                     const spell_id &sp_id = spell_id( backlog.name );
                     if( actor( true )->knows_spell( sp_id ) ) {
-                        add_response( string_format( _( "Yes, let's resume training %s" ),
+                        add_response( string_format( _( "Yes, let's resume training {}" ),
                                                      sp_id->name ), "TALK_TRAIN_START", sp_id );
                     }
                 } else {
                     const martialart &style = styleid.obj();
-                    add_response( string_format( _( "Yes, let's resume training %s" ),
+                    add_response( string_format( _( "Yes, let's resume training {}" ),
                                                  style.name ), "TALK_TRAIN_START", style );
                 }
             } else {
-                add_response( string_format( _( "Yes, let's resume training %s" ), skillt->name() ),
+                add_response( string_format( _( "Yes, let's resume training {}" ), skillt->name() ),
                               "TALK_TRAIN_START", skillt );
             }
         }
@@ -1630,7 +1630,7 @@ void parse_tags( std::string &phrase, const Character &u, const Character &me,
             global_variables &globvars = get_globals();
             phrase.replace( fa, l, globvars.get_global_value( "npctalk_var_" + var ) );
         } else if( !tag.empty() ) {
-            debugmsg( "Bad tag.  '%s' (%d - %d)", tag.c_str(), fa, fb );
+            debugmsg( "Bad tag.  '{}' ({} - {})", tag.c_str(), fa, fb );
             phrase.replace( fa, fb - fa + 1, "????" );
         }
     } while( fa != std::string::npos && fb != std::string::npos );
@@ -1693,7 +1693,7 @@ talk_data talk_response::create_option_line( const dialogue &d, const input_even
         ftext = text;
     } else if( trial.type == TALK_TRIAL_SKILL_CHECK ) {
         const Skill &req_skill = skill_id( trial.skill_required ).obj();
-        ftext = string_format( pgettext( "talk option", "[%1$s %2$d/%3$d] %4$s" ),
+        ftext = string_format( pgettext( "talk option", "[{1} {2}/{3}] {4}" ),
                                req_skill.name(),
                                std::min( d.actor( false )->get_skill_level( req_skill.ident() ),
                                          trial.difficulty ),
@@ -1701,8 +1701,8 @@ talk_data talk_response::create_option_line( const dialogue &d, const input_even
                                text );
     } else {
         // dialogue w/ a % chance to work
-        //~ %1$s is translated trial type, %2$d is a number, and %3$s is the translated response text
-        ftext = string_format( pgettext( "talk option", "[%1$s %2$d%%] %3$s" ),
+        //~ {1} is translated trial type, {2} is a number, and {3} is the translated response text
+        ftext = string_format( pgettext( "talk option", "[{1} {2}%%] {3}" ),
                                trial.name(), trial.calc_chance( d ), text );
     }
     parse_tags( ftext, *d.actor( false )->get_character(), *d.actor( true )->get_npc(),
@@ -1782,7 +1782,7 @@ talk_topic dialogue::opt( dialogue_window &d_win, const talk_topic &topic )
     gen_responses( topic );
     // Put quotes around challenge (unless it's an action)
     if( challenge[0] != '*' && challenge[0] != '&' ) {
-        challenge = string_format( _( "\"%s\"" ), challenge );
+        challenge = string_format( _( "\"{}\"" ), challenge );
     }
 
     // Parse any tags in challenge
@@ -1797,7 +1797,7 @@ talk_topic dialogue::opt( dialogue_window &d_win, const talk_topic &topic )
         d_win.add_to_history( challenge );
     } else if( challenge[0] == '*' ) {
         // Prepend name
-        challenge = string_format( pgettext( "npc does something", "%s %s" ), actor( true )->disp_name(),
+        challenge = string_format( pgettext( "npc does something", "{} {}" ), actor( true )->disp_name(),
                                    challenge.substr( 1 ) );
         d_win.add_to_history( challenge );
     } else {
@@ -2150,7 +2150,7 @@ void talk_effect_fun_t<T>::set_add_var( const JsonObject &jo, const std::string 
     function = [is_npc, var_name, possible_values, time_check, var_base_name]( const T & d ) {
         talker *actor = d.actor( is_npc );
         if( time_check ) {
-            actor->set_value( var_name, string_format( "%d", to_turn<int>( calendar::turn ) ) );
+            actor->set_value( var_name, string_format( "{}", to_turn<int>( calendar::turn ) ) );
         } else {
             int index = rng( 0, possible_values.size() - 1 );
             actor->set_value( var_name, possible_values[index] );
@@ -2209,11 +2209,11 @@ static void receive_item( const itype_id &item_name, int count, const std::strin
         }
         if( d.has_beta && !d.actor( true )->disp_name().empty() ) {
             if( count == 1 ) {
-                //~ %1%s is the NPC name, %2$s is an item
-                popup( _( "%1$s gives you a %2$s." ), d.actor( true )->disp_name(), new_item.tname() );
+                //~ {}{} is the NPC name, {2} is an item
+                popup( _( "{1} gives you a {2}." ), d.actor( true )->disp_name(), new_item.tname() );
             } else {
-                //~ %1%s is the NPC name, %2$d is a number of items, %3$s are items
-                popup( _( "%1$s gives you %2$d %3$s." ), d.actor( true )->disp_name(), count,
+                //~ {}{} is the NPC name, {2} is a number of items, {3} are items
+                popup( _( "{1} gives you {2} {3}." ), d.actor( true )->disp_name(), count,
                        new_item.tname() );
             }
         }
@@ -2223,8 +2223,8 @@ static void receive_item( const itype_id &item_name, int count, const std::strin
                           item_pocket::pocket_type::CONTAINER );
         d.actor( false )->i_add( container );
         if( d.has_beta && !d.actor( true )->disp_name().empty() ) {
-            //~ %1%s is the NPC name, %2$s is an item
-            popup( _( "%1$s gives you a %2$s." ), d.actor( true )->disp_name(), container.tname() );
+            //~ {}{} is the NPC name, {2} is an item
+            popup( _( "{1} gives you a {2}." ), d.actor( true )->disp_name(), container.tname() );
         }
     }
 }
@@ -2272,17 +2272,17 @@ void talk_effect_fun_t<T>::set_u_sell_item( const itype_id &item_name, int cost,
                 d.actor( true )->i_add( it );
             }
         } else {
-            //~ %1$s is a translated item name
-            popup( _( "You don't have a %1$s!" ), item::nname( item_name ) );
+            //~ {1} is a translated item name
+            popup( _( "You don't have a {1}!" ), item::nname( item_name ) );
             run_eoc_vector( false_eocs, d );
             return;
         }
         if( count == 1 ) {
-            //~ %1%s is the NPC name, %2$s is an item
-            popup( _( "You give %1$s a %2$s." ), d.actor( true )->disp_name(), item::nname( item_name ) );
+            //~ {}{} is the NPC name, {2} is an item
+            popup( _( "You give {1} a {2}." ), d.actor( true )->disp_name(), item::nname( item_name ) );
         } else {
-            //~ %1%s is the NPC name, %2$d is a number of items, %3$s are items
-            popup( _( "You give %1$s %2$d %3$s." ), d.actor( true )->disp_name(), count,
+            //~ {}{} is the NPC name, {2} is a number of items, {3} are items
+            popup( _( "You give {1} {2} {3}." ), d.actor( true )->disp_name(), count,
                    item::nname( item_name, count ) );
         }
         d.actor( true )->add_debt( cost );
@@ -2314,8 +2314,8 @@ void talk_effect_fun_t<T>::set_consume_item( const JsonObject &jo, const std::st
                 p.use_amount( item_name, count );
             } else {
                 item old_item( item_name );
-                //~ %1%s is the "You" or the NPC name, %2$s are a translated item name
-                popup( _( "%1$s doesn't have a %2$s!" ), p.disp_name(), old_item.tname() );
+                //~ {}{} is the "You" or the NPC name, {2} are a translated item name
+                popup( _( "{1} doesn't have a {2}!" ), p.disp_name(), old_item.tname() );
             }
         };
         if( is_npc ) {
@@ -2323,9 +2323,9 @@ void talk_effect_fun_t<T>::set_consume_item( const JsonObject &jo, const std::st
         } else {
             if( do_popup ) {
                 if( count == 1 ) {
-                    popup( _( "You give %1$s a %2$s." ), d.actor( true )->disp_name(), item::nname( item_name ) );
+                    popup( _( "You give {1} a {2}." ), d.actor( true )->disp_name(), item::nname( item_name ) );
                 } else {
-                    popup( _( "You give %1$s %2$d %3$s." ), d.actor( true )->disp_name(), count,
+                    popup( _( "You give {1} {2} {3}." ), d.actor( true )->disp_name(), count,
                            item::nname( item_name, count ) );
                 }
             }
@@ -2759,12 +2759,12 @@ void talk_effect_fun_t<T>::set_bulk_trade_accept( bool is_trade, int quantity, b
                         buyer->use_charges( pay_in, buyer_has );
                     } else {
                         if( buyer_has == 1 ) {
-                            //~ %1%s is the NPC name, %2$s is an item
-                            popup( _( "%1$s gives you a %2$s." ), seller->disp_name(),
+                            //~ {}{} is the NPC name, {2} is an item
+                            popup( _( "{1} gives you a {2}." ), seller->disp_name(),
                                    pay.tname() );
                         } else if( buyer_has > 1 ) {
-                            //~ %1%s is the NPC name, %2$d is a number of items, %3$s are items
-                            popup( _( "%1$s gives you %2$d %3$s." ), seller->disp_name(), buyer_has,
+                            //~ {}{} is the NPC name, {2} is a number of items, {3} are items
+                            popup( _( "{1} gives you {2} {3}." ), seller->disp_name(), buyer_has,
                                    pay.tname() );
                         }
                     }
@@ -2773,11 +2773,11 @@ void talk_effect_fun_t<T>::set_bulk_trade_accept( bool is_trade, int quantity, b
                         price -= value;
                     }
                 } else {
-                    debugmsg( "%s pays in bulk_trade_accept with faction currency worth 0!",
+                    debugmsg( "{} pays in bulk_trade_accept with faction currency worth 0!",
                               d.actor( true )->disp_name() );
                 }
             } else {
-                debugmsg( "%s has no faction currency to pay with in bulk_trade_accept!",
+                debugmsg( "{} has no faction currency to pay with in bulk_trade_accept!",
                           d.actor( true )->disp_name() );
             }
             d.actor( true )->add_debt( -npc_debt );
@@ -2838,7 +2838,7 @@ void talk_effect_fun_t<T>::set_u_learn_recipe( const std::string &learned_recipe
     function = [learned_recipe_id]( const T & ) {
         const recipe &r = recipe_id( learned_recipe_id ).obj();
         get_player_character().learn_recipe( &r );
-        popup( _( "You learn how to craft %s." ), r.result_name() );
+        popup( _( "You learn how to craft {}." ), r.result_name() );
     };
 }
 
@@ -2939,7 +2939,7 @@ void talk_effect_fun_t<T>::set_message( const JsonObject &jo, const std::string 
         if( popup_msg ) {
             const auto new_win = [translated_message]() {
                 query_popup pop;
-                pop.message( "%s", translated_message );
+                pop.message( "{}", translated_message );
                 return pop.get_window();
             };
             scrollable_text( new_win, "", replace_colors( translated_message ) );
@@ -3364,7 +3364,7 @@ void talk_effect_fun_t<T>::set_run_npc_eocs( const JsonObject &jo,
                             dialogue newDialog( get_talker_for( npc ), nullptr );
                             eoc->activate( newDialog );
                         } else {
-                            debugmsg( "Tried to use invalid npc: %s", target );
+                            debugmsg( "Tried to use invalid npc: {}", target );
                         }
                     }
                 }
@@ -4433,7 +4433,7 @@ static std::string translate_gendered_line(
         } else if( subject == "u" ) {
             gender_map[subject] = d.actor( false )->get_grammatical_genders();
         } else {
-            debugmsg( "Unsupported subject '%s' for grammatical gender in dialogue", subject );
+            debugmsg( "Unsupported subject '{}' for grammatical gender in dialogue", subject );
         }
     }
     return gettext_gendered( gender_map, line );

@@ -25,12 +25,12 @@ static std::string find_legacy_mm_file()
 
 static std::string find_mm_dir()
 {
-    return string_format( "%s.mm1", PATH_INFO::player_base_save_path() );
+    return string_format( "{}.mm1", PATH_INFO::player_base_save_path() );
 }
 
 static std::string find_region_path( const std::string &dirname, const tripoint &p )
 {
-    return string_format( "%s/%d.%d.%d.mmr", dirname, p.x, p.y, p.z );
+    return string_format( "{}/{}.{}.{}.mmr", dirname, p.x, p.y, p.z );
 }
 
 /**
@@ -224,7 +224,7 @@ shared_ptr_fast<mm_submap> map_memory::load_submap( const tripoint &sm_pos )
             return nullptr;
         }
     } catch( const std::exception &err ) {
-        debugmsg( "Failed to load memory map region (%d,%d,%d): %s",
+        debugmsg( "Failed to load memory map region ({},{},{}): {}",
                   p.reg.x, p.reg.y, p.reg.z, err.what() );
         return nullptr;
     }
@@ -292,7 +292,7 @@ void map_memory::load( const tripoint &pos )
                     this->load_legacy( jsin );
                 } );
             } catch( const std::exception &err ) {
-                debugmsg( "Failed to load legacy memory map file: %s", err.what() );
+                debugmsg( "Failed to load legacy memory map file: {}", err.what() );
             }
         }
         return;
@@ -343,7 +343,7 @@ bool map_memory::save( const tripoint &pos )
         if( !reg.is_empty() ) {
             const std::string path = find_region_path( dirname, regp );
             const std::string descr = string_format(
-                                          _( "memory map region for (%d,%d,%d)" ),
+                                          _( "memory map region for ({},{},{})" ),
                                           regp.x, regp.y, regp.z
                                       );
 

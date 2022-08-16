@@ -223,13 +223,13 @@ void suffer::water_damage( Character &you, const trait_id &mut_id )
         const int dmg = mut_id->weakness_to_water * wetness_percentage;
         if( dmg > 0 ) {
             you.apply_damage( nullptr, elem.first, dmg );
-            you.add_msg_player_or_npc( m_bad, _( "Your %s is damaged by the water." ),
-                                       _( "<npcname>'s %s is damaged by the water." ),
+            you.add_msg_player_or_npc( m_bad, _( "Your {} is damaged by the water." ),
+                                       _( "<npcname>'s {} is damaged by the water." ),
                                        body_part_name( elem.first ) );
         } else if( dmg < 0 && elem.second.is_at_max_hp() ) {
             you.heal( elem.first, std::abs( dmg ) );
-            you.add_msg_player_or_npc( m_good, _( "Your %s is healed by the water." ),
-                                       _( "<npcname>'s %s is healed by the water." ),
+            you.add_msg_player_or_npc( m_good, _( "Your {} is healed by the water." ),
+                                       _( "<npcname>'s {} is healed by the water." ),
                                        body_part_name( elem.first ) );
         }
     }
@@ -248,7 +248,7 @@ void suffer::mutation_power( Character &you, const trait_id &mut_id )
         if( mut_id->hunger ) {
             if( you.get_bmi() < character_weight_category::underweight ) {
                 you.add_msg_if_player( m_warning,
-                                       _( "You're too malnourished to keep your %s going." ),
+                                       _( "You're too malnourished to keep your {} going." ),
                                        you.mutation_name( mut_id ) );
                 you.deactivate_mutation( mut_id );
             } else {
@@ -260,7 +260,7 @@ void suffer::mutation_power( Character &you, const trait_id &mut_id )
             // Well into Dehydrated
             if( you.get_thirst() >= 260 ) {
                 you.add_msg_if_player( m_warning,
-                                       _( "You're too dehydrated to keep your %s going." ),
+                                       _( "You're too dehydrated to keep your {} going." ),
                                        you.mutation_name( mut_id ) );
                 you.deactivate_mutation( mut_id );
             } else {
@@ -271,7 +271,7 @@ void suffer::mutation_power( Character &you, const trait_id &mut_id )
             // Exhausted
             if( you.get_fatigue() >= fatigue_levels::EXHAUSTED ) {
                 you.add_msg_if_player( m_warning,
-                                       _( "You're too exhausted to keep your %s going." ),
+                                       _( "You're too exhausted to keep your {} going." ),
                                        you.mutation_name( mut_id ) );
                 you.deactivate_mutation( mut_id );
             } else {
@@ -506,8 +506,8 @@ void suffer::from_schizophrenia( Character &you )
     if( weap ) {
         i_name_w = weap->has_var( "item_label" ) ?
                    weap->get_var( "item_label" ) :
-                   //~ %1$s: weapon name
-                   string_format( _( "your %1$s" ), weap->type_name() );
+                   //~ {1}: weapon name
+                   string_format( _( "your {1}" ), weap->type_name() );
     }
     // Start with the effects that both NPCs and avatars can suffer from
     // Delusions
@@ -515,12 +515,12 @@ void suffer::from_schizophrenia( Character &you )
         if( rng( 1, 20 ) > 5 ) {  // 75% chance
             const translation snip = SNIPPET.random_from_category( "schizo_delusion_paranoid" ).value_or(
                                          translation() );
-            you.add_msg_if_player( m_warning, "%s", snip );
+            you.add_msg_if_player( m_warning, "{}", snip );
             you.add_morale( MORALE_FEELING_BAD, -20, -100 );
         } else { // 25% chance
             const translation snip = SNIPPET.random_from_category( "schizo_delusion_grandiose" ).value_or(
                                          translation() );
-            you.add_msg_if_player( m_good, "%s", snip );
+            you.add_msg_if_player( m_good, "{}", snip );
             you.add_morale( MORALE_FEELING_GOOD, 20, 100 );
         }
         return;
@@ -531,7 +531,7 @@ void suffer::from_schizophrenia( Character &you )
                                      translation() );
         const bodypart_id &bp = you.random_body_part( true );
         you.add_effect( effect_formication, 45_minutes, bp );
-        you.add_msg_if_player( m_bad, "%s", snip );
+        you.add_msg_if_player( m_bad, "{}", snip );
         return;
     }
     // Numbness
@@ -567,7 +567,7 @@ void suffer::from_schizophrenia( Character &you )
     if( one_turn_in( 2_days ) && weap ) {
         const translation snip = SNIPPET.random_from_category( "schizo_weapon_drop" ).value_or(
                                      translation() );
-        you.add_msg_if_player( m_bad, "%s", uppercase_first_letter( string_format( snip, i_name_w ) ) );
+        you.add_msg_if_player( m_bad, "{}", uppercase_first_letter( string_format( snip, i_name_w ) ) );
         you.drop( weap, you.pos() );
         return;
     }
@@ -575,7 +575,7 @@ void suffer::from_schizophrenia( Character &you )
     if( one_turn_in( 4_hours ) ) {
         const translation snip = SNIPPET.random_from_category( "schizo_self_talk" ).value_or(
                                      translation() );
-        you.add_msg_if_player( _( "%1$s says: \"%2$s\"" ), you.get_name(), snip );
+        you.add_msg_if_player( _( "{1} says: \"{2}\"" ), you.get_name(), snip );
         return;
     }
 
@@ -595,7 +595,7 @@ void suffer::from_schizophrenia( Character &you )
         if( !followers.empty() ) {
             who_gets_angry = random_entry_ref( followers )->get_name();
         }
-        you.add_msg_if_player( m_bad, _( "%1$s gets angry!" ), who_gets_angry );
+        you.add_msg_if_player( m_bad, _( "{1} gets angry!" ), who_gets_angry );
         return;
     }
 
@@ -606,14 +606,14 @@ void suffer::from_schizophrenia( Character &you )
                 mon_zombie, mon_zombie_fat, mon_zombie_fireman, mon_zombie_cop, mon_zombie_soldier
             }
         };
-        you.add_msg_if_player( _( "%s dies!" ), random_entry_ref( monsters )->nname() );
+        you.add_msg_if_player( _( "{} dies!" ), random_entry_ref( monsters )->nname() );
         return;
     }
 
     // Limb Breaks
     if( one_turn_in( 4_hours ) ) {
         const translation snip = SNIPPET.random_from_category( "broken_limb" ).value_or( translation() );
-        you.add_msg_if_player( m_bad, "%s", snip );
+        you.add_msg_if_player( m_bad, "{}", snip );
         return;
     }
 
@@ -625,7 +625,7 @@ void suffer::from_schizophrenia( Character &you )
                 translation() ).translated() );
         parse_tags( i_talk, you, you );
 
-        you.add_msg_if_player( _( "%1$s says: \"%2$s\"" ), i_name, i_talk );
+        you.add_msg_if_player( _( "{1} says: \"{2}\"" ), i_name, i_talk );
         return;
     }
 
@@ -634,10 +634,10 @@ void suffer::from_schizophrenia( Character &you )
         const skill_id raised_skill = Skill::random_skill();
         const SkillLevel level = you.get_all_skills().get_skill_level_object( raised_skill );
         if( level.level() == level.knowledgeLevel() && one_in( 2 ) ) {
-            you.add_msg_if_player( m_good, _( "Your practical skill in %s has increased to %d!" ),
+            you.add_msg_if_player( m_good, _( "Your practical skill in {} has increased to {}!" ),
                                    raised_skill->name(), level.level() + 1 );
         }
-        you.add_msg_if_player( m_good, _( "Your theoretical understanding of %s has increased to %d!" ),
+        you.add_msg_if_player( m_good, _( "Your theoretical understanding of {} has increased to {}!" ),
                                raised_skill->name(), level.knowledgeLevel() + 1 );
         return;
     }
@@ -682,7 +682,7 @@ void suffer::from_schizophrenia( Character &you )
             does_talk = true;
         }
         if( does_talk ) {
-            add_msg( _( "%1$s says: \"%2$s\"" ), i_name_w, i_talk_w );
+            add_msg( _( "{1} says: \"{2}\"" ), i_name_w, i_talk_w );
             return;
         }
     }
@@ -768,9 +768,9 @@ void suffer::from_asthma( Character &you, const int current_stim )
                 you.add_msg_if_player( m_bad, _( "You use your last inhaler charge." ) );
             } else {
                 you.add_msg_if_player( m_info, n_gettext( "You use your inhaler; "
-                                       "only %d charge left.",
+                                       "only {} charge left.",
                                        "You use your inhaler; "
-                                       "only %d charges left.", charges ),
+                                       "only {} charges left.", charges ),
                                        charges );
             }
             you.add_effect( effect_took_antiasthmatic, rng( 6_hours, 12_hours ) );
@@ -783,9 +783,9 @@ void suffer::from_asthma( Character &you, const int current_stim )
                                                  "from the tank." ) );
             } else {
                 you.add_msg_if_player( m_info, n_gettext( "You take a deep breath from your oxygen "
-                                       "tank; only %d charge left.",
+                                       "tank; only {} charge left.",
                                        "You take a deep breath from your oxygen "
-                                       "tank; only %d charges left.", charges ),
+                                       "tank; only {} charges left.", charges ),
                                        charges );
             }
         }
@@ -1013,7 +1013,7 @@ void suffer::from_sunburn( Character &you, bool severe )
         } else {
             // Do nothing. Assert that exposure is lower than 0.05 as above that point at least light_eff should always happen
             if( exposure > 0.05 ) {
-                debugmsg( "No sunburn effect was applied although the bodypart %s is sufficiently exposed at %f exposure",
+                debugmsg( "No sunburn effect was applied although the bodypart {} is sufficiently exposed at {} exposure",
                           body_part_name( bp ), exposure );
             };
             eff = None;
@@ -1086,29 +1086,29 @@ void suffer::from_sunburn( Character &you, bool severe )
 
     switch( worst_effect ) {
         case Damage:
-            //~ %s is a list of body parts.  The plurality integer is the total
+            //~ {} is a list of body parts.  The plurality integer is the total
             //~ number of body parts (eyes count as 2 body parts)
             //~ This message indicates damage to bodyparts through sunshine
-            warn_and_wake_up( n_gettext( "Your %s is bathed in sunlight.  It feels like it is burning up.",
-                                         "Your %s are bathed in sunlight.  They feel like they are burning up.",
+            warn_and_wake_up( n_gettext( "Your {} is bathed in sunlight.  It feels like it is burning up.",
+                                         "Your {} are bathed in sunlight.  They feel like they are burning up.",
                                          plurality ),
                               m_bad );
             break;
         case Pain:
-            //~ %s is a list of body parts.  The plurality integer is the total
+            //~ {} is a list of body parts.  The plurality integer is the total
             //~ number of body parts (eyes count as 2 body parts)
             //~ This message indicates pain through sunshine
-            warn_and_wake_up( n_gettext( "The sunlight burns on your %s.",
-                                         "The sunlight burns on your %s.",
+            warn_and_wake_up( n_gettext( "The sunlight burns on your {}.",
+                                         "The sunlight burns on your {}.",
                                          plurality ),
                               m_bad );
             break;
         case Focus_Loss:
-            //~ %s is a list of body parts.  The plurality integer is the total
+            //~ {} is a list of body parts.  The plurality integer is the total
             //~ number of body parts (eyes count as 2 body parts)
             //~ This message indicates focus loss through sunshine
-            warn_and_wake_up( n_gettext( "The sunlight on your %s irritates you.",
-                                         "The sunlight on your %s irritates you.",
+            warn_and_wake_up( n_gettext( "The sunlight on your {} irritates you.",
+                                         "The sunlight on your {} irritates you.",
                                          plurality ),
                               m_bad );
             break;
@@ -1217,7 +1217,7 @@ void suffer::from_other_mutations( Character &you )
         if( calendar::once_every( 4_hours ) ) {
             const translation smokin_hot_fiyah =
                 SNIPPET.random_from_category( "pyromania_withdrawal" ).value_or( translation() );
-            you.add_msg_if_player( m_bad, "%s", smokin_hot_fiyah );
+            you.add_msg_if_player( m_bad, "{}", smokin_hot_fiyah );
         }
     }
     if( you.has_trait( trait_KILLER ) && !you.has_morale( MORALE_KILLER_HAS_KILLED ) &&
@@ -1226,7 +1226,7 @@ void suffer::from_other_mutations( Character &you )
         if( calendar::once_every( 4_hours ) ) {
             const translation snip = SNIPPET.random_from_category( "killer_withdrawal" ).value_or(
                                          translation() );
-            you.add_msg_if_player( m_bad, "%s", snip );
+            you.add_msg_if_player( m_bad, "{}", snip );
         }
     }
 }
@@ -1358,7 +1358,7 @@ void suffer::from_bad_bionics( Character &you )
                 weapon->charges = 1;
             }
 
-            you.add_msg_if_player( m_good, _( "The %s seems to be affected by the discharge." ),
+            you.add_msg_if_player( m_good, _( "The {} seems to be affected by the discharge." ),
                                    weapon->tname() );
         }
         sfx::play_variant_sound( "bionics", "elec_discharge", 100 );
@@ -1486,7 +1486,7 @@ static void apply_weariness( Character &you, int level, int old )
 {
     // Exertion cannot be negative!
     if( level < 0 || old < 0 ) {
-        debugmsg( "Attempted to apply weariness to character with negative ( new: %d old: %d ) weariness",
+        debugmsg( "Attempted to apply weariness to character with negative ( new: {} old: {} ) weariness",
                   level, old );
     }
     // A mapping of weariness level to the effect to be applied
@@ -1844,8 +1844,8 @@ bool Character::irradiate( float rads, bool bypass )
                 continue;
             }
 
-            //~ %1$s = previous badge color, %2%s = current badge color
-            add_msg_if_player( m_bad, _( "Your radiation badge changes from %1$s to %2$s!" ),
+            //~ {1} = previous badge color, {}{} = current badge color
+            add_msg_if_player( m_bad, _( "Your radiation badge changes from {1} to {2}!" ),
                                col_before, col_after );
         }
 
@@ -1957,8 +1957,8 @@ void Character::mend( int rate_multiplier )
             set_part_hp_cur( bp, 1 );
             remove_effect( effect_mending, bp );
             get_event_bus().send<event_type::broken_bone_mends>( getID(), bp );
-            //~ %s is bodypart
-            add_msg_if_player( m_good, _( "Your %s has started to mend!" ),
+            //~ {} is bodypart
+            add_msg_if_player( m_good, _( "Your {} has started to mend!" ),
                                body_part_name( bp ) );
         }
     }
@@ -2009,7 +2009,7 @@ void Character::sound_hallu()
         i_sound = std::make_pair( std::get<1>( desc[r_int] ), std::get<2>( desc[r_int] ) );
     }
 
-    add_msg_if_player( m_warning, _( "From the %1$s you hear %2$s" ), i_dir, i_desc );
+    add_msg_if_player( m_warning, _( "From the {1} you hear {2}" ), i_dir, i_desc );
     sfx::play_variant_sound( i_sound.first, i_sound.second, rng( 20, 80 ) );
 }
 
@@ -2180,7 +2180,7 @@ void Character::add_addiction( const addiction_id &type, int strength )
             i.intensity++;
         }
 
-        add_msg_debug( debugmode::DF_CHAR_HEALTH, "Updating addiction: %d intensity, %d sated",
+        add_msg_debug( debugmode::DF_CHAR_HEALTH, "Updating addiction: {} intensity, {} sated",
                        i.intensity, to_turns<int>( i.sated ) );
 
         return;
@@ -2188,10 +2188,10 @@ void Character::add_addiction( const addiction_id &type, int strength )
 
     // Add a new addiction
     const int roll = rng( 0, 100 );
-    add_msg_debug( debugmode::DF_CHAR_HEALTH, "Addiction: roll %d vs strength %d", roll, strength );
+    add_msg_debug( debugmode::DF_CHAR_HEALTH, "Addiction: roll {} vs strength {}", roll, strength );
     if( roll < strength ) {
         const std::string type_name = type->get_type_name().translated();
-        add_msg_debug( debugmode::DF_CHAR_HEALTH, "%s got addicted to %s", disp_name(), type_name );
+        add_msg_debug( debugmode::DF_CHAR_HEALTH, "{} got addicted to {}", disp_name(), type_name );
         addictions.emplace_back( type, 1 );
         get_event_bus().send<event_type::gains_addiction>( getID(), type );
     }

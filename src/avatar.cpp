@@ -169,7 +169,7 @@ static void swap_npc( npc &one, npc &two, npc &tmp )
 void avatar::control_npc( npc &np )
 {
     if( !np.is_player_ally() ) {
-        debugmsg( "control_npc() called on non-allied npc %s", np.name );
+        debugmsg( "control_npc() called on non-allied npc {}", np.name );
         return;
     }
     if( !shadow_npc ) {
@@ -328,7 +328,7 @@ void avatar::set_active_mission( mission &cur_mission )
 {
     const auto iter = std::find( active_missions.begin(), active_missions.end(), &cur_mission );
     if( iter == active_missions.end() ) {
-        debugmsg( "new active mission %d is not in the active_missions list", cur_mission.get_id() );
+        debugmsg( "new active mission {} is not in the active_missions list", cur_mission.get_id() );
     } else {
         active_mission = &cur_mission;
     }
@@ -344,15 +344,15 @@ void avatar::on_mission_finished( mission &cur_mission )
 {
     if( cur_mission.has_failed() ) {
         failed_missions.push_back( &cur_mission );
-        add_msg_if_player( m_bad, _( "Mission \"%s\" is failed." ), cur_mission.name() );
+        add_msg_if_player( m_bad, _( "Mission \"{}\" is failed." ), cur_mission.name() );
     } else {
         completed_missions.push_back( &cur_mission );
-        add_msg_if_player( m_good, _( "Mission \"%s\" is successfully completed." ),
+        add_msg_if_player( m_good, _( "Mission \"{}\" is successfully completed." ),
                            cur_mission.name() );
     }
     const auto iter = std::find( active_missions.begin(), active_missions.end(), &cur_mission );
     if( iter == active_missions.end() ) {
-        debugmsg( "completed mission %d was not in the active_missions list", cur_mission.get_id() );
+        debugmsg( "completed mission {} was not in the active_missions list", cur_mission.get_id() );
     } else {
         active_missions.erase( iter );
     }
@@ -369,7 +369,7 @@ void avatar::remove_active_mission( mission &cur_mission )
 {
     const auto iter = std::find( active_missions.begin(), active_missions.end(), &cur_mission );
     if( iter == active_missions.end() ) {
-        debugmsg( "removed mission %d was not in the active_missions list", cur_mission.get_id() );
+        debugmsg( "removed mission {} was not in the active_missions list", cur_mission.get_id() );
     } else {
         active_missions.erase( iter );
     }
@@ -416,14 +416,14 @@ bool avatar::read( item_location &book, item_location ereader )
 
     bool continuous = false;
     const time_duration time_taken = time_to_read( *book, *reader );
-    add_msg_debug( debugmode::DF_ACT_READ, "avatar::read time_taken = %s",
+    add_msg_debug( debugmode::DF_ACT_READ, "avatar::read time_taken = {}",
                    to_string_writable( time_taken ) );
 
     // If the player hasn't read this book before, skim it to get an idea of what's in it.
     if( !has_identified( book->typeId() ) ) {
         if( reader != this ) {
             add_msg( m_info, fail_messages[0] );
-            add_msg( m_info, _( "%s reads aloud…" ), reader->disp_name() );
+            add_msg( m_info, _( "{} reads aloud…" ), reader->disp_name() );
         }
 
         assign_activity(
@@ -483,10 +483,10 @@ bool avatar::read( item_location &book, item_location ereader )
                 reason = _( " (too sad)" );
 
             } else if( mastery == book_mastery::CANT_UNDERSTAND ) {
-                reason = string_format( _( " (needs %d %s)" ), type->req, skill_name );
+                reason = string_format( _( " (needs {} {})" ), type->req, skill_name );
 
             } else if( mastery == book_mastery::MASTERED ) {
-                reason = string_format( _( " (already has %d %s)" ), type->level, skill_name );
+                reason = string_format( _( " (already has {} {})" ), type->level, skill_name );
 
             }
             nonlearners.insert( { elem, reason } );
@@ -517,9 +517,9 @@ bool avatar::read( item_location &book, item_location ereader )
         auto get_text =
         [&]( const std::map<npc *, std::string> &m, const std::pair<npc *, std::string> &elem ) {
             const int lvl = elem.first->get_knowledge_level( skill );
-            const std::string lvl_text = skill ? string_format( _( " | current level: %d" ), lvl ) : "";
+            const std::string lvl_text = skill ? string_format( _( " | current level: {}" ), lvl ) : "";
             const std::string name_text = elem.first->disp_name() + elem.second;
-            return string_format( "%s%s", left_justify( name_text, max_length( m ) ), lvl_text );
+            return string_format( "{}{}", left_justify( name_text, max_length( m ) ), lvl_text );
         };
 
         auto add_header = [&menu]( const std::string & str ) {
@@ -529,9 +529,9 @@ bool avatar::read( item_location &book, item_location ereader )
             menu.entries.push_back( header );
         };
 
-        menu.title = !skill ? string_format( _( "Reading %s" ), book->type_name() ) :
-                     //~ %1$s: book name, %2$s: skill name, %3$d and %4$d: skill levels
-                     string_format( _( "Reading %1$s (can train %2$s from %3$d to %4$d)" ), book->type_name(),
+        menu.title = !skill ? string_format( _( "Reading {}" ), book->type_name() ) :
+                     //~ {1}: book name, {2}: skill name, {3} and {4}: skill levels
+                     string_format( _( "Reading {1} (can train {2} from {3} to {4})" ), book->type_name(),
                                     skill_name, type->req, type->level );
 
 
@@ -539,7 +539,7 @@ bool avatar::read( item_location &book, item_location ereader )
 
         const int lvl = get_knowledge_level( skill );
         menu.addentry( 2 + getID().get_value(), lvl < type->level, '1',
-                       string_format( _( "Read until you gain a level | current level: %d" ), lvl ) );
+                       string_format( _( "Read until you gain a level | current level: {}" ), lvl ) );
 
         // select until player gets level by default
         if( lvl < type->level ) {
@@ -586,7 +586,7 @@ bool avatar::read( item_location &book, item_location ereader )
         }
 
         uilist menu;
-        menu.title = string_format( _( "Train %s from manual:" ),
+        menu.title = string_format( _( "Train {} from manual:" ),
                                     martial_art_learned_from( *book->type )->name );
         menu.addentry( 1, true, '1', _( "Train once" ) );
         menu.addentry( 2, true, '0', _( "Train until tired or success" ) );
@@ -601,25 +601,25 @@ bool avatar::read( item_location &book, item_location ereader )
         }
     }
 
-    add_msg( m_info, _( "Now reading %s, %s to stop early." ),
+    add_msg( m_info, _( "Now reading {}, {} to stop early." ),
              book->type_name(), press_x( ACTION_PAUSE ) );
 
     // Print some informational messages
     if( reader != this ) {
         add_msg( m_info, fail_messages[0] );
-        add_msg( m_info, _( "%s reads aloud…" ), reader->disp_name() );
+        add_msg( m_info, _( "{} reads aloud…" ), reader->disp_name() );
     } else if( !learners.empty() || !fun_learners.empty() ) {
         add_msg( m_info, _( "You read aloud…" ) );
     }
 
     if( learners.size() == 1 ) {
-        add_msg( m_info, _( "%s studies with you." ), learners.begin()->first->disp_name() );
+        add_msg( m_info, _( "{} studies with you." ), learners.begin()->first->disp_name() );
     } else if( !learners.empty() ) {
         const std::string them = enumerate_as_string( learners.begin(),
         learners.end(), [&]( const std::pair<npc *, std::string> &elem ) {
             return elem.first->disp_name();
         } );
-        add_msg( m_info, _( "%s study with you." ), them );
+        add_msg( m_info, _( "{} study with you." ), them );
     }
 
     // Don't include the reader as it would be too redundant.
@@ -631,15 +631,15 @@ bool avatar::read( item_location &book, item_location ereader )
     }
 
     if( readers.size() == 1 ) {
-        add_msg( m_info, _( "%s reads with you for fun." ), readers.begin()->c_str() );
+        add_msg( m_info, _( "{} reads with you for fun." ), readers.begin()->c_str() );
     } else if( !readers.empty() ) {
         const std::string them = enumerate_as_string( readers );
-        add_msg( m_info, _( "%s read with you for fun." ), them );
+        add_msg( m_info, _( "{} read with you for fun." ), them );
     }
 
     if( std::min( fine_detail_vision_mod(), reader->fine_detail_vision_mod() ) > 1.0 ) {
         add_msg( m_warning,
-                 _( "It's difficult for %s to see fine details right now.  Reading will take longer than usual." ),
+                 _( "It's difficult for {} to see fine details right now.  Reading will take longer than usual." ),
                  reader->disp_name() );
     }
 
@@ -649,7 +649,7 @@ bool avatar::read( item_location &book, item_location ereader )
     const Character *complex_player = reader->get_int() < intelligence ? reader : this;
     if( complex_penalty ) {
         add_msg( m_warning,
-                 _( "This book is too complex for %s to easily understand.  It will take longer to read." ),
+                 _( "This book is too complex for {} to easily understand.  It will take longer to read." ),
                  complex_player->disp_name() );
     }
 
@@ -738,35 +738,35 @@ void avatar::identify( const item &item )
     const auto &reading = item.type->book;
     const skill_id &skill = reading->skill;
 
-    add_msg( _( "You skim %s to find out what's in it." ), book.type_name() );
+    add_msg( _( "You skim {} to find out what's in it." ), book.type_name() );
     if( skill && get_skill_level_object( skill ).can_train() ) {
-        add_msg( m_info, _( "Can bring your %s knowledge to %d." ),
+        add_msg( m_info, _( "Can bring your {} knowledge to {}." ),
                  skill.obj().name(), reading->level );
         if( reading->req != 0 ) {
-            add_msg( m_info, _( "Requires %1$s knowledge level %2$d to understand." ),
+            add_msg( m_info, _( "Requires {1} knowledge level {2} to understand." ),
                      skill.obj().name(), reading->req );
         }
     }
 
     if( reading->intel != 0 ) {
-        add_msg( m_info, _( "Requires intelligence of %d to easily read." ), reading->intel );
+        add_msg( m_info, _( "Requires intelligence of {} to easily read." ), reading->intel );
     }
     //It feels wrong to use a pointer to *this, but I can't find any other player pointers in this method.
     if( book_fun_for( book, *this ) != 0 ) {
-        add_msg( m_info, _( "Reading this book affects your morale by %d." ), book_fun_for( book, *this ) );
+        add_msg( m_info, _( "Reading this book affects your morale by {}." ), book_fun_for( book, *this ) );
     }
 
     if( book.type->use_methods.count( "MA_MANUAL" ) ) {
         const matype_id style_to_learn = martial_art_learned_from( *book.type );
-        add_msg( m_info, _( "You can learn %s style from it." ), style_to_learn->name );
-        add_msg( m_info, _( "This fighting style is %s to learn." ),
+        add_msg( m_info, _( "You can learn {} style from it." ), style_to_learn->name );
+        add_msg( m_info, _( "This fighting style is {} to learn." ),
                  martialart_difficulty( style_to_learn ) );
-        add_msg( m_info, _( "It would be easier to master if you'd have skill expertise in %s." ),
+        add_msg( m_info, _( "It would be easier to master if you'd have skill expertise in {}." ),
                  style_to_learn->primary_skill->name() );
-        add_msg( m_info, _( "A training session with this book takes %s." ),
+        add_msg( m_info, _( "A training session with this book takes {}." ),
                  to_string_clipped( reading->time ) );
     } else {
-        add_msg( m_info, _( "A chapter of this book takes %s to read." ),
+        add_msg( m_info, _( "A chapter of this book takes {} to read." ),
                  to_string_clipped( reading->time ) );
     }
 
@@ -784,11 +784,11 @@ void avatar::identify( const item &item )
         }
     }
     if( !crafting_recipes.empty() ) {
-        add_msg( m_info, string_format( _( "This book can help you craft: %s" ),
+        add_msg( m_info, string_format( _( "This book can help you craft: {}" ),
                                         enumerate_as_string( crafting_recipes ) ) );
     }
     if( !practice_recipes.empty() ) {
-        add_msg( m_info, string_format( _( "This book can help you practice: %s" ),
+        add_msg( m_info, string_format( _( "This book can help you practice: {}" ),
                                         enumerate_as_string( practice_recipes ) ) );
     }
     const std::size_t num_total_recipes = crafting_recipes.size() + practice_recipes.size();
@@ -889,7 +889,7 @@ nc_color avatar::basic_symbol_color() const
 int avatar::print_info( const catacurses::window &w, int vStart, int, int column ) const
 {
     return vStart + fold_and_print( w, point( column, vStart ), getmaxx( w ) - column - 1, c_dark_gray,
-                                    _( "You (%s)" ),
+                                    _( "You ({})" ),
                                     get_name() ) - 1;
 }
 
@@ -1138,7 +1138,7 @@ void avatar::upgrade_stat_prompt( const character_stat &stat )
         if( lvl >= xp_cutoffs.size() ) {
             popup( _( "You've already reached maximum level." ) );
         } else {
-            popup( _( "Needs %d more experience to gain next level." ), xp_cutoffs[lvl] - kill_xp );
+            popup( _( "Needs {} more experience to gain next level." ), xp_cutoffs[lvl] - kill_xp );
         }
         return;
     }
@@ -1165,7 +1165,7 @@ void avatar::upgrade_stat_prompt( const character_stat &stat )
             return;
     }
 
-    if( query_yn( _( "Are you sure you want to raise %s?  %d points available." ), stat_string,
+    if( query_yn( _( "Are you sure you want to raise {}?  {} points available." ), stat_string,
                   free_points ) ) {
         switch( stat ) {
             case character_stat::STRENGTH:
@@ -1400,7 +1400,7 @@ bool avatar::wield( item &target, const int obtain_cost )
         target.on_takeoff( *this );
     }
 
-    add_msg_debug( debugmode::DF_AVATAR, "wielding took %d moves", mv );
+    add_msg_debug( debugmode::DF_AVATAR, "wielding took {} moves", mv );
     moves -= mv;
 
     if( has_item( target ) ) {
@@ -1450,7 +1450,7 @@ bool avatar::invoke_item( item *used, const tripoint &pt, int pre_obtain_moves )
 
     uilist umenu;
 
-    umenu.text = string_format( _( "What to do with your %s?" ), used->tname() );
+    umenu.text = string_format( _( "What to do with your {}?" ), used->tname() );
     umenu.hilight_disabled = true;
 
     for( const auto &e : use_methods ) {
@@ -1620,7 +1620,7 @@ std::string avatar::total_daily_calories_string() const
         colorize( "  Day  Sleep None Light Moderate Brisk Active Extra    Gained  Spent  Total",
                   c_yellow ) + "\n";
     const std::string format_string =
-        " %4d  %4d   %4d  %4d     %4d  %4d   %4d  %4d    %6d %6d";
+        " {}  {}   {}  {}     {}  {}   {}  {}    {} {}";
 
     const float no_ex_thresh = ( SLEEP_EXERCISE + NO_EXERCISE ) / 2.0f;
     const float light_ex_thresh = ( NO_EXERCISE + LIGHT_EXERCISE ) / 2.0f;
@@ -1680,7 +1680,7 @@ std::string avatar::total_daily_calories_string() const
         }
 
         // Color-code each day's net calories
-        std::string total_kcals = string_format( " %6d", day.total() );
+        std::string total_kcals = string_format( " {}", day.total() );
         if( day.total() > 4000 ) {
             ret += colorize( total_kcals, c_light_cyan );
         } else if( day.total() > 2000 ) {
@@ -1782,19 +1782,19 @@ void avatar::add_pain_msg( int val, const bodypart_id &bp ) const
         }
     } else {
         if( val > 20 ) {
-            add_msg_if_player( _( "Your %s is wracked with excruciating pain!" ),
+            add_msg_if_player( _( "Your {} is wracked with excruciating pain!" ),
                                body_part_name_accusative( bp ) );
         } else if( val > 10 ) {
-            add_msg_if_player( _( "Your %s is wracked with terrible pain!" ),
+            add_msg_if_player( _( "Your {} is wracked with terrible pain!" ),
                                body_part_name_accusative( bp ) );
         } else if( val > 5 ) {
-            add_msg_if_player( _( "Your %s is wracked with pain!" ),
+            add_msg_if_player( _( "Your {} is wracked with pain!" ),
                                body_part_name_accusative( bp ) );
         } else if( val > 1 ) {
-            add_msg_if_player( _( "Your %s pains you!" ),
+            add_msg_if_player( _( "Your {} pains you!" ),
                                body_part_name_accusative( bp ) );
         } else {
-            add_msg_if_player( _( "Your %s aches." ),
+            add_msg_if_player( _( "Your {} aches." ),
                                body_part_name_accusative( bp ) );
         }
     }
@@ -1832,9 +1832,9 @@ bool character_martial_arts::pick_style( const avatar &you ) // Style selection 
     uilist kmenu;
     kmenu.text = string_format( _( "Select a style.\n"
                                    "\n"
-                                   "STR: <color_white>%d</color>, DEX: <color_white>%d</color>, "
-                                   "PER: <color_white>%d</color>, INT: <color_white>%d</color>\n"
-                                   "Press [<color_yellow>%s</color>] for more info.\n" ),
+                                   "STR: <color_white>{}</color>, DEX: <color_white>{}</color>, "
+                                   "PER: <color_white>{}</color>, INT: <color_white>{}</color>\n"
+                                   "Press [<color_yellow>{}</color>] for more info.\n" ),
                                 you.get_str(), you.get_dex(), you.get_per(), you.get_int(),
                                 ctxt.get_desc( "SHOW_DESCRIPTION" ) );
     ma_style_callback callback( static_cast<size_t>( STYLE_OFFSET ), selectable_styles );
@@ -1997,20 +1997,20 @@ void avatar::try_to_sleep( const time_duration &dur )
     } else if( !plantsleep && !fungaloid_cosplay && !watersleep ) {
         if( !vp && ter_at_pos != t_floor ) {
             add_msg_if_player( ter_at_pos.obj().movecost <= 2 ?
-                               _( "It's a little hard to get to sleep on this %s." ) :
-                               _( "It's hard to get to sleep on this %s." ),
+                               _( "It's a little hard to get to sleep on this {}." ) :
+                               _( "It's hard to get to sleep on this {}." ),
                                ter_at_pos.obj().name() );
         } else if( vp ) {
             if( vp->part_with_feature( VPFLAG_AISLE, true ) ) {
                 add_msg_if_player(
-                    //~ %1$s: vehicle name, %2$s: vehicle part name
-                    _( "It's a little hard to get to sleep on this %2$s in %1$s." ),
+                    //~ {1}: vehicle name, {2}: vehicle part name
+                    _( "It's a little hard to get to sleep on this {2} in {1}." ),
                     vp->vehicle().disp_name(),
                     vp->part_with_feature( VPFLAG_AISLE, true )->part().name( false ) );
             } else {
                 add_msg_if_player(
-                    //~ %1$s: vehicle name
-                    _( "It's hard to get to sleep in %1$s." ),
+                    //~ {1}: vehicle name
+                    _( "It's hard to get to sleep in {1}." ),
                     vp->vehicle().disp_name() );
             }
         }

@@ -10,14 +10,14 @@ bool one_char_symbol_reader( const JsonObject &jo, const std::string &member_nam
     if( sym_as_string.size() != 1 ) {
         jo.throw_error_at(
             member_name,
-            string_format( "%s must be exactly one ASCII character but was %zu bytes",
+            string_format( "{} must be exactly one ASCII character but was {} bytes",
                            member_name, sym_as_string.size() ) );
     }
     uint8_t c = sym_as_string.front();
     if( c > 127 ) {
         jo.throw_error_at(
             member_name,
-            string_format( "%s must be exactly one ASCII character but was non-ASCII (%u)",
+            string_format( "{} must be exactly one ASCII character but was non-ASCII ({})",
                            member_name, c ) );
     }
     sym = c;

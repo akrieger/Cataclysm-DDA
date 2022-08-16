@@ -199,13 +199,13 @@ TEST_CASE( "Nested monster groups spawn chance", "[mongroup]" )
     }
 
     for( const auto &lyr : layers ) {
-        INFO( string_format( "layer %d - expected vs. actual", lyr.first ) );
+        INFO( string_format( "layer {} - expected vs. actual", lyr.first ) );
         CHECK( lyr.second.first ==
                Approx( static_cast<float>( lyr.second.second ) / iters ).epsilon( 0.5 ) );
     }
 
     for( const auto &res : results ) {
-        INFO( string_format( "monster %s - expected vs. actual", res.first.c_str() ) );
+        INFO( string_format( "monster {} - expected vs. actual", res.first.c_str() ) );
         CHECK( std::get<1>( res.second ) ==
                Approx( static_cast<float>( std::get<2>( res.second ) ) / iters ).epsilon( 0.5 ) );
     }

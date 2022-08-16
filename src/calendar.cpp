@@ -71,7 +71,7 @@ std::string enum_to_string<moon_phase>( moon_phase phase_num )
         case moon_phase::MOON_WANING_GIBBOUS: return "MOON_WANING_GIBBOUS";
         case moon_phase::MOON_PHASE_MAX: break;
     }
-    cata_fatal( "Invalid moon_phase %d", phase_num );
+    cata_fatal( "Invalid moon_phase {}", phase_num );
 }
 template<>
 std::string enum_to_string<time_accuracy>( time_accuracy acc )
@@ -195,7 +195,7 @@ std::pair<units::angle, units::angle> sun_azimuth_altitude(
 
     // Use a two-step transformation to convert equatorial coordinates to
     // horizontal.
-    // https://en.wikipedia.org/wiki/Celestial_coordinate_system#Equatorial_%E2%86%94_horizontal
+    // https://en.wikipedia.org/wiki/Celestial_coordinate_system#Equatorial_{}{}{}
     const rl_vec3d intermediate(
         cos( hour_angle ) * cos( declination ),
         sin( hour_angle ) * cos( declination ),
@@ -222,9 +222,9 @@ std::pair<units::angle, units::angle> sun_azimuth_altitude(
 
     /*printf(
         "\n"
-        "right_ascension = %f, declination = %f\n"
-        "sidereal_time = %f, hour_angle = %f\n"
-        "aziumth = %f, altitude = %f\n",
+        "right_ascension = {}, declination = {}\n"
+        "sidereal_time = {}, hour_angle = {}\n"
+        "aziumth = {}, altitude = {}\n",
         to_degrees( right_ascension ), to_degrees( declination ),
         to_degrees( sidereal_time ), to_degrees( hour_angle ),
         to_degrees( azimuth ), to_degrees( altitude ) );*/
@@ -414,19 +414,19 @@ static std::string to_string_clipped( const int num, const clipped_unit type,
                 case clipped_unit::forever:
                     return _( "forever" );
                 case clipped_unit::second:
-                    return string_format( n_gettext( "%d second", "%d seconds", num ), num );
+                    return string_format( n_gettext( "{} second", "{} seconds", num ), num );
                 case clipped_unit::minute:
-                    return string_format( n_gettext( "%d minute", "%d minutes", num ), num );
+                    return string_format( n_gettext( "{} minute", "{} minutes", num ), num );
                 case clipped_unit::hour:
-                    return string_format( n_gettext( "%d hour", "%d hours", num ), num );
+                    return string_format( n_gettext( "{} hour", "{} hours", num ), num );
                 case clipped_unit::day:
-                    return string_format( n_gettext( "%d day", "%d days", num ), num );
+                    return string_format( n_gettext( "{} day", "{} days", num ), num );
                 case clipped_unit::week:
-                    return string_format( n_gettext( "%d week", "%d weeks", num ), num );
+                    return string_format( n_gettext( "{} week", "{} weeks", num ), num );
                 case clipped_unit::season:
-                    return string_format( n_gettext( "%d season", "%d seasons", num ), num );
+                    return string_format( n_gettext( "{} season", "{} seasons", num ), num );
                 case clipped_unit::year:
-                    return string_format( n_gettext( "%d year", "%d years", num ), num );
+                    return string_format( n_gettext( "{} year", "{} years", num ), num );
             }
         case clipped_align::right:
             switch( type ) {
@@ -436,25 +436,25 @@ static std::string to_string_clipped( const int num, const clipped_unit type,
                     return _( "    forever" );
                 case clipped_unit::second:
                     //~ Right-aligned time string. should right-align with other strings with this same comment
-                    return string_format( n_gettext( "%3d  second", "%3d seconds", num ), num );
+                    return string_format( n_gettext( "{}  second", "{} seconds", num ), num );
                 case clipped_unit::minute:
                     //~ Right-aligned time string. should right-align with other strings with this same comment
-                    return string_format( n_gettext( "%3d  minute", "%3d minutes", num ), num );
+                    return string_format( n_gettext( "{}  minute", "{} minutes", num ), num );
                 case clipped_unit::hour:
                     //~ Right-aligned time string. should right-align with other strings with this same comment
-                    return string_format( n_gettext( "%3d    hour", "%3d   hours", num ), num );
+                    return string_format( n_gettext( "{}    hour", "{}   hours", num ), num );
                 case clipped_unit::day:
                     //~ Right-aligned time string. should right-align with other strings with this same comment
-                    return string_format( n_gettext( "%3d     day", "%3d    days", num ), num );
+                    return string_format( n_gettext( "{}     day", "{}    days", num ), num );
                 case clipped_unit::week:
                     //~ Right-aligned time string. should right-align with other strings with this same comment
-                    return string_format( n_gettext( "%3d    week", "%3d   weeks", num ), num );
+                    return string_format( n_gettext( "{}    week", "{}   weeks", num ), num );
                 case clipped_unit::season:
                     //~ Right-aligned time string. should right-align with other strings with this same comment
-                    return string_format( n_gettext( "%3d  season", "%3d seasons", num ), num );
+                    return string_format( n_gettext( "{}  season", "{} seasons", num ), num );
                 case clipped_unit::year:
                     //~ Right-aligned time string. should right-align with other strings with this same comment
-                    return string_format( n_gettext( "%3d    year", "%3d   years", num ), num );
+                    return string_format( n_gettext( "{}    year", "{}   years", num ), num );
             }
         case clipped_align::compact:
             switch( type ) {
@@ -462,19 +462,19 @@ static std::string to_string_clipped( const int num, const clipped_unit type,
                 case clipped_unit::forever:
                     return _( "forever" );
                 case clipped_unit::second:
-                    return string_format( n_gettext( "%d sec", "%d secs", num ), num );
+                    return string_format( n_gettext( "{} sec", "{} secs", num ), num );
                 case clipped_unit::minute:
-                    return string_format( n_gettext( "%d min", "%d mins", num ), num );
+                    return string_format( n_gettext( "{} min", "{} mins", num ), num );
                 case clipped_unit::hour:
-                    return string_format( n_gettext( "%d hr", "%d hrs", num ), num );
+                    return string_format( n_gettext( "{} hr", "{} hrs", num ), num );
                 case clipped_unit::day:
-                    return string_format( n_gettext( "%d day", "%d days", num ), num );
+                    return string_format( n_gettext( "{} day", "{} days", num ), num );
                 case clipped_unit::week:
-                    return string_format( n_gettext( "%d wk", "%d wks", num ), num );
+                    return string_format( n_gettext( "{} wk", "{} wks", num ), num );
                 case clipped_unit::season:
-                    return string_format( n_gettext( "%d seas", "%d seas", num ), num );
+                    return string_format( n_gettext( "{} seas", "{} seas", num ), num );
                 case clipped_unit::year:
-                    return string_format( n_gettext( "%d yr", "%d yrs", num ), num );
+                    return string_format( n_gettext( "{} yr", "{} yrs", num ), num );
             }
     }
 }
@@ -549,13 +549,13 @@ std::string to_string( const time_duration &d, const bool compact )
 
     if( d % divider != 0_turns ) {
         if( compact ) {
-            //~ %1$s - greater units of time (e.g. 3 hours), %2$s - lesser units of time (e.g. 11 minutes).
-            return string_format( pgettext( "time duration", "%1$s %2$s" ),
+            //~ {1} - greater units of time (e.g. 3 hours), {2} - lesser units of time (e.g. 11 minutes).
+            return string_format( pgettext( "time duration", "{1} {2}" ),
                                   to_string_clipped( d, clipped_align::compact ),
                                   to_string_clipped( d % divider, clipped_align::compact ) );
         } else {
-            //~ %1$s - greater units of time (e.g. 3 hours), %2$s - lesser units of time (e.g. 11 minutes).
-            return string_format( _( "%1$s and %2$s" ),
+            //~ {1} - greater units of time (e.g. 3 hours), {2} - lesser units of time (e.g. 11 minutes).
+            return string_format( _( "{1} and {2}" ),
                                   to_string_clipped( d ),
                                   to_string_clipped( d % divider ) );
         }
@@ -590,28 +590,28 @@ std::string to_string_approx( const time_duration &dur, const bool verbose )
             d += divider;
         } else if( remainder > vicinity ) {
             if( remainder < divider / 2 ) {
-                //~ %s - time (e.g. 2 hours).
-                return make_result( d, _( "more than %s" ), ">%s" );
+                //~ {} - time (e.g. 2 hours).
+                return make_result( d, _( "more than {}" ), ">{}" );
             } else {
-                //~ %s - time (e.g. 2 hours).
-                return make_result( d + divider, _( "less than %s" ), "<%s" );
+                //~ {} - time (e.g. 2 hours).
+                return make_result( d + divider, _( "less than {}" ), "<{}" );
             }
         }
     }
-    //~ %s - time (e.g. 2 hours).
-    return make_result( d, _( "about %s" ), "%s" );
+    //~ {} - time (e.g. 2 hours).
+    return make_result( d, _( "about {}" ), "{}" );
 }
 
 std::string to_string_writable( const time_duration &dur )
 {
     if( dur % 1_days == 0_seconds ) {
-        return string_format( "%d d", static_cast<int>( dur / 1_days ) );
+        return string_format( "{} d", static_cast<int>( dur / 1_days ) );
     } else if( dur % 1_hours == 0_seconds ) {
-        return string_format( "%d h", static_cast<int>( dur / 1_hours ) );
+        return string_format( "{} h", static_cast<int>( dur / 1_hours ) );
     } else if( dur % 1_minutes == 0_seconds ) {
-        return string_format( "%d m", static_cast<int>( dur / 1_minutes ) );
+        return string_format( "{} m", static_cast<int>( dur / 1_minutes ) );
     } else {
-        return string_format( "%d s", static_cast<int>( dur / 1_seconds ) );
+        return string_format( "{} s", static_cast<int>( dur / 1_seconds ) );
     }
 }
 
@@ -623,10 +623,10 @@ std::string to_string_time_of_day( const time_point &p )
     const std::string format_type = get_option<std::string>( "24_HOUR" );
 
     if( format_type == "military" ) {
-        return string_format( "%02d%02d.%02d", hour, minute, second );
+        return string_format( "{}{}.{}", hour, minute, second );
     } else if( format_type == "24h" ) {
         //~ hour:minute (24hr time display)
-        return string_format( _( "%02d:%02d:%02d" ), hour, minute, second );
+        return string_format( _( "{}:{}:{}" ), hour, minute, second );
     } else {
         int hour_param = hour % 12;
         if( hour_param == 0 ) {
@@ -635,9 +635,9 @@ std::string to_string_time_of_day( const time_point &p )
         // Padding is removed as necessary to prevent clipping with SAFE notification in wide sidebar mode
         const std::string padding = hour_param < 10 ? " " : "";
         if( hour < 12 ) {
-            return string_format( _( "%d:%02d:%02d%sAM" ), hour_param, minute, second, padding );
+            return string_format( _( "{}:{}:{}{}" ), hour_param, minute, second, padding );
         } else {
-            return string_format( _( "%d:%02d:%02d%sPM" ), hour_param, minute, second, padding );
+            return string_format( _( "{}:{}:{}{}" ), hour_param, minute, second, padding );
         }
     }
 }
@@ -810,11 +810,11 @@ std::string to_string( const time_point &p )
     if( calendar::eternal_season() ) {
         const int day = to_days<int>( time_past_new_year( p ) );
         //~ 1 is the year, 2 is the day (of the *year*), 3 is the time of the day in its usual format
-        return string_format( _( "Year %1$d, day %2$d %3$s" ), year, day, time );
+        return string_format( _( "Year {1}, day {2} {3}" ), year, day, time );
     } else {
         const int day = day_of_season<int>( p ) + 1;
         //~ 1 is the year, 2 is the season name, 3 is the day (of the season), 4 is the time of the day in its usual format
-        return string_format( _( "Year %1$d, %2$s, day %3$d %4$s" ), year,
+        return string_format( _( "Year {1}, {2}, day {3} {4}" ), year,
                               calendar::name_season( season_of_year( p ) ), day, time );
     }
 }
@@ -830,16 +830,16 @@ std::string get_diary_time_since_str( const time_duration &turn_diff, time_accur
     switch( acc ) {
         case time_accuracy::FULL:
             if( days > 0 ) {
-                days_text = string_format( n_gettext( "%d day, ", "%d days, ", days ), days );
+                days_text = string_format( n_gettext( "{} day, ", "{} days, ", days ), days );
             }
             if( hours > 0 ) {
-                hours_text = string_format( n_gettext( "%d hour, ", "%d hours, ", hours ), hours );
+                hours_text = string_format( n_gettext( "{} hour, ", "{} hours, ", hours ), hours );
             }
-            minutes_text = string_format( n_gettext( "%d minute", "%d minutes", minutes ), minutes );
+            minutes_text = string_format( n_gettext( "{} minute", "{} minutes", minutes ), minutes );
             break;
         case time_accuracy::PARTIAL:
             if( days > 0 ) {
-                days_text = string_format( n_gettext( "%d day", "%d days", days ), days );
+                days_text = string_format( n_gettext( "{} day", "{} days", days ), days );
             } else if( hours > 0 ) {
                 //~ Estimate of how much time has passed since the last entry
                 days_text = _( "Less than a day" );
@@ -859,8 +859,8 @@ std::string get_diary_time_since_str( const time_duration &turn_diff, time_accur
             break;
 
     }
-    //~ %1$s is xx days, %2$s is xx hours, %3$s is xx minutes
-    return string_format( _( "%1$s%2$s%3$s since last entry" ), days_text, hours_text, minutes_text );
+    //~ {1} is xx days, {2} is xx hours, {3} is xx minutes
+    return string_format( _( "{1}{2}{3} since last entry" ), days_text, hours_text, minutes_text );
 }
 
 std::string get_diary_time_str( const time_point &turn, time_accuracy acc )
@@ -878,7 +878,7 @@ std::string get_diary_time_str( const time_point &turn, time_accuracy acc )
             //~ $2 = season
             //~ $3 = day of season
             //~ $4 = approximate time of day
-            return string_format( _( "Year %1$d, %2$s, day %3$d, %4$s" ), year,
+            return string_format( _( "Year {1}, {2}, day {3}, {4}" ), year,
                                   calendar::name_season( season_of_year( turn ) ),
                                   day, display::time_approx( turn ) );
         default:
@@ -901,10 +901,10 @@ std::string get_diary_time_str( const time_point &turn, time_accuracy acc )
                 seas_point = pgettext( "time of season", "Late" );
             }
             //~ Estimated day-of-season string: $1 = Early/Mid/Late, $2 = Spring/Summer/Fall/Winter
-            std::string season = string_format( _( "%1$s %2$s" ), seas_point,
+            std::string season = string_format( _( "{1} {2}" ), seas_point,
                                                 calendar::name_season( season_of_year( turn ) ) );
             //~ Time of year: $1 = year since Cataclysm, $2 = season
-            return string_format( _( "Year %1$d, %2$s" ), year, season );
+            return string_format( _( "Year {1}, {2}" ), year, season );
         }
     }
     return std::string();

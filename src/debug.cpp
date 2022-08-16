@@ -254,7 +254,7 @@ std::string filter_name( debug_filter value )
         // *INDENT-ON*
         case DF_LAST:
         default:
-            debugmsg( "Invalid DF_FILTER : %d", value );
+            debugmsg( "Invalid DF_FILTER : {}", value );
             return "DF_INVALID";
     }
 }
@@ -305,18 +305,18 @@ static void debug_error_prompt(
 
     std::string formatted_report =
         string_format( // developer-facing error report. INTENTIONALLY UNTRANSLATED!
-            " DEBUG    : %s\n\n"
-            " FUNCTION : %s\n"
-            " FILE     : %s\n"
-            " LINE     : %s\n"
-            " VERSION  : %s\n",
+            " DEBUG    : {}\n\n"
+            " FUNCTION : {}\n"
+            " FILE     : {}\n"
+            " LINE     : {}\n"
+            " VERSION  : {}\n",
             text, funcname, filename, line, getVersionString()
         );
 
 #if defined(BACKTRACE)
     std::string backtrace_instructions =
         string_format(
-            _( "See %s for a full stack backtrace" ),
+            _( "See {} for a full stack backtrace" ),
             PATH_INFO::debug()
         );
 #endif
@@ -332,17 +332,17 @@ static void debug_error_prompt(
     ui.on_screen_resize( init_window );
     const std::string message = string_format(
                                     "\n\n" // Looks nicer with some space
-                                    " %s\n" // translated user string: error notification
+                                    " {}\n" // translated user string: error notification
                                     " -----------------------------------------------------------\n"
-                                    "%s"
+                                    "{}"
                                     " -----------------------------------------------------------\n"
 #if defined(BACKTRACE)
-                                    " %s\n" // translated user string: where to find backtrace
+                                    " {}\n" // translated user string: where to find backtrace
 #endif
-                                    " %s\n" // translated user string: space to continue
-                                    " %s\n" // translated user string: ignore key
+                                    " {}\n" // translated user string: space to continue
+                                    " {}\n" // translated user string: ignore key
 #if defined(TILES)
-                                    " %s\n" // translated user string: copy
+                                    " {}\n" // translated user string: copy
 #endif // TILES
                                     , _( "An error has occurred!  Written below is the error report:" ),
                                     formatted_report,
@@ -358,7 +358,7 @@ static void debug_error_prompt(
     ui.on_redraw( [&]( const ui_adaptor & ) {
         catacurses::erase();
         fold_and_print( catacurses::stdscr, point_zero, getmaxx( catacurses::stdscr ), c_light_red,
-                        "%s", message );
+                        "{}", message );
         wnoutrefresh( catacurses::stdscr );
     } );
 
@@ -1549,7 +1549,7 @@ static std::string android_version()
         } else {
             value = std::string( buffer.data() );
         }
-        output.append( string_format( "%s: %s; ", entry.second, value ) );
+        output.append( string_format( "{}: {}; ", entry.second, value ) );
     }
     return output;
 }
@@ -1622,7 +1622,7 @@ static std::string mac_os_version()
             command_result.erase( std::remove( command_result.begin(), command_result.end(), '\n' ),
                                   command_result.end() );
         }
-        output.append( string_format( "%s: %s; ", entry.second, command_result ) );
+        output.append( string_format( "{}: {}; ", entry.second, command_result ) );
     }
     return output;
 }
@@ -1727,7 +1727,7 @@ static std::string windows_version()
                 RTL_OSVERSIONINFOW os_version_info = RTL_OSVERSIONINFOW();
                 os_version_info.dwOSVersionInfoSize = sizeof( RTL_OSVERSIONINFOW );
                 if( rtl_get_version_func.p( &os_version_info ) == 0 ) { // NT_STATUS_SUCCESS = 0
-                    output.append( string_format( "%i.%i %i", os_version_info.dwMajorVersion,
+                    output.append( string_format( "{}.{} {}", os_version_info.dwMajorVersion,
                                                   os_version_info.dwMinorVersion, os_version_info.dwBuildNumber ) );
                 }
             }
@@ -1798,7 +1798,7 @@ std::string game_info::mods_loaded()
     std::transform( mod_ids.begin(), mod_ids.end(),
     std::back_inserter( mod_names ), []( const mod_id & mod ) -> std::string {
         // e.g. "Dark Days Ahead [dda]".
-        return string_format( "%s [%s]", mod->name(), mod->ident.str() );
+        return string_format( "{} [{}]", mod->name(), mod->ident.str() );
     } );
 
     return join( mod_names, ",\n    " ); // note: 4 spaces for a slight offset.

@@ -391,7 +391,7 @@ void auto_note_manager_gui::show()
         wnoutrefresh( w_header );
 
         // TODO: Show info about custom symbols (hotkey, hint, state)
-        std::string header_info_custom_symbols = string_format( _( "<color_light_green>%1$s</color> %2$s" ),
+        std::string header_info_custom_symbols = string_format( _( "<color_light_green>{1}</color> {2}" ),
                 ctx.get_desc( "CHANGE_MAPEXTRA_CHARACTER" ), _( "Change a symbol for map extra" ) );
         // NOLINTNEXTLINE(cata-use-named-point-constants)
         fold_and_print( w_header, point( 0, 1 ), FULL_SCREEN_WIDTH - 2, c_white,
@@ -466,17 +466,17 @@ void auto_note_manager_gui::show()
                     wprintz( w, c_yellow, "   " );
                 }
 
-                wprintz( w, lineColor, "%s", cacheEntry.first.name() );
+                wprintz( w, lineColor, "{}", cacheEntry.first.name() );
 
                 // Print the character this map extra is indicated by on the map
-                mvwprintz( w, point( 55, i - startPosition ), charColor, "%s", displayChar );
+                mvwprintz( w, point( 55, i - startPosition ), charColor, "{}", displayChar );
                 if( has_custom_symbol ) {
                     mvwprintz( w, point( 56, i - startPosition ), c_white, "*" );
                 }
                 // Since yes is longer than no, we need to clear the space for the status string before
                 // displaying the current text. Otherwise artifacts might occur.
                 mvwprintz( w, point( 64, i - startPosition ), statusColor, "     " );
-                mvwprintz( w, point( 64, i - startPosition ), statusColor, "%s", statusString );
+                mvwprintz( w, point( 64, i - startPosition ), statusColor, "{}", statusString );
             }
         }
 
@@ -563,7 +563,7 @@ void auto_note_manager_gui::show()
                     int i = 0;
                     const std::unordered_map<std::string, note_color> &note_color_names = get_note_color_names();
                     for( const std::pair<const std::string, note_color> &color_pair : note_color_names ) {
-                        ui_colors.addentry( string_format( pgettext( "note color", "%1$s:%2$s, " ), color_pair.first,
+                        ui_colors.addentry( string_format( pgettext( "note color", "{1}:{2}, " ), color_pair.first,
                                                            colorize( color_pair.second.name, color_pair.second.color ) ) );
                         if( entry.first.color == color_pair.second.color ) {
                             ui_colors.selected = i;
@@ -575,7 +575,7 @@ void auto_note_manager_gui::show()
                     const color_manager &colors = get_all_colors();
                     const std::string color_default_name = colors.get_name( color_default );
                     const translation color_yellow = to_translation( "color", "yellow" );
-                    ui_colors.addentry( string_format( _( "Default: %s" ),
+                    ui_colors.addentry( string_format( _( "Default: {}" ),
                                                        colorize( color_yellow.translated(), color_default ) ) );
 
                     ui_colors.query();

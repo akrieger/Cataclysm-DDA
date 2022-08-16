@@ -168,7 +168,7 @@ void Character::toggle_trait( const trait_id &trait_, const std::string &var_ )
     }
     // Checking this after toggling my_traits, if we exit the two are now consistent.
     if( not_found_in_traits != not_found_in_mutations ) {
-        debugmsg( "my_traits and my_mutations were out of sync for %s\n", trait.str() );
+        debugmsg( "my_traits and my_mutations were out of sync for {}\n", trait.str() );
         return;
     }
     if( not_found_in_mutations ) {
@@ -447,14 +447,14 @@ void Character::mutation_effect( const trait_id &mut, const bool worn_destroyed_
         }
         if( !worn_destroyed_override && branch.destroys_gear ) {
             add_msg_player_or_npc( m_bad,
-                                   _( "Your %s is destroyed!" ),
-                                   _( "<npcname>'s %s is destroyed!" ),
+                                   _( "Your {} is destroyed!" ),
+                                   _( "<npcname>'s {} is destroyed!" ),
                                    armor.tname() );
             armor.spill_contents( pos() );
         } else {
             add_msg_player_or_npc( m_bad,
-                                   _( "Your %s is pushed off!" ),
-                                   _( "<npcname>'s %s is pushed off!" ),
+                                   _( "Your {} is pushed off!" ),
+                                   _( "<npcname>'s {} is pushed off!" ),
                                    armor.tname() );
             get_map().add_item_or_charges( pos(), armor );
         }
@@ -543,7 +543,7 @@ time_duration Character::get_cost_timer( const trait_id &mut ) const
     if( iter != my_mutations.end() ) {
         return iter->second.charge;
     } else {
-        debugmsg( "Tried to get cost timer of %s but doesn't have this mutation.", mut.c_str() );
+        debugmsg( "Tried to get cost timer of {} but doesn't have this mutation.", mut.c_str() );
     }
     return 0_turns;
 }
@@ -554,7 +554,7 @@ void Character::set_cost_timer( const trait_id &mut, time_duration set )
     if( iter != my_mutations.end() ) {
         iter->second.charge = set;
     } else {
-        debugmsg( "Tried to set cost timer of %s but doesn't have this mutation.", mut.c_str() );
+        debugmsg( "Tried to set cost timer of {} but doesn't have this mutation.", mut.c_str() );
     }
 }
 
@@ -669,7 +669,7 @@ void Character::activate_mutation( const trait_id &mut )
     // Fatigue can go to Exhausted.
     if( !can_power_mutation( mut ) ) {
         // Insufficient Foo to *maintain* operation is handled in player::suffer
-        add_msg_if_player( m_warning, _( "You feel like using your %s would kill you!" ),
+        add_msg_if_player( m_warning, _( "You feel like using your {} would kill you!" ),
                            mutation_name( mut ) );
         return;
     }
@@ -821,7 +821,7 @@ void Character::activate_mutation( const trait_id &mut )
         int npower;
         if( query_int( npower, "Modify bionic power by how much?  (Values are in millijoules)" ) ) {
             mod_power_level( units::from_millijoule( npower ) );
-            add_msg_if_player( m_good, _( "Bionic power increased by %dmJ." ), npower );
+            add_msg_if_player( m_good, _( "Bionic power increased by {}." ), npower );
             tdata.powered = false;
         }
         return;
@@ -1286,7 +1286,7 @@ bool Character::mutate_towards( const trait_id &mut, const mutation_category_id 
     // if it somehow does, because otherwise nobody will ever notice
     if( ( mut_has_prereq1 && !c_has_prereq1 && prereqs1.empty() ) ||
         ( mut_has_prereq2 && !c_has_prereq2 && prereqs2.empty() ) ) {
-        debugmsg( "Failed to mutate towards %s because a prerequisite is needed but none are available in category %s",
+        debugmsg( "Failed to mutate towards {} because a prerequisite is needed but none are available in category {}",
                   mdata.id.c_str(), mut_cat.c_str() );
         return false;
     }
@@ -1403,21 +1403,21 @@ bool Character::mutate_towards( const trait_id &mut, const mutation_category_id 
         // Both new and old mutation visible
         if( mdata.player_display && replace_mdata.player_display ) {
             add_msg_player_or_npc( rating,
-                                   _( "Your %1$s mutation turns into %2$s!" ),
-                                   _( "<npcname>'s %1$s mutation turns into %2$s!" ),
+                                   _( "Your {1} mutation turns into {2}!" ),
+                                   _( "<npcname>'s {1} mutation turns into {2}!" ),
                                    lost_name, gained_name );
         }
         // New mutation visible, precursor invisible
         if( mdata.player_display && !replace_mdata.player_display ) {
             add_msg_player_or_npc( rating,
-                                   _( "You gain a mutation called %s!" ),
-                                   _( "<npcname> gains a mutation called %s!" ),
+                                   _( "You gain a mutation called {}!" ),
+                                   _( "<npcname> gains a mutation called {}!" ),
                                    gained_name );
         }
         // Precursor visible, new mutation invisible
         if( !mdata.player_display && replace_mdata.player_display ) {
-            add_msg_player_or_npc( rating, _( "You lose your %s mutation." ),
-                                   _( "<npcname> loses their %s mutation." ), lost_name );
+            add_msg_player_or_npc( rating, _( "You lose your {} mutation." ),
+                                   _( "<npcname> loses their {} mutation." ), lost_name );
         }
         get_event_bus().send<event_type::evolves_mutation>( getID(), replace_mdata.id, mdata.id );
         unset_mutation( replacing );
@@ -1438,22 +1438,22 @@ bool Character::mutate_towards( const trait_id &mut, const mutation_category_id 
         // Both new and old mutation visible
         if( mdata.player_display && replace_mdata.player_display ) {
             add_msg_player_or_npc( rating,
-                                   _( "Your %1$s mutation turns into %2$s!" ),
-                                   _( "<npcname>'s %1$s mutation turns into %2$s!" ),
+                                   _( "Your {1} mutation turns into {2}!" ),
+                                   _( "<npcname>'s {1} mutation turns into {2}!" ),
                                    lost_name, gained_name );
         }
         // New mutation visible, precursor invisible
         if( mdata.player_display && !replace_mdata.player_display ) {
             add_msg_player_or_npc( rating,
-                                   _( "You gain a mutation called %s!" ),
-                                   _( "<npcname> gains a mutation called %s!" ),
+                                   _( "You gain a mutation called {}!" ),
+                                   _( "<npcname> gains a mutation called {}!" ),
                                    gained_name );
         }
         // Precursor visible, new mutation invisible
         if( !mdata.player_display && replace_mdata.player_display ) {
             add_msg_player_or_npc( rating,
-                                   _( "You lose your %s mutation." ),
-                                   _( "<npcname> loses their %s mutation." ), lost_name );
+                                   _( "You lose your {} mutation." ),
+                                   _( "<npcname> loses their {} mutation." ), lost_name );
         }
         get_event_bus().send<event_type::evolves_mutation>( getID(), replace_mdata.id, mdata.id );
         unset_mutation( replacing2 );
@@ -1474,13 +1474,13 @@ bool Character::mutate_towards( const trait_id &mut, const mutation_category_id 
         // If this new mutation cancels a base trait, remove it and add the mutation at the same time
         if( mdata.player_display ) {
             add_msg_player_or_npc( rating,
-                                   _( "Your innate %1$s trait turns into %2$s!" ),
-                                   _( "<npcname>'s innate %1$s trait turns into %2$s!" ),
+                                   _( "Your innate {1} trait turns into {2}!" ),
+                                   _( "<npcname>'s innate {1} trait turns into {2}!" ),
                                    lost_name, gained_name );
         } else {
             add_msg_player_or_npc( rating,
-                                   _( "You lose your innate %1$s trait!" ),
-                                   _( "<npcname> loses their innate %1$s trait!" ),
+                                   _( "You lose your innate {1} trait!" ),
+                                   _( "<npcname> loses their innate {1} trait!" ),
                                    lost_name );
         }
         get_event_bus().send<event_type::evolves_mutation>( getID(), cancel_mdata.id, mdata.id );
@@ -1500,8 +1500,8 @@ bool Character::mutate_towards( const trait_id &mut, const mutation_category_id 
         // Only print a message on visible mutations
         if( mdata.player_display ) {
             add_msg_player_or_npc( rating,
-                                   _( "You gain a mutation called %s!" ),
-                                   _( "<npcname> gains a mutation called %s!" ),
+                                   _( "You gain a mutation called {}!" ),
+                                   _( "<npcname> gains a mutation called {}!" ),
                                    gained_name );
         }
         get_event_bus().send<event_type::gains_mutation>( getID(), mdata.id );
@@ -1741,22 +1741,22 @@ void Character::remove_mutation( const trait_id &mut, bool silent )
             // Both visible
             if( mdata.player_display && replace_mdata.player_display ) {
                 add_msg_player_or_npc( rating,
-                                       _( "Your %1$s mutation turns into %2$s." ),
-                                       _( "<npcname>'s %1$s mutation turns into %2$s." ),
+                                       _( "Your {1} mutation turns into {2}." ),
+                                       _( "<npcname>'s {1} mutation turns into {2}." ),
                                        lost_name, replace_name );
             }
             // Old trait invisible, new visible
             if( !mdata.player_display && replace_mdata.player_display ) {
                 add_msg_player_or_npc( rating,
-                                       _( "You gain a mutation called %s!" ),
-                                       _( "<npcname> gains a mutation called %s!" ),
+                                       _( "You gain a mutation called {}!" ),
+                                       _( "<npcname> gains a mutation called {}!" ),
                                        replace_name );
             }
             // Old trait visible, new invisible
             if( mdata.player_display && !replace_mdata.player_display ) {
                 add_msg_player_or_npc( rating,
-                                       _( "You lose your %s mutation." ),
-                                       _( "<npcname> loses their %s mutation." ),
+                                       _( "You lose your {} mutation." ),
+                                       _( "<npcname> loses their {} mutation." ),
                                        lost_name );
             }
         }
@@ -1786,22 +1786,22 @@ void Character::remove_mutation( const trait_id &mut, bool silent )
             // Both visible
             if( mdata.player_display && replace_mdata.player_display ) {
                 add_msg_player_or_npc( rating,
-                                       _( "Your %1$s mutation turns into %2$s." ),
-                                       _( "<npcname>'s %1$s mutation turns into %2$s." ),
+                                       _( "Your {1} mutation turns into {2}." ),
+                                       _( "<npcname>'s {1} mutation turns into {2}." ),
                                        lost_name, replace_name );
             }
             // Old trait invisible, new visible
             if( !mdata.player_display && replace_mdata.player_display ) {
                 add_msg_player_or_npc( rating,
-                                       _( "You gain a mutation called %s!" ),
-                                       _( "<npcname> gains a mutation called %s!" ),
+                                       _( "You gain a mutation called {}!" ),
+                                       _( "<npcname> gains a mutation called {}!" ),
                                        replace_name );
             }
             // Old trait visible, new invisible
             if( mdata.player_display && !replace_mdata.player_display ) {
                 add_msg_player_or_npc( rating,
-                                       _( "You lose your %s mutation." ),
-                                       _( "<npcname> loses their %s mutation." ),
+                                       _( "You lose your {} mutation." ),
+                                       _( "<npcname> loses their {} mutation." ),
                                        lost_name );
             }
         }
@@ -1823,8 +1823,8 @@ void Character::remove_mutation( const trait_id &mut, bool silent )
         }
         if( !silent ) {
             add_msg_player_or_npc( rating,
-                                   _( "You lose your %s mutation." ),
-                                   _( "<npcname> loses their %s mutation." ),
+                                   _( "You lose your {} mutation." ),
+                                   _( "<npcname> loses their {} mutation." ),
                                    lost_name );
         }
     }

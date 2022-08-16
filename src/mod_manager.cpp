@@ -30,7 +30,7 @@ const MOD_INFORMATION &string_id<MOD_INFORMATION>::obj() const
     const auto &map = world_generator->get_mod_manager().mod_map;
     const auto iter = map.find( *this );
     if( iter == map.end() ) {
-        debugmsg( "Invalid mod %s requested", str() );
+        debugmsg( "Invalid mod {} requested", str() );
         static const MOD_INFORMATION dummy{};
         return dummy;
     }
@@ -47,8 +47,8 @@ std::string MOD_INFORMATION::name() const
 {
     if( name_.empty() ) {
         // "No name" gets confusing if many mods have no name
-        //~ name of a mod that has no name entry, (%s is the mods identifier)
-        return string_format( _( "No name (%s)" ), ident.c_str() );
+        //~ name of a mod that has no name entry, ({} is the mods identifier)
+        return string_format( _( "No name ({})" ), ident.c_str() );
     } else {
         return name_.translated();
     }
@@ -219,7 +219,7 @@ void mod_manager::load_modfile( const JsonObject &jo, const std::string &path )
     if( mod_map.count( m_ident ) > 0 ) {
         // TODO: change this to make unique ident for the mod
         // (instead of discarding it?)
-        debugmsg( "there is already a mod with ident %s", m_ident.c_str() );
+        debugmsg( "there is already a mod with ident {}", m_ident.c_str() );
         return;
     }
 
@@ -327,7 +327,7 @@ bool mod_manager::copy_mod_contents( const t_mod_list &mods_to_copy,
         }
 
         // create needed directories
-        const std::string cur_mod_dir = string_format( "%s/mod_%05d", output_base_path, i + 1 );
+        const std::string cur_mod_dir = string_format( "{}/mod_{}", output_base_path, i + 1 );
 
         std::queue<std::string> dir_to_make;
         dir_to_make.push( cur_mod_dir );

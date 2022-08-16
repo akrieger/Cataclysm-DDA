@@ -58,7 +58,7 @@ static void drop_or_embed_projectile( const dealt_projectile_attack &attack )
 
     if( effects.count( "SHATTER_SELF" ) ) {
         // Drop the contents, not the thrown item
-        add_msg_if_player_sees( pt, _( "The %s shatters!" ), drop_item.tname() );
+        add_msg_if_player_sees( pt, _( "The {} shatters!" ), drop_item.tname() );
 
         // copies the drop item to spill the contents
         item( drop_item ).spill_contents( pt );
@@ -73,7 +73,7 @@ static void drop_or_embed_projectile( const dealt_projectile_attack &attack )
         //between half and max_nb_of_shards-1 will be usable
         const int nb_of_dropped_shard = std::max( 0, rng( max_nb_of_shards / 2, max_nb_of_shards - 1 ) );
         //feel free to remove this msg_debug
-        /*add_msg_debug( "Shattered %s dropped %i shards out of a max of %i, based on mass %i g",
+        /*add_msg_debug( "Shattered {} dropped {} shards out of a max of {}, based on mass {} g",
                        drop_item.tname(), nb_of_dropped_shard, max_nb_of_shards - 1, to_gram( drop_item.type->weight ) );*/
 
         for( int i = 0; i < nb_of_dropped_shard; ++i ) {
@@ -87,7 +87,7 @@ static void drop_or_embed_projectile( const dealt_projectile_attack &attack )
 
     if( effects.count( "BURST" ) ) {
         // Drop the contents, not the thrown item
-        add_msg_if_player_sees( pt, _( "The %s bursts!" ), drop_item.tname() );
+        add_msg_if_player_sees( pt, _( "The {} bursts!" ), drop_item.tname() );
 
         // copies the drop item to spill the contents
         item( drop_item ).spill_contents( pt );
@@ -122,7 +122,7 @@ static void drop_or_embed_projectile( const dealt_projectile_attack &attack )
 
     if( embed ) {
         mon->add_item( dropped_item );
-        add_msg_if_player_sees( pt, _( "The %1$s embeds in %2$s!" ),
+        add_msg_if_player_sees( pt, _( "The {1} embeds in {2}!" ),
                                 dropped_item.tname(), mon->disp_name() );
     } else {
         bool do_drop = true;
@@ -301,7 +301,7 @@ dealt_projectile_attack projectile_attack( const projectile &proj_arg, const tri
     }
 
     add_msg_debug( debugmode::DF_BALLISTIC,
-                   "missed_by_tiles: %.2f; missed_by: %.2f; target (orig/hit): %d,%d,%d/%d,%d,%d",
+                   "missed_by_tiles: %.2f; missed_by: %.2f; target (orig/hit): {},{},{}/{},{},{}",
                    aim.missed_by_tiles, aim.missed_by,
                    target_arg.x, target_arg.y, target_arg.z,
                    target.x, target.y, target.z );
@@ -505,7 +505,7 @@ dealt_projectile_attack projectile_attack( const projectile &proj_arg, const tri
         } );
         if( mon_ptr ) {
             Creature &z = *mon_ptr;
-            add_msg( _( "The attack bounced to %s!" ), z.get_name() );
+            add_msg( _( "The attack bounced to {}!" ), z.get_name() );
             z.add_effect( effect_bounced, 1_turns );
             projectile_attack( proj, tp, z.pos(), dispersion, origin, in_veh );
             sfx::play_variant_sound( "fire_gun", "bio_lightning_tail",

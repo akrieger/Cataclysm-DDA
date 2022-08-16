@@ -128,7 +128,7 @@ bool repair_part( vehicle &veh, vehicle_part &pt, Character &who, const std::str
     // or able to drag a welding cart etc.
     map_inv.form_from_map( who.pos(), PICKUP_RANGE, &who, false, !who.is_npc() );
     if( !reqs.can_make_with_inventory( inv, is_crafting_component ) ) {
-        who.add_msg_if_player( m_info, _( "You don't meet the requirements to repair the %s." ),
+        who.add_msg_if_player( m_info, _( "You don't meet the requirements to repair the {}." ),
                                pt.name() );
         return false;
     }
@@ -174,8 +174,8 @@ bool repair_part( vehicle &veh, vehicle_part &pt, Character &who, const std::str
 
     // TODO: NPC doing that
     who.add_msg_if_player( m_good,
-                           wasbroken ? _( "You replace the %1$s's %2$s. (was %3$s)" ) :
-                           _( "You repair the %1$s's %2$s. (was %3$s)" ), veh.name,
+                           wasbroken ? _( "You replace the {1}'s {2}. (was {3})" ) :
+                           _( "You repair the {1}'s {2}. (was {3})" ), veh.name,
                            partname, startdurability );
     return true;
 }

@@ -47,7 +47,7 @@ struct tripoint;
 class iuse_transform : public iuse_actor
 {
     public:
-        /** displayed if player sees transformation with %s replaced by item name */
+        /** displayed if player sees transformation with {} replaced by item name */
         translation msg_transform;
 
         /** type of the resulting item */
@@ -86,13 +86,13 @@ class iuse_transform : public iuse_actor
         /** minimum number of fire charges required (if any) for transformation */
         int need_fire = 0;
 
-        /** displayed if item is in player possession with %s replaced by item name */
+        /** displayed if item is in player possession with {} replaced by item name */
         translation need_fire_msg;
 
         /** minimum charges (if any) required for transformation */
         int need_charges = 0;
 
-        /** displayed if item is in player possession with %s replaced by item name */
+        /** displayed if item is in player possession with {} replaced by item name */
         translation need_charges_msg;
 
         /** Tool qualities needed, e.g. "fine bolt turning 1". **/
@@ -147,7 +147,7 @@ class countdown_actor : public iuse_actor
         /** turns before countdown action (defaults to @ref itype::countdown_interval) */
         int interval = 0;
 
-        /** message if player sees activation with %s replaced by item name */
+        /** message if player sees activation with {} replaced by item name */
         translation message;
 
         ~countdown_actor() override = default;

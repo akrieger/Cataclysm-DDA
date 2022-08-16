@@ -248,7 +248,7 @@ void recipe::load( const JsonObject &jo, const std::string &src )
     const auto it = activity_levels_map.find( exertion_str );
     if( it == activity_levels_map.end() ) {
         jo.throw_error_at(
-            "activity_level", string_format( "Invalid activity level %s", exertion_str ) );
+            "activity_level", string_format( "Invalid activity level {}", exertion_str ) );
     }
     exertion = it->second;
 
@@ -447,20 +447,20 @@ void recipe::finalize()
     std::set<proficiency_id> used;
     for( recipe_proficiency &rpof : proficiencies ) {
         if( !rpof.id.is_valid() ) {
-            debugmsg( "proficiency %s does not exist in recipe %s", rpof.id.str(), ident_.str() );
+            debugmsg( "proficiency {} does not exist in recipe {}", rpof.id.str(), ident_.str() );
         }
 
         if( rpof.required && rpof.time_multiplier != 0.0f ) {
-            debugmsg( "proficiencies in recipes cannot be both required and provide a malus in %s",
+            debugmsg( "proficiencies in recipes cannot be both required and provide a malus in {}",
                       rpof.id.str(), ident_.str() );
         }
         if( required.count( rpof.id ) || used.count( rpof.id ) ) {
-            debugmsg( "proficiency %s listed twice recipe %s", rpof.id.str(),
+            debugmsg( "proficiency {} listed twice recipe {}", rpof.id.str(),
                       ident_.str() );
         }
 
         if( rpof.time_multiplier < 1.0f && rpof.id->default_time_multiplier() < 1.0f ) {
-            debugmsg( "proficiency %s provides a time bonus for not being known in recipe %s.  Time multiplier: %s Default multiplier: %s",
+            debugmsg( "proficiency {} provides a time bonus for not being known in recipe {}.  Time multiplier: {} Default multiplier: {}",
                       rpof.id.str(), ident_.str(), rpof.time_multiplier, rpof.id->default_time_multiplier() );
         }
 
@@ -473,7 +473,7 @@ void recipe::finalize()
         }
 
         if( rpof.fail_multiplier < 1.0f && rpof.id->default_fail_multiplier() < 1.0f ) {
-            debugmsg( "proficiency %s provides a fail bonus for not being known in recipe %s  Fail multiplier: %s Default multiplier: %s",
+            debugmsg( "proficiency {} provides a fail bonus for not being known in recipe {}  Fail multiplier: {} Default multiplier: {}",
                       rpof.id.str(), ident_.str(), rpof.fail_multiplier, rpof.id->default_fail_multiplier() );
         }
 
@@ -727,15 +727,15 @@ static std::string profstring( const prof_penalty &prof,
     }
 
     if( prof.time_mult == 1.0f ) {
-        return string_format( _( "<color_%s>%s</color> (<color_%s>%.1fx\u00a0failure</color>%s)" ),
+        return string_format( _( "<color_{}>{}</color> (<color_{}>%.1fx\u00a0failure</color>{})" ),
                               name_color, prof.id->name(), color, prof.failure_mult, mitigated_str );
     } else if( prof.failure_mult == 1.0f ) {
-        return string_format( _( "<color_%s>%s</color> (<color_%s>%.1fx\u00a0time</color>%s)" ),
+        return string_format( _( "<color_{}>{}</color> (<color_{}>%.1fx\u00a0time</color>{})" ),
                               name_color, prof.id->name(), color, prof.time_mult, mitigated_str );
     }
 
     return string_format(
-               _( "<color_%s>%s</color> (<color_%s>%.1fx\u00a0time, %.1fx\u00a0failure</color>%s)" ),
+               _( "<color_{}>{}</color> (<color_{}>%.1fx\u00a0time, %.1fx\u00a0failure</color>{})" ),
                name_color, prof.id->name(), color, prof.time_mult, prof.failure_mult, mitigated_str );
 }
 
@@ -917,7 +917,7 @@ static std::string required_skills_as_string( const std::vector<std::pair<skill_
     [&]( const std::pair<skill_id, int> &skill ) {
         const int player_skill = c.get_skill_level( skill.first );
         std::string difficulty_color = skill.second > player_skill ? "yellow" : "green";
-        return string_format( "<color_cyan>%s</color> <color_%s>(%d/%d)</color>", skill.first->name(),
+        return string_format( "<color_cyan>{}</color> <color_{}>({}/{})</color>", skill.first->name(),
                               difficulty_color, player_skill, skill.second );
     } );
 }
@@ -931,7 +931,7 @@ static std::string required_skills_as_string( const std::vector<std::pair<skill_
     }
     return enumerate_as_string( skills,
     [&]( const std::pair<skill_id, int> &skill ) {
-        return string_format( "<color_white>%s (%d)</color>", skill.first->name(), skill.second );
+        return string_format( "<color_white>{} ({})</color>", skill.first->name(), skill.second );
     } );
 }
 
@@ -964,7 +964,7 @@ std::string recipe::required_all_skills_string() const
 std::string recipe::batch_savings_string() const
 {
     return ( batch_rsize != 0 ) ?
-           string_format( _( "%d%% at >%d units" ), static_cast<int>( batch_rscale * 100 ), batch_rsize )
+           string_format( _( "{}%% at >{} units" ), static_cast<int>( batch_rscale * 100 ), batch_rsize )
            : _( "none" );
 }
 
@@ -1142,14 +1142,14 @@ void recipe::check_blueprint_requirements()
 
         jsout.end_object();
 
-        debugmsg( "Specified blueprint requirements of %1$s does not match calculated requirements.\n"
+        debugmsg( "Specified blueprint requirements of {1} does not match calculated requirements.\n"
                   "Make one of the following changes to resolve this issue:\n"
                   "- Specify \"check_blueprint_needs\": false to disable the check.\n"
                   "- Remove \"blueprint_needs\" from the recipe json to have the requirements be autocalculated.\n"
                   "- Update \"blueprint_needs\" to the following value (you can use tools/update_blueprint_needs.py):\n"
                   // mark it for the auto-update python script
-                  "~~~ auto-update-blueprint: %1$s\n"
-                  "%2$s\n"
+                  "~~~ auto-update-blueprint: {1}\n"
+                  "{2}\n"
                   "~~~ end-auto-update",
                   ident_.str(), os.str() );
     }

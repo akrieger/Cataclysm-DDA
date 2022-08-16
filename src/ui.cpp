@@ -740,7 +740,7 @@ void uilist::show( ui_adaptor &ui )
     if( !textformatted.empty() ) {
         for( int i = 0; i < text_lines; i++ ) {
             trim_and_print( window, point( 2, 1 + i ), getmaxx( window ) - 4,
-                            text_color, _color_error, "%s", textformatted[i] );
+                            text_color, _color_error, "{}", textformatted[i] );
         }
 
         mvwputch( window, point( 0, text_lines + 1 ), border_color, LINE_XXXO );
@@ -776,7 +776,7 @@ void uilist::show( ui_adaptor &ui )
             if( entries[ei].hotkey.has_value() && entries[ei].hotkey.value() != input_event() ) {
                 const nc_color hotkey_co = ei == selected ? hilight_color : hotkey_color;
                 mvwprintz( window, point( pad_left + 1, estart + si ), entries[ ei ].enabled ? hotkey_co : co,
-                           "%s", right_justify( entries[ei].hotkey.value().short_description(), 2 ) );
+                           "{}", right_justify( entries[ei].hotkey.value().short_description(), 2 ) );
             }
             if( pad_size > 3 ) {
                 // pad_size indicates the maximal width of the entry, it is used above to
@@ -788,13 +788,13 @@ void uilist::show( ui_adaptor &ui )
                 point p( pad_left + 4, estart + si );
                 entries[ei].drawn_rect =
                     inclusive_rectangle<point>( p + point( -3, 0 ), p + point( -4 + pad_size, 0 ) );
-                trim_and_print( window, p, max_entry_len, co, _color_error, "%s", entry );
+                trim_and_print( window, p, max_entry_len, co, _color_error, "{}", entry );
 
                 if( max_column_len && !entries[ ei ].ctxt.empty() ) {
                     const std::string &centry = ei == selected ? remove_color_tags( entries[ ei ].ctxt ) :
                                                 entries[ ei ].ctxt;
                     trim_and_print( window, point( getmaxx( window ) - max_column_len - 2, estart + si ),
-                                    max_column_len, co, _color_error, "%s", centry );
+                                    max_column_len, co, _color_error, "{}", centry );
                 }
             }
             mvwzstr menu_entry_extra_text = entries[ei].extratxt;
@@ -840,7 +840,7 @@ void uilist::show( ui_adaptor &ui )
         ui.record_term_cursor();
     } else {
         if( !filter.empty() ) {
-            mvwprintz( window, point( 2, w_height - 1 ), border_color, "< %s >", filter );
+            mvwprintz( window, point( 2, w_height - 1 ), border_color, "< {} >", filter );
             mvwprintz( window, point( 4, w_height - 1 ), text_color, filter );
         }
     }

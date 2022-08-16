@@ -113,12 +113,12 @@ struct dialogue_chatbin {
     std::string snip_yes_to_lsd = "<yes_to_lsd>";
     std::string snip_mug_dontmove = _( "Don't move a <swear> muscle…" );
     std::string snip_lost_blood = _( "I've lost lot of blood." );
-    std::string snip_pulp_zombie = _( "Hold on, I want to pulp that %s." );
-    std::string snip_heal_player = _( "Hold still %s, I'm coming to help you." );
-    std::string snip_wound_infected = _( "My %s wound is infected…" );
-    std::string snip_wound_bite = _( "The bite wound on my %s looks bad." );
-    std::string snip_bleeding = _( "My %s is bleeding!" );
-    std::string snip_bleeding_badly = _( "My %s is bleeding badly!" );
+    std::string snip_pulp_zombie = _( "Hold on, I want to pulp that {}." );
+    std::string snip_heal_player = _( "Hold still {}, I'm coming to help you." );
+    std::string snip_wound_infected = _( "My {} wound is infected…" );
+    std::string snip_wound_bite = _( "The bite wound on my {} looks bad." );
+    std::string snip_bleeding = _( "My {} is bleeding!" );
+    std::string snip_bleeding_badly = _( "My {} is bleeding badly!" );
     std::string snip_radiation_sickness = _( "I'm suffering from radiation sickness…" );
 
     // talk from npctalk.cpp(can use snippets in json)
@@ -130,7 +130,7 @@ struct dialogue_chatbin {
     std::string snip_consume_cant_consume = _( "It doesn't look like a good idea to consume this…" );
     std::string snip_consume_rotten = _( "This is rotten!  I won't eat that." );
     std::string snip_consume_eat = _( "Thanks, that hit the spot." );
-    std::string snip_consume_need_item = _( "I need a %s to consume that!" );
+    std::string snip_consume_need_item = _( "I need a {} to consume that!" );
     std::string snip_consume_med = _( "Thanks, I feel better already." );
     std::string snip_consume_nocharge = _( "It doesn't look like a good idea to consume this…" );
     std::string snip_consume_use_med = _( "Thanks, I used it." );
@@ -142,7 +142,7 @@ struct dialogue_chatbin {
     std::string snip_give_weapon_weak = _( "My current weapon is better than this.\n" );
     std::string snip_give_carry = _( "Thanks, I'll carry that now." );
     std::string snip_give_carry_cant = _( "I have no space to store it." );
-    std::string snip_give_carry_cant_few_space = _( "I can only store %s %s more." );
+    std::string snip_give_carry_cant_few_space = _( "I can only store {} {} more." );
     std::string snip_give_carry_cant_no_space = _( "…or to store anything else for that matter." );
     std::string snip_give_carry_too_heavy = _( "It is too heavy for me to carry." );
 

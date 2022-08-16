@@ -216,7 +216,7 @@ cata_variant event::get_variant( const std::string &key ) const
 {
     auto it = data_.find( key );
     if( it == data_.end() ) {
-        cata_fatal( "No such key %s in event of type %s", key,
+        cata_fatal( "No such key {} in event of type {}", key,
                     io::enum_to_string( type_ ) );
     }
     return it->second;

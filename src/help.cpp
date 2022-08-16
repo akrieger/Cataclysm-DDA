@@ -81,9 +81,9 @@ std::string help::get_dir_grid()
     for( action_id dir : movearray ) {
         std::vector<input_event> keys = keys_bound_to( dir, /*maximum_modifier_count=*/0 );
         for( size_t i = 0; i < 2; i++ ) {
-            movement = string_replace( movement, "<" + action_ident( dir ) + string_format( "_%d>", i ),
+            movement = string_replace( movement, "<" + action_ident( dir ) + string_format( "_{}>", i ),
                                        i < keys.size()
-                                       ? string_format( "<color_light_blue>%s</color>",
+                                       ? string_format( "<color_light_blue>{}</color>",
                                                keys[i].short_description() )
                                        : "<color_red>?</color>" );
         }
@@ -132,8 +132,8 @@ std::string help::get_note_colors()
     std::string text = _( "Note colors: " );
     for( const auto &color_pair : get_note_color_names() ) {
         // The color index is not translatable, but the name is.
-        //~ %1$s: note color abbreviation, %2$s: note color name
-        text += string_format( pgettext( "note color", "%1$s:%2$s, " ),
+        //~ {1}: note color abbreviation, {2}: note color name
+        text += string_format( pgettext( "note color", "{1}:{2}, " ),
                                colorize( color_pair.first, color_pair.second.color ),
                                color_pair.second.name );
     }
@@ -235,7 +235,7 @@ void help::display_help() const
                                                   press_x( look_up_action( action ), "", "" ) + "</color>";
 
                             if( replace.empty() ) {
-                                debugmsg( "Help json: Unknown action: %s", action );
+                                debugmsg( "Help json: Unknown action: {}", action );
                             } else {
                                 line_proc = string_replace(
                                                 line_proc, "<press_" + std::move( action ) + ">", replace );

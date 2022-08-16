@@ -619,7 +619,7 @@ item relic_procgen_data::create_item( const relic_procgen_data::generation_rules
 {
     const itype_id *it_id = item_weights.pick();
     if( it_id == nullptr ) {
-        debugmsg( "ERROR: %s procgen data does not have items", id.c_str() );
+        debugmsg( "ERROR: {} procgen data does not have items", id.c_str() );
         return null_item_reference();
     }
 

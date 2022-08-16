@@ -167,17 +167,17 @@ void prof_window::draw_details()
         std::string ttl = !p->first.id->can_learn() ? colorize( _( "Can't learn" ), c_dark_gray ) :
                           to_string( p->first.id->time_to_learn() );
         trim_and_print( w_details, point( 1, y++ ), column_width - 2, c_white,
-                        string_format( "%s: %s", colorize( _( "Time to learn" ), c_magenta ), ttl ) );
+                        string_format( "{}: {}", colorize( _( "Time to learn" ), c_magenta ), ttl ) );
         // Progress
         trim_and_print( w_details, point( 1, y++ ), column_width - 2, c_white,
-                        string_format( "%s: %.2f%%", colorize( _( "Progress" ), c_magenta ), p->first.practice * 100.0f ) );
+                        string_format( "{}: %.2f%%", colorize( _( "Progress" ), c_magenta ), p->first.practice * 100.0f ) );
         // Category
         trim_and_print( w_details, point( 1, y++ ), column_width - 2, c_white,
-                        string_format( "%s: %s", colorize( _( "Category" ), c_magenta ),
+                        string_format( "{}: {}", colorize( _( "Category" ), c_magenta ),
                                        p->first.id->prof_category()->_name.translated() ) );
         // Pre-requisites
         trim_and_print( w_details, point( 1, y++ ), column_width - 2, c_white,
-                        string_format( "%s:", colorize( _( "Pre-requisites" ), c_magenta ) ) );
+                        string_format( "{}:", colorize( _( "Pre-requisites" ), c_magenta ) ) );
         std::vector<std::string> reqs =
             foldstring( enumerate_as_string( p->first.id->required_proficiencies(),
         []( const proficiency_id & pid ) {
@@ -188,7 +188,7 @@ void prof_window::draw_details()
         }
         // Leads to
         trim_and_print( w_details, point( 1, y++ ), column_width - 2, c_white,
-                        string_format( "%s:", colorize( _( "Leads to" ), c_magenta ) ) );
+                        string_format( "{}:", colorize( _( "Leads to" ), c_magenta ) ) );
         std::vector<std::string> leads = foldstring( enumerate_as_string( p->second,
         []( const proficiency_id & pid ) {
             return colorize( pid->name(), c_yellow );
@@ -198,7 +198,7 @@ void prof_window::draw_details()
         }
         // Description
         fold_and_print( w_details, point( 1, y ), column_width - 1, c_light_gray,
-                        string_format( "%s: %s", colorize( _( "Description" ), c_magenta ), p->first.id->description() ) );
+                        string_format( "{}: {}", colorize( _( "Description" ), c_magenta ), p->first.id->description() ) );
     }
     wnoutrefresh( w_details );
 }
@@ -226,14 +226,14 @@ void prof_window::draw_header()
     std::string cat_title = !filter_str.empty() ? _( "FILTERED" ) :
                             ( current_cat == 0 ) ? _( "ALL" ) : cats[current_cat]->_name.translated();
     //NOLINTNEXTLINE(cata-use-named-point-constants)
-    trim_and_print( w_header, point( 1, 0 ), w - 2, c_white, "%s:  %s %s %s", _( "Category" ),
+    trim_and_print( w_header, point( 1, 0 ), w - 2, c_white, "{}:  {} {} {}", _( "Category" ),
                     colorize( "<", c_yellow ), colorize( cat_title, c_light_green ), colorize( ">", c_yellow ) );
     if( current_cat != 0 && filter_str.empty() ) {
         //NOLINTNEXTLINE(cata-use-named-point-constants)
         fold_and_print( w_header, point( 1, 1 ), w - 2, c_light_gray,
                         cats[current_cat]->_description.translated() );
     }
-    std::string hint_txt = string_format( "[%s] %s   [%s] %s",
+    std::string hint_txt = string_format( "[{}] {}   [{}] {}",
                                           colorize( ctxt.get_desc( "FILTER", 1 ), c_yellow ), _( "filter" ),
                                           colorize( ctxt.get_desc( "HELP_KEYBINDINGS", 1 ), c_yellow ), _( "help" ) );
     right_print( w_header, 0, 1, c_white, hint_txt );

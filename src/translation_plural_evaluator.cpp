@@ -206,7 +206,7 @@ Token TranslationPluralRulesEvaluator::GetNextToken( const char *&p )
         }
         return ExprToken( ExprTokenType::Constant, value );
     } else {
-        throw LexicalError( string_format( "Unexpected character %c in expression", *p ) );
+        throw LexicalError( string_format( "Unexpected character {} in expression", *p ) );
     }
 }
 
@@ -238,7 +238,7 @@ int TranslationPluralRulesEvaluator::ExprNode::Evaluate( std::size_t n )
             case ExprTokenType::Variable:
                 return n;
             default:
-                throw EvaluationError( string_format( "Unexpected token %s at a node with 0 child.",
+                throw EvaluationError( string_format( "Unexpected token {} at a node with 0 child.",
                                                       ExprTokenTypeToString( token.type ) ) );
         }
     } else if( n_children == 1 ) {
@@ -246,7 +246,7 @@ int TranslationPluralRulesEvaluator::ExprNode::Evaluate( std::size_t n )
             case ExprTokenType::Negation:
                 return children[0]->Evaluate( n ) == 0;
             default:
-                throw EvaluationError( string_format( "Unexpected token %s at a node with 1 child.",
+                throw EvaluationError( string_format( "Unexpected token {} at a node with 1 child.",
                                                       ExprTokenTypeToString( token.type ) ) );
         }
     } else if( n_children == 2 ) {
@@ -286,7 +286,7 @@ int TranslationPluralRulesEvaluator::ExprNode::Evaluate( std::size_t n )
             case ExprTokenType::And:
                 return a && b;
             default:
-                throw EvaluationError( string_format( "Unexpected token %s at a node with 2 children.",
+                throw EvaluationError( string_format( "Unexpected token {} at a node with 2 children.",
                                                       ExprTokenTypeToString( token.type ) ) );
         }
     } else if( n_children == 3 ) {
@@ -294,11 +294,11 @@ int TranslationPluralRulesEvaluator::ExprNode::Evaluate( std::size_t n )
             case ExprTokenType::Condition:
                 return children[0]->Evaluate( n ) ? children[1]->Evaluate( n ) : children[2]->Evaluate( n );
             default:
-                throw EvaluationError( string_format( "Unexpected token %s at a node with 3 children.",
+                throw EvaluationError( string_format( "Unexpected token {} at a node with 3 children.",
                                                       ExprTokenTypeToString( token.type ) ) );
         }
     } else {
-        throw EvaluationError( string_format( "Unexpected %zu children in a node.", n_children ) );
+        throw EvaluationError( string_format( "Unexpected {} children in a node.", n_children ) );
     }
 }
 
@@ -427,23 +427,23 @@ void TranslationPluralRulesEvaluator::ParsePluralRules( const std::string &plura
     const std::string nplurals_header = "nplurals=";
     std::size_t nplurals_header_pos = plural_forms.find( nplurals_header );
     if( nplurals_header_pos == std::string::npos ) {
-        throw HeaderError( string_format( "Expect \"%s\" in %s", nplurals_header, plural_forms ) );
+        throw HeaderError( string_format( "Expect \"{}\" in {}", nplurals_header, plural_forms ) );
     }
     nplurals_header_pos += nplurals_header.length();
     std::size_t first_semicolon = plural_forms.find( ';', nplurals_header_pos );
     if( first_semicolon == std::string::npos ) {
-        throw HeaderError( string_format( "Expect semicolon in %s", plural_forms ) );
+        throw HeaderError( string_format( "Expect semicolon in {}", plural_forms ) );
     }
     ret_val<int> n_plurals_optional = try_parse_integer<int>( plural_forms.substr(
                                           nplurals_header_pos, first_semicolon - nplurals_header_pos ), false );
     if( !n_plurals_optional.success() || n_plurals_optional.value() < 1 ) {
-        throw HeaderError( string_format( "Invalid number of plural forms in %s", plural_forms ) );
+        throw HeaderError( string_format( "Invalid number of plural forms in {}", plural_forms ) );
     }
     n_plurals = static_cast<std::size_t>( n_plurals_optional.value() );
     const std::string plural_header = "plural=";
     std::size_t plural_header_pos = plural_forms.find( plural_header );
     if( plural_header_pos == std::string::npos ) {
-        throw HeaderError( string_format( "Expect \"%s\" in %s", plural_header, plural_forms ) );
+        throw HeaderError( string_format( "Expect \"{}\" in {}", plural_header, plural_forms ) );
     }
     plural_header_pos += plural_header.length();
     std::size_t second_semicolon = plural_forms.find( ';', plural_header_pos );

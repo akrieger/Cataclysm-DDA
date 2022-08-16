@@ -102,7 +102,7 @@ bool cleanup_at_end()
                 vRip.emplace_back( "               >  _     _ (" );
                 vRip.emplace_back( "              |  |_) | |_) |" );
                 vRip.emplace_back( "              |  | \\ | |   |" );
-                vRip.emplace_back( "   ______.__%_|            |_________  __" );
+                vRip.emplace_back( "   ______.__{}|            |_________  __" );
                 vRip.emplace_back( " _/                                  \\|  |" );
                 iNameLine = vRip.size();
                 vRip.emplace_back( "|                                        <" );
@@ -121,7 +121,7 @@ bool cleanup_at_end()
                 vRip.emplace_back( "         * .%%|          -< @%%%" ); // NOLINT(cata-text-style)
                 vRip.emplace_back( "         `\\%`@|            |@@%@%%" );
                 vRip.emplace_back( "       .%%%@@@|%     `   % @@@%%@%%%%" );
-                vRip.emplace_back( "  _.%%%%%%@@@@@@%%%__/\\%@@%%@@@@@@@%%%%%%" );
+                vRip.emplace_back( "  _.%%%%%%@@@@@@%%{}/\\%@@%%@@@@@@@%%%%%%" );
 
             } else {
                 vRip.emplace_back( "               _______  ___" );
@@ -136,7 +136,7 @@ bool cleanup_at_end()
                 vRip.emplace_back( "              |           <" );
                 vRip.emplace_back( "              |   _        |" );
                 vRip.emplace_back( "              |__/         |" );
-                vRip.emplace_back( "   ______.__%_|            |__________  _" );
+                vRip.emplace_back( "   ______.__{}|            |__________  _" );
                 vRip.emplace_back( " _/                                   \\| \\" );
                 iNameLine = vRip.size();
                 vRip.emplace_back( "|                                         <" );
@@ -148,7 +148,7 @@ bool cleanup_at_end()
                 vRip.emplace_back( "         * .%%|  |_) | |_)< @%%%" ); // NOLINT(cata-text-style)
                 vRip.emplace_back( "         `\\%`@|  | \\ | |   |@@%@%%" );
                 vRip.emplace_back( "       .%%%@@@|%     `   % @@@%%@%%%%" );
-                vRip.emplace_back( "  _.%%%%%%@@@@@@%%%__/\\%@@%%@@@@@@@%%%%%%" );
+                vRip.emplace_back( "  _.%%%%%%@@@@@@%%{}/\\%@@%%@@@@@@@%%%%%%" );
             }
         } else {
             vRip.emplace_back( R"(           _________  ____           )" );
@@ -229,13 +229,13 @@ bool cleanup_at_end()
 
         if( days > 0 ) {
             // NOLINTNEXTLINE(cata-translate-string-literal)
-            sTemp = string_format( "%dd %dh %dm", days, hours, minutes );
+            sTemp = string_format( "{} {} {}", days, hours, minutes );
         } else if( hours > 0 ) {
             // NOLINTNEXTLINE(cata-translate-string-literal)
-            sTemp = string_format( "%dh %dm", hours, minutes );
+            sTemp = string_format( "{} {}", hours, minutes );
         } else {
             // NOLINTNEXTLINE(cata-translate-string-literal)
-            sTemp = string_format( "%dm", minutes );
+            sTemp = string_format( "{}", minutes );
         }
 
         center_print( w_rip, iInfoLine++, c_white, sTemp );
@@ -245,7 +245,7 @@ bool cleanup_at_end()
         sTemp = _( "Kills:" );
         mvwprintz( w_rip, point( FULL_SCREEN_WIDTH / 2 - 5, 1 + iInfoLine++ ), c_light_gray,
                    ( sTemp + " " ) );
-        wprintz( w_rip, c_magenta, "%d", iTotalKills );
+        wprintz( w_rip, c_magenta, "{}", iTotalKills );
 
         sTemp = _( "In memory of:" );
         mvwprintz( w_rip, point( FULL_SCREEN_WIDTH / 2 - utf8_width( sTemp ) / 2, iNameLine++ ),
@@ -301,9 +301,9 @@ bool cleanup_at_end()
                 while( !decided ) {
                     uilist smenu;
                     smenu.allow_cancel = false;
-                    smenu.addentry( 0, true, 'r', "%s", _( "Reset world" ) );
-                    smenu.addentry( 1, true, 'd', "%s", _( "Delete world" ) );
-                    smenu.addentry( 2, true, 'k', "%s", _( "Keep world" ) );
+                    smenu.addentry( 0, true, 'r', "{}", _( "Reset world" ) );
+                    smenu.addentry( 1, true, 'd', "{}", _( "Delete world" ) );
+                    smenu.addentry( 2, true, 'k', "{}", _( "Keep world" ) );
                     smenu.query();
 
                     switch( smenu.ret ) {
@@ -334,7 +334,7 @@ bool cleanup_at_end()
                 tmpmessage += "\n  ";
                 tmpmessage += character;
             }
-            popup( _( "World retained.  Characters remaining:%s" ), tmpmessage );
+            popup( _( "World retained.  Characters remaining:{}" ), tmpmessage );
         }
         if( g->gamemode ) {
             g->gamemode = std::make_unique<special_game>(); // null gamemode or something..
@@ -415,7 +415,7 @@ void monmove()
                            << " can't move to its location!  (" << critter.posx()
                            << ":" << critter.posy() << ":" << critter.posz() << "), "
                            << m.tername( critter.pos() );
-            add_msg_debug( debugmode::DF_MONSTER, "%s can't move to its location!  (%d,%d,%d), %s",
+            add_msg_debug( debugmode::DF_MONSTER, "{} can't move to its location!  ({},{},{}), {}",
                            critter.name(),
                            critter.posx(), critter.posy(), critter.posz(), m.tername( critter.pos() ) );
             bool okay = false;
@@ -511,7 +511,7 @@ void monmove()
             // It has to be done before the last turn, otherwise
             // there will be no meaningful debug output.
             if( turns == 9 ) {
-                debugmsg( "NPC %s entered infinite loop.  Turning on debug mode",
+                debugmsg( "NPC {} entered infinite loop.  Turning on debug mode",
                           guy.get_name() );
                 debug_mode = true;
                 // make sure the filter is active
@@ -526,7 +526,7 @@ void monmove()
         // If we spun too long trying to decide what to do (without spending moves),
         // Invoke cognitive suspension to prevent an infinite loop.
         if( turns == 10 ) {
-            add_msg( _( "%s faints!" ), guy.get_name() );
+            add_msg( _( "{} faints!" ), guy.get_name() );
             guy.reboot();
         }
 
@@ -824,7 +824,7 @@ bool do_turn()
         wait_redraw = true;
         wait_message = *progress;
         if( u.activity.is_interruptible() && u.activity.interruptable_with_kb ) {
-            wait_message += string_format( _( "\n%s to interrupt" ), press_x( ACTION_PAUSE ) );
+            wait_message += string_format( _( "\n{} to interrupt" ), press_x( ACTION_PAUSE ) );
         }
         if( u.activity.id() == ACT_AUTODRIVE ) {
             wait_refresh_rate = 1_turns;
@@ -844,7 +844,7 @@ bool do_turn()
             // Avoid redrawing the main UI every time due to invalidation
             ui_adaptor dummy( ui_adaptor::disable_uis_below {} );
             g->wait_popup = std::make_unique<static_popup>();
-            g->wait_popup->on_top( true ).wait_message( "%s", wait_message );
+            g->wait_popup->on_top( true ).wait_message( "{}", wait_message );
             ui_manager::redraw();
             refresh_display();
             g->first_redraw_since_waiting_started = false;

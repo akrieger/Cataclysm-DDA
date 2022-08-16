@@ -401,7 +401,7 @@ void user_interface::show()
                                   static_cast<int>( cur_rules.size() ) : iContentHeight ) ) {
                 nc_color cLineColor = cur_rules[i].bActive ? c_white : c_light_gray;
 
-                mvwprintz( w, point( 1, i - iStartPos ), cLineColor, "%d", i + 1 );
+                mvwprintz( w, point( 1, i - iStartPos ), cLineColor, "{}", i + 1 );
                 mvwprintz( w, point( 5, i - iStartPos ), cLineColor, "" );
 
                 if( iLine == i ) {
@@ -410,11 +410,11 @@ void user_interface::show()
                     wprintz( w, c_yellow, "   " );
                 }
 
-                wprintz( w, iLine == i && iColumn == 1 ? hilite( cLineColor ) : cLineColor, "%s",
+                wprintz( w, iLine == i && iColumn == 1 ? hilite( cLineColor ) : cLineColor, "{}",
                          cur_rules[i].sRule.empty() ? _( "<empty rule>" ) : cur_rules[i].sRule );
 
                 mvwprintz( w, point( 52, i - iStartPos ), iLine == i && iColumn == 2 ?
-                           hilite( cLineColor ) : cLineColor, "%s",
+                           hilite( cLineColor ) : cLineColor, "{}",
                            cur_rules[i].bExclude ? _( "Exclude" ) :  _( "Include" ) );
             }
         }
@@ -717,8 +717,8 @@ void rule::test_pattern() const
     ui.on_screen_resize( init_windows );
 
     int nmatch = vMatchingItems.size();
-    const std::string buf = string_format( n_gettext( "%1$d item matches: %2$s",
-                                           "%1$d items match: %2$s",
+    const std::string buf = string_format( n_gettext( "{1} item matches: {2}",
+                                           "{1} items match: {2}",
                                            nmatch ), nmatch, sRule );
 
     int iLine = 0;
@@ -752,7 +752,7 @@ void rule::test_pattern() const
                                   static_cast<int>( vMatchingItems.size() ) : iContentHeight ) ) {
                 nc_color cLineColor = c_white;
 
-                mvwprintz( w_test_rule_content, point( 0, i - iStartPos ), cLineColor, "%d", i + 1 );
+                mvwprintz( w_test_rule_content, point( 0, i - iStartPos ), cLineColor, "{}", i + 1 );
                 mvwprintz( w_test_rule_content, point( 4, i - iStartPos ), cLineColor, "" );
 
                 if( iLine == i ) {
@@ -1079,7 +1079,7 @@ void rule_list::deserialize( JsonIn &jsin )
 void npc_settings::show( const std::string &name )
 {
     user_interface ui;
-    ui.title = string_format( _( "Pickup rules for %s" ), name );
+    ui.title = string_format( _( "Pickup rules for {}" ), name );
     ui.tabs.emplace_back( name, rules );
     ui.show();
     // Don't need to save the rules here, it will be save along with the NPC object itself.

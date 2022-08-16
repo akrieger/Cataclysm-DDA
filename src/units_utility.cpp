@@ -169,7 +169,7 @@ std::string length_units( const units::length &length )
 std::string length_to_string( const units::length &length, const bool compact )
 {
     const int converted_length = convert_length( length );
-    std::string string_to_format = "%u%s%s";
+    std::string string_to_format = "{}{}{}";
     return string_format( string_to_format, converted_length, compact ? "" : " ",
                           length_units( length ) );
 }
@@ -180,8 +180,8 @@ std::string weight_to_string( const units::mass &weight, const bool compact,
     const int default_decimal_places = 2;
     const double converted_weight = round_with_places( convert_weight( weight ),
                                     default_decimal_places );
-    std::string string_to_format = remove_trailing_zeroes ? "%g%s%s" : "%." +
-                                   std::to_string( default_decimal_places ) + "f%s%s";
+    std::string string_to_format = remove_trailing_zeroes ? "{}{}{}" : "%." +
+                                   std::to_string( default_decimal_places ) + "f{}{}";
     return string_format( string_to_format, converted_weight, compact ? "" : " ", weight_units() );
 }
 
@@ -219,8 +219,8 @@ std::string vol_to_string( const units::volume &vol, const bool compact,
     const double converted_volume =
         round_with_places( convert_volume( vol.value(),
                                            &converted_volume_scale ), default_decimal_places );
-    std::string string_to_format = remove_trailing_zeroes ? "%g%s%s" : "%." +
-                                   std::to_string( default_decimal_places ) + "f%s%s";
+    std::string string_to_format = remove_trailing_zeroes ? "{}{}{}" : "%." +
+                                   std::to_string( default_decimal_places ) + "f{}{}";
     return string_format( string_to_format, converted_volume, compact ? "" : " ", volume_units_abbr() );
 }
 

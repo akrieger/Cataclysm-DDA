@@ -420,7 +420,7 @@ void json_flag::check() const
 {
     for( const auto &conflicting : conflicts_ ) {
         if( !flag_id( conflicting ).is_valid() ) {
-            debugmsg( "flag definition %s specifies unknown conflicting field %s", id.str(),
+            debugmsg( "flag definition {} specifies unknown conflicting field {}", id.str(),
                       conflicting );
         }
     }

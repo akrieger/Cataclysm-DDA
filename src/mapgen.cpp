@@ -183,7 +183,7 @@ static constexpr int MON_RADIUS = 3;
 static void science_room( map *m, const point &p1, const point &p2, int z, int rotate );
 
 // (x,y,z) are absolute coordinates of a submap
-// x%2 and y%2 must be 0!
+// x{} and y{} must be 0!
 void map::generate( const tripoint &p, const time_point &when )
 {
     dbg( D_INFO ) << "map::generate( g[" << g.get() << "], p[" << p << "], "
@@ -202,7 +202,7 @@ void map::generate( const tripoint &p, const time_point &when )
         for( int gridy = 0; gridy < my_MAPSIZE; gridy++ ) {
             const size_t grid_pos = get_nonant( { gridx, gridy, p.z } );
             if( getsubmap( grid_pos ) ) {
-                debugmsg( "Submap already exists at (%d, %d, %d)", gridx, gridy, p.z );
+                debugmsg( "Submap already exists at ({}, {}, {})", gridx, gridy, p.z );
                 continue;
             }
             setsubmap( grid_pos, new submap() );
@@ -238,7 +238,7 @@ void map::generate( const tripoint &p, const time_point &when )
     } else if( ex.chance > 0 && one_in( ex.chance ) ) {
         map_extra_id *extra = ex.values.pick();
         if( extra == nullptr ) {
-            debugmsg( "failed to pick extra for type %s (ter = %s)", terrain_type->get_extras(),
+            debugmsg( "failed to pick extra for type {} (ter = {})", terrain_type->get_extras(),
                       terrain_type->get_type_id().str() );
         } else {
             MapExtras::apply_function( *ex.values.pick(), *this, tripoint_abs_sm( abs_sub ) );
@@ -448,7 +448,7 @@ class mapgen_factory
             for( std::pair<const std::string, mapgen_basic_container> &omw : mapgens_ ) {
                 omw.second.check_consistency();
                 if( usages.count( omw.first ) == 0 ) {
-                    debugmsg( "Mapgen %s is not used by anything!", omw.first );
+                    debugmsg( "Mapgen {} is not used by anything!", omw.first );
                 }
             }
         }
@@ -488,7 +488,7 @@ class mapgen_factory
             }
             return iter->second.get_mapgen_params( mapgen_parameter_scope::overmap_special,
                                                    // NOLINTNEXTLINE(cata-translate-string-literal)
-                                                   string_format( "map special %s", key ) );
+                                                   string_format( "map special {}", key ) );
         }
 };
 
@@ -508,7 +508,7 @@ const nested_mapgen &string_id<nested_mapgen>::obj() const
 {
     auto it = nested_mapgens.find( *this );
     if( it == nested_mapgens.end() ) {
-        debugmsg( "Using invalid nested_mapgen_id %s", str() );
+        debugmsg( "Using invalid nested_mapgen_id {}", str() );
         static const nested_mapgen null_mapgen;
         return null_mapgen;
     }
@@ -651,7 +651,7 @@ static void load_nested_mapgen( const JsonObject &jio, const nested_mapgen_id &i
             debugmsg( "Nested mapgen: Invalid mapgen function (missing \"object\" object)", id_base.c_str() );
         }
     } else {
-        debugmsg( "Nested mapgen: type for id %s was %s, but nested mapgen only supports \"json\"",
+        debugmsg( "Nested mapgen: type for id {} was {}, but nested mapgen only supports \"json\"",
                   id_base.c_str(), mgtype.c_str() );
     }
 }
@@ -672,7 +672,7 @@ static void load_update_mapgen( const JsonObject &jio, const update_mapgen_id &i
                       id_base.c_str() );
         }
     } else {
-        debugmsg( "Update mapgen: type for id %s was %s, but update mapgen only supports \"json\"",
+        debugmsg( "Update mapgen: type for id {} was {}, but update mapgen only supports \"json\"",
                   id_base.c_str(), mgtype.c_str() );
     }
 }
@@ -720,7 +720,7 @@ void load_mapgen( const JsonObject &jo )
     } else if( jo.has_string( "update_mapgen_id" ) ) {
         load_update_mapgen( jo, update_mapgen_id( jo.get_string( "update_mapgen_id" ) ) );
     } else {
-        debugmsg( "mapgen entry requires \"om_terrain\" or \"nested_mapgen_id\"(string, array of strings, or array of array of strings)\n%s\n",
+        debugmsg( "mapgen entry requires \"om_terrain\" or \"nested_mapgen_id\"(string, array of strings, or array of array of strings)\n{}\n",
                   jo.str() );
     }
 }
@@ -739,10 +739,10 @@ void reset_mapgens()
 size_t mapgen_function_json_base::calc_index( const point &p ) const
 {
     if( p.x >= mapgensize.x ) {
-        debugmsg( "invalid value %zu for x in calc_index", p.x );
+        debugmsg( "invalid value {} for x in calc_index", p.x );
     }
     if( p.y >= mapgensize.y ) {
-        debugmsg( "invalid value %zu for y in calc_index", p.y );
+        debugmsg( "invalid value {} for y in calc_index", p.y );
     }
     return p.y * mapgensize.y + p.x;
 }
@@ -778,7 +778,7 @@ void mapgen_function_json_base::merge_non_nest_parameters_into(
     mapgen_parameters &params, const std::string &outer_context ) const
 {
     // NOLINTNEXTLINE(cata-translate-string-literal)
-    const std::string context = string_format( "%s within %s", context_, outer_context );
+    const std::string context = string_format( "{} within {}", context_, outer_context );
     params.check_and_merge( parameters, context, mapgen_parameter_scope::nest );
 }
 
@@ -907,7 +907,7 @@ void mapgen_function_json_base::setup_setmap( const JsonArray &parray )
 
         sm_it = setmap_opmap.find( tmpval );
         if( sm_it == setmap_opmap.end() ) {
-            pjo.throw_error( string_format( "invalid subfunction %s", tmpval.c_str() ) );
+            pjo.throw_error( string_format( "invalid subfunction {}", tmpval.c_str() ) );
         }
 
         tmpop = sm_it->second;
@@ -1027,7 +1027,7 @@ void jmapgen_place::offset( const point &offset )
 map_key::map_key( const std::string &s ) : str( s )
 {
     if( utf8_width( str ) != 1 ) {
-        debugmsg( "map key '%s' must be 1 column", str );
+        debugmsg( "map key '{}' must be 1 column", str );
     }
 }
 
@@ -1148,7 +1148,7 @@ class mapgen_value
                 if( const null_source *other = dynamic_cast<const null_source *>( &o ) ) {
                     // OK
                 } else {
-                    debugmsg( "inconsistent default types for %s", context );
+                    debugmsg( "inconsistent default types for {}", context );
                 }
             }
 
@@ -1174,7 +1174,7 @@ class mapgen_value
 
             void check( const std::string &context, const mapgen_parameters & ) const override {
                 if( !is_valid_helper( id ) ) {
-                    debugmsg( "mapgen '%s' uses invalid entry '%s'",
+                    debugmsg( "mapgen '{}' uses invalid entry '{}'",
                               context, cata_variant( id ).get_string() );
                 }
             }
@@ -1183,12 +1183,12 @@ class mapgen_value
                 const value_source &o, const std::string &context ) const override {
                 if( const id_source *other = dynamic_cast<const id_source *>( &o ) ) {
                     if( id != other->id ) {
-                        debugmsg( "inconsistent default values for %s (%s vs %s)",
+                        debugmsg( "inconsistent default values for {} ({} vs {})",
                                   context, cata_variant( id ).get_string(),
                                   cata_variant( other->id ).get_string() );
                     }
                 } else {
-                    debugmsg( "inconsistent default types for %s", context );
+                    debugmsg( "inconsistent default types for {}", context );
                 }
             }
 
@@ -1218,19 +1218,19 @@ class mapgen_value
                       ) const override {
                 auto param_it = parameters.map.find( param_name );
                 if( param_it == parameters.map.end() ) {
-                    debugmsg( "mapgen '%s' uses undefined parameter '%s'", context, param_name );
+                    debugmsg( "mapgen '{}' uses undefined parameter '{}'", context, param_name );
                 } else {
                     const mapgen_parameter &param = param_it->second;
                     constexpr cata_variant_type req_type = cata_variant_type_for<StringId>();
                     cata_variant_type param_type = param.type();
                     if( param_type != req_type && req_type != cata_variant_type::string ) {
-                        debugmsg( "mapgen '%s' uses parameter '%s' of type '%s' in a context "
-                                  "expecting type '%s'", context, param_name,
+                        debugmsg( "mapgen '{}' uses parameter '{}' of type '{}' in a context "
+                                  "expecting type '{}'", context, param_name,
                                   io::enum_to_string( param_type ),
                                   io::enum_to_string( req_type ) );
                     }
                     if( param.scope() == mapgen_parameter_scope::overmap_special && !fallback ) {
-                        debugmsg( "mapgen '%s' uses parameter '%s' of map_special scope without a "
+                        debugmsg( "mapgen '{}' uses parameter '{}' of map_special scope without a "
                                   "fallback.  Such parameters must provide a fallback to allow "
                                   "for changes to overmap_special definitions", context,
                                   param_name );
@@ -1242,11 +1242,11 @@ class mapgen_value
                 const value_source &o, const std::string &context ) const override {
                 if( const param_source *other = dynamic_cast<const param_source *>( &o ) ) {
                     if( param_name != other->param_name ) {
-                        debugmsg( "inconsistent default values for %s (%s vs %s)",
+                        debugmsg( "inconsistent default values for {} ({} vs {})",
                                   context, param_name, other->param_name );
                     }
                 } else {
-                    debugmsg( "inconsistent default types for %s", context );
+                    debugmsg( "inconsistent default types for {}", context );
                 }
             }
 
@@ -1280,7 +1280,7 @@ class mapgen_value
             void check( const std::string &context, const mapgen_parameters & ) const override {
                 for( const weighted_object<int, StringId> &wo : list ) {
                     if( !is_valid_helper( wo.obj ) ) {
-                        debugmsg( "mapgen '%s' uses invalid entry '%s' in weighted list",
+                        debugmsg( "mapgen '{}' uses invalid entry '{}' in weighted list",
                                   context, cata_variant( wo.obj ).get_string() );
                     }
                 }
@@ -1293,11 +1293,11 @@ class mapgen_value
                     if( list != other->list ) {
                         const std::string my_list = list.to_debug_string();
                         const std::string other_list = other->list.to_debug_string();
-                        debugmsg( "inconsistent default value distributions for %s (%s vs %s)",
+                        debugmsg( "inconsistent default value distributions for {} ({} vs {})",
                                   context, my_list, other_list );
                     }
                 } else {
-                    debugmsg( "inconsistent default types for %s", context );
+                    debugmsg( "inconsistent default types for {}", context );
                 }
             }
 
@@ -1327,7 +1327,7 @@ class mapgen_value
                 std::string based_on = on->get( dat );
                 auto it = cases.find( based_on );
                 if( it == cases.end() ) {
-                    debugmsg( "switch does not handle case %s", based_on );
+                    debugmsg( "switch does not handle case {}", based_on );
                     return make_null_helper<Id> {}();
                 }
                 return Id( it->second );
@@ -1338,15 +1338,15 @@ class mapgen_value
                 on->check( context, params );
                 for( const std::pair<const std::string, StringId> &p : cases ) {
                     if( !is_valid_helper( p.second ) ) {
-                        debugmsg( "mapgen '%s' uses invalid entry '%s' in switch",
+                        debugmsg( "mapgen '{}' uses invalid entry '{}' in switch",
                                   context, cata_variant( p.second ).get_string() );
                     }
                 }
                 std::vector<std::string> possible_values = on->all_possible_results( params );
                 for( const std::string &value : possible_values ) {
                     if( !cases.count( value ) ) {
-                        debugmsg( "mapgen '%s' has switch which does not account for potential "
-                                  "case '%s' of the switched-on value", context, value );
+                        debugmsg( "mapgen '{}' has switch which does not account for potential "
+                                  "case '{}' of the switched-on value", context, value );
                     }
                 }
             }
@@ -1374,11 +1374,11 @@ class mapgen_value
 
                         const std::string my_list = dump_set( cases );
                         const std::string other_list = dump_set( other->cases );
-                        debugmsg( "inconsistent switch cases for %s (%s vs %s)",
+                        debugmsg( "inconsistent switch cases for {} ({} vs {})",
                                   context, my_list, other_list );
                     }
                 } else {
-                    debugmsg( "inconsistent default types for %s", context );
+                    debugmsg( "inconsistent default types for {}", context );
                 }
             }
 
@@ -1482,7 +1482,7 @@ std::string enum_to_string<jmapgen_flags>( jmapgen_flags v )
         case jmapgen_flags::last:
             break;
     }
-    debugmsg( "unknown jmapgen_flags %d", static_cast<int>( v ) );
+    debugmsg( "unknown jmapgen_flags {}", static_cast<int>( v ) );
     return "";
 }
 
@@ -1498,7 +1498,7 @@ std::string enum_to_string<mapgen_parameter_scope>( mapgen_parameter_scope v )
         case mapgen_parameter_scope::last:
             break;
     }
-    debugmsg( "unknown mapgen_parameter_scope %d", static_cast<int>( v ) );
+    debugmsg( "unknown mapgen_parameter_scope {}", static_cast<int>( v ) );
     return "";
 }
 
@@ -1541,7 +1541,7 @@ void mapgen_parameter::check( const mapgen_parameters &params, const std::string
     default_->check( context, params );
     for( const std::string &value : all_possible_values( params ) ) {
         if( !cata_variant::from_string( type_, std::string( value ) ).is_valid() ) {
-            debugmsg( "%s can take value %s which is not a valid value of type %s",
+            debugmsg( "{} can take value {} which is not a valid value of type {}",
                       context, value, io::enum_to_string( type_ ) );
         }
     }
@@ -1551,11 +1551,11 @@ void mapgen_parameter::check_consistent_with(
     const mapgen_parameter &other, const std::string &context ) const
 {
     if( scope_ != other.scope_ ) {
-        debugmsg( "mismatched scope for mapgen parameters %s (%s vs %s)",
+        debugmsg( "mismatched scope for mapgen parameters {} ({} vs {})",
                   context, io::enum_to_string( scope_ ), io::enum_to_string( other.scope_ ) );
     }
     if( type_ != other.type_ ) {
-        debugmsg( "mismatched type for mapgen parameters %s (%s vs %s)",
+        debugmsg( "mismatched type for mapgen parameters {} ({} vs {})",
                   context, io::enum_to_string( type_ ), io::enum_to_string( other.type_ ) );
     }
     default_->check_consistent_with( *other.default_, context );
@@ -1568,7 +1568,7 @@ auto mapgen_parameters::add_unique_parameter(
     uint64_t i = 0;
     std::string candidate_name;
     while( true ) {
-        candidate_name = string_format( "%s%d", prefix, i );
+        candidate_name = string_format( "{}{}", prefix, i );
         if( map.find( candidate_name ) == map.end() ) {
             break;
         }
@@ -1617,7 +1617,7 @@ void mapgen_parameters::check_and_merge( const mapgen_parameters &other,
             const mapgen_parameter &this_param = insert_result.first->second;
             this_param.check_consistent_with(
                 // NOLINTNEXTLINE(cata-translate-string-literal)
-                other_param, string_format( "parameter %s in %s", name, context ) );
+                other_param, string_format( "parameter {} in {}", name, context ) );
         }
     }
 }
@@ -1644,7 +1644,7 @@ class jmapgen_alternatively : public jmapgen_piece
         void check( const std::string &context, const mapgen_parameters &params,
                     const jmapgen_int &x, const jmapgen_int &y ) const override {
             if( alternatives.empty() ) {
-                debugmsg( "zero alternatives in jmapgen_alternatively in %s", context );
+                debugmsg( "zero alternatives in jmapgen_alternatively in {}", context );
             }
             for( const PieceType &piece : alternatives ) {
                 piece.check( context, params, x, y );
@@ -1775,7 +1775,7 @@ class jmapgen_npc : public jmapgen_piece
                 return;
             }
             if( !unique_id.empty() && g->unique_npc_exists( unique_id ) ) {
-                get_avatar().add_msg_debug_if_player( debugmode::DF_NPC, "NPC with unique id %s already exists.",
+                get_avatar().add_msg_debug_if_player( debugmode::DF_NPC, "NPC with unique id {} already exists.",
                                                       unique_id );
                 return;
             }
@@ -2027,7 +2027,7 @@ class jmapgen_gaspump : public jmapgen_piece
             for( const itype_id &possible_fuel : fuel.all_possible_results( parameters ) ) {
                 // may want to not force this, if we want to support other fuels for some reason
                 if( !valid_fuels.count( possible_fuel ) ) {
-                    debugmsg( "invalid fuel %s in %s", possible_fuel.str(), oter_name );
+                    debugmsg( "invalid fuel {} in {}", possible_fuel.str(), oter_name );
                 }
             }
         }
@@ -2150,7 +2150,7 @@ class jmapgen_item_group : public jmapgen_piece
         void check( const std::string &context, const mapgen_parameters &,
                     const jmapgen_int &/*x*/, const jmapgen_int &/*y*/ ) const override {
             if( !group_id.is_valid() ) {
-                debugmsg( "Invalid item_group_id \"%s\" in %s", group_id.str(), context );
+                debugmsg( "Invalid item_group_id \"{}\" in {}", group_id.str(), context );
             }
         }
         void apply( const mapgendata &dat, const jmapgen_int &x, const jmapgen_int &y,
@@ -2529,16 +2529,16 @@ class jmapgen_vehicle : public jmapgen_piece
 
                 if( new_min.x < 0 ) {
                     bad_rotated_direction = cube_direction::west;
-                    extreme_coord = string_format( "x = %d (should be at least 0)", new_min.x );
+                    extreme_coord = string_format( "x = {} (should be at least 0)", new_min.x );
                 } else if( new_max.x >= 24 ) {
                     bad_rotated_direction = cube_direction::east;
-                    extreme_coord = string_format( "x = %d (should be at most 23)", new_max.x );
+                    extreme_coord = string_format( "x = {} (should be at most 23)", new_max.x );
                 } else if( new_min.y < 0 ) {
-                    extreme_coord = string_format( "y = %d (should be at least 0)", new_min.y );
+                    extreme_coord = string_format( "y = {} (should be at least 0)", new_min.y );
                     bad_rotated_direction = cube_direction::north;
                 } else if( new_max.y >= 24 ) {
                     bad_rotated_direction = cube_direction::south;
-                    extreme_coord = string_format( "y = %d (should be at most 23)", new_max.y );
+                    extreme_coord = string_format( "y = {} (should be at most 23)", new_max.y );
                 } else {
                     continue;
                 }
@@ -2548,7 +2548,7 @@ class jmapgen_vehicle : public jmapgen_piece
                 std::string bad_vehicle;
                 auto format_option = []( const vgroup_id & vg, const vproto_id & vp ) {
                     return string_format(
-                               "[vgroup_id %s; vproto_id %s]", vg.str(), vp.str() );
+                               "[vgroup_id {}; vproto_id {}]", vg.str(), vp.str() );
                 };
                 switch( bad_direction ) {
                     case cube_direction::north:
@@ -2564,12 +2564,12 @@ class jmapgen_vehicle : public jmapgen_piece
                         bad_vehicle = format_option( min_x_vg, min_x_vp );
                         break;
                     default:
-                        cata_fatal( "Invalid bad_direction %d", bad_direction );
+                        cata_fatal( "Invalid bad_direction {}", bad_direction );
                 }
-                debugmsg( "In %s, vehicle placement at x:[%d,%d], y:[%d,%d]: "
+                debugmsg( "In {}, vehicle placement at x:[{},{}], y:[{},{}]: "
                           "potential placement of vehicle out of bounds.  "
-                          "At rotation %d the vehicle %s extends too far %s, "
-                          "reaching coordinate %s",
+                          "At rotation {} the vehicle {} extends too far {}, "
+                          "reaching coordinate {}",
                           context, x.val, x.valmax, y.val, y.valmax, degrees,
                           bad_vehicle, io::enum_to_string( bad_rotated_direction ),
                           extreme_coord );
@@ -2709,7 +2709,7 @@ class jmapgen_furniture : public jmapgen_piece
                 return;
             }
             if( !dat.m.furn_set( point( x.get(), y.get() ), chosen_id ) ) {
-                debugmsg( "Problem setting furniture in %s", context );
+                debugmsg( "Problem setting furniture in {}", context );
             }
         }
         bool has_vehicle_collision( const mapgendata &dat, const point &p ) const override {
@@ -2767,17 +2767,17 @@ class jmapgen_terrain : public jmapgen_piece
                 trap_str_id trap_here = dat.m.tr_at( tp ).id;
                 if( dat.m.furn( p ) != f_null ) {
                     // NOLINTNEXTLINE(cata-translate-string-literal)
-                    error = string_format( "furniture was %s", dat.m.furn( p ).id().str() );
+                    error = string_format( "furniture was {}", dat.m.furn( p ).id().str() );
                 } else if( !dat.m.i_at( p ).empty() ) {
                     // NOLINTNEXTLINE(cata-translate-string-literal)
-                    error = string_format( "item %s existed",
+                    error = string_format( "item {} existed",
                                            dat.m.i_at( p ).begin()->typeId().str() );
                 } else if( !trap_here.is_null() && trap_here.id() != terrain_here->trap ) {
                     // NOLINTNEXTLINE(cata-translate-string-literal)
-                    error = string_format( "trap %s existed", trap_here.str() );
+                    error = string_format( "trap {} existed", trap_here.str() );
                 }
                 if( !error.empty() ) {
-                    debugmsg( "In %s on %s, setting terrain to %s (from %s) at %s when %s.  "
+                    debugmsg( "In {} on {}, setting terrain to {} (from {}) at {} when {}.  "
                               "Resolve this either by removing the terrain from this mapgen, "
                               "adding suitable removal commands to the mapgen, or "
                               "by adding a suitable flag to the innermost mapgen: either "
@@ -2973,9 +2973,9 @@ class jmapgen_sealed_item : public jmapgen_piece
         void check( const std::string &context, const mapgen_parameters &params,
                     const jmapgen_int &x, const jmapgen_int &y ) const override {
             std::string short_summary =
-                string_format( "sealed_item special in json mapgen for %s", context );
+                string_format( "sealed_item special in json mapgen for {}", context );
             if( !item_spawner && !item_group_spawner ) {
-                debugmsg( "%s specifies neither an item nor an item group.  "
+                debugmsg( "{} specifies neither an item nor an item group.  "
                           "It should specify at least one.",
                           short_summary );
                 return;
@@ -2983,10 +2983,10 @@ class jmapgen_sealed_item : public jmapgen_piece
 
             for( const furn_str_id &f : furniture.all_possible_results( params ) ) {
                 std::string summary =
-                    string_format( "%s using furniture %s", short_summary, f.str() );
+                    string_format( "{} using furniture {}", short_summary, f.str() );
 
                 if( !f.is_valid() ) {
-                    debugmsg( "%s which is not valid furniture", summary );
+                    debugmsg( "{} which is not valid furniture", summary );
                     return;
                 }
 
@@ -2995,7 +2995,7 @@ class jmapgen_sealed_item : public jmapgen_piece
                 if( furn.has_flag( ter_furn_flag::TFLAG_PLANT ) ) {
                     // plant furniture requires exactly one seed item within it
                     if( item_spawner && item_group_spawner ) {
-                        debugmsg( "%s (with flag PLANT) specifies both an item and an item group.  "
+                        debugmsg( "{} (with flag PLANT) specifies both an item and an item group.  "
                                   "It should specify exactly one.",
                                   summary );
                         return;
@@ -3005,13 +3005,13 @@ class jmapgen_sealed_item : public jmapgen_piece
                         item_spawner->check( context, params, x, y );
                         int count = item_spawner->amount.get();
                         if( count != 1 ) {
-                            debugmsg( "%s (with flag PLANT) spawns %d items; it should spawn "
+                            debugmsg( "{} (with flag PLANT) spawns {} items; it should spawn "
                                       "exactly one.", summary, count );
                             return;
                         }
                         int item_chance = item_spawner->chance.get();
                         if( item_chance != 100 ) {
-                            debugmsg( "%s (with flag PLANT) spawns an item with probability %d%%; "
+                            debugmsg( "{} (with flag PLANT) spawns an item with probability {}%%; "
                                       "it should always spawn.  You can move the \"chance\" up to "
                                       "the sealed_item instead of the \"item\" within.",
                                       summary, item_chance );
@@ -3021,7 +3021,7 @@ class jmapgen_sealed_item : public jmapgen_piece
                              item_spawner->type.all_possible_results( params ) ) {
                             const itype *spawned_type = item::find_type( t );
                             if( !spawned_type->seed ) {
-                                debugmsg( "%s (with flag PLANT) spawns item type %s which is not a "
+                                debugmsg( "{} (with flag PLANT) spawns item type {} which is not a "
                                           "seed.", summary, spawned_type->get_id().str() );
                                 return;
                             }
@@ -3032,7 +3032,7 @@ class jmapgen_sealed_item : public jmapgen_piece
                         item_group_spawner->check( context, params, x, y );
                         int ig_chance = item_group_spawner->chance.get();
                         if( ig_chance != 100 ) {
-                            debugmsg( "%s (with flag PLANT) spawns item group %s with chance %d.  "
+                            debugmsg( "{} (with flag PLANT) spawns item group {} with chance {}.  "
                                       "It should have chance 100.  You can move the \"chance\" up "
                                       "to the sealed_item instead of the \"items\" within.",
                                       summary, item_group_spawner->group_id.str(), ig_chance );
@@ -3042,8 +3042,8 @@ class jmapgen_sealed_item : public jmapgen_piece
                         for( const itype *type :
                              item_group::every_possible_item_from( group_id ) ) {
                             if( !type->seed ) {
-                                debugmsg( "%s (with flag PLANT) spawns item group %s which can "
-                                          "spawn item %s which is not a seed.",
+                                debugmsg( "{} (with flag PLANT) spawns item group {} which can "
+                                          "spawn item {} which is not a seed.",
                                           summary, group_id.str(), type->get_id().str() );
                                 return;
                             }
@@ -3280,7 +3280,7 @@ class jmapgen_nested : public jmapgen_piece
                     //     neighbors ) {
                     //    for( const oter_type_str_id &id : p.second ) {
                     //        if( !id.is_valid() ) {
-                    //            debugmsg( "Invalid oter_str_id '%s' in %s", id.str(), oter_name );
+                    //            debugmsg( "Invalid oter_str_id '{}' in {}", id.str(), oter_name );
                     //        }
                     //    }
                     //}
@@ -3375,7 +3375,7 @@ class jmapgen_nested : public jmapgen_piece
                     }
                     const auto iter = nested_mapgens.find( id );
                     if( iter == nested_mapgens.end() ) {
-                        debugmsg( "Unknown nested mapgen function id '%s'", id.str() );
+                        debugmsg( "Unknown nested mapgen function id '{}'", id.str() );
                         return;
                     }
                     using Obj = weighted_object<int, std::shared_ptr<mapgen_function_json_nested>>;
@@ -3416,7 +3416,7 @@ class jmapgen_nested : public jmapgen_piece
             }
             const auto iter = nested_mapgens.find( res );
             if( iter == nested_mapgens.end() ) {
-                debugmsg( "Unknown nested mapgen function id %s", res.str() );
+                debugmsg( "Unknown nested mapgen function id {}", res.str() );
                 return;
             }
 
@@ -3480,16 +3480,16 @@ class jmapgen_nested : public jmapgen_piece
             point max = point( x.valmax % omt_size, y.valmax % omt_size ) + max_relative;
 
             if( max.x >= omt_size ) {
-                debugmsg( "nest %s within %s can place something at x = %d, which is in a "
-                          "different OMT from the smallest nest origin (%d, %d), and could lead to "
+                debugmsg( "nest {} within {} can place something at x = {}, which is in a "
+                          "different OMT from the smallest nest origin ({}, {}), and could lead to "
                           "an out of bounds placement",
                           offending_nest_x.str(), oter_name, x.valmax + max_relative.x, x.val,
                           y.val );
             }
 
             if( max.y >= omt_size ) {
-                debugmsg( "nest %s within %s can place something at y = %d, which is in a "
-                          "different OMT from the smallest nest origin (%d, %d), and could lead to "
+                debugmsg( "nest {} within {} can place something at y = {}, which is in a "
+                          "different OMT from the smallest nest origin ({}, {}), and could lead to "
                           "an out of bounds placement",
                           offending_nest_y.str(), oter_name, y.valmax + max_relative.y, x.val,
                           y.val );
@@ -3749,7 +3749,7 @@ void mapgen_palette::load_place_mapings( const JsonObject &jo, const std::string
             }
             auto &vect = format_placings[ key ];
             // NOLINTNEXTLINE(cata-translate-string-literal)
-            std::string this_context = string_format( "%s in mapping in %s", member_name, context );
+            std::string this_context = string_format( "{} in mapping in {}", member_name, context );
             ::load_place_mapings<PieceType>( sub.get_member( member_name ), vect, this_context );
         }
     }
@@ -3761,7 +3761,7 @@ void mapgen_palette::load_place_mapings( const JsonObject &jo, const std::string
         auto &vect = format_placings[ key ];
         std::string this_context =
             // NOLINTNEXTLINE(cata-translate-string-literal)
-            string_format( "%s %s in %s", member_name, member.name(), context );
+            string_format( "{} {} in {}", member_name, member.name(), context );
         ::load_place_mapings<PieceType>( member, vect, this_context );
     }
 }
@@ -3791,7 +3791,7 @@ void mapgen_palette::check()
     jmapgen_int fake_coord( -1 );
     mapgen_parameters no_parameters;
     for( const std::pair<const std::string, mapgen_parameter> &param : parameters.map ) {
-        std::string this_context = string_format( "parameter %s in %s", param.first, context );
+        std::string this_context = string_format( "parameter {} in {}", param.first, context );
         param.second.check( no_parameters, this_context );
     }
     for( const std::pair<const map_key, std::vector<shared_ptr_fast<const jmapgen_piece>>> &p :
@@ -3825,7 +3825,7 @@ const mapgen_palette &mapgen_palette::get( const palette_id &id )
         return iter->second;
     }
 
-    debugmsg( "Requested palette with unknown id %s", id.c_str() );
+    debugmsg( "Requested palette with unknown id {}", id.c_str() );
     static mapgen_palette dummy;
     return dummy;
 }
@@ -3881,7 +3881,7 @@ void mapgen_palette::add( const mapgen_palette &rh, const add_palette_context &c
             []( const palette_id & i ) {
                 return i.str();
             }, enumeration_conjunction::arrow );
-            debugmsg( "loop in palette references: %s", loop_ids );
+            debugmsg( "loop in palette references: {}", loop_ids );
             return;
         }
     }
@@ -4156,12 +4156,12 @@ bool mapgen_function_json_base::setup_common( const JsonObject &jo )
 
         parray = jo.get_array( "rows" );
         if( static_cast<int>( parray.size() ) < expected_dim.y ) {
-            parray.throw_error( string_format( "format: rows: must have at least %d rows, not %d",
+            parray.throw_error( string_format( "format: rows: must have at least {} rows, not {}",
                                                expected_dim.y, parray.size() ) );
         }
         if( static_cast<int>( parray.size() ) != total_size.y ) {
             parray.throw_error(
-                string_format( "format: rows: must have %d rows, not %d; check mapgensize if applicable",
+                string_format( "format: rows: must have {} rows, not {}; check mapgensize if applicable",
                                total_size.y, parray.size() ) );
         }
         for( int c = m_offset.y; c < expected_dim.y; c++ ) {
@@ -4172,12 +4172,12 @@ bool mapgen_function_json_base::setup_common( const JsonObject &jo )
             }
             if( row_keys.size() < static_cast<size_t>( expected_dim.x ) ) {
                 parray.throw_error(
-                    string_format( "  format: row %d must have at least %d columns, not %d",
+                    string_format( "  format: row {} must have at least {} columns, not {}",
                                    c + 1, expected_dim.x, row_keys.size() ) );
             }
             if( row_keys.size() != static_cast<size_t>( total_size.x ) ) {
                 parray.throw_error(
-                    string_format( "  format: row %d must have %d columns, not %d; check mapgensize if applicable",
+                    string_format( "  format: row {} must have {} columns, not {}; check mapgensize if applicable",
                                    c + 1, total_size.x, row_keys.size() ) );
             }
             for( int i = m_offset.x; i < expected_dim.x; i++ ) {
@@ -4192,19 +4192,19 @@ bool mapgen_function_json_base::setup_common( const JsonObject &jo )
                 if( !has_terrain && !fallback_terrain_exists ) {
                     parray.string_error(
                         c, i + 1,
-                        string_format( "format: rows: row %d column %d: "
-                                       "'%s' is not in 'terrain', and no 'fill_ter' is set!",
+                        string_format( "format: rows: row {} column {}: "
+                                       "'{}' is not in 'terrain', and no 'fill_ter' is set!",
                                        c + 1, i + 1, key.str ) );
                 }
                 if( !has_terrain && !has_placing && key.str != " " && key.str != "." ) {
                     try {
                         parray.string_error(
                             c, i + 1,
-                            string_format( "format: rows: row %d column %d: "
-                                           "'%s' has no terrain, furniture, or other definition",
+                            string_format( "format: rows: row {} column {}: "
+                                           "'{}' has no terrain, furniture, or other definition",
                                            c + 1, i + 1, key.str ) );
                     } catch( const JsonError &e ) {
-                        debugmsg( "(json-error)\n%s", e.what() );
+                        debugmsg( "(json-error)\n{}", e.what() );
                     }
                 }
                 if( has_placing ) {
@@ -4277,7 +4277,7 @@ void mapgen_function_json::check() const
     check_common();
 
     if( predecessor_mapgen != oter_str_id::NULL_ID() && expects_predecessor() ) {
-        debugmsg( "%s uses both predecessor_mapgen and expects_predecessor; these features are "
+        debugmsg( "{} uses both predecessor_mapgen and expects_predecessor; these features are "
                   "incompatible", context_ );
     }
 }
@@ -4286,7 +4286,7 @@ void mapgen_function_json::check_consistent_with( const oter_t &ter ) const
 {
     bool requires_predecessor = ter.has_flag( oter_flags::requires_predecessor );
     if( expects_predecessor() && !requires_predecessor ) {
-        debugmsg( "mapgen for oter_t %s expects a predecessor terrain but oter_type_t %s lacks the "
+        debugmsg( "mapgen for oter_t {} expects a predecessor terrain but oter_type_t {} lacks the "
                   "REQUIRES_PREDECESSOR flag", ter.id.str(), ter.get_type_id().str() );
     }
 }
@@ -4300,7 +4300,7 @@ static bool check_furn( const furn_id &id, const std::string &context )
 {
     const furn_t &furn = id.obj();
     if( furn.has_flag( ter_furn_flag::TFLAG_PLANT ) ) {
-        debugmsg( "json mapgen for %s specifies furniture %s, which has flag "
+        debugmsg( "json mapgen for {} specifies furniture {}, which has flag "
                   "PLANT.  Such furniture must be specified in a \"sealed_item\" special.",
                   context, furn.id.str() );
         // Only report once per mapgen object, otherwise the reports are
@@ -4314,7 +4314,7 @@ void mapgen_function_json_base::check_common() const
 {
     if( flags_.test( jmapgen_flags::allow_terrain_under_other_data ) &&
         flags_.test( jmapgen_flags::erase_all_before_placing_terrain ) ) {
-        debugmsg( "In %s, flags ERASE_ALL_BEFORE_PLACING_TERRAIN and "
+        debugmsg( "In {}, flags ERASE_ALL_BEFORE_PLACING_TERRAIN and "
                   "ALLOW_TERRAIN_UNDER_OTHER_DATA cannot be used together", context_ );
     }
     for( const jmapgen_setmap &setmap : setmap_points ) {
@@ -4422,7 +4422,7 @@ mapgen_phase jmapgen_setmap::phase() const
         case JMAPGEN_SETMAP_OPTYPE_SQUARE:
             break;
     }
-    debugmsg( "Invalid jmapgen_setmap::op %d", static_cast<int>( op ) );
+    debugmsg( "Invalid jmapgen_setmap::op {}", static_cast<int>( op ) );
     return mapgen_phase::default_;
 }
 
@@ -4782,7 +4782,7 @@ void mapgen_function_json::generate( mapgendata &md )
         bool success = run_mapgen_func( function_key, predecessor_md );
 
         if( !success ) {
-            debugmsg( "predecessor mapgen with key %s failed", function_key );
+            debugmsg( "predecessor mapgen with key {} failed", function_key );
         }
 
         // Now we have to do some rotation shenanigans. We need to ensure that
@@ -4929,7 +4929,7 @@ void map::draw_map( mapgendata &dat )
     if( !found ) {
         // not one of the hardcoded ones!
         // load from JSON???
-        debugmsg( "Error: tried to generate map for omtype %s, \"%s\" (id_mapgen %s)",
+        debugmsg( "Error: tried to generate map for omtype {}, \"{}\" (id_mapgen {})",
                   terrain_type.id().c_str(), terrain_type->get_name(), function_key.c_str() );
         fill_background( this, t_floor );
     }
@@ -6405,7 +6405,7 @@ void map::place_spawns( const mongroup_id &group, const int chance,
     if( !group.is_valid() ) {
         const tripoint_abs_omt omt = project_to<coords::omt>( get_abs_sub() );
         const oter_id &oid = overmap_buffer.ter( omt );
-        debugmsg( "place_spawns: invalid mongroup '%s', om_terrain = '%s' (%s)", group.c_str(),
+        debugmsg( "place_spawns: invalid mongroup '{}', om_terrain = '{}' ({})", group.c_str(),
                   oid.id().c_str(), oid->get_mapgen_id().c_str() );
         return;
     }
@@ -6531,13 +6531,13 @@ std::vector<item *> map::place_items(
     std::vector<item *> res;
 
     if( chance > 100 || chance <= 0 ) {
-        debugmsg( "map::place_items() called with an invalid chance (%d)", chance );
+        debugmsg( "map::place_items() called with an invalid chance ({})", chance );
         return res;
     }
     if( !item_group::group_is_defined( group_id ) ) {
         const tripoint_abs_omt omt = project_to<coords::omt>( get_abs_sub() );
         const oter_id &oid = overmap_buffer.ter( omt );
-        debugmsg( "place_items: invalid item group '%s', om_terrain = '%s' (%s)",
+        debugmsg( "place_items: invalid item group '{}', om_terrain = '{}' ({})",
                   group_id.c_str(), oid.id().c_str(), oid->get_mapgen_id().c_str() );
         return res;
     }
@@ -6617,18 +6617,18 @@ void map::add_spawn(
     int mission_id, const std::string &name, const spawn_data &data )
 {
     if( p.x < 0 || p.x >= SEEX * my_MAPSIZE || p.y < 0 || p.y >= SEEY * my_MAPSIZE ) {
-        debugmsg( "Out of bounds add_spawn(%s, %d, %d, %d)", type.c_str(), count, p.x, p.y );
+        debugmsg( "Out of bounds add_spawn({}, {}, {}, {})", type.c_str(), count, p.x, p.y );
         return;
     }
     point offset;
     submap *place_on_submap = get_submap_at( p, offset );
     if( place_on_submap == nullptr ) {
-        debugmsg( "Tried to add spawn at (%d,%d) but the submap is not loaded", offset.x, offset.y );
+        debugmsg( "Tried to add spawn at ({},{}) but the submap is not loaded", offset.x, offset.y );
         return;
     }
 
     if( !place_on_submap ) {
-        debugmsg( "centadodecamonant doesn't exist in grid; within add_spawn(%s, %d, %d, %d, %d)",
+        debugmsg( "centadodecamonant doesn't exist in grid; within add_spawn({}, {}, {}, {}, {})",
                   type.c_str(), count, p.x, p.y, p.z );
         return;
     }
@@ -6666,11 +6666,11 @@ vehicle *map::add_vehicle( const vproto_id &type, const tripoint &p, const units
                            bool may_spawn_locked )
 {
     if( !type.is_valid() ) {
-        debugmsg( "Nonexistent vehicle type: \"%s\"", type.c_str() );
+        debugmsg( "Nonexistent vehicle type: \"{}\"", type.c_str() );
         return nullptr;
     }
     if( !inbounds( p ) ) {
-        dbg( D_WARNING ) << string_format( "Out of bounds add_vehicle t=%s d=%d p=%d,%d,%d",
+        dbg( D_WARNING ) << string_format( "Out of bounds add_vehicle t={} d={} p={},{},{}",
                                            type.str(), to_degrees( dir ), p.x, p.y, p.z );
         return nullptr;
     }
@@ -6696,7 +6696,7 @@ vehicle *map::add_vehicle( const vproto_id &type, const tripoint &p, const units
     if( placed_vehicle != nullptr ) {
         submap *place_on_submap = get_submap_at_grid( placed_vehicle->sm_pos );
         if( place_on_submap == nullptr ) {
-            debugmsg( "Tried to add vehicle at (%d,%d,%d) but the submap is not loaded",
+            debugmsg( "Tried to add vehicle at ({},{},{}) but the submap is not loaded",
                       placed_vehicle->sm_pos.x, placed_vehicle->sm_pos.y, placed_vehicle->sm_pos.z );
             return placed_vehicle;
         }
@@ -6792,9 +6792,9 @@ std::unique_ptr<vehicle> map::add_vehicle_to_map(
                         continue;
                     }
                     if( !inbounds( map_pos ) ) {
-                        debugmsg( "Existing vehicle %s (%s; origin %s; rot %g) and "
-                                  "new vehicle %s (%s; origin %s; rot %g) "
-                                  "out of map bounds at %s",
+                        debugmsg( "Existing vehicle {} ({}; origin {}; rot {}) and "
+                                  "new vehicle {} ({}; origin {}; rot {}) "
+                                  "out of map bounds at {}",
                                   first_veh->name, first_veh->type.str(),
                                   first_veh->global_square_location().to_string(),
                                   to_degrees( first_veh->turn_dir ),
@@ -6878,7 +6878,7 @@ computer *map::add_computer( const tripoint &p, const std::string &name, int sec
     point l;
     submap *const place_on_submap = get_submap_at( p, l );
     if( place_on_submap == nullptr ) {
-        debugmsg( "Tried to add computer at (%d,%d) but the submap is not loaded", l.x, l.y );
+        debugmsg( "Tried to add computer at ({},{}) but the submap is not loaded", l.x, l.y );
         static computer null_computer = computer( name, security, p );
         return &null_computer;
     }
@@ -6957,7 +6957,7 @@ void map::rotate( int turns, const bool setpos_safe )
     submap *pe = get_submap_at_grid( point_east );
     submap *ps = get_submap_at_grid( point_south );
     if( pz == nullptr || pse == nullptr || pe == nullptr || ps == nullptr ) {
-        debugmsg( "Tried to rotate map at (%d,%d) but the submap is not loaded", point_zero.x,
+        debugmsg( "Tried to rotate map at ({},{}) but the submap is not loaded", point_zero.x,
                   point_zero.y );
         return;
     }
@@ -6977,7 +6977,7 @@ void map::rotate( int turns, const bool setpos_safe )
             point tmpp = point_south_east - p;
             submap *psep = get_submap_at_grid( tmpp );
             if( psep == nullptr ) {
-                debugmsg( "Tried to rotate map at (%d,%d) but the submap is not loaded", tmpp.x, tmpp.y );
+                debugmsg( "Tried to rotate map at ({},{}) but the submap is not loaded", tmpp.x, tmpp.y );
                 continue;
             }
             std::swap( *psep, tmp );
@@ -6990,7 +6990,7 @@ void map::rotate( int turns, const bool setpos_safe )
             point p( i, j );
             submap *sm = get_submap_at_grid( p );
             if( sm == nullptr ) {
-                debugmsg( "Tried to rotate map at (%d,%d) but the submap is not loaded", p.x, p.y );
+                debugmsg( "Tried to rotate map at ({},{}) but the submap is not loaded", p.x, p.y );
                 continue;
             }
 
@@ -7032,7 +7032,7 @@ void map::mirror( bool mirror_horizontal, bool mirror_vertical )
     submap *pe = get_submap_at_grid( point_east );
     submap *ps = get_submap_at_grid( point_south );
     if( pz == nullptr || pse == nullptr || pe == nullptr || ps == nullptr ) {
-        debugmsg( "Tried to mirror map at (%d,%d) but the submap is not loaded", point_zero.x,
+        debugmsg( "Tried to mirror map at ({},{}) but the submap is not loaded", point_zero.x,
                   point_zero.y );
         return;
     }
@@ -7053,7 +7053,7 @@ void map::mirror( bool mirror_horizontal, bool mirror_vertical )
             point p( i, j );
             submap *sm = get_submap_at_grid( p );
             if( sm == nullptr ) {
-                debugmsg( "Tried to mirror map at (%d,%d) but the submap is not loaded", p.x, p.y );
+                debugmsg( "Tried to mirror map at ({},{}) but the submap is not loaded", p.x, p.y );
                 continue;
             }
 
@@ -7112,7 +7112,7 @@ bool connects_to( const oter_id &there, int dir )
             }
             return false;
         default:
-            debugmsg( "Connects_to with dir of %d", dir );
+            debugmsg( "Connects_to with dir of {}", dir );
             return false;
     }
 }

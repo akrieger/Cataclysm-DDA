@@ -188,17 +188,17 @@ void printHelpMessage( const FirstPassArgs &first_pass_arguments,
     for( std::pair<const std::string, const arg_handler *> &help_entry : help_map ) {
         if( help_entry.first != current_help_group ) {
             current_help_group = help_entry.first;
-            printf( "\n%s\n", current_help_group.c_str() );
+            printf( "\n{}\n", current_help_group.c_str() );
         }
 
         const arg_handler *handler = help_entry.second;
-        printf( "%s", handler->flag );
+        printf( "{}", handler->flag );
         if( handler->param_documentation ) {
-            printf( " %s", handler->param_documentation );
+            printf( " {}", handler->param_documentation );
         }
         printf( "\n" );
         if( handler->documentation ) {
-            printf( "    %s\n", handler->documentation );
+            printf( "    {}\n", handler->documentation );
         }
     }
 }
@@ -221,9 +221,9 @@ void printVersionMessage()
     const bool hasSound = false;
 #endif
 
-    printf( "Cataclysm Dark Days Ahead: %s\n\n"
-            "%ctiles, %csound\n\n"
-            "data dir: %s\nuser dir: %s\n",
+    printf( "Cataclysm Dark Days Ahead: {}\n\n"
+            "{}, {}\n\n"
+            "data dir: {}\nuser dir: {}\n",
             getVersionString(),
             hasTiles ? '+' : '-',
             hasSound ? '+' : '-',
@@ -241,13 +241,13 @@ void process_args( const char **argv, int argc, const ArgHandlerContainer &arg_h
                 argc--;
                 argv++;
                 if( argc < handler.num_args ) {
-                    printf( "Missing expected argument to command line parameter %s\n",
+                    printf( "Missing expected argument to command line parameter {}\n",
                             handler.flag );
                     std::exit( 1 );
                 }
                 int args_consumed = handler.handler( argc, argv );
                 if( args_consumed < 0 ) {
-                    printf( "Failed parsing parameter '%s'\n", *( argv - 1 ) );
+                    printf( "Failed parsing parameter '{}'\n", *( argv - 1 ) );
                     std::exit( 1 );
                 }
                 argc -= args_consumed;
@@ -568,7 +568,7 @@ bool assure_essential_dirs_exist()
     using namespace PATH_INFO;
     for( const std::string &path : std::vector<std::string> { { config_dir(), savedir(), templatedir(), user_font(), user_sound(), user_gfx() } } ) {
         if( !assure_dir_exist( path ) ) {
-            popup( _( "Unable to make directory \"%s\".  Check permissions." ), path );
+            popup( _( "Unable to make directory \"{}\".  Check permissions." ), path );
             return false;
         }
     }
@@ -630,13 +630,13 @@ int main( int argc, const char *argv[] )
     cli_opts cli = parse_commandline( argc, const_cast<const char **>( argv ) );
 
     if( !dir_exist( PATH_INFO::datadir() ) ) {
-        printf( "Fatal: Can't find data directory \"%s\"\nPlease ensure the current working directory is correct or specify data directory with --datadir.  Perhaps you meant to start \"cataclysm-launcher\"?\n",
+        printf( "Fatal: Can't find data directory \"{}\"\nPlease ensure the current working directory is correct or specify data directory with --datadir.  Perhaps you meant to start \"cataclysm-launcher\"?\n",
                 PATH_INFO::datadir().c_str() );
         exit( 1 );
     }
 
     if( !assure_dir_exist( PATH_INFO::user_dir() ) ) {
-        printf( "Can't open or create %s. Check permissions.\n",
+        printf( "Can't open or create {}. Check permissions.\n",
                 PATH_INFO::user_dir().c_str() );
         exit( 1 );
     }
@@ -660,7 +660,7 @@ int main( int argc, const char *argv[] )
                 // default to basic C locale
                 std::locale::global( std::locale::classic() );
             } catch( const std::exception &err ) {
-                debugmsg( "%s", err.what() );
+                debugmsg( "{}", err.what() );
                 exit_handler( -999 );
             }
         }
@@ -732,7 +732,7 @@ int main( int argc, const char *argv[] )
             exit( g->check_mod_data( mods, ui ) && !debug_has_error_been_observed() ? 0 : 1 );
         }
     } catch( const std::exception &err ) {
-        debugmsg( "%s", err.what() );
+        debugmsg( "{}", err.what() );
         exit_handler( -999 );
     }
 

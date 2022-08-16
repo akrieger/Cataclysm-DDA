@@ -230,7 +230,7 @@ std::string weariness_events::summarize() const
 {
     std::string buffer;
     for( const weary_transition &change : transitions ) {
-        buffer += string_format( "Change: Weary lvl from %d to %d at %d min (W %d Th %d In %d Tr %d)\n",
+        buffer += string_format( "Change: Weary lvl from {} to {} at {} min (W {} Th {} In {} Tr {})\n",
                                  change.from, change.to, change.minutes,
                                  change.new_weariness, change.new_threshold,
                                  static_cast<int>( change.intake / 1000 ),

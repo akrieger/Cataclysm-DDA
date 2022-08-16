@@ -59,7 +59,7 @@ void overmap_location::check() const
 {
     for( const auto &element : terrains ) {
         if( !element.is_valid() ) {
-            debugmsg( "In overmap location \"%s\", terrain \"%s\" is invalid.", id.c_str(), element.c_str() );
+            debugmsg( "In overmap location \"{}\", terrain \"{}\" is invalid.", id.c_str(), element.c_str() );
         }
     }
 }

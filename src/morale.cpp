@@ -208,7 +208,7 @@ double player_morale::morale_point::get_percent_contribution() const
 void player_morale::morale_point::decay( const time_duration &ticks )
 {
     if( ticks < 0_turns ) {
-        debugmsg( "The function called with negative ticks %d.", to_turns<int>( ticks ) );
+        debugmsg( "The function called with negative ticks {}.", to_turns<int>( ticks ) );
         return;
     }
 
@@ -316,7 +316,7 @@ void player_morale::add( const morale_type &type, int bonus, int max_bonus,
                          bool capped, const itype *item_type )
 {
     if( ( duration == 0_turns ) && !is_permanent_morale( type ) ) {
-        debugmsg( "Tried to set a non-permanent morale \"%s\" as permanent.",
+        debugmsg( "Tried to set a non-permanent morale \"{}\" as permanent.",
                   type.obj().describe( item_type ) );
         return;
     }
@@ -552,7 +552,7 @@ void player_morale::display( int focus_eq, int pain_penalty, int fatigue_penalty
                 : left( text ) {
                 switch( num_fmt ) {
                     case number_format::normal:
-                        right = string_format( "%d", num );
+                        right = string_format( "{}", num );
                         break;
                     case number_format::signed_or_dash:
                         if( num == 0 ) {
@@ -562,7 +562,7 @@ void player_morale::display( int focus_eq, int pain_penalty, int fatigue_penalty
                         }
                         break;
                     case number_format::percent:
-                        right = string_format( "%d%%", num );
+                        right = string_format( "{}%%", num );
                         break;
                 }
                 switch( col ) {
@@ -826,7 +826,7 @@ bool player_morale::consistent_with( const player_morale &morale ) const
             } );
 
             if( iter == rhs.points.end() || lhp.get_net_bonus() != iter->get_net_bonus() ) {
-                debugmsg( "Morale \"%s\" is inconsistent.", lhp.get_name() );
+                debugmsg( "Morale \"{}\" is inconsistent.", lhp.get_name() );
                 return false;
             }
         }
@@ -1002,7 +1002,7 @@ void player_morale::set_worn( const item &it, bool worn )
         } else if( worn ) {
             super_fancy_items[id] = 1;
         } else {
-            debugmsg( "Tried to take off \"%s\" which isn't worn.", id.c_str() );
+            debugmsg( "Tried to take off \"{}\" which isn't worn.", id.c_str() );
         }
     }
     if( fancy || super_fancy ) {

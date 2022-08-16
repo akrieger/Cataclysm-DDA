@@ -15,7 +15,7 @@ class morale_type_data
 {
     private:
         bool permanent = false;
-        // May contain '%s' format string
+        // May contain '{}' format string
         translation text;
     public:
         morale_type id;

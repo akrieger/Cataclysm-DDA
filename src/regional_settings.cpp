@@ -27,7 +27,7 @@ void read_and_set_or_throw( const JsonObject &jo, const std::string &member, T &
     T tmp;
     if( !jo.read( member, tmp ) ) {
         if( required ) {
-            jo.throw_error( string_format( "%s required", member ) );
+            jo.throw_error( string_format( "{} required", member ) );
         }
     } else {
         target = tmp;
@@ -629,7 +629,7 @@ void check_region_settings()
             const weighted_int_list<map_extra_id> &values = extras.values;
             if( !values.is_valid() ) {
                 if( values.empty() ) {
-                    debugmsg( "Invalid map extras for region \"%s\", extras \"%s\".  "
+                    debugmsg( "Invalid map extras for region \"{}\", extras \"{}\".  "
                               "Extras have nonzero chance but no extras are listed.",
                               region_name, extras_name );
                 } else {
@@ -638,8 +638,8 @@ void check_region_settings()
                     []( const weighted_object<int, map_extra_id> &w ) {
                         return '"' + w.obj.str() + '"';
                     } );
-                    debugmsg( "Invalid map extras for region \"%s\", extras \"%s\".  "
-                              "Extras %s are listed, but all have zero weight.",
+                    debugmsg( "Invalid map extras for region \"{}\", extras \"{}\".  "
+                              "Extras {} are listed, but all have zero weight.",
                               region_name, extras_name,
                               list_of_values );
                 }
@@ -827,7 +827,7 @@ void groundcover_extra::finalize()   // FIXME: return bool for failure
         } else if( fid.is_valid() ) {
             tf_id.furn = fid.id();
         } else {
-            debugmsg( "No clue what '%s' is!  No such terrain or furniture", it->first.c_str() );
+            debugmsg( "No clue what '{}' is!  No such terrain or furniture", it->first.c_str() );
             continue;
         }
         wtotal += static_cast<int>( it->second * 10000.0 );
@@ -849,7 +849,7 @@ void groundcover_extra::finalize()   // FIXME: return bool for failure
         } else if( fid.is_valid() ) {
             tf_id.furn = fid.id();
         } else {
-            debugmsg( "No clue what '%s' is!  No such terrain or furniture", it->first.c_str() );
+            debugmsg( "No clue what '{}' is!  No such terrain or furniture", it->first.c_str() );
             continue;
         }
         btotal += static_cast<int>( it->second * 10000.0 );
@@ -864,7 +864,7 @@ void groundcover_extra::finalize()   // FIXME: return bool for failure
             }
             ss << it->second;
         }
-        debugmsg( "plant coverage total (%s=%de-4) exceeds 100%%", ss.str(), wtotal );
+        debugmsg( "plant coverage total ({}={}-4) exceeds 100%%", ss.str(), wtotal );
     }
     if( btotal > 1000000 ) {
         std::stringstream ss;
@@ -874,7 +874,7 @@ void groundcover_extra::finalize()   // FIXME: return bool for failure
             }
             ss << it->second;
         }
-        debugmsg( "boosted plant coverage total (%s=%de-4) exceeds 100%%", ss.str(), btotal );
+        debugmsg( "boosted plant coverage total ({}={}-4) exceeds 100%%", ss.str(), btotal );
     }
 
     tf_id.furn = f_null;
@@ -986,7 +986,7 @@ void forest_trail_settings::finalize()
     for( const std::pair<const std::string, int> &pr : unfinalized_trail_terrain ) {
         const ter_str_id tid( pr.first );
         if( !tid.is_valid() ) {
-            debugmsg( "Tried to add invalid terrain %s to forest_trail_settings trail_terrain.", tid.c_str() );
+            debugmsg( "Tried to add invalid terrain {} to forest_trail_settings trail_terrain.", tid.c_str() );
             continue;
         }
         trail_terrain.add( tid.id(), pr.second );
@@ -1000,7 +1000,7 @@ void overmap_lake_settings::finalize()
     for( const std::string &oid : unfinalized_shore_extendable_overmap_terrain ) {
         const oter_str_id ot( oid );
         if( !ot.is_valid() ) {
-            debugmsg( "Tried to add invalid overmap terrain %s to overmap_lake_settings shore_extendable_overmap_terrain.",
+            debugmsg( "Tried to add invalid overmap terrain {} to overmap_lake_settings shore_extendable_overmap_terrain.",
                       ot.c_str() );
             continue;
         }
@@ -1010,7 +1010,7 @@ void overmap_lake_settings::finalize()
     for( shore_extendable_overmap_terrain_alias &alias : shore_extendable_overmap_terrain_aliases ) {
         if( std::find( shore_extendable_overmap_terrain.begin(), shore_extendable_overmap_terrain.end(),
                        alias.alias ) == shore_extendable_overmap_terrain.end() ) {
-            debugmsg( " %s was referenced as an alias in overmap_lake_settings shore_extendable_overmap_terrain_aliases, but the value is not present in the shore_extendable_overmap_terrain.",
+            debugmsg( " {} was referenced as an alias in overmap_lake_settings shore_extendable_overmap_terrain_aliases, but the value is not present in the shore_extendable_overmap_terrain.",
                       alias.alias.c_str() );
             continue;
         }
@@ -1038,14 +1038,14 @@ void region_terrain_and_furniture_settings::finalize()
     for( auto const &template_pr : unfinalized_terrain ) {
         const ter_str_id template_tid( template_pr.first );
         if( !template_tid.is_valid() ) {
-            debugmsg( "Tried to add invalid regional template terrain %s to region_terrain_and_furniture terrain.",
+            debugmsg( "Tried to add invalid regional template terrain {} to region_terrain_and_furniture terrain.",
                       template_tid.c_str() );
             continue;
         }
         for( auto const &actual_pr : template_pr.second ) {
             const ter_str_id tid( actual_pr.first );
             if( !tid.is_valid() ) {
-                debugmsg( "Tried to add invalid regional terrain %s to region_terrain_and_furniture terrain template %s.",
+                debugmsg( "Tried to add invalid regional terrain {} to region_terrain_and_furniture terrain template {}.",
                           tid.c_str(), template_tid.c_str() );
                 continue;
             }
@@ -1056,14 +1056,14 @@ void region_terrain_and_furniture_settings::finalize()
     for( auto const &template_pr : unfinalized_furniture ) {
         const furn_str_id template_fid( template_pr.first );
         if( !template_fid.is_valid() ) {
-            debugmsg( "Tried to add invalid regional template furniture %s to region_terrain_and_furniture furniture.",
+            debugmsg( "Tried to add invalid regional template furniture {} to region_terrain_and_furniture furniture.",
                       template_fid.c_str() );
             continue;
         }
         for( auto const &actual_pr : template_pr.second ) {
             const furn_str_id fid( actual_pr.first );
             if( !fid.is_valid() ) {
-                debugmsg( "Tried to add invalid regional furniture %s to region_terrain_and_furniture furniture template %s.",
+                debugmsg( "Tried to add invalid regional furniture {} to region_terrain_and_furniture furniture template {}.",
                           fid.c_str(), template_fid.c_str() );
                 continue;
             }
@@ -1122,7 +1122,7 @@ void city_settings::finalize()
 void building_bin::add( const overmap_special_id &building, int weight )
 {
     if( finalized ) {
-        debugmsg( "Tried to add special %s to a finalized building bin", building.c_str() );
+        debugmsg( "Tried to add special {} to a finalized building bin", building.c_str() );
         return;
     }
 
@@ -1165,7 +1165,7 @@ void building_bin::finalize()
             // First, try to convert oter to special
             string_id<oter_type_t> converted_id( pr.first.str() );
             if( !converted_id.is_valid() ) {
-                debugmsg( "Tried to add city building %s, but it is neither a special nor a terrain type",
+                debugmsg( "Tried to add city building {}, but it is neither a special nor a terrain type",
                           pr.first.c_str() );
                 continue;
             } else {

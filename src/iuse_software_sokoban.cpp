@@ -23,15 +23,15 @@ sokoban_game::sokoban_game() = default;
 
 void sokoban_game::print_score( const catacurses::window &w_sokoban, int iScore, int iMoves )
 {
-    mvwprintz( w_sokoban, point( 3, 1 ), c_white, _( "Level: %d/%d" ), iCurrentLevel + 1, iNumLevel );
+    mvwprintz( w_sokoban, point( 3, 1 ), c_white, _( "Level: {}/{}" ), iCurrentLevel + 1, iNumLevel );
     wprintw( w_sokoban, "    " );
 
-    mvwprintz( w_sokoban, point( 3, 2 ), c_white, _( "Score: %d" ), iScore );
+    mvwprintz( w_sokoban, point( 3, 2 ), c_white, _( "Score: {}" ), iScore );
 
-    mvwprintz( w_sokoban, point( 3, 3 ), c_white, _( "Moves: %d" ), iMoves );
+    mvwprintz( w_sokoban, point( 3, 3 ), c_white, _( "Moves: {}" ), iMoves );
     wprintw( w_sokoban, "    " );
 
-    mvwprintz( w_sokoban, point( 3, 4 ), c_white, _( "Total moves: %d" ), iTotalMoves );
+    mvwprintz( w_sokoban, point( 3, 4 ), c_white, _( "Total moves: {}" ), iTotalMoves );
 }
 
 void sokoban_game::parse_level( std::istream &fin )

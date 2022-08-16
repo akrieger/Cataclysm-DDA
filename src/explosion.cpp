@@ -310,7 +310,7 @@ static void do_blast( const tripoint &p, const float power,
             continue;
         }
 
-        add_msg_debug( debugmode::DF_EXPLOSION, "Blast hits %s with force %.1f", critter->disp_name(),
+        add_msg_debug( debugmode::DF_EXPLOSION, "Blast hits {} with force %.1f", critter->disp_name(),
                        force );
 
         Character *pl = critter->as_character();
@@ -320,7 +320,7 @@ static void do_blast( const tripoint &p, const float power,
             const int actual_dmg = rng_float( dmg * 2, dmg * 3 );
             critter->apply_damage( nullptr, bodypart_id( "torso" ), actual_dmg );
             critter->check_dead_state();
-            add_msg_debug( debugmode::DF_EXPLOSION, "Blast hits %s for %d damage", critter->disp_name(),
+            add_msg_debug( debugmode::DF_EXPLOSION, "Blast hits {} for {} damage", critter->disp_name(),
                            actual_dmg );
             continue;
         }
@@ -355,10 +355,10 @@ static void do_blast( const tripoint &p, const float power,
             const dealt_damage_instance result = pl->deal_damage( nullptr, blp.bp, dmg_instance );
             const int res_dmg = result.total_damage();
 
-            add_msg_debug( debugmode::DF_EXPLOSION, "%s for %d raw, %d actual", hit_part_name, part_dam,
+            add_msg_debug( debugmode::DF_EXPLOSION, "{} for {} raw, {} actual", hit_part_name, part_dam,
                            res_dmg );
             if( res_dmg > 0 ) {
-                pl->add_msg_if_player( m_bad, _( "Your %s is hit for %d damage!" ), hit_part_name, res_dmg );
+                pl->add_msg_if_player( m_bad, _( "Your {} is hit for {} damage!" ), hit_part_name, res_dmg );
             }
         }
     }
@@ -443,10 +443,10 @@ static std::vector<tripoint> shrapnel( const tripoint &src, int power,
                 } else {
                     non_damaging_hits++;
                 }
-                add_msg_debug( debugmode::DF_EXPLOSION, "Shrapnel hit %s at %d m/s at a distance of %d",
+                add_msg_debug( debugmode::DF_EXPLOSION, "Shrapnel hit {} at {} m/s at a distance of {}",
                                critter->disp_name(),
                                frag.proj.speed, rl_dist( src, target ) );
-                add_msg_debug( debugmode::DF_EXPLOSION, "Shrapnel dealt %d damage", frag.dealt_dam.total_damage() );
+                add_msg_debug( debugmode::DF_EXPLOSION, "Shrapnel dealt {} damage", frag.dealt_dam.total_damage() );
                 if( critter->is_dead_state() ) {
                     break;
                 }
@@ -600,7 +600,7 @@ void shockwave( const tripoint &p, int radius, int force, int stun, int dam_mult
             continue;
         }
         if( rl_dist( critter.pos(), p ) <= radius ) {
-            add_msg( _( "%s is caught in the shockwave!" ), critter.name() );
+            add_msg( _( "{} is caught in the shockwave!" ), critter.name() );
             g->knockback( p, critter.pos(), force, stun, dam_mult );
         }
     }
@@ -610,7 +610,7 @@ void shockwave( const tripoint &p, int radius, int force, int stun, int dam_mult
             continue;
         }
         if( rl_dist( guy.pos(), p ) <= radius ) {
-            add_msg( _( "%s is caught in the shockwave!" ), guy.get_name() );
+            add_msg( _( "{} is caught in the shockwave!" ), guy.get_name() );
             g->knockback( p, guy.pos(), force, stun, dam_mult );
         }
     }
@@ -631,7 +631,7 @@ void scrambler_blast( const tripoint &p )
         if( critter.has_flag( MF_ELECTRONIC ) ) {
             critter.make_friendly();
         }
-        add_msg( m_warning, _( "The %s sparks and begins searching for a target!" ),
+        add_msg( m_warning, _( "The {} sparks and begins searching for a target!" ),
                  critter.name() );
     }
 }
@@ -643,7 +643,7 @@ void emp_blast( const tripoint &p )
     map &here = get_map();
     if( here.has_flag( ter_furn_flag::TFLAG_CONSOLE, p ) ) {
         if( sight ) {
-            add_msg( _( "The %s is rendered non-functional!" ), here.tername( p ) );
+            add_msg( _( "The {} is rendered non-functional!" ), here.tername( p ) );
         }
         here.furn_set( p, furn_f_machinery_electronic );
         return;
@@ -695,7 +695,7 @@ void emp_blast( const tripoint &p )
             }
             if( !mon_item_id.is_empty() && deact_chance != 0 && one_in( deact_chance ) ) {
                 if( sight ) {
-                    add_msg( _( "The %s beeps erratically and deactivates!" ), critter.name() );
+                    add_msg( _( "The {} beeps erratically and deactivates!" ), critter.name() );
                 }
                 here.add_item_or_charges( p, critter.to_item() );
                 for( auto &ammodef : critter.ammo ) {
@@ -706,7 +706,7 @@ void emp_blast( const tripoint &p )
                 g->remove_zombie( critter );
             } else {
                 if( sight ) {
-                    add_msg( _( "The EMP blast fries the %s!" ), critter.name() );
+                    add_msg( _( "The EMP blast fries the {}!" ), critter.name() );
                 }
                 int dam = dice( 10, 10 );
                 critter.apply_damage( nullptr, bodypart_id( "torso" ), dam );
@@ -718,22 +718,22 @@ void emp_blast( const tripoint &p )
         } else if( critter.has_flag( MF_ELECTRIC_FIELD ) ) {
             if( !critter.has_effect( effect_emp ) ) {
                 if( sight ) {
-                    add_msg( m_good, _( "The %s's electrical field momentarily goes out!" ), critter.name() );
+                    add_msg( m_good, _( "The {}'s electrical field momentarily goes out!" ), critter.name() );
                 }
                 critter.add_effect( effect_emp, 3_minutes );
             } else if( critter.has_effect( effect_emp ) ) {
                 int dam = dice( 3, 5 );
                 if( sight ) {
-                    add_msg( m_good, _( "The %s's disabled electrical field reverses polarity!" ),
+                    add_msg( m_good, _( "The {}'s disabled electrical field reverses polarity!" ),
                              critter.name() );
-                    add_msg( m_good, _( "It takes %d damage." ), dam );
+                    add_msg( m_good, _( "It takes {} damage." ), dam );
                 }
                 critter.add_effect( effect_emp, 1_minutes );
                 critter.apply_damage( nullptr, bodypart_id( "torso" ), dam );
                 critter.check_dead_state();
             }
         } else if( sight ) {
-            add_msg( _( "The %s is unaffected by the EMP blast." ), critter.name() );
+            add_msg( _( "The {} is unaffected by the EMP blast." ), critter.name() );
         }
     }
     if( player_character.posx() == p.x && player_character.posy() == p.y &&
@@ -751,7 +751,7 @@ void emp_blast( const tripoint &p )
             weapon->unset_flag( STATIC( flag_id( "NO_UNWIELD" ) ) );
             weapon->charges = 0;
             weapon->active = false;
-            add_msg( m_good, _( "The %s on your wrists spark briefly, then release your hands!" ),
+            add_msg( m_good, _( "The {} on your wrists spark briefly, then release your hands!" ),
                      weapon->tname() );
         }
     }
@@ -874,7 +874,7 @@ void process_explosions()
     for( const queued_explosion &ex : _explosions ) {
         const tripoint p = get_map().getlocal( ex.first );
         if( p.x < 0 || p.x >= MAPSIZE_X || p.y < 0 || p.y >= MAPSIZE_Y ) {
-            debugmsg( "Explosion origin (%d, %d, %d) is out-of-bounds", p.x, p.y, p.z );
+            debugmsg( "Explosion origin ({}, {}, {}) is out-of-bounds", p.x, p.y, p.z );
             continue;
         }
         _make_explosion( p, ex.second );

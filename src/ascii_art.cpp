@@ -42,7 +42,7 @@ void ascii_art::load( const JsonObject &jo, const std::string & )
     for( std::string &line : picture ) {
         if( utf8_width( remove_color_tags( line ) ) > ascii_art_width ) {
             line = trim_by_length( line, ascii_art_width );
-            debugmsg( "picture in %s contains a line too long to be displayed (>%i char).", id.c_str(),
+            debugmsg( "picture in {} contains a line too long to be displayed (>{} char).", id.c_str(),
                       ascii_art_width );
         }
     }

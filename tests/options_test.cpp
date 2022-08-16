@@ -13,7 +13,7 @@ TEST_CASE( "option_slider_test", "[option]" )
 
     // check reordering
     for( int i = 0; i < 7; i++ ) {
-        REQUIRE( slider.level_name( i ).translated() == string_format( "TEST %d", i ) );
+        REQUIRE( slider.level_name( i ).translated() == string_format( "TEST {}", i ) );
     }
 
     const std::map<std::string, std::string> expected_3 {

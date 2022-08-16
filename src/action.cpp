@@ -80,8 +80,8 @@ void parse_keymap( std::istream &keymap_txt, std::map<char, action_id> &kmap,
         } else {
             const action_id act = look_up_action( id );
             if( act == ACTION_NULL ) {
-                debugmsg( "Warning!  keymap.txt contains an unknown action, \"%s\"\n"
-                          "Fix \"%s\" at your next chance!", id, PATH_INFO::keymap() );
+                debugmsg( "Warning!  keymap.txt contains an unknown action, \"{}\"\n"
+                          "Fix \"{}\" at your next chance!", id, PATH_INFO::keymap() );
             } else {
                 while( !keymap_txt.eof() ) {
                     char ch;
@@ -90,9 +90,9 @@ void parse_keymap( std::istream &keymap_txt, std::map<char, action_id> &kmap,
                         break;
                     } else if( ch != ' ' || keymap_txt.peek() == '\n' ) {
                         if( kmap.find( ch ) != kmap.end() ) {
-                            debugmsg( "Warning!  '%c' assigned twice in the keymap!\n"
-                                      "%s is being ignored.\n"
-                                      "Fix \"%s\" at your next chance!", ch, id, PATH_INFO::keymap() );
+                            debugmsg( "Warning!  '{}' assigned twice in the keymap!\n"
+                                      "{} is being ignored.\n"
+                                      "Fix \"{}\" at your next chance!", ch, id, PATH_INFO::keymap() );
                         } else {
                             kmap[ ch ] = act;
                         }
@@ -1073,8 +1073,8 @@ cata::optional<tripoint> choose_direction( const std::string &message, const boo
     }
 
     static_popup popup;
-    //~ %s: "Close where?" "Pry where?" etc.
-    popup.message( _( "%s (Direction button)" ), message ).on_top( true );
+    //~ {}: "Close where?" "Pry where?" etc.
+    popup.message( _( "{} (Direction button)" ), message ).on_top( true );
 
     std::string action;
     do {

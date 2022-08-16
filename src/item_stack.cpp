@@ -90,7 +90,7 @@ item &item_stack::only_item()
         debugmsg( "Missing item at target location" );
         return null_item_reference();
     } else if( size() > 1 ) {
-        debugmsg( "More than one item at target location: %s", enumerate_as_string( begin(),
+        debugmsg( "More than one item at target location: {}", enumerate_as_string( begin(),
         end(), []( const item & it ) {
             return it.typeId();
         } ) );

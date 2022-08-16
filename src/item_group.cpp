@@ -48,7 +48,7 @@ item Item_spawn_data::create_single( const time_point &birthday ) const
 void Item_spawn_data::check_consistency() const
 {
     if( on_overflow != overflow_behaviour::none && !container_item ) {
-        debugmsg( "item group %s specifies overflow behaviour but not container", context() );
+        debugmsg( "item group {} specifies overflow behaviour but not container", context() );
     }
     // Spawn ourselves with all possible items being definitely spawned, so as
     // to verify e.g. that if a container item was specified it can actually
@@ -129,7 +129,7 @@ static void put_into_container(
         } else {
             switch( on_overflow ) {
                 case Item_spawn_data::overflow_behaviour::none:
-                    debugmsg( "item %s does not fit in container %s when spawning item group %s.  "
+                    debugmsg( "item {} does not fit in container {} when spawning item group {}.  "
                               "This can be resolved either by changing the container or contents "
                               "to ensure that they fit, or by specifying an overflow behaviour via "
                               "\"on_overflow\" on the item group.",
@@ -171,13 +171,13 @@ item Single_item_creator::create_single( const time_point &birthday, RecursionLi
     } else if( type == S_ITEM_GROUP ) {
         item_group_id group_id( id );
         if( std::find( rec.begin(), rec.end(), group_id ) != rec.end() ) {
-            debugmsg( "recursion in item spawn list %s", id.c_str() );
+            debugmsg( "recursion in item spawn list {}", id.c_str() );
             return item( null_item_id, birthday );
         }
         rec.push_back( group_id );
         Item_spawn_data *isd = item_controller->get_group( group_id );
         if( isd == nullptr ) {
-            debugmsg( "unknown item spawn list %s", id.c_str() );
+            debugmsg( "unknown item spawn list {}", id.c_str() );
             return item( null_item_id, birthday );
         }
         tmp = isd->create_single( birthday, rec );
@@ -237,13 +237,13 @@ std::size_t Single_item_creator::create( ItemList &list,
         } else {
             item_group_id group_id( id );
             if( std::find( rec.begin(), rec.end(), group_id ) != rec.end() ) {
-                debugmsg( "recursion in item spawn list %s", id.c_str() );
+                debugmsg( "recursion in item spawn list {}", id.c_str() );
                 return list.size() - prev_list_size;
             }
             rec.push_back( group_id );
             Item_spawn_data *isd = item_controller->get_group( group_id );
             if( isd == nullptr ) {
-                debugmsg( "unknown item spawn list %s", id.c_str() );
+                debugmsg( "unknown item spawn list {}", id.c_str() );
                 return list.size() - prev_list_size;
             }
             std::size_t tmp_list_size = isd->create( list, birthday, rec, flags );
@@ -270,16 +270,16 @@ void Single_item_creator::check_consistency() const
 {
     if( type == S_ITEM ) {
         if( !item::type_is_defined( itype_id( id ) ) ) {
-            debugmsg( "item id %s is unknown (in %s)", id, context() );
+            debugmsg( "item id {} is unknown (in {})", id, context() );
         }
     } else if( type == S_ITEM_GROUP ) {
         if( !item_group::group_is_defined( item_group_id( id ) ) ) {
-            debugmsg( "item group id %s is unknown (in %s)", id, context() );
+            debugmsg( "item group id {} is unknown (in {})", id, context() );
         }
     } else if( type == S_NONE ) {
         // this is okay, it will be ignored
     } else {
-        debugmsg( "Unknown type of Single_item_creator: %d", static_cast<int>( type ) );
+        debugmsg( "Unknown type of Single_item_creator: {}", static_cast<int>( type ) );
     }
     if( modifier ) {
         modifier->check_consistency( context() );
@@ -485,7 +485,7 @@ void Item_modifier::modify( item &new_item, const std::string &context ) const
             } else if( new_item.is_magazine() ) {
                 new_item.ammo_set( new_item.ammo_default(), ch );
             } else {
-                debugmsg( "in %s: tried to set ammo for %s which does not have ammo or a magazine",
+                debugmsg( "in {}: tried to set ammo for {} which does not have ammo or a magazine",
                           context, new_item.typeId().str() );
             }
         } else if( new_item.type->can_have_charges() ) {
@@ -505,7 +505,7 @@ void Item_modifier::modify( item &new_item, const std::string &context ) const
         if( ammo_id && !ammo_id.is_empty() ) {
             new_item.ammo_set( ammo_id, ch );
         } else {
-            debugmsg( "tried to set ammo for %s which does not have ammo or a magazine",
+            debugmsg( "tried to set ammo for {} which does not have ammo or a magazine",
                       new_item.typeId().c_str() );
         }
         // Make sure the item is in valid state
@@ -594,10 +594,10 @@ void Item_modifier::check_consistency( const std::string &context ) const
         container->check_consistency();
     }
     if( with_ammo < 0 || with_ammo > 100 ) {
-        debugmsg( "in %s: Item modifier's ammo chance %d is out of range", context, with_ammo );
+        debugmsg( "in {}: Item modifier's ammo chance {} is out of range", context, with_ammo );
     }
     if( with_magazine < 0 || with_magazine > 100 ) {
-        debugmsg( "in %s: Item modifier's magazine chance %d is out of range",
+        debugmsg( "in {}: Item modifier's magazine chance {} is out of range",
                   context, with_magazine );
     }
 }
@@ -641,13 +641,13 @@ Item_group::Item_group( Type t, int probability, int ammo_chance, int magazine_c
     , sum_prob( 0 )
 {
     if( probability <= 0 || ( t != Type::G_DISTRIBUTION && probability > 100 ) ) {
-        debugmsg( "Probability %d out of range", probability );
+        debugmsg( "Probability {} out of range", probability );
     }
     if( ammo_chance < 0 || ammo_chance > 100 ) {
-        debugmsg( "Ammo chance %d is out of range.", ammo_chance );
+        debugmsg( "Ammo chance {} is out of range.", ammo_chance );
     }
     if( magazine_chance < 0 || magazine_chance > 100 ) {
-        debugmsg( "Magazine chance %d is out of range.", magazine_chance );
+        debugmsg( "Magazine chance {} is out of range.", magazine_chance );
     }
 }
 
@@ -919,7 +919,7 @@ item_group_id item_group::load_item_group( const JsonValue &value,
         // load_item_group needs a bool, invalid subtypes are unexpected and most likely errors
         // from the caller of this function.
         if( default_subtype != "collection" && default_subtype != "distribution" ) {
-            debugmsg( "invalid subtype for item group: %s", default_subtype.c_str() );
+            debugmsg( "invalid subtype for item group: {}", default_subtype.c_str() );
         }
         item_controller->load_item_group( jarr, group, default_subtype == "collection", 0, 0,
                                           context );

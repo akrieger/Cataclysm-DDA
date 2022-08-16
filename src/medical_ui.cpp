@@ -48,12 +48,12 @@ class selection_line
             row_count = textformatted.size();
             if( row_count > 1 ) {
                 //If there are too many tags, display them neatly on a new line.
-                std::string print_line = string_format( "%s\n", textformatted[0] );
+                std::string print_line = string_format( "{}\n", textformatted[0] );
                 for( int i = 1; i < row_count; i++ ) {
                     if( i != row_count ) {
-                        print_line += string_format( "->%s\n", textformatted[i] );
+                        print_line += string_format( "->{}\n", textformatted[i] );
                     } else {
-                        print_line += string_format( "->%s", textformatted[i] );
+                        print_line += string_format( "->{}", textformatted[i] );
                     }
                 }
                 header_str = print_line;
@@ -211,8 +211,8 @@ static std::string coloured_stat_display( int statCur, int statMax )
     } else {
         cstatus = c_green;
     }
-    std::string cur = colorize( string_format( _( "%2d" ), statCur ), cstatus );
-    return string_format( _( "%s (%s)" ), cur, statMax );
+    std::string cur = colorize( string_format( _( "{}" ), statCur ), cstatus );
+    return string_format( _( "{} ({})" ), cur, statMax );
 }
 
 static void draw_medical_titlebar( const catacurses::window &window, avatar *player,
@@ -253,7 +253,7 @@ static void draw_medical_titlebar( const catacurses::window &window, avatar *pla
     // Pain Indicator
     auto pain_descriptor = display::pain_text_color( *player );
     if( !pain_descriptor.first.empty() ) {
-        const std::string pain_str = string_format( _( "In %s" ), pain_descriptor.first );
+        const std::string pain_str = string_format( _( "In {}" ), pain_descriptor.first );
 
         cur_str_pos = right_print( window, 1, right_indent, pain_descriptor.second, pain_str );
 
@@ -315,7 +315,7 @@ static void draw_medical_titlebar( const catacurses::window &window, avatar *pla
     // Hotkey Helper
     std::string desc;
     desc = string_format( _(
-                              "[<color_yellow>%s/%s</color>] Scroll info [<color_yellow>%s</color>] Use item [<color_yellow>%s</color>] Keybindings" ),
+                              "[<color_yellow>{}/{}</color>] Scroll info [<color_yellow>{}</color>] Use item [<color_yellow>{}</color>] Keybindings" ),
                           ctxt.get_desc( "SCROLL_INFOBOX_UP" ), ctxt.get_desc( "SCROLL_INFOBOX_DOWN" ),
                           ctxt.get_desc( "APPLY" ), ctxt.get_desc( "HELP_KEYBINDINGS" ) );
 
@@ -359,7 +359,7 @@ static medical_column draw_health_summary( const int column_count, avatar *playe
         const bool limb_is_mending = player->worn_with_flag( flag_SPLINT, part );
 
         if( limb_is_mending ) {
-            detail += string_format( _( "[ %s ]" ), colorize( _( "SPLINTED" ), c_yellow ) );
+            detail += string_format( _( "[ {} ]" ), colorize( _( "SPLINTED" ), c_yellow ) );
             if( no_feeling ) {
                 hp_str = colorize( "==%==", c_blue );
             } else {
@@ -370,7 +370,7 @@ static medical_column draw_health_summary( const int column_count, avatar *playe
                 hp_str = colorize( std::string( num, '#' ) + std::string( 5 - num, '=' ), c_blue );
             }
         } else if( limb_is_broken ) {
-            detail += string_format( _( "[ %s ]" ), colorize( _( "BROKEN" ), c_red ) );
+            detail += string_format( _( "[ {} ]" ), colorize( _( "BROKEN" ), c_red ) );
             hp_str = "==%==";
         } else if( no_feeling ) {
             if( current_hp < maximal_hp * 0.25 ) {
@@ -396,8 +396,8 @@ static medical_column draw_health_summary( const int column_count, avatar *playe
         if( bleeding ) {
             const effect bleed_effect = player->get_effect( effect_bleed, part );
             const nc_color bleeding_color = colorize_bleeding_intensity( bleed_intensity );
-            detail += string_format( _( "[ %s ]" ), colorize( _( "BLEEDING" ), bleeding_color ) );
-            description += string_format( "[ %s ] - %s\n",
+            detail += string_format( _( "[ {} ]" ), colorize( _( "BLEEDING" ), bleeding_color ) );
+            description += string_format( "[ {} ] - {}\n",
                                           colorize( bleed_effect.get_speed_name(),  bleeding_color ),
                                           bleed_effect.disp_short_desc() );
         }
@@ -405,8 +405,8 @@ static medical_column draw_health_summary( const int column_count, avatar *playe
         // BITTEN block
         if( bitten ) {
             const effect bite_effect = player->get_effect( effect_bite, part );
-            detail += string_format( _( "[ %s ]" ), colorize( _( "BITTEN" ), c_yellow ) );
-            description += string_format( "[ %s ] - %s\n",
+            detail += string_format( _( "[ {} ]" ), colorize( _( "BITTEN" ), c_yellow ) );
+            description += string_format( "[ {} ] - {}\n",
                                           colorize( bite_effect.get_speed_name(), c_yellow ),
                                           bite_effect.disp_short_desc() );
         }
@@ -414,17 +414,17 @@ static medical_column draw_health_summary( const int column_count, avatar *playe
         // INFECTED block
         if( infected ) {
             const effect infected_effect = player->get_effect( effect_infected, part );
-            detail += string_format( _( "[ %s ]" ), colorize( _( "INFECTED" ), c_pink ) );
-            description += string_format( "[ %s ] - %s\n",
+            detail += string_format( _( "[ {} ]" ), colorize( _( "INFECTED" ), c_pink ) );
+            description += string_format( "[ {} ] - {}\n",
                                           colorize( infected_effect.get_speed_name(), c_pink ),
                                           infected_effect.disp_short_desc() );
         }
 
         selection_line line;
         if( !detail.empty() ) {
-            line = selection_line( string_format( "[%s] - %s", header, detail ), description, max_width );
+            line = selection_line( string_format( "[{}] - {}", header, detail ), description, max_width );
         } else {
-            line = selection_line( string_format( "[%s]", header ), description, max_width );
+            line = selection_line( string_format( "[{}]", header ), description, max_width );
         }
 
         const bodypart *bp = player->get_part( part );
@@ -456,10 +456,10 @@ static medical_column draw_health_summary( const int column_count, avatar *playe
                     score_c.first = string_format( _( "OK (-%.f%%)" ), injury_modifier );
                     score_c.second = c_dark_gray;
                 }
-                detail_str += string_format( _( "%s: %s\n" ), sc.name().translated(), colorize( score_c.first,
+                detail_str += string_format( _( "{}: {}\n" ), sc.name().translated(), colorize( score_c.first,
                                              score_c.second ) );
             } else {
-                detail_str += string_format( _( "%s: %s\n" ), sc.name().translated(), colorize( "OK", c_green ) );
+                detail_str += string_format( _( "{}: {}\n" ), sc.name().translated(), colorize( "OK", c_green ) );
             }
         }
 
@@ -485,11 +485,11 @@ static medical_column draw_health_summary( const int column_count, avatar *playe
 
                 std::string valstr = colorize( string_format( "%.2f", mod.modifier( *player->as_character() ) ),
                                                score_c );
-                detail_str += string_format( "%s: %s%s\n", desc, mod.mod_type_str(), valstr );
+                detail_str += string_format( "{}: {}{}\n", desc, mod.mod_type_str(), valstr );
             }
         }
 
-        line.set_detail( string_format( _( "%s STATS" ), to_upper_case( bp_name ) ), detail_str );
+        line.set_detail( string_format( _( "{} STATS" ), to_upper_case( bp_name ) ), detail_str );
         health_column.add_column_line( line );
     }
     return health_column;
@@ -529,11 +529,11 @@ static medical_column draw_effects_summary( const int column_count, avatar *play
 
         if( bmi < character_weight_category::underweight ) {
             const float str_penalty = 1.0f - ( ( bmi - 13.0f ) / 3.0f );
-            starvation_text += std::string( _( "Strength" ) ) + " -" + string_format( "%2.0f%%\n",
+            starvation_text += std::string( _( "Strength" ) ) + " -" + string_format( "{}.0f%%\n",
                                str_penalty * 100.0f );
-            starvation_text += std::string( _( "Dexterity" ) ) + " -" + string_format( "%2.0f%%\n",
+            starvation_text += std::string( _( "Dexterity" ) ) + " -" + string_format( "{}.0f%%\n",
                                str_penalty * 50.0f );
-            starvation_text += std::string( _( "Intelligence" ) ) + " -" + string_format( "%2.0f%%",
+            starvation_text += std::string( _( "Intelligence" ) ) + " -" + string_format( "{}.0f%%",
                                str_penalty * 50.0f );
         }
 
@@ -578,17 +578,17 @@ static medical_column draw_stats_summary( const int column_count, avatar *player
     int runcost = player->run_cost( 100 );
     int newmoves = player->get_speed();
 
-    std::string coloured_str = colorize( string_format( _( "%d" ), runcost ),
+    std::string coloured_str = colorize( string_format( _( "{}" ), runcost ),
                                          ( runcost <= 100 ? c_green : c_red ) );
-    selection_line runcost_line = selection_line( string_format( _( "Base Move Cost: %s" ),
+    selection_line runcost_line = selection_line( string_format( _( "Base Move Cost: {}" ),
                                   coloured_str ),
                                   colorize( _( "Base move cost is the final modified movement cost taken to traverse flat ground." ),
                                             c_light_blue ),
                                   max_width );
 
-    coloured_str = colorize( string_format( _( "%d" ), newmoves ),
+    coloured_str = colorize( string_format( _( "{}" ), newmoves ),
                              ( newmoves >= 100 ? c_green : c_red ) );
-    selection_line movecost_line = selection_line( string_format( _( "Current Speed: %s" ),
+    selection_line movecost_line = selection_line( string_format( _( "Current Speed: {}" ),
                                    coloured_str ),
                                    colorize( _( "Speed determines the amount of actions or movement points you can perform in a turn." ),
                                            c_light_blue ),
@@ -599,7 +599,7 @@ static medical_column draw_stats_summary( const int column_count, avatar *player
     std::string pge_str;
     if( speed_modifier != 0 ) {
         pge_str = pgettext( "speed bonus", "Bio/Mut/Effects " );
-        speed_detail_str += colorize( string_format( _( "%s    -%2d%%\n" ), pge_str, speed_modifier ),
+        speed_detail_str += colorize( string_format( _( "{}    -{}%%\n" ), pge_str, speed_modifier ),
                                       c_green );
     }
 
@@ -608,29 +608,29 @@ static medical_column draw_stats_summary( const int column_count, avatar *player
     if( player->weight_carried() > player->weight_capacity() ) {
         pen = 25 * ( player->weight_carried() - player->weight_capacity() ) / player->weight_capacity();
         pge_str = pgettext( "speed penalty", "Overburdened " );
-        speed_detail_str += colorize( string_format( _( "%s    -%2d%%\n" ), pge_str, pen ), c_red );
+        speed_detail_str += colorize( string_format( _( "{}    -{}%%\n" ), pge_str, pen ), c_red );
     }
 
     pen = player->get_pain_penalty().speed;
     if( pen >= 1 ) {
         pge_str = pgettext( "speed penalty", "Pain " );
-        speed_detail_str += colorize( string_format( _( "%s    -%2d%%\n" ), pge_str, pen ), c_red );
+        speed_detail_str += colorize( string_format( _( "{}    -{}%%\n" ), pge_str, pen ), c_red );
     }
     if( player->get_thirst() > 40 ) {
         pen = std::abs( Character::thirst_speed_penalty( player->get_thirst() ) );
         pge_str = pgettext( "speed penalty", "Thirst " );
-        speed_detail_str += colorize( string_format( _( "%s    -%2d%%\n" ), pge_str, pen ), c_red );
+        speed_detail_str += colorize( string_format( _( "{}    -{}%%\n" ), pge_str, pen ), c_red );
     }
     if( player->kcal_speed_penalty() < 0 ) {
         pen = std::abs( player->kcal_speed_penalty() );
         pge_str = pgettext( "speed penalty", player->get_bmi() < character_weight_category::underweight ?
                             "Starving" : "Underfed" );
-        speed_detail_str += colorize( string_format( _( "%s    -%2d%%\n" ), pge_str, pen ), c_red );
+        speed_detail_str += colorize( string_format( _( "{}    -{}%%\n" ), pge_str, pen ), c_red );
     }
     if( player->has_trait( trait_SUNLIGHT_DEPENDENT ) && !g->is_in_sunlight( player->pos() ) ) {
         pen = ( g->light_level( player->posz() ) >= 12 ? 5 : 10 );
         pge_str = pgettext( "speed penalty", "Out of Sunlight " );
-        speed_detail_str += colorize( string_format( _( "%s     -%2d%%\n" ), pge_str, pen ), c_red );
+        speed_detail_str += colorize( string_format( _( "{}     -{}%%\n" ), pge_str, pen ), c_red );
     }
 
     const float temperature_speed_modifier = player->mutation_value( "temperature_speed_modifier" );
@@ -648,7 +648,7 @@ static medical_column draw_stats_summary( const int column_count, avatar *player
         if( !pen_sign.empty() ) {
             pen = ( player_local_temp - 65 ) * temperature_speed_modifier;
             pge_str = pgettext( "speed modifier", "Cold-Blooded " );
-            speed_detail_str += colorize( string_format( _( "%s     %s%2d%%\n" ), pge_str, pen_sign,
+            speed_detail_str += colorize( string_format( _( "{}     {}{}%%\n" ), pge_str, pen_sign,
                                           std::abs( pen ) ), c_red );
         }
     }
@@ -665,7 +665,7 @@ static medical_column draw_stats_summary( const int column_count, avatar *player
 
     for( const std::pair<const std::string, int> &speed_effect : speed_effects ) {
         nc_color col = ( speed_effect.second > 0 ? c_green : c_red );
-        speed_detail_str += colorize( string_format( _( "%s    %s%d%%\n" ), speed_effect.first,
+        speed_detail_str += colorize( string_format( _( "{}    {}{}%%\n" ), speed_effect.first,
                                       ( speed_effect.second > 0 ? "+" : "-" ),
                                       std::abs( speed_effect.second ) ), col );
     }
@@ -678,28 +678,28 @@ static medical_column draw_stats_summary( const int column_count, avatar *player
 
     std::string strength_str = coloured_stat_display( player->get_str(), player->get_str_base() );
     stats_column.add_column_line(
-        selection_line( string_format( _( "Strength: %s" ), strength_str ),
+        selection_line( string_format( _( "Strength: {}" ), strength_str ),
                         _( "Strength affects your melee damage, the amount of weight you can carry, your total HP, "
                            "your resistance to many diseases, and the effectiveness of actions which require brute force." ),
                         max_width ) );
 
     std::string dexterity_str = coloured_stat_display( player->get_dex(), player->get_dex_base() );
     stats_column.add_column_line(
-        selection_line( string_format( _( "Dexterity: %s" ), dexterity_str ),
+        selection_line( string_format( _( "Dexterity: {}" ), dexterity_str ),
                         _( "Dexterity affects your chance to hit in melee combat, helps you steady your "
                            "gun for ranged combat, and enhances many actions that require finesse." ),
                         max_width ) );
 
     std::string intelligence_str = coloured_stat_display( player->get_int(), player->get_int_base() );
     stats_column.add_column_line(
-        selection_line( string_format( _( "Intelligence: %s" ), intelligence_str ),
+        selection_line( string_format( _( "Intelligence: {}" ), intelligence_str ),
                         _( "Intelligence is less important in most situations, but it is vital for more complex tasks like "
                            "electronics crafting.  It also affects how much skill you can pick up from reading a book." ),
                         max_width ) );
 
     std::string perception_str = coloured_stat_display( player->get_per(), player->get_per_base() );
     stats_column.add_column_line(
-        selection_line( string_format( _( "Perception: %s" ), perception_str ),
+        selection_line( string_format( _( "Perception: {}" ), perception_str ),
                         _( "Perception is the most important stat for ranged combat.  It's also used for "
                            "detecting traps and other things of interest." ),
                         max_width ) );

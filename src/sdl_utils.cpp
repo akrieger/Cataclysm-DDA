@@ -27,7 +27,7 @@ color_pixel_function_pointer get_color_pixel_function( const std::string &name )
 {
     const auto iter = builtin_color_pixel_functions.find( name );
     if( iter == builtin_color_pixel_functions.end() ) {
-        debugmsg( "no color pixel function with name %s", name );
+        debugmsg( "no color pixel function with name {}", name );
         return nullptr;
     }
     return iter->second;

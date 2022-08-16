@@ -155,7 +155,7 @@ void map::process_fields()
                 if( field_cache[ x + y * MAPSIZE ] ) {
                     submap *const current_submap = get_submap_at_grid( { x, y, z } );
                     if( current_submap == nullptr ) {
-                        debugmsg( "Tried to process field at (%d,%d,%d) but the submap is not loaded", x, y, z );
+                        debugmsg( "Tried to process field at ({},{},{}) but the submap is not loaded", x, y, z );
                         continue;
                     }
                     process_fields_in_submap( current_submap, tripoint( x, y, z ) );
@@ -373,7 +373,7 @@ void map::create_hot_air( const tripoint &p, int intensity )
             hot_air = fd_hot_air4;
             break;
         default:
-            debugmsg( "Tried to spread hot air with intensity %d", intensity );
+            debugmsg( "Tried to spread hot air with intensity {}", intensity );
             return;
     }
 
@@ -782,7 +782,7 @@ static void field_processor_fd_push_items( const tripoint &p, field_entry &, fie
                 tripoint newp = random_entry( valid );
                 pd.here.add_item_or_charges( newp, tmp );
                 if( pd.player_character.pos() == newp ) {
-                    add_msg( m_bad, _( "A %s hits you!" ), tmp.tname() );
+                    add_msg( m_bad, _( "A {} hits you!" ), tmp.tname() );
                     const bodypart_id hit = pd.player_character.get_random_body_part();
                     pd.player_character.deal_damage( nullptr, hit, damage_instance( damage_type::BASH, 6 ) );
                     pd.player_character.check_dead_state();
@@ -792,12 +792,12 @@ static void field_processor_fd_push_items( const tripoint &p, field_entry &, fie
                     // TODO: combine with player character code above
                     const bodypart_id hit = pd.player_character.get_random_body_part();
                     n->deal_damage( nullptr, hit, damage_instance( damage_type::BASH, 6 ) );
-                    add_msg_if_player_sees( newp, _( "A %1$s hits %2$s!" ), tmp.tname(), n->get_name() );
+                    add_msg_if_player_sees( newp, _( "A {1} hits {2}!" ), tmp.tname(), n->get_name() );
                     n->check_dead_state();
                 } else if( monster *const mon = creatures.creature_at<monster>( newp ) ) {
                     mon->apply_damage( nullptr, bodypart_id( "torso" ),
                                        6 - mon->get_armor_bash( bodypart_id( "torso" ) ) );
-                    add_msg_if_player_sees( newp, _( "A %1$s hits the %2$s!" ), tmp.tname(), mon->name() );
+                    add_msg_if_player_sees( newp, _( "A {1} hits the {2}!" ), tmp.tname(), mon->name() );
                     mon->check_dead_state();
                 }
             } else {
@@ -1731,7 +1731,7 @@ void map::player_in_field( Character &you )
                     // AND clothing on affected body part has low environmental protection value
                     if( ( you.get_armor_cut( bp ) <= 1 || ( sum_cover < 100 && x_in_y( 100 - sum_cover, 100 ) ) ) &&
                         you.add_env_effect( effect_stung, bp, intensity, 9_minutes ) ) {
-                        you.add_msg_if_player( m_bad, _( "The bees sting you in %s!" ),
+                        you.add_msg_if_player( m_bad, _( "The bees sting you in {}!" ),
                                                body_part_name_accusative( bp ) );
                     }
                 }
@@ -1769,11 +1769,11 @@ void map::player_in_field( Character &you )
                             you.has_trait( trait_THRESH_SPIDER ) ) ) ) {
                         inhaled |= you.add_env_effect( effect_badpoison, bodypart_id( "mouth" ), 5, intensity * 1_minutes );
                         you.hurtall( rng( intensity, intensity * 2 ), nullptr );
-                        you.add_msg_if_player( m_bad, _( "The %s burns your skin." ), cur.name() );
+                        you.add_msg_if_player( m_bad, _( "The {} burns your skin." ), cur.name() );
                     }
 
                     if( inhaled ) {
-                        you.add_msg_if_player( m_bad, _( "The %s makes you feel sick." ), cur.name() );
+                        you.add_msg_if_player( m_bad, _( "The {} makes you feel sick." ), cur.name() );
                     }
                 }
             }

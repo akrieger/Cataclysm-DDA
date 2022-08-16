@@ -587,7 +587,7 @@ void npc_template::check_consistency()
     for( const auto &e : npc_templates ) {
         const npc &guy = e.second.guy;
         if( !guy.myclass.is_valid() ) {
-            debugmsg( "Invalid NPC class %s", guy.myclass.c_str() );
+            debugmsg( "Invalid NPC class {}", guy.myclass.c_str() );
         }
         std::string first_topic = guy.chatbin.first_topic;
         if( const json_talk_topic *topic = get_talk_topic( first_topic ) ) {
@@ -595,7 +595,7 @@ void npc_template::check_consistency()
                 topic->get_directly_reachable_topics( true );
             if( reachable_topics.count( "TALK_MISSION_OFFER" ) ) {
                 debugmsg(
-                    "NPC template \"%s\" has dialogue \"%s\" which leads unconditionally to "
+                    "NPC template \"{}\" has dialogue \"{}\" which leads unconditionally to "
                     "\"TALK_MISSION_OFFER\", which doesn't check for an available mission.  "
                     "You should probably prefer \"TALK_MISSION_LIST\"",
                     e.first.str(), first_topic );
@@ -615,7 +615,7 @@ const npc_template &string_id<npc_template>::obj() const
 {
     const auto found = npc_templates.find( *this );
     if( found == npc_templates.end() ) {
-        debugmsg( "Tried to get invalid npc: %s", c_str() );
+        debugmsg( "Tried to get invalid npc: {}", c_str() );
         static const npc_template dummy{};
         return dummy;
     }
@@ -626,7 +626,7 @@ void npc::load_npc_template( const string_id<npc_template> &ident )
 {
     auto found = npc_templates.find( ident );
     if( found == npc_templates.end() ) {
-        debugmsg( "Tried to get invalid npc: %s", ident.c_str() );
+        debugmsg( "Tried to get invalid npc: {}", ident.c_str() );
         return;
     }
     const npc_template &tem = found->second;
@@ -643,8 +643,8 @@ void npc::load_npc_template( const string_id<npc_template> &ident )
         name = tem.name_unique.translated();
     }
     if( !tem.name_suffix.empty() ) {
-        //~ %1$s: npc name, %2$s: name suffix
-        name = string_format( pgettext( "npc name", "%1$s, %2$s" ), name, tem.name_suffix );
+        //~ {1}: npc name, {2}: name suffix
+        name = string_format( pgettext( "npc name", "{1}, {2}" ), name, tem.name_suffix );
     }
     fac_id = tguy.fac_id;
     set_fac( fac_id );
@@ -763,7 +763,7 @@ void npc::randomize( const npc_class_id &type )
     pick_name();
 
     if( !type.is_valid() ) {
-        debugmsg( "Invalid NPC class %s", type.c_str() );
+        debugmsg( "Invalid NPC class {}", type.c_str() );
         myclass = npc_class_id::NULL_ID();
     } else if( type.is_null() ) {
         myclass = npc_class::random_common();
@@ -1143,7 +1143,7 @@ void npc::on_move( const tripoint_abs_ms &old_pos )
         } else {
             // Don't move the npc pointer around to avoid having two overmaps
             // with the same npc pointer
-            debugmsg( "could not find npc %s on its old overmap", get_name() );
+            debugmsg( "could not find npc {} on its old overmap", get_name() );
         }
     }
 }
@@ -1165,7 +1165,7 @@ void npc::travel_overmap( const tripoint_abs_omt &pos )
         } else {
             // Don't move the npc pointer around to avoid having two overmaps
             // with the same npc pointer
-            debugmsg( "could not find npc %s on its old overmap", get_name() );
+            debugmsg( "could not find npc {} on its old overmap", get_name() );
         }
     }
 }
@@ -1195,7 +1195,7 @@ void npc::place_on_map()
         }
     }
 
-    debugmsg( "Failed to place NPC in a valid location near (%d,%d,%d)", posx(), posy(), posz() );
+    debugmsg( "Failed to place NPC in a valid location near ({},{},{})", posx(), posy(), posz() );
 }
 
 skill_id npc::best_skill() const
@@ -1269,7 +1269,7 @@ void npc::starting_weapon( const npc_class_id &type )
             } else if( !weapon->ammo_default().is_null() ) {
                 weapon->ammo_set( weapon->ammo_default() );
             } else {
-                debugmsg( "tried setting ammo for %s which has no magazine or ammo", weapon->typeId().c_str() );
+                debugmsg( "tried setting ammo for {} which has no magazine or ammo", weapon->typeId().c_str() );
             }
             //You should be able to wield your starting weapon
             if( !meets_stat_requirements( *weapon ) ) {
@@ -1297,7 +1297,7 @@ void npc::starting_weapon( const npc_class_id &type )
 bool npc::can_read( const item &book, std::vector<std::string> &fail_reasons )
 {
     if( !book.is_book() ) {
-        fail_reasons.push_back( string_format( _( "This %s is not good reading material." ),
+        fail_reasons.push_back( string_format( _( "This {} is not good reading material." ),
                                                book.tname() ) );
         return false;
     }
@@ -1374,7 +1374,7 @@ void npc::do_npc_read()
 
     book = book.obtain( *npc_character );
     if( can_read( *book, fail_reasons ) ) {
-        add_msg_if_player_sees( pos(), _( "%s starts reading." ), disp_name() );
+        add_msg_if_player_sees( pos(), _( "{} starts reading." ), disp_name() );
 
         // NPCs can't read to other NPCs yet
         const time_duration time_taken = time_to_read( *book, *this );
@@ -1465,7 +1465,7 @@ void npc::stow_item( item &it )
     if( wear_item( it, false ) ) {
         // Wearing the item was successful, remove weapon and post message.
         if( avatar_sees ) {
-            add_msg_if_npc( m_info, _( "<npcname> wears the %s." ), it.tname() );
+            add_msg_if_npc( m_info, _( "<npcname> wears the {}." ), it.tname() );
         }
         remove_item( it );
         moves -= 15;
@@ -1474,12 +1474,12 @@ void npc::stow_item( item &it )
     } else if( can_stash( it ) ) {
         item_location ret = i_add( remove_item( it ), true, nullptr, nullptr, true, false );
         if( avatar_sees ) {
-            add_msg_if_npc( m_info, _( "<npcname> puts away the %s." ), ret->tname() );
+            add_msg_if_npc( m_info, _( "<npcname> puts away the {}." ), ret->tname() );
         }
         moves -= 15;
     } else { // No room for weapon, so we drop it
         if( avatar_sees ) {
-            add_msg_if_npc( m_info, _( "<npcname> drops the %s." ), it.tname() );
+            add_msg_if_npc( m_info, _( "<npcname> drops the {}." ), it.tname() );
         }
         get_map().add_item_or_charges( pos(), remove_item( it ) );
     }
@@ -1525,7 +1525,7 @@ bool npc::wield( item &it )
     get_event_bus().send<event_type::character_wields_item>( getID(), weapon->typeId() );
 
     if( get_player_view().sees( pos() ) ) {
-        add_msg_if_npc( m_info, _( "<npcname> wields a %s." ),  weapon->tname() );
+        add_msg_if_npc( m_info, _( "<npcname> wields a {}." ),  weapon->tname() );
     }
     invalidate_range_cache();
     return true;
@@ -1690,7 +1690,7 @@ void npc::form_opinion( const Character &you )
         set_attitude( NPCATT_FLEE_TEMP );
     }
 
-    add_msg_debug( debugmode::DF_NPC, "%s formed an opinion of you: %s", get_name(),
+    add_msg_debug( debugmode::DF_NPC, "{} formed an opinion of you: {}", get_name(),
                    npc_attitude_id( attitude ) );
 }
 
@@ -1701,7 +1701,7 @@ void npc::mutiny()
     }
     const bool seen = get_player_view().sees( pos() );
     if( seen ) {
-        add_msg( m_bad, _( "%s is tired of your incompetent leadership and abuse!" ), disp_name() );
+        add_msg( m_bad, _( "{} is tired of your incompetent leadership and abuse!" ), disp_name() );
     }
     // NPCs leaving your faction due to mistreatment further reduce their opinion of you
     if( my_fac->likes_u < -10 ) {
@@ -1943,20 +1943,20 @@ void npc::say( const std::string &line, const sounds::sound_t spriority ) const
     }
 
     if( player_character.is_deaf() && !player_character.is_blind() ) {
-        add_msg_if_player_sees( *this, m_warning, _( "%1$s says something but you can't hear it!" ),
+        add_msg_if_player_sees( *this, m_warning, _( "{1} says something but you can't hear it!" ),
                                 get_name() );
     }
     if( player_character.is_mute() ) {
-        add_msg_if_player_sees( *this, m_warning, _( "%1$s says something but you can't reply to it!" ),
+        add_msg_if_player_sees( *this, m_warning, _( "{1} says something but you can't reply to it!" ),
                                 get_name() );
     }
     // Hallucinations don't make noise when they speak
     if( is_hallucination() ) {
-        add_msg( _( "%1$s saying \"%2$s\"" ), get_name(), formatted_line );
+        add_msg( _( "{1} saying \"{2}\"" ), get_name(), formatted_line );
         return;
     }
 
-    std::string sound = string_format( _( "%1$s saying \"%2$s\"" ), get_name(), formatted_line );
+    std::string sound = string_format( _( "{1} saying \"{2}\"" ), get_name(), formatted_line );
 
     // Sound happens even if we can't hear it
     if( spriority == sounds::sound_t::order || spriority == sounds::sound_t::alert ) {
@@ -2616,7 +2616,7 @@ void npc::npc_dismount()
 {
     if( !mounted_creature || !has_effect( effect_riding ) ) {
         add_msg_debug( debugmode::DF_NPC,
-                       "NPC %s tried to dismount, but they have no mount, or they are not riding",
+                       "NPC {} tried to dismount, but they have no mount, or they are not riding",
                        disp_name() );
         return;
     }
@@ -2628,7 +2628,7 @@ void npc::npc_dismount()
         }
     }
     if( !pnt ) {
-        add_msg_debug( debugmode::DF_NPC, "NPC %s could not find a place to dismount.", disp_name() );
+        add_msg_debug( debugmode::DF_NPC, "NPC {} could not find a place to dismount.", disp_name() );
         return;
     }
     remove_effect( effect_riding );
@@ -2752,7 +2752,7 @@ int npc::print_info( const catacurses::window &w, int line, int vLines, int colu
     const std::pair<translation, nc_color> res = Creature::get_attitude_ui_data( att );
     mvwprintz( w, point( column, line++ ), res.second, res.first.translated() );
     wprintz( w, c_light_gray, ";" );
-    wprintz( w, symbol_color(), " %s", npc_attitude_name( get_attitude() ) );
+    wprintz( w, symbol_color(), " {}", npc_attitude_name( get_attitude() ) );
 
     // Awareness indicator on the third line.
     std::string senses_str = sees( player_character ) ? _( "Aware of your presence" ) :
@@ -2840,7 +2840,7 @@ std::string npc::opinion_text() const
         desc = _( "Completely trusting" );
     }
 
-    ret += string_format( _( "Trust: %d (%s);\n" ), op_of_u.trust, desc );
+    ret += string_format( _( "Trust: {} ({});\n" ), op_of_u.trust, desc );
 
     if( op_of_u.fear <= -10 ) {
         desc = _( "Thinks you're laughably harmless" );
@@ -2858,7 +2858,7 @@ std::string npc::opinion_text() const
         desc = _( "Terrified" );
     }
 
-    ret += string_format( _( "Fear: %d (%s);\n" ), op_of_u.fear, desc );
+    ret += string_format( _( "Fear: {} ({});\n" ), op_of_u.fear, desc );
 
     if( op_of_u.value <= -10 ) {
         desc = _( "Considers you a major liability" );
@@ -2876,7 +2876,7 @@ std::string npc::opinion_text() const
         desc = _( "Best Friends Forever!" );
     }
 
-    ret += string_format( _( "Value: %d (%s);\n" ), op_of_u.value, desc );
+    ret += string_format( _( "Value: {} ({});\n" ), op_of_u.value, desc );
 
     if( op_of_u.anger <= -10 ) {
         desc = _( "You can do no wrong!" );
@@ -2894,7 +2894,7 @@ std::string npc::opinion_text() const
         desc = _( "About to kill you" );
     }
 
-    ret += string_format( _( "Anger: %d (%s)." ), op_of_u.anger, desc );
+    ret += string_format( _( "Anger: {} ({})." ), op_of_u.anger, desc );
 
     return ret;
 }
@@ -2999,11 +2999,11 @@ void npc::die( Creature *nkiller )
     Character::die( nkiller );
 
     if( is_hallucination() ) {
-        add_msg_if_player_sees( *this, _( "%s disappears." ), get_name().c_str() );
+        add_msg_if_player_sees( *this, _( "{} disappears." ), get_name().c_str() );
         return;
     }
 
-    add_msg_if_player_sees( *this, _( "%s dies!" ), get_name() );
+    add_msg_if_player_sees( *this, _( "{} dies!" ), get_name() );
 
     if( Character *ch = dynamic_cast<Character *>( killer ) ) {
         get_event_bus().send<event_type::character_kills_character>( ch->getID(), getID(), get_name() );
@@ -3050,7 +3050,7 @@ std::string npc_attitude_id( npc_attitude att )
     };
     const auto &iter = npc_attitude_ids.find( att );
     if( iter == npc_attitude_ids.end() ) {
-        debugmsg( "Invalid attitude: %d", att );
+        debugmsg( "Invalid attitude: {}", att );
         return "NPCATT_INVALID";
     }
 
@@ -3116,7 +3116,7 @@ std::string npc_attitude_name( npc_attitude att )
             break;
     }
 
-    debugmsg( "Invalid attitude: %d", att );
+    debugmsg( "Invalid attitude: {}", att );
     return _( "Unknown attitude" );
 }
 
@@ -3223,7 +3223,7 @@ void npc::on_load()
     // TODO: Sleeping, healing etc.
     last_updated = calendar::turn;
     time_point cur = calendar::turn - dt;
-    add_msg_debug( debugmode::DF_NPC, "on_load() by %s, %d turns", get_name(), to_turns<int>( dt ) );
+    add_msg_debug( debugmode::DF_NPC, "on_load() by {}, {} turns", get_name(), to_turns<int>( dt ) );
     // First update with 30 minute granularity, then 5 minutes, then turns
     for( ; cur < calendar::turn - 30_minutes; cur += 30_minutes + 1_turns ) {
         update_body( cur, cur + 30_minutes );
@@ -3271,7 +3271,7 @@ void npc::on_load()
             mounted_creature = g->shared_from( *mon );
         } else {
             add_msg_debug( debugmode::DF_NPC,
-                           "NPC is meant to be riding, though the mount is not found when %s is loaded",
+                           "NPC is meant to be riding, though the mount is not found when {} is loaded",
                            disp_name() );
         }
     }
@@ -3676,7 +3676,7 @@ void npc::set_attitude( npc_attitude new_attitude )
         add_effect( effect_npc_flee_player, 24_hours );
     }
 
-    add_msg_debug( debugmode::DF_NPC, "%s changes attitude from %s to %s",
+    add_msg_debug( debugmode::DF_NPC, "{} changes attitude from {} to {}",
                    get_name(), npc_attitude_id( attitude ), npc_attitude_id( new_attitude ) );
     attitude_group new_group = get_attitude_group( new_attitude );
     attitude_group old_group = get_attitude_group( attitude );
@@ -3841,23 +3841,23 @@ std::string npc::describe_mission() const
 {
     switch( mission ) {
         case NPC_MISSION_SHELTER:
-            return string_format( _( "I'm holing up here for safety.  Long term, %s" ),
+            return string_format( _( "I'm holing up here for safety.  Long term, {}" ),
                                   myclass.obj().get_job_description() );
         case NPC_MISSION_SHOPKEEP:
             return _( "I run the shop here." );
         case NPC_MISSION_GUARD:
         case NPC_MISSION_GUARD_ALLY:
         case NPC_MISSION_GUARD_PATROL:
-            return string_format( _( "Currently, I'm guarding this location.  Overall, %s" ),
+            return string_format( _( "Currently, I'm guarding this location.  Overall, {}" ),
                                   myclass.obj().get_job_description() );
         case NPC_MISSION_ACTIVITY:
-            return string_format( _( "Right now, I'm <current_activity>.  In general, %s" ),
+            return string_format( _( "Right now, I'm <current_activity>.  In general, {}" ),
                                   myclass.obj().get_job_description() );
         case NPC_MISSION_TRAVELLING:
         case NPC_MISSION_NULL:
             return myclass.obj().get_job_description();
         default:
-            debugmsg( "ERROR: Someone forgot to code an npc_mission text for mission: %d.",
+            debugmsg( "ERROR: Someone forgot to code an npc_mission text for mission: {}.",
                       static_cast<int>( mission ) );
             return "";
     } // switch (mission)
@@ -3866,8 +3866,8 @@ std::string npc::describe_mission() const
 std::string npc::name_and_activity() const
 {
     if( current_activity_id ) {
-        //~ %1$s - npc name, %2$s - npc current activity name.
-        return string_format( _( "%1$s (%2$s)" ), get_name(), get_current_activity() );
+        //~ {1} - npc name, {2} - npc current activity name.
+        return string_format( _( "{1} ({2})" ), get_name(), get_current_activity() );
     } else {
         return get_name();
     }

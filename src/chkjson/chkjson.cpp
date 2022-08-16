@@ -170,7 +170,7 @@ int main( int, char ** )
     try {
         load_json_dir( "data/json" );
     } catch( const std::exception &err ) {
-        printf( "Error: %s\n", err.what() );
+        printf( "Error: {}\n", err.what() );
         return 1;
     }
     return 0;

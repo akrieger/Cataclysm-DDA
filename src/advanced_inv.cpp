@@ -270,7 +270,7 @@ void advanced_inventory::print_items( const advanced_inventory_pane &pane, bool 
         std::string volume_carried = format_volume( player_character.volume_carried() );
         std::string volume_capacity = format_volume( player_character.volume_capacity() );
         // align right, so calculate formatted head length
-        const std::string formatted_head = string_format( "%.1f/%.1f %s  %s/%s %s",
+        const std::string formatted_head = string_format( "%.1f/%.1f {}  {}/{} {}",
                                            weight_carried, weight_capacity, weight_units(),
                                            volume_carried,
                                            volume_capacity,
@@ -278,16 +278,16 @@ void advanced_inventory::print_items( const advanced_inventory_pane &pane, bool 
         const int hrightcol = columns - 1 - utf8_width( formatted_head );
         nc_color color = weight_carried > weight_capacity ? c_red : c_light_green;
         mvwprintz( window, point( hrightcol, 4 ), color, "%.1f", weight_carried );
-        wprintz( window, c_light_gray, "/%.1f %s  ", weight_capacity, weight_units() );
+        wprintz( window, c_light_gray, "/%.1f {}  ", weight_capacity, weight_units() );
         color = player_character.volume_carried().value() > player_character.volume_capacity().value() ?
                 c_red : c_light_green;
         wprintz( window, color, volume_carried );
-        wprintz( window, c_light_gray, "/%s %s", volume_capacity, volume_units_abbr() );
+        wprintz( window, c_light_gray, "/{} {}", volume_capacity, volume_units_abbr() );
     } else {
         //print square's current and total weight + volume
         std::string formatted_head;
         if( pane.get_area() == AIM_ALL ) {
-            formatted_head = string_format( "%3.1f %s  %s %s",
+            formatted_head = string_format( "{}.1f {}  {} {}",
                                             convert_weight( squares[pane.get_area()].weight ),
                                             weight_units(),
                                             format_volume( squares[pane.get_area()].volume ),
@@ -302,7 +302,7 @@ void advanced_inventory::print_items( const advanced_inventory_pane &pane, bool 
             } else {
                 maxvolume = get_map().max_volume( s.pos );
             }
-            formatted_head = string_format( "%3.1f %s  %s/%s %s",
+            formatted_head = string_format( "{}.1f {}  {}/{} {}",
                                             convert_weight( pane.in_vehicle() ? s.weight_veh : s.weight ),
                                             weight_units(),
                                             format_volume( pane.in_vehicle() ? s.volume_veh : s.volume ),
@@ -363,7 +363,7 @@ void advanced_inventory::print_items( const advanced_inventory_pane &pane, bool 
             }
             // insert category header
             mvwprintz( window, point( ( columns - utf8_width( sitem.cat->name() ) - 6 ) / 2, 6 + line ), c_cyan,
-                       "[%s]",
+                       "[{}]",
                        sitem.cat->name() );
             item_line = line + 1;
         }
@@ -386,9 +386,9 @@ void advanced_inventory::print_items( const advanced_inventory_pane &pane, bool 
             thiscolor = inCategoryMode && pane.sortby == SORTBY_CATEGORY ? c_white_red : hilite( c_white );
             thiscolordark = hilite( thiscolordark );
             if( compact ) {
-                mvwprintz( window, point( 1, 6 + item_line ), thiscolor, "  %s", spaces );
+                mvwprintz( window, point( 1, 6 + item_line ), thiscolor, "  {}", spaces );
             } else {
-                mvwprintz( window, point( 1, 6 + item_line ), thiscolor, ">>%s", spaces );
+                mvwprintz( window, point( 1, 6 + item_line ), thiscolor, ">>{}", spaces );
             }
         }
 
@@ -407,20 +407,20 @@ void advanced_inventory::print_items( const advanced_inventory_pane &pane, bool 
                 charges_total += item->ammo_remaining();
             }
             if( stolen ) {
-                item_name = string_format( "%s %s", stolen_string, it.display_money( sitem.items.size(),
+                item_name = string_format( "{} {}", stolen_string, it.display_money( sitem.items.size(),
                                            charges_total ) );
             } else {
                 item_name = it.display_money( sitem.items.size(), charges_total );
             }
         } else {
             if( stolen ) {
-                item_name = string_format( "%s %s", stolen_string, it.display_name() );
+                item_name = string_format( "{} {}", stolen_string, it.display_name() );
             } else {
                 item_name = it.display_name();
             }
         }
         if( get_option<bool>( "ITEM_SYMBOLS" ) ) {
-            item_name = string_format( "%s %s", it.symbol(), item_name );
+            item_name = string_format( "{} {}", it.symbol(), item_name );
         }
 
         //print item name
@@ -441,7 +441,7 @@ void advanced_inventory::print_items( const advanced_inventory_pane &pane, bool 
                 it_amt = 9999;
                 print_color = selected ? hilite( c_red ) : c_red;
             }
-            mvwprintz( window, point( amt_startpos, 6 + item_line ), print_color, "%4d", it_amt );
+            mvwprintz( window, point( amt_startpos, 6 + item_line ), print_color, "{}", it_amt );
         }
 
         //print weight column
@@ -460,7 +460,7 @@ void advanced_inventory::print_items( const advanced_inventory_pane &pane, bool 
         } else {
             w_precision = 2;
         }
-        mvwprintz( window, point( weight_startpos, 6 + item_line ), print_color, "%5.*f", w_precision,
+        mvwprintz( window, point( weight_startpos, 6 + item_line ), print_color, "{}.*f", w_precision,
                    it_weight );
 
         //print volume column
@@ -616,9 +616,9 @@ int advanced_inventory::print_header( advanced_inventory_pane &pane, aim_locatio
 
         const std::string key = get_location_key( static_cast<aim_location>( i ) );
         const point p( squares[i].hscreen + point( ofs, 0 ) );
-        mvwprintz( window, p, bcolor, "%c", bracket[0] );
-        wprintz( window, kcolor, "%s", in_vehicle && sel != AIM_DRAGGED ? "V" : key );
-        wprintz( window, bcolor, "%c", bracket[1] );
+        mvwprintz( window, p, bcolor, "{}", bracket[0] );
+        wprintz( window, kcolor, "{}", in_vehicle && sel != AIM_DRAGGED ? "V" : key );
+        wprintz( window, bcolor, "{}", bracket[1] );
     }
     return squares[AIM_INVENTORY].hscreen.y + ofs;
 }
@@ -745,7 +745,7 @@ void advanced_inventory::redraw_pane( side p )
             }
         }
         const int max_page = pagination.page;
-        mvwprintz( w, point( 2, 4 ), c_light_blue, _( "[<] page %1$d of %2$d [>]" ), cur_page + 1,
+        mvwprintz( w, point( 2, 4 ), c_light_blue, _( "[<] page {1} of {2} [>]" ), cur_page + 1,
                    max_page + 1 );
     }
 
@@ -754,32 +754,32 @@ void advanced_inventory::redraw_pane( side p )
     }
     // draw a darker border around the inactive pane
     draw_border( w, active ? BORDER_COLOR : c_dark_gray );
-    mvwprintw( w, point( 3, 0 ), _( "< [%s] Sort: %s >" ), ctxt.get_desc( "SORT" ),
+    mvwprintw( w, point( 3, 0 ), _( "< [{}] Sort: {} >" ), ctxt.get_desc( "SORT" ),
                get_sortname( pane.sortby ) );
     int max = square.max_size;
     if( max > 0 ) {
         int itemcount = square.get_item_count();
         int fmtw = 7 + ( itemcount > 99 ? 3 : itemcount > 9 ? 2 : 1 ) +
                    ( max > 99 ? 3 : max > 9 ? 2 : 1 );
-        mvwprintw( w, point( w_width / 2 - fmtw, 0 ), "< %d/%d >", itemcount, max );
+        mvwprintw( w, point( w_width / 2 - fmtw, 0 ), "< {}/{} >", itemcount, max );
     }
 
-    std::string fprefix = string_format( _( "[%s] Filter" ), ctxt.get_desc( "FILTER" ) );
+    std::string fprefix = string_format( _( "[{}] Filter" ), ctxt.get_desc( "FILTER" ) );
     if( !filter_edit ) {
         if( !pane.filter.empty() ) {
-            mvwprintw( w, point( 2, getmaxy( w ) - 1 ), "< %s: %s >", fprefix, pane.filter );
+            mvwprintw( w, point( 2, getmaxy( w ) - 1 ), "< {}: {} >", fprefix, pane.filter );
         } else {
-            mvwprintw( w, point( 2, getmaxy( w ) - 1 ), "< %s >", fprefix );
+            mvwprintw( w, point( 2, getmaxy( w ) - 1 ), "< {} >", fprefix );
         }
     }
     if( active ) {
         wattroff( w, c_white );
     }
     if( !filter_edit && !pane.filter.empty() ) {
-        std::string fsuffix = string_format( _( "[%s] Reset" ), ctxt.get_desc( "RESET_FILTER" ) );
+        std::string fsuffix = string_format( _( "[{}] Reset" ), ctxt.get_desc( "RESET_FILTER" ) );
         mvwprintz( w, point( 6 + utf8_width( fprefix ), getmaxy( w ) - 1 ), c_white,
                    pane.filter );
-        mvwprintz( w, point( getmaxx( w ) - utf8_width( fsuffix ) - 2, getmaxy( w ) - 1 ), c_white, "%s",
+        mvwprintz( w, point( getmaxx( w ) - utf8_width( fsuffix ) - 2, getmaxy( w ) - 1 ), c_white, "{}",
                    fsuffix );
     }
     wnoutrefresh( w );
@@ -898,7 +898,7 @@ bool advanced_inventory::move_all_items()
                 }
                 break;
             default:
-                debugmsg( "Invalid `aim_entry' [%d] reached!", entry - 1 );
+                debugmsg( "Invalid `aim_entry' [{}] reached!", entry - 1 );
                 entry = aim_entry::START;
                 loc = AIM_AROUND_BEGIN;
                 return false;
@@ -1237,7 +1237,7 @@ void advanced_inventory::redraw_sidebar()
         Messages::display_messages( head, 2, 1, w_width - 1, head_height - 2 );
         draw_minimap();
         right_print( head, 0, +3, c_white, string_format(
-                         _( "< [<color_yellow>%s</color>] keybindings >" ),
+                         _( "< [<color_yellow>{}</color>] keybindings >" ),
                          ctxt.get_desc( "HELP_KEYBINDINGS" ) ) );
         if( get_player_character().has_watch() ) {
             const std::string time = to_string_time_of_day( calendar::turn );
@@ -1375,7 +1375,7 @@ bool advanced_inventory::action_move_item( advanced_inv_listitem *sitem,
     if( squares[srcarea].is_same( squares[destarea] ) &&
         spane.get_area() != AIM_ALL &&
         spane.in_vehicle() == dpane.in_vehicle() ) {
-        popup( _( "Source area is the same as destination (%s)." ), squares[destarea].name );
+        popup( _( "Source area is the same as destination ({})." ), squares[destarea].name );
         return false;
     }
     cata_assert( !sitem->items.empty() );
@@ -1452,7 +1452,7 @@ bool advanced_inventory::action_move_item( advanced_inv_listitem *sitem,
             can_stash = player_character.can_stash( *sitem->items.front() );
         }
         if( destarea == AIM_INVENTORY && !can_stash ) {
-            popup( _( "You have no space for %s" ), sitem->items.front()->tname() );
+            popup( _( "You have no space for {}" ), sitem->items.front()->tname() );
             return false;
         }
         // from map/vehicle: start ACT_PICKUP or ACT_MOVE_ITEMS as necessary
@@ -1796,9 +1796,9 @@ void query_destination_callback::draw_squares( const uilist *menu )
         nc_color bcolor = canputitems ? sel == loc ? h_white : c_light_gray : c_dark_gray;
         nc_color kcolor = canputitems ? sel == loc ? h_white : c_light_gray : c_dark_gray;
         const point p( square.hscreen + point( ofs, 5 ) );
-        mvwprintz( menu->window, p, bcolor, "%c", bracket[0] );
-        wprintz( menu->window, kcolor, "%s", key );
-        wprintz( menu->window, bcolor, "%c", bracket[1] );
+        mvwprintz( menu->window, p, bcolor, "{}", bracket[0] );
+        wprintz( menu->window, kcolor, "{}", key );
+        wprintz( menu->window, bcolor, "{}", bracket[1] );
     }
     wnoutrefresh( menu->window );
 }
@@ -1830,7 +1830,7 @@ bool advanced_inventory::query_destination( aim_location &def )
         for( aim_location &ordered_loc : ordered_locs ) {
             advanced_inv_area &s = squares[ordered_loc];
             const int size = s.get_item_count();
-            std::string prefix = string_format( "%2d/%d", size, MAX_ITEM_IN_SQUARE );
+            std::string prefix = string_format( "{}/{}", size, MAX_ITEM_IN_SQUARE );
             if( size >= MAX_ITEM_IN_SQUARE ) {
                 prefix += _( " (FULL)" );
             }
@@ -1975,10 +1975,10 @@ bool advanced_inventory::query_charges( aim_location destarea, const advanced_in
         const char *msg = nullptr;
         std::string popupmsg;
         if( amount >= input_amount ) {
-            msg = _( "How many do you want to move?  [Have %d] (0 to cancel)" );
+            msg = _( "How many do you want to move?  [Have {}] (0 to cancel)" );
             popupmsg = string_format( msg, count );
         } else {
-            msg = _( "Destination can only hold %d!  Move how many?  [Have %d] (0 to cancel)" );
+            msg = _( "Destination can only hold {}!  Move how many?  [Have {}] (0 to cancel)" );
             popupmsg = string_format( msg, amount, count );
         }
         // At this point amount contains the maximal amount that the destination can hold.

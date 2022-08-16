@@ -71,7 +71,7 @@ void mdefense::zapback( monster &m, Creature *const source,
 
     if( get_player_view().sees( source->pos() ) ) {
         const game_message_type msg_type = source->is_avatar() ? m_bad : m_info;
-        add_msg( msg_type, _( "Striking the %1$s shocks %2$s!" ),
+        add_msg( msg_type, _( "Striking the {1} shocks {2}!" ),
                  m.name(), source->disp_name() );
     }
 
@@ -113,7 +113,7 @@ void mdefense::acidsplash( monster &m, Creature *const source,
                 };
                 source->deal_damage( &m, one_in( 2 ) ? bodypart_id( "hand_l" ) : bodypart_id( "hand_r" ),
                                      acid_burn );
-                source->add_msg_if_player( m_bad, _( "Acid covering %s burns your hand!" ), m.disp_name() );
+                source->add_msg_if_player( m_bad, _( "Acid covering {} burns your hand!" ), m.disp_name() );
             }
         }
     }
@@ -134,7 +134,7 @@ void mdefense::acidsplash( monster &m, Creature *const source,
     }
 
     if( get_player_view().sees( m.pos() ) ) {
-        add_msg( m_warning, _( "Acid sprays out of %s as it is hit!" ), m.disp_name() );
+        add_msg( m_warning, _( "Acid sprays out of {} as it is hit!" ), m.disp_name() );
     }
 }
 

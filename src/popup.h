@@ -25,7 +25,7 @@ class ui_adaptor;
  *
  * std::string action = query_popup()
  *                      .context( "YESNOQUIT" ) // input context to use
- *                      .message( "%s", _( "Do you want to save before jumping into the lava?" ) )
+ *                      .message( "{}", _( "Do you want to save before jumping into the lava?" ) )
  *                      .option( "YES" ) // yes, save before jumping
  *                      .option( "NO" ) // no, don't save before jumping
  *                      .option( "QUIT" ) // NOOO, I didn't mean to jump into lava!
@@ -253,7 +253,7 @@ class query_popup
             static_assert( sizeof...( Args ) > 0,
                            "Format string should take at least one argument.  "
                            "If your message is not a format string, "
-                           "use `message( \"%s\", text )` instead." );
+                           "use `message( \"{}\", text )` instead." );
         }
 
         static std::string wait_text( const std::string &text, const nc_color &bar_color );
@@ -272,7 +272,7 @@ class query_popup
  * if( not_loaded ) {
  *     static_popup popup;
  *     while( loading ) {
- *         popup.message( _( "Please wait…  %d%% complete" ), percentage );
+ *         popup.message( _( "Please wait…  {}%% complete" ), percentage );
  *         ui_manager::redraw();
  *         refresh_display(); // force redraw since we're not receiving input here
  *         inp_mngr.pump_events(); // handle window events such as resize

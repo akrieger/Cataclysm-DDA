@@ -175,9 +175,9 @@ void dialogue_window::print_header( const std::string &name )
 {
     draw_border( d_win );
     if( is_computer ) {
-        mvwprintz( d_win, point( 2, 1 ), default_color(), _( "Interaction: %s" ), name );
+        mvwprintz( d_win, point( 2, 1 ), default_color(), _( "Interaction: {}" ), name );
     } else {
-        mvwprintz( d_win, point( 2, 1 ), default_color(), _( "Dialogue: %s" ), name );
+        mvwprintz( d_win, point( 2, 1 ), default_color(), _( "Dialogue: {}" ), name );
     }
     const int xmax = getmaxx( d_win );
     const int ymax = getmaxy( d_win );
@@ -227,8 +227,8 @@ bool dialogue_window::print_responses( const std::vector<talk_data> &responses )
     folded_txt.clear();
     folded_heights.clear();
     for( const talk_data &response : responses ) {
-        //~ %s: hotkey description
-        const std::string hotkey_text = string_format( pgettext( "talk option", "%s: " ),
+        //~ {}: hotkey description
+        const std::string hotkey_text = string_format( pgettext( "talk option", "{}: " ),
                                         response.hotkey_desc );
         const int hotkey_width = utf8_width( hotkey_text );
         const int fold_width = xmid - responses_xoffset - hotkey_width - 1;
@@ -270,16 +270,16 @@ bool dialogue_window::print_responses( const std::vector<talk_data> &responses )
     ycurrent = yoffset;
     if( !is_computer ) {
         const int actions_xoffset = xmid + 2;
-        mvwprintz( d_win, point( actions_xoffset, ycurrent ), c_magenta, _( "%s: Look at" ),
+        mvwprintz( d_win, point( actions_xoffset, ycurrent ), c_magenta, _( "{}: Look at" ),
                    ctxt.get_desc( "LOOK_AT", 1 ) );
         ++ycurrent;
-        mvwprintz( d_win, point( actions_xoffset, ycurrent ), c_magenta, _( "%s: Size up stats" ),
+        mvwprintz( d_win, point( actions_xoffset, ycurrent ), c_magenta, _( "{}: Size up stats" ),
                    ctxt.get_desc( "SIZE_UP_STATS", 1 ) );
         ++ycurrent;
-        mvwprintz( d_win, point( actions_xoffset, ycurrent ), c_magenta, _( "%s: Yell" ),
+        mvwprintz( d_win, point( actions_xoffset, ycurrent ), c_magenta, _( "{}: Yell" ),
                    ctxt.get_desc( "YELL", 1 ) );
         ++ycurrent;
-        mvwprintz( d_win, point( actions_xoffset, ycurrent ), c_magenta, _( "%s: Check opinion" ),
+        mvwprintz( d_win, point( actions_xoffset, ycurrent ), c_magenta, _( "{}: Check opinion" ),
                    ctxt.get_desc( "CHECK_OPINION", 1 ) );
     }
 

@@ -242,7 +242,7 @@ tripoint_abs_omt start_location::find_player_initial_location( const point_abs_o
         }
     }
     // Should never happen, if it does we messed up.
-    popup( _( "Unable to generate a valid starting location %s [%s] in a radius of %d overmaps, please report this failure." ),
+    popup( _( "Unable to generate a valid starting location {} [{}] in a radius of {} overmaps, please report this failure." ),
            name(), id.str(), radius );
     return overmap::invalid_tripoint;
 }
@@ -269,7 +269,7 @@ tripoint_abs_omt start_location::find_player_initial_location( const city &origi
         return project_combine( origin.pos_om, omtstart );
     }
     // Should never happen, if it does we messed up.
-    popup( _( "Unable to generate a valid starting location %s [%s] in a city [%s], please report this failure." ),
+    popup( _( "Unable to generate a valid starting location {} [{}] in a city [{}], please report this failure." ),
            name(), id.str(), origin.name );
     return overmap::invalid_tripoint;
 }

@@ -147,7 +147,7 @@ void node_t::load( const JsonObject &jo, const std::string & )
         if( new_strategy != strategy_map.end() ) {
             strategy = new_strategy->second;
         } else {
-            debugmsg( "While loading %s, failed to find strategy %s.",
+            debugmsg( "While loading {}, failed to find strategy {}.",
                       id.str(), jo.get_string( "strategy" ) );
             jo.throw_error( "Invalid strategy in behavior." );
         }
@@ -156,7 +156,7 @@ void node_t::load( const JsonObject &jo, const std::string & )
         const std::string predicate_id = predicate_object.get_string( "predicate" );
         auto new_predicate = predicate_map.find( predicate_id );
         if( new_predicate == predicate_map.end() ) {
-            debugmsg( "While loading %s, failed to find predicate %s.",
+            debugmsg( "While loading {}, failed to find predicate {}.",
                       id.str(), predicate_id );
             jo.throw_error( "Invalid predicate in behavior." );
         }
@@ -173,15 +173,15 @@ void node_t::check() const
     // Invariants
     if( children.empty() ) {
         if( _goal.empty() ) {
-            debugmsg( "Behavior %s must have either children or a goal.",
+            debugmsg( "Behavior {} must have either children or a goal.",
                       id.str() );
         }
     } else {
         if( strategy == nullptr ) {
-            debugmsg( "Behavior %s has children but no strategy.", id.str() );
+            debugmsg( "Behavior {} has children but no strategy.", id.str() );
         }
         if( !_goal.empty() ) {
-            debugmsg( "Behavior %s has both children and a goal.", id.str() );
+            debugmsg( "Behavior {} has both children and a goal.", id.str() );
         }
     }
 }

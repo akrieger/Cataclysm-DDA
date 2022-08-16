@@ -41,7 +41,7 @@ side opposite_side( side s )
         case side::RIGHT:
             return side::LEFT;
         case side::num_sides:
-            debugmsg( "invalid side %d", static_cast<int>( s ) );
+            debugmsg( "invalid side {}", static_cast<int>( s ) );
             break;
     }
 
@@ -118,7 +118,7 @@ static body_part legacy_id_to_enum( const std::string &legacy_id )
     };
     const auto &iter = body_parts.find( legacy_id );
     if( iter == body_parts.end() ) {
-        debugmsg( "Invalid body part legacy id %s", legacy_id.c_str() );
+        debugmsg( "Invalid body part legacy id {}", legacy_id.c_str() );
         return num_bp;
     }
 
@@ -226,7 +226,7 @@ const bodypart_str_id &convert_bp( body_part bp )
         bodypart_str_id::NULL_ID(),
     };
     if( bp > num_bp || bp < bp_torso ) {
-        debugmsg( "Invalid body part token %d", bp );
+        debugmsg( "Invalid body part token {}", bp );
         return body_parts[ num_bp ];
     }
 
@@ -477,7 +477,7 @@ void body_part_type::check_consistency()
     for( const body_part bp : all_body_parts ) {
         const bodypart_str_id &legacy_bp = convert_bp( bp );
         if( !legacy_bp.is_valid() ) {
-            debugmsg( "Mandatory body part %s was not loaded", legacy_bp.c_str() );
+            debugmsg( "Mandatory body part {} was not loaded", legacy_bp.c_str() );
         }
     }
 
@@ -488,34 +488,34 @@ void body_part_type::check() const
 {
     const body_part_type &under_token = convert_bp( token ).obj();
     if( this != &under_token && token != body_part::num_bp ) {
-        debugmsg( "Body part %s has duplicate token %d, mapped to %s", id.c_str(), token,
+        debugmsg( "Body part {} has duplicate token {}, mapped to {}", id.c_str(), token,
                   under_token.id.c_str() );
     }
 
     if( !id.is_null() && main_part.is_null() ) {
-        debugmsg( "Body part %s has unset main part", id.c_str() );
+        debugmsg( "Body part {} has unset main part", id.c_str() );
     }
 
     if( !id.is_null() && opposite_part.is_null() ) {
-        debugmsg( "Body part %s has unset opposite part", id.c_str() );
+        debugmsg( "Body part {} has unset opposite part", id.c_str() );
     }
 
     if( !main_part.is_valid() ) {
-        debugmsg( "Body part %s has invalid main part %s.", id.c_str(), main_part.c_str() );
+        debugmsg( "Body part {} has invalid main part {}.", id.c_str(), main_part.c_str() );
     }
 
     if( !opposite_part.is_valid() ) {
-        debugmsg( "Body part %s has invalid opposite part %s.", id.c_str(), opposite_part.c_str() );
+        debugmsg( "Body part {} has invalid opposite part {}.", id.c_str(), opposite_part.c_str() );
     } else if( opposite_part->opposite_part != id ) {
-        debugmsg( "Bodypart %s has inconsistent opposite part!", id.str() );
+        debugmsg( "Bodypart {} has inconsistent opposite part!", id.str() );
     }
 
     for( const bp_limb_score &bpls : limb_scores ) {
         if( !bpls.id.is_valid() ) {
-            debugmsg( "Body part %s has invalid limb score %s.", id.str(), bpls.id.str() );
+            debugmsg( "Body part {} has invalid limb score {}.", id.str(), bpls.id.str() );
         }
         if( bpls.score > bpls.max ) {
-            debugmsg( "Body part %s has higher %s score than max.", id.str(), bpls.id.str() );
+            debugmsg( "Body part {} has higher {} score than max.", id.str(), bpls.id.str() );
         }
     }
 
@@ -529,7 +529,7 @@ void body_part_type::check() const
     }
 
     if( next != next->connected_to ) {
-        debugmsg( "Loop in body part connectedness starting from %s", id.str() );
+        debugmsg( "Loop in body part connectedness starting from {}", id.str() );
     }
 }
 

@@ -116,7 +116,7 @@ std::vector<int> main_menu::print_menu_items( const catacurses::window &w_in,
         ret.push_back( utf8_width_notags( text.c_str() ) );
 
         std::string temp = shortcut_text( iSel == i ? hilite( c_yellow ) : c_yellow, vItems[i] );
-        text += string_format( "[%s]", colorize( temp, iSel == i ? hilite( c_white ) : c_white ) );
+        text += string_format( "[{}]", colorize( temp, iSel == i ? hilite( c_white ) : c_white ) );
     }
 
     int text_width = utf8_width_notags( text.c_str() );
@@ -212,7 +212,7 @@ void main_menu::display_sub_menu( int sel, const point &bottom_left, int sel_lin
                 if( all_worldnames[i] == "TUTORIAL" || all_worldnames[i] == "DEFENSE" ) {
                     clr = c_light_cyan;
                 }
-                sub_opts.push_back( colorize( string_format( "%s (%d)", all_worldnames[i], savegames_count ),
+                sub_opts.push_back( colorize( string_format( "{} ({})", all_worldnames[i], savegames_count ),
                                               ( sel2 == i + ( extra_opt ? 1 : 0 ) ) ? hilite( clr ) : clr ) );
                 int len = utf8_width( sub_opts.back(), true );
                 if( len > xlen ) {
@@ -271,7 +271,7 @@ void main_menu::print_menu( const catacurses::window &w_open, int iSel, const po
                       _( "Bugs?  Suggestions?  Use links in MOTD to report them." ) );
     }
 
-    center_print( w_open, window_height - 1, c_light_cyan, string_format( _( "Tip of the day: %s" ),
+    center_print( w_open, window_height - 1, c_light_cyan, string_format( _( "Tip of the day: {}" ),
                   vdaytip ) );
 
     int iLine = 0;
@@ -307,7 +307,7 @@ void main_menu::print_menu( const catacurses::window &w_open, int iSel, const po
     }
 
     iLine++;
-    center_print( w_open, iLine, c_light_blue, string_format( _( "Version: %s" ),
+    center_print( w_open, iLine, c_light_blue, string_format( _( "Version: {}" ),
                   getVersionString() ) );
 
     int menu_length = 0;
@@ -782,7 +782,7 @@ bool main_menu::opening_screen()
                         try {
                             g->setup();
                         } catch( const std::exception &err ) {
-                            debugmsg( "Error: %s", err.what() );
+                            debugmsg( "Error: {}", err.what() );
                             break;
                         }
                         if( !g->gamemode->init() ) {
@@ -866,11 +866,11 @@ bool main_menu::new_character_tab()
 
             std::string res = query_popup()
                               .context( "LOAD_DELETE_CANCEL" ).default_color( c_white )
-                              .message( _( "What to do with template \"%s\"?" ), templates[opt_val] )
+                              .message( _( "What to do with template \"{}\"?" ), templates[opt_val] )
                               .option( "LOAD" ).option( "DELETE" ).option( "CANCEL" ).cursor( 0 )
                               .query().action;
             if( res == "DELETE" &&
-                query_yn( _( "Are you sure you want to delete %s?" ), templates[opt_val] ) ) {
+                query_yn( _( "Are you sure you want to delete {}?" ), templates[opt_val] ) ) {
                 const auto path = PATH_INFO::templatedir() + templates[opt_val] + ".template";
                 if( !remove_file( path ) ) {
                     popup( _( "Sorry, something went wrong." ) );
@@ -891,7 +891,7 @@ bool main_menu::new_character_tab()
                 try {
                     g->setup();
                 } catch( const std::exception &err ) {
-                    debugmsg( "Error: %s", err.what() );
+                    debugmsg( "Error: {}", err.what() );
                     continue;
                 }
                 if( !pc.create( character_type::TEMPLATE, templates[opt_val] ) ) {
@@ -928,7 +928,7 @@ bool main_menu::new_character_tab()
         try {
             g->setup();
         } catch( const std::exception &err ) {
-            debugmsg( "Error: %s", err.what() );
+            debugmsg( "Error: {}", err.what() );
             return false;
         }
         character_type play_type = character_type::CUSTOM;
@@ -974,12 +974,12 @@ bool main_menu::load_character_tab( const std::string &worldname )
 
     if( savegames.empty() ) {
         on_error();
-        //~ %s = world name
-        popup( _( "%s has no characters to load!" ), worldname );
+        //~ {} = world name
+        popup( _( "{} has no characters to load!" ), worldname );
         return false;
     }
 
-    uilist mmenu( string_format( _( "Load character from \"%s\"" ), worldname ), {} );
+    uilist mmenu( string_format( _( "Load character from \"{}\"" ), worldname ), {} );
     mmenu.border_color = c_white;
     int opt_val = 0;
     for( const save_t &s : savegames ) {
@@ -1008,7 +1008,7 @@ bool main_menu::load_character_tab( const std::string &worldname )
     try {
         g->setup();
     } catch( const std::exception &err ) {
-        debugmsg( "Error: %s", err.what() );
+        debugmsg( "Error: {}", err.what() );
         return false;
     }
 
@@ -1028,7 +1028,7 @@ void main_menu::world_tab( const std::string &worldname )
         return;
     }
 
-    uilist mmenu( string_format( _( "Manage world \"%s\"" ), worldname ), {} );
+    uilist mmenu( string_format( _( "Manage world \"{}\"" ), worldname ), {} );
     mmenu.border_color = c_white;
     int opt_val = 0;
     std::array<char, 5> hotkeys = { 'd', 'r', 'm', 's', 't' };

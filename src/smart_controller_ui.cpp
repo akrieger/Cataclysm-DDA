@@ -73,11 +73,11 @@ void smart_controller_ui::refresh()
     int lo_slider_x = settings.battery_lo * SLIDER_W / 100;
     int hi_slider_x = settings.battery_hi * SLIDER_W / 100 ;
     // print selected % numbers
-    std::string battery_low_text = string_format( "%d%%", settings.battery_lo );
+    std::string battery_low_text = string_format( "{}%%", settings.battery_lo );
     mvwprintz( win, point( LEFT_MARGIN + lo_slider_x - battery_low_text.length() + 1, y + 2 ),
                selection == 1 && slider == 0 ? hilite( white ) : red, battery_low_text );
     mvwprintz( win, point( LEFT_MARGIN + hi_slider_x, y + 2 ),
-               selection == 1 && slider == 1 ? hilite( white ) : lgreen, "%d%%", settings.battery_hi );
+               selection == 1 && slider == 1 ? hilite( white ) : lgreen, "{}%%", settings.battery_hi );
     // draw slider horizontal line
     for( int i = 0; i < SLIDER_W; ++i ) {
         nc_color col = selection == 1 ? white : gray;
@@ -106,11 +106,11 @@ void smart_controller_ui::refresh()
 
     // key descriptions
     std::string keys_text = string_format(
-                                _( "Use [<color_yellow>%s</color> and <color_yellow>%s</color>] to select option.\n"
-                                   "Use [<color_yellow>%s</color>] to change value.\n"
-                                   "Use [<color_yellow>%s</color> or <color_yellow>%s</color>] to switch between sliders.\n"
-                                   "Use [<color_yellow>%s</color> and <color_yellow>%s</color>] to move sliders."
-                                   "Use [<color_yellow>%s</color>] to apply changes and quit." ),
+                                _( "Use [<color_yellow>{}</color> and <color_yellow>{}</color>] to select option.\n"
+                                   "Use [<color_yellow>{}</color>] to change value.\n"
+                                   "Use [<color_yellow>{}</color> or <color_yellow>{}</color>] to switch between sliders.\n"
+                                   "Use [<color_yellow>{}</color> and <color_yellow>{}</color>] to move sliders."
+                                   "Use [<color_yellow>{}</color>] to apply changes and quit." ),
                                 input_ctx.get_desc( "UP" ),
                                 input_ctx.get_desc( "DOWN" ),
                                 input_ctx.get_desc( "CONFIRM" ),

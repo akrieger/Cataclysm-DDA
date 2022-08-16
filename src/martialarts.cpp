@@ -100,7 +100,7 @@ matype_id martial_art_learned_from( const itype &type )
     }
 
     if( !type.book || type.book->martial_art.is_null() ) {
-        debugmsg( "Item '%s' which claims to teach a martial art is missing martial_art",
+        debugmsg( "Item '{}' which claims to teach a martial art is missing martial_art",
                   type.get_id().str() );
         return {};
     }
@@ -468,25 +468,25 @@ static void check( const ma_requirements &req, const std::string &display_text )
 {
     for( const mabuff_id &r : req.req_buffs_all ) {
         if( !r.is_valid() ) {
-            debugmsg( "ma buff %s of %s does not exist", r.c_str(), display_text );
+            debugmsg( "ma buff {} of {} does not exist", r.c_str(), display_text );
         }
     }
 
     for( const mabuff_id &r : req.req_buffs_any ) {
         if( !r.is_valid() ) {
-            debugmsg( "ma buff %s of %s does not exist", r.c_str(), display_text );
+            debugmsg( "ma buff {} of {} does not exist", r.c_str(), display_text );
         }
     }
 
     for( const mabuff_id &r : req.forbid_buffs_all ) {
         if( !r.is_valid() ) {
-            debugmsg( "ma buff %s of %s does not exist", r.c_str(), display_text );
+            debugmsg( "ma buff {} of {} does not exist", r.c_str(), display_text );
         }
     }
 
     for( const mabuff_id &r : req.forbid_buffs_any ) {
         if( !r.is_valid() ) {
-            debugmsg( "ma buff %s of %s does not exist", r.c_str(), display_text );
+            debugmsg( "ma buff {} of {} does not exist", r.c_str(), display_text );
         }
     }
 }
@@ -497,23 +497,23 @@ void check_martialarts()
         for( auto technique = ma.techniques.cbegin();
              technique != ma.techniques.cend(); ++technique ) {
             if( !technique->is_valid() ) {
-                debugmsg( "Technique with id %s in style %s doesn't exist.",
+                debugmsg( "Technique with id {} in style {} doesn't exist.",
                           technique->c_str(), ma.name );
             }
         }
         for( auto weapon = ma.weapons.cbegin();
              weapon != ma.weapons.cend(); ++weapon ) {
             if( !item::type_is_defined( *weapon ) ) {
-                debugmsg( "Weapon %s in style %s doesn't exist.",
+                debugmsg( "Weapon {} in style {} doesn't exist.",
                           weapon->c_str(), ma.name );
             }
         }
     }
     for( const ma_technique &t : ma_techniques.get_all() ) {
-        ::check( t.reqs, string_format( "technique %s", t.id.c_str() ) );
+        ::check( t.reqs, string_format( "technique {}", t.id.c_str() ) );
     }
     for( const ma_buff &b : ma_buffs.get_all() ) {
-        ::check( b.reqs, string_format( "buff %s", b.id.c_str() ) );
+        ::check( b.reqs, string_format( "buff {}", b.id.c_str() ) );
     }
 }
 
@@ -713,7 +713,7 @@ std::string ma_requirements::get_description( bool buff ) const
     if( std::any_of( min_skill.begin(), min_skill.end(), []( const std::pair<skill_id, int> &pr ) {
     return pr.second > 0;
 } ) ) {
-        dump += string_format( _( "<bold>%s required: </bold>" ),
+        dump += string_format( _( "<bold>{} required: </bold>" ),
                                n_gettext( "Skill", "Skills", min_skill.size() ) );
 
         dump += enumerate_as_string( min_skill.begin(),
@@ -723,7 +723,7 @@ std::string ma_requirements::get_description( bool buff ) const
             if( u.has_active_bionic( bio_cqb ) ) {
                 player_skill = BIO_CQB_LEVEL;
             }
-            return string_format( "%s: <stat>%d</stat>/<stat>%d</stat>", pr.first->name(), player_skill,
+            return string_format( "{}: <stat>{}</stat>/<stat>{}</stat>", pr.first->name(), player_skill,
                                   pr.second );
         }, enumeration_conjunction::none ) + "\n";
     }
@@ -737,7 +737,7 @@ std::string ma_requirements::get_description( bool buff ) const
 
         dump += enumerate_as_string( min_damage.begin(),
         min_damage.end(), []( const std::pair<damage_type, int>  &pr ) {
-            return string_format( _( "%s: <stat>%d</stat>" ), name_by_dt( pr.first ), pr.second );
+            return string_format( _( "{}: <stat>{}</stat>" ), name_by_dt( pr.first ), pr.second );
         }, enumeration_conjunction::none ) + "\n";
     }
 
@@ -792,26 +792,26 @@ std::string ma_requirements::get_description( bool buff ) const
     const std::string type = buff ? _( "activate" ) : _( "be used" );
 
     if( unarmed_allowed && melee_allowed ) {
-        dump += string_format( _( "* Can %s while <info>armed</info> or <info>unarmed</info>" ),
+        dump += string_format( _( "* Can {} while <info>armed</info> or <info>unarmed</info>" ),
                                type ) + "\n";
         if( unarmed_weapons_allowed ) {
-            dump += string_format( _( "* Can %s while using <info>any unarmed weapon</info>" ),
+            dump += string_format( _( "* Can {} while using <info>any unarmed weapon</info>" ),
                                    type ) + "\n";
         }
     } else if( unarmed_allowed ) {
-        dump += string_format( _( "* Can <info>only</info> %s while <info>unarmed</info>" ),
+        dump += string_format( _( "* Can <info>only</info> {} while <info>unarmed</info>" ),
                                type ) + "\n";
         if( unarmed_weapons_allowed ) {
-            dump += string_format( _( "* Can %s while using <info>any unarmed weapon</info>" ),
+            dump += string_format( _( "* Can {} while using <info>any unarmed weapon</info>" ),
                                    type ) + "\n";
         }
     } else if( melee_allowed ) {
-        dump += string_format( _( "* Can <info>only</info> %s while <info>armed</info>" ),
+        dump += string_format( _( "* Can <info>only</info> {} while <info>armed</info>" ),
                                type ) + "\n";
     }
 
     if( wall_adjacent ) {
-        dump += string_format( _( "* Can %s while <info>near</info> to a <info>wall</info>" ),
+        dump += string_format( _( "* Can {} while <info>near</info> to a <info>wall</info>" ),
                                type ) + "\n";
     }
 
@@ -965,40 +965,40 @@ bool ma_buff::can_melee() const
 std::string ma_buff::get_description( bool passive ) const
 {
     std::string dump;
-    dump += string_format( _( "<bold>Buff technique:</bold> %s" ), name ) + "\n";
+    dump += string_format( _( "<bold>Buff technique:</bold> {}" ), name ) + "\n";
 
     std::string temp = bonuses.get_description();
     if( !temp.empty() ) {
-        dump += string_format( _( "<bold>%s:</bold> " ),
+        dump += string_format( _( "<bold>{}:</bold> " ),
                                n_gettext( "Bonus", "Bonus/stack", max_stacks ) ) + "\n" + temp;
     }
 
     dump += reqs.get_description( true );
 
     if( max_stacks > 1 ) {
-        dump += string_format( _( "* Will <info>stack</info> up to <stat>%d</stat> times" ),
+        dump += string_format( _( "* Will <info>stack</info> up to <stat>{}</stat> times" ),
                                max_stacks ) + "\n";
     }
 
     const int turns = to_turns<int>( buff_duration );
     if( !passive && turns ) {
-        dump += string_format( _( "* Will <info>last</info> for <stat>%d %s</stat>" ),
+        dump += string_format( _( "* Will <info>last</info> for <stat>{} {}</stat>" ),
                                turns, n_gettext( "turn", "turns", turns ) ) + "\n";
     }
 
     if( dodges_bonus > 0 ) {
-        dump += string_format( _( "* Will give a <good>+%s</good> bonus to <info>dodge</info>%s" ),
+        dump += string_format( _( "* Will give a <good>+{}</good> bonus to <info>dodge</info>{}" ),
                                dodges_bonus, n_gettext( " for the stack", " per stack", max_stacks ) ) + "\n";
     } else if( dodges_bonus < 0 ) {
-        dump += string_format( _( "* Will give a <bad>%s</bad> penalty to <info>dodge</info>%s" ),
+        dump += string_format( _( "* Will give a <bad>{}</bad> penalty to <info>dodge</info>{}" ),
                                dodges_bonus, n_gettext( " for the stack", " per stack", max_stacks ) ) + "\n";
     }
 
     if( blocks_bonus > 0 ) {
-        dump += string_format( _( "* Will give a <good>+%s</good> bonus to <info>block</info>%s" ),
+        dump += string_format( _( "* Will give a <good>+{}</good> bonus to <info>block</info>{}" ),
                                blocks_bonus, n_gettext( " for the stack", " per stack", max_stacks ) ) + "\n";
     } else if( blocks_bonus < 0 ) {
-        dump += string_format( _( "* Will give a <bad>%s</bad> penalty to <info>block</info>%s" ),
+        dump += string_format( _( "* Will give a <bad>{}</bad> penalty to <info>block</info>{}" ),
                                blocks_bonus, n_gettext( " for the stack", " per stack", max_stacks ) ) + "\n";
     }
 
@@ -1771,13 +1771,13 @@ void character_martial_arts::martialart_use_message( const Character &owner ) co
 {
     martialart ma = style_selected.obj();
     if( ma.force_unarmed || ma.weapon_valid( owner.get_wielded_item() ) ) {
-        owner.add_msg_if_player( m_info, "%s", ma.get_initiate_avatar_message() );
+        owner.add_msg_if_player( m_info, "{}", ma.get_initiate_avatar_message() );
     } else if( ma.strictly_melee && !owner.is_armed() ) {
-        owner.add_msg_if_player( m_bad, _( "%s cannot be used unarmed." ), ma.name );
+        owner.add_msg_if_player( m_bad, _( "{} cannot be used unarmed." ), ma.name );
     } else if( ma.strictly_unarmed && owner.is_armed() ) {
-        owner.add_msg_if_player( m_bad, _( "%s cannot be used with weapons." ), ma.name );
+        owner.add_msg_if_player( m_bad, _( "{} cannot be used with weapons." ), ma.name );
     } else {
-        owner.add_msg_if_player( m_bad, _( "The %1$s is not a valid %2$s weapon." ),
+        owner.add_msg_if_player( m_bad, _( "The {1} is not a valid {2} weapon." ),
                                  owner.get_wielded_item()->tname( 1, false ), ma.name );
     }
 }
@@ -1826,7 +1826,7 @@ std::string ma_technique::get_description() const
         type = _( "Offensive" );
     }
 
-    dump += string_format( _( "<bold>Type:</bold> %s" ), type ) + "\n";
+    dump += string_format( _( "<bold>Type:</bold> {}" ), type ) + "\n";
 
     std::string temp = bonuses.get_description();
     if( !temp.empty() ) {
@@ -1836,10 +1836,10 @@ std::string ma_technique::get_description() const
     dump += reqs.get_description();
 
     if( weighting > 1 ) {
-        dump += string_format( _( "* <info>Greater chance</info> to activate: <stat>+%s%%</stat>" ),
+        dump += string_format( _( "* <info>Greater chance</info> to activate: <stat>+{}%%</stat>" ),
                                ( 100 * ( weighting - 1 ) ) ) + "\n";
     } else if( weighting < -1 ) {
-        dump += string_format( _( "* <info>Lower chance</info> to activate: <stat>1/%s</stat>" ),
+        dump += string_format( _( "* <info>Lower chance</info> to activate: <stat>1/{}</stat>" ),
                                std::abs( weighting ) ) + "\n";
     }
 
@@ -1904,7 +1904,7 @@ std::string ma_technique::get_description() const
     }
 
     if( knockback_dist ) {
-        dump += string_format( _( "* Will <info>knock back</info> enemies <stat>%d %s</stat>" ),
+        dump += string_format( _( "* Will <info>knock back</info> enemies <stat>{} {}</stat>" ),
                                knockback_dist, n_gettext( "tile", "tiles", knockback_dist ) ) + "\n";
     }
 
@@ -1913,12 +1913,12 @@ std::string ma_technique::get_description() const
     }
 
     if( down_dur ) {
-        dump += string_format( _( "* Will <info>down</info> enemies for <stat>%d %s</stat>" ),
+        dump += string_format( _( "* Will <info>down</info> enemies for <stat>{} {}</stat>" ),
                                down_dur, n_gettext( "turn", "turns", down_dur ) ) + "\n";
     }
 
     if( stun_dur ) {
-        dump += string_format( _( "* Will <info>stun</info> target for <stat>%d %s</stat>" ),
+        dump += string_format( _( "* Will <info>stun</info> target for <stat>{} {}</stat>" ),
                                stun_dur, n_gettext( "turn", "turns", stun_dur ) ) + "\n";
     }
 
@@ -1977,7 +1977,7 @@ bool ma_style_callback::key( const input_context &ctxt, const input_event &event
                 buffer += "\n";
             } else if( ma.arm_block != 99 ) {
                 buffer += string_format(
-                              _( "You can <info>arm block</info> at <info>unarmed combat:</info> <stat>%s</stat>/<stat>%s</stat>" ),
+                              _( "You can <info>arm block</info> at <info>unarmed combat:</info> <stat>{}</stat>/<stat>{}</stat>" ),
                               unarmed_skill, ma.arm_block ) + "\n";
             }
 
@@ -1986,13 +1986,13 @@ bool ma_style_callback::key( const input_context &ctxt, const input_event &event
                 buffer += "\n";
             } else if( ma.leg_block != 99 ) {
                 buffer += string_format(
-                              _( "You can <info>leg block</info> at <info>unarmed combat:</info> <stat>%s</stat>/<stat>%s</stat>" ),
+                              _( "You can <info>leg block</info> at <info>unarmed combat:</info> <stat>{}</stat>/<stat>{}</stat>" ),
                               unarmed_skill, ma.leg_block );
                 buffer += "\n";
             }
             if( ma.nonstandard_block != 99 ) {
                 buffer += string_format(
-                              _( "You can <info>block with mutated limbs</info> at <info>unarmed combat:</info> <stat>%s</stat>/<stat>%s</stat>" ),
+                              _( "You can <info>block with mutated limbs</info> at <info>unarmed combat:</info> <stat>{}</stat>/<stat>{}</stat>" ),
                               unarmed_skill, ma.nonstandard_block );
                 buffer += "\n";
             }
@@ -2002,7 +2002,7 @@ bool ma_style_callback::key( const input_context &ctxt, const input_event &event
         auto buff_desc = [&]( const std::string & title, const std::vector<mabuff_id> &buffs,
         bool passive = false ) {
             if( !buffs.empty() ) {
-                buffer += string_format( _( "<header>%s buffs:</header>" ), title );
+                buffer += string_format( _( "<header>{} buffs:</header>" ), title );
                 for( const auto &buff : buffs ) {
                     buffer += "\n" + buff->get_description( passive );
                 }
@@ -2023,7 +2023,7 @@ bool ma_style_callback::key( const input_context &ctxt, const input_event &event
         buff_desc( _( "Get hit" ), ma.ongethit_buffs );
 
         for( const auto &tech : ma.techniques ) {
-            buffer += string_format( _( "<header>Technique:</header> <bold>%s</bold>   " ),
+            buffer += string_format( _( "<header>Technique:</header> <bold>{}</bold>   " ),
                                      tech.obj().name ) + "\n";
             buffer += tech.obj().get_description() + "--\n";
         }
@@ -2137,7 +2137,7 @@ bool ma_style_callback::key( const input_context &ctxt, const input_event &event
         ui.on_redraw( [&]( const ui_adaptor & ) {
             werase( w );
             fold_and_print_from( w, point( 2, 1 ), width, selected, c_light_gray, text );
-            draw_border( w, BORDER_COLOR, string_format( _( " Style: %s " ), ma.name ) );
+            draw_border( w, BORDER_COLOR, string_format( _( " Style: {} " ), ma.name ) );
             draw_scrollbar( w, selected, height, iLines, point_south, BORDER_COLOR, true );
             wnoutrefresh( w );
         } );

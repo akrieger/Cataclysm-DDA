@@ -81,8 +81,8 @@ void game::extended_description( const tripoint &p )
     ui.on_redraw( [&]( const ui_adaptor & ) {
         werase( w_head );
         mvwprintz( w_head, point_zero, c_white,
-                   _( "[%s] describe creatures, [%s] describe furniture, "
-                      "[%s] describe terrain, [%s] close." ),
+                   _( "[{}] describe creatures, [{}] describe furniture, "
+                      "[{}] describe terrain, [{}] close." ),
                    ctxt.get_desc( "CREATURE" ), ctxt.get_desc( "FURNITURE" ),
                    ctxt.get_desc( "TERRAIN" ), ctxt.get_desc( "QUIT" ) );
 
@@ -112,9 +112,9 @@ void game::extended_description( const tripoint &p )
                     const furn_id fid = m.furn( p );
                     const std::string mod_src = enumerate_as_string( fid->src.begin(),
                     fid->src.end(), []( const std::pair<furn_str_id, mod_id> &source ) {
-                        return string_format( "'%s'", source.second->name() );
+                        return string_format( "'{}'", source.second->name() );
                     }, enumeration_conjunction::arrow );
-                    desc = string_format( _( "Origin: %s\n%s" ), mod_src, fid->extended_description() );
+                    desc = string_format( _( "Origin: {}\n{}" ), mod_src, fid->extended_description() );
                 }
                 break;
             case description_target::terrain:
@@ -124,9 +124,9 @@ void game::extended_description( const tripoint &p )
                     const ter_id tid = m.ter( p );
                     const std::string mod_src = enumerate_as_string( tid->src.begin(),
                     tid->src.end(), []( const std::pair<ter_str_id, mod_id> &source ) {
-                        return string_format( "'%s'", source.second->name() );
+                        return string_format( "'{}'", source.second->name() );
                     }, enumeration_conjunction::arrow );
-                    desc = string_format( _( "Origin: %s\n%s" ), mod_src, tid->extended_description() );
+                    desc = string_format( _( "Origin: {}\n{}" ), mod_src, tid->extended_description() );
                 }
                 break;
         }
@@ -134,7 +134,7 @@ void game::extended_description( const tripoint &p )
         std::string signage = m.get_signage( p );
         if( !signage.empty() ) {
             // NOLINTNEXTLINE(cata-text-style): the question mark does not end a sentence
-            desc += u.has_trait( trait_ILLITERATE ) ? _( "\nSign: ???" ) : string_format( _( "\nSign: %s" ),
+            desc += u.has_trait( trait_ILLITERATE ) ? _( "\nSign: ???" ) : string_format( _( "\nSign: {}" ),
                     signage );
         }
 
@@ -159,7 +159,7 @@ void game::extended_description( const tripoint &p )
 std::string map_data_common_t::extended_description() const
 {
     std::stringstream ss;
-    ss << "<header>" << string_format( _( "That is a %s." ), name() ) << "</header>" << '\n';
+    ss << "<header>" << string_format( _( "That is a {}." ), name() ) << "</header>" << '\n';
     ss << description << std::endl;
     bool has_any_harvest = std::any_of( harvest_by_season.begin(), harvest_by_season.end(),
     []( const harvest_id & hv ) {

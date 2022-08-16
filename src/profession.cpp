@@ -315,15 +315,15 @@ void profession::check_item_definitions( const itypedecvec &items ) const
 {
     for( const profession::itypedec &itd : items ) {
         if( !item::type_is_defined( itd.type_id ) ) {
-            debugmsg( "profession %s: item %s does not exist", id.str(), itd.type_id.str() );
+            debugmsg( "profession {}: item {} does not exist", id.str(), itd.type_id.str() );
         } else if( !itd.snip_id.is_null() ) {
             const itype *type = item::find_type( itd.type_id );
             if( type->snippet_category.empty() ) {
-                debugmsg( "profession %s: item %s has no snippet category - no description can "
+                debugmsg( "profession {}: item {} has no snippet category - no description can "
                           "be set", id.str(), itd.type_id.str() );
             } else {
                 if( !itd.snip_id.is_valid() ) {
-                    debugmsg( "profession %s: there's no snippet with id %s",
+                    debugmsg( "profession {}: there's no snippet with id {}",
                               id.str(), itd.snip_id.str() );
                 }
             }
@@ -337,7 +337,7 @@ void profession::check_definition() const
     check_item_definitions( legacy_starting_items_female );
     check_item_definitions( legacy_starting_items_male );
     if( !no_bonus.is_empty() && !item::type_is_defined( no_bonus ) ) {
-        debugmsg( "no_bonus item '%s' is not an itype_id", no_bonus.c_str() );
+        debugmsg( "no_bonus item '{}' is not an itype_id", no_bonus.c_str() );
     }
 
     if( !item_group::group_is_defined( _starting_items ) ) {
@@ -350,44 +350,44 @@ void profession::check_definition() const
         debugmsg( "_starting_items_female group is undefined" );
     }
     if( _starting_vehicle && !_starting_vehicle.is_valid() ) {
-        debugmsg( "vehicle prototype %s for profession %s does not exist", _starting_vehicle.c_str(),
+        debugmsg( "vehicle prototype {} for profession {} does not exist", _starting_vehicle.c_str(),
                   id.c_str() );
     }
     for( const auto &a : _starting_CBMs ) {
         if( !a.is_valid() ) {
-            debugmsg( "bionic %s for profession %s does not exist", a.c_str(), id.c_str() );
+            debugmsg( "bionic {} for profession {} does not exist", a.c_str(), id.c_str() );
         }
     }
 
     for( const proficiency_id &pid : _starting_proficiencies ) {
         if( !pid.is_valid() ) {
-            debugmsg( "proficiency %s for profession %s does not exist", pid.str(), id.str() );
+            debugmsg( "proficiency {} for profession {} does not exist", pid.str(), id.str() );
         }
     }
 
     for( const trait_and_var &t : _starting_traits ) {
         if( !t.trait.is_valid() ) {
-            debugmsg( "trait %s for profession %s does not exist", t.trait.str(), id.str() );
+            debugmsg( "trait {} for profession {} does not exist", t.trait.str(), id.str() );
         }
     }
     for( const auto &elem : _starting_pets ) {
         if( !elem.is_valid() ) {
-            debugmsg( "starting pet %s for profession %s does not exist", elem.c_str(), id.c_str() );
+            debugmsg( "starting pet {} for profession {} does not exist", elem.c_str(), id.c_str() );
         }
     }
     for( const auto &elem : _starting_skills ) {
         if( !elem.first.is_valid() ) {
-            debugmsg( "skill %s for profession %s does not exist", elem.first.c_str(), id.c_str() );
+            debugmsg( "skill {} for profession {} does not exist", elem.first.c_str(), id.c_str() );
         }
     }
 
     for( const auto &m : _missions ) {
         if( !m.is_valid() ) {
-            debugmsg( "starting mission %s for profession %s does not exist", m.c_str(), id.c_str() );
+            debugmsg( "starting mission {} for profession {} does not exist", m.c_str(), id.c_str() );
         }
 
         if( std::find( m->origins.begin(), m->origins.end(), ORIGIN_GAME_START ) == m->origins.end() ) {
-            debugmsg( "starting mission %s for profession %s must include an origin of ORIGIN_GAME_START",
+            debugmsg( "starting mission {} for profession {} must include an origin of ORIGIN_GAME_START",
                       m.c_str(), id.c_str() );
         }
     }
@@ -592,11 +592,11 @@ ret_val<void> profession::can_pick() const
                     _requirement.value()->id );
         if( !other_games ) {
             return ret_val<void>::make_failure(
-                       _( "You must complete the achievement \"%s\" to unlock this profession." ),
+                       _( "You must complete the achievement \"{}\" to unlock this profession." ),
                        _requirement.value()->name() );
         } else if( other_games->games_completed.empty() ) {
             return ret_val<void>::make_failure(
-                       _( "You must complete the achievement \"%s\" to unlock this profession." ),
+                       _( "You must complete the achievement \"{}\" to unlock this profession." ),
                        _requirement.value()->name() );
         }
     }
@@ -719,17 +719,17 @@ void json_item_substitution::check_consistency()
 {
     auto check_if_trait = []( const trait_id & t ) {
         if( !t.is_valid() ) {
-            debugmsg( "%s is not a trait", t.c_str() );
+            debugmsg( "{} is not a trait", t.c_str() );
         }
     };
     auto check_if_itype = []( const itype_id & i ) {
         if( !item::type_is_defined( i ) ) {
-            debugmsg( "%s is not an itype_id", i.c_str() );
+            debugmsg( "{} is not an itype_id", i.c_str() );
         }
     };
     auto check_if_igroup = []( const item_group_id & gr ) {
         if( !item_group::group_is_defined( gr ) ) {
-            debugmsg( "%s is not an item_group_id", gr.c_str() );
+            debugmsg( "{} is not an item_group_id", gr.c_str() );
         }
     };
     auto check_trait_reqs = [&check_if_trait]( const trait_requirements & tr ) {

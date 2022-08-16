@@ -196,27 +196,27 @@ struct achievement_requirement {
 
     void check( const achievement_id &id ) const {
         if( !statistic.is_valid() ) {
-            debugmsg( "Achievement %s refers to invalid statistic %s", id.str(), statistic.str() );
+            debugmsg( "Achievement {} refers to invalid statistic {}", id.str(), statistic.str() );
         }
 
         if( target.type() != cata_variant_type::int_ && !description &&
             visibility != requirement_visibility::never &&
             comparison != achievement_comparison::anything ) {
-            debugmsg( "Achievement %s has a non-integer requirement which is sometimes visible.  "
+            debugmsg( "Achievement {} has a non-integer requirement which is sometimes visible.  "
                       "Such requirements must have a description, but this one does not.",
                       id.str() );
         }
 
         if( !target.is_valid() ) {
-            debugmsg( "Achievement %s has a requirement target %s of type %s, but that is not "
+            debugmsg( "Achievement {} has a requirement target {} of type {}, but that is not "
                       "a valid value of that type.",
                       id.str(), target.get_string(), io::enum_to_string( target.type() ) );
         }
 
         if( comparison != achievement_comparison::anything &&
             target.type() != statistic->type() ) {
-            debugmsg( "Achievement %s has a requirement comparing a value of type %s to a value "
-                      "of type %s.  Comparisons should be between values of the same type.",
+            debugmsg( "Achievement {} has a requirement comparing a value of type {} to a value "
+                      "of type {}.  Comparisons should be between values of the same type.",
                       id.str(), io::enum_to_string( target.type() ),
                       io::enum_to_string( statistic->type() ) );
         }
@@ -280,7 +280,7 @@ void achievement::time_bound::deserialize( const JsonObject &jo )
 void achievement::time_bound::check( const achievement_id &id ) const
 {
     if( comparison_ == achievement_comparison::anything ) {
-        debugmsg( "Achievement %s has unconstrained \"anything\" time_constraint.  "
+        debugmsg( "Achievement {} has unconstrained \"anything\" time_constraint.  "
                   "Please change it to a consequential comparison.", id.str() );
     }
 }
@@ -361,20 +361,20 @@ std::string achievement::time_bound::ui_text( bool is_conduct ) const
     std::string message = [&]() {
         switch( comp ) {
             case achievement_completion::pending:
-                return string_format( _( "At least %s from %s (%s remaining)" ),
+                return string_format( _( "At least {} from {} ({} remaining)" ),
                                       to_string( period_ ), translate_epoch( epoch_ ),
                                       to_string( target() - now ) );
             case achievement_completion::completed:
                 switch( comparison_ ) {
                     case achievement_comparison::equal:
-                        return string_format( _( "Exactly %s from %s" ),
+                        return string_format( _( "Exactly {} from {}" ),
                                               to_string( period_ ), translate_epoch( epoch_ ) );
                     case achievement_comparison::less_equal:
-                        return string_format( _( "Within %s of %s (%s remaining)" ),
+                        return string_format( _( "Within {} of {} ({} remaining)" ),
                                               to_string( period_ ), translate_epoch( epoch_ ),
                                               to_string( target() - now ) );
                     case achievement_comparison::greater_equal:
-                        return string_format( _( "At least %s from %s (passed)" ),
+                        return string_format( _( "At least {} from {} (passed)" ),
                                               to_string( period_ ), translate_epoch( epoch_ ) );
                     case achievement_comparison::anything:
                         return std::string();
@@ -383,7 +383,7 @@ std::string achievement::time_bound::ui_text( bool is_conduct ) const
                 }
                 cata_fatal( "Invalid achievement_comparison" );
             case achievement_completion::failed:
-                return string_format( _( "Within %s of %s (passed)" ),
+                return string_format( _( "Within {} of {} (passed)" ),
                                       to_string( period_ ), translate_epoch( epoch_ ) );
             case achievement_completion::last:
                 break;
@@ -438,12 +438,12 @@ void achievement::check() const
 {
     for( const achievement_id &a : hidden_by_ ) {
         if( !a.is_valid() ) {
-            debugmsg( "Achievement %s specifies hidden_by achievement %s, but the latter does not "
+            debugmsg( "Achievement {} specifies hidden_by achievement {}, but the latter does not "
                       "exist.", id.str(), a.str() );
             continue;
         }
         if( is_conduct() != a->is_conduct() ) {
-            debugmsg( "Achievement %s is hidden by achievement %s, but one is a conduct and the "
+            debugmsg( "Achievement {} is hidden by achievement {}, but one is a conduct and the "
                       "other is not.  This is not supported.", id.str(), a.str() );
         }
     }
@@ -467,11 +467,11 @@ void achievement::check() const
     }
 
     if( all_requirements_become_false && !is_conduct() ) {
-        debugmsg( "All requirements for achievement %s become false, so this achievement will be "
+        debugmsg( "All requirements for achievement {} become false, so this achievement will be "
                   "impossible or trivial", id.str() );
     }
     if( !all_requirements_become_false && is_conduct() ) {
-        debugmsg( "All requirements for conduct %s must become false, but at least one does not",
+        debugmsg( "All requirements for conduct {} must become false, but at least one does not",
                   id.str() );
     }
 }
@@ -490,11 +490,11 @@ static cata::optional<std::string> text_for_requirement(
     if( req.description ) {
         result = req.description->translated();
     } else if( req.comparison == achievement_comparison::anything ) {
-        result = string_format( _( "Triggered by %s" ), req.statistic->description().translated() );
+        result = string_format( _( "Triggered by {}" ), req.statistic->description().translated() );
     } else if( current_value.type() == cata_variant_type::int_ ) {
         int current = current_value.get<int>();
         int target = req.target.get<int>();
-        result = string_format( _( "%s/%s %s" ), current, target,
+        result = string_format( _( "{}/{} {}" ), current, target,
                                 req.statistic->description().translated( target ) );
     } else {
         // The tricky part here is formatting an arbitrary cata_variant value.
@@ -598,11 +598,11 @@ std::string achievement_state::ui_text( const achievement *ach ) const
 
     if( completion == achievement_completion::completed ) {
         std::string message = string_format(
-                                  _( "Completed %s" ), to_string( last_state_change ) );
+                                  _( "Completed {}" ), to_string( last_state_change ) );
         result += "  " + colorize( message, c ) + "\n";
     } else if( completion == achievement_completion::failed ) {
         std::string message = string_format(
-                                  _( "Failed %s" ), to_string( last_state_change ) );
+                                  _( "Failed {}" ), to_string( last_state_change ) );
         result += "  " + colorize( message, c ) + "\n";
     } else {
         // Next: the time constraint
@@ -730,13 +730,13 @@ std::string achievement_tracker::ui_text() const
         get_past_games().achievement( achievement_->id );
     if( other_games && !other_games->games_completed.empty() ) {
         std::string message =
-            string_format( _( "Previously completed by %s" ),
+            string_format( _( "Previously completed by {}" ),
                            other_games->games_completed.front()->avatar_name() );
         size_t num_completions = other_games->games_completed.size();
         if( num_completions > 1 ) {
             message +=
                 string_format(
-                    n_gettext( " and %d other", " and %d others", num_completions - 1 ),
+                    n_gettext( " and {} other", " and {} others", num_completions - 1 ),
                     num_completions - 1 );
         }
         result += "  " + colorize( message, c_blue ) + "\n";

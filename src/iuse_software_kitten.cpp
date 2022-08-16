@@ -155,18 +155,18 @@ void robot_finds_kitten::show() const
             pos += 1 + fold_and_print( w, point( 1, pos ), getmaxx( w ) - 4, c_light_gray,
                                        _( "Your job is to find kitten.  This task is complicated by the existence of various things "
                                           "which are not kitten.  Robot must touch items to determine if they are kitten or not.  "
-                                          "The game ends when robot finds kitten.  Alternatively, you may end the game by hitting %s." ),
+                                          "The game ends when robot finds kitten.  Alternatively, you may end the game by hitting {}." ),
                                        ctxt.get_desc( "QUIT" ) );
             fold_and_print( w, point( 1, pos ), getmaxx( w ) - 4, c_light_gray,
                             _( "Press any key to start." ) );
             break;
         }
         case ui_state::main:
-            mvwprintz( w, point_zero, c_white, _( "robotfindskitten v22July2008 - press %s to quit." ),
+            mvwprintz( w, point_zero, c_white, _( "robotfindskitten v22July2008 - press {} to quit." ),
                        ctxt.get_desc( "QUIT" ) );
             break;
         case ui_state::invalid_input:
-            mvwprintz( w, point_zero, c_white, _( "Invalid command: Use direction keys or press %s to quit." ),
+            mvwprintz( w, point_zero, c_white, _( "Invalid command: Use direction keys or press {} to quit." ),
                        ctxt.get_desc( "QUIT" ) );
             break;
         case ui_state::bogus_message: {

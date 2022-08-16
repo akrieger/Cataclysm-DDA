@@ -203,7 +203,7 @@ class mapgendata
         Result get_arg( const std::string &name ) const {
             auto it = mapgen_args_.map.find( name );
             if( it == mapgen_args_.map.end() ) {
-                debugmsg( "No such parameter \"%s\"", name );
+                debugmsg( "No such parameter \"{}\"", name );
                 return Result();
             }
             return mapgendata_detail::extract_variant_value<Result>( it->second );

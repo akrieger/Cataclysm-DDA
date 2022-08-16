@@ -294,7 +294,7 @@ static void decorate_panel( const std::string &name, const catacurses::window &w
     static const char *title_prefix = " ";
     const std::string &title = name;
     static const char *title_suffix = " ";
-    static const std::string full_title = string_format( "%s%s%s",
+    static const std::string full_title = string_format( "{}{}{}",
                                           title_prefix, title, title_suffix );
     const int start_pos = center_text_pos( full_title, 0, getmaxx( w ) - 1 );
     mvwprintz( w, point( start_pos, 0 ), c_white, title_prefix );

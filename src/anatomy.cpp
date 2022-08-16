@@ -83,7 +83,7 @@ void anatomy::finalize()
         if( id.is_valid() ) {
             add_body_part( id );
         } else {
-            debugmsg( "Anatomy %s has invalid body part %s", id.c_str(), id.c_str() );
+            debugmsg( "Anatomy {} has invalid body part {}", id.c_str(), id.c_str() );
         }
     }
 }
@@ -99,7 +99,7 @@ void anatomy::check_consistency()
 void anatomy::check() const
 {
     if( !get_part_with_cumulative_hit_size( size_sum ).is_valid() ) {
-        debugmsg( "Invalid size_sum calculation for anatomy %s", id.c_str() );
+        debugmsg( "Invalid size_sum calculation for anatomy {}", id.c_str() );
     }
 
     std::unordered_set<bodypart_str_id> all_parts( unloaded_bps.begin(), unloaded_bps.end() );
@@ -111,10 +111,10 @@ void anatomy::check() const
             continue;
         }
         if( !all_parts.count( bp->main_part ) ) {
-            debugmsg( "Anatomy %s contains part %s whose main_part %s is not part of the anatomy",
+            debugmsg( "Anatomy {} contains part {} whose main_part {} is not part of the anatomy",
                       id.str(), bp.str(), bp->main_part.str() );
         } else if( !all_parts.count( bp->connected_to ) ) {
-            debugmsg( "Anatomy %s contains part %s with connected_to part %s which is not part of "
+            debugmsg( "Anatomy {} contains part {} with connected_to part {} which is not part of "
                       "the anatomy", id.str(), bp.str(), bp->main_part.str() );
         }
 
@@ -124,7 +124,7 @@ void anatomy::check() const
     }
 
     if( root_parts.size() > 1 ) {
-        debugmsg( "Anatomy %s has multiple root parts: %s", id.str(),
+        debugmsg( "Anatomy {} has multiple root parts: {}", id.str(),
         enumerate_as_string( root_parts.begin(), root_parts.end(), []( const bodypart_str_id & p ) {
             return p.str();
         } ) );
@@ -204,20 +204,20 @@ bodypart_id anatomy::select_body_part( int min_hit, int max_hit, bool can_attack
         float weight = bp->hit_size;
         //Filter out too-large or too-small bodyparts
         if( weight < min_hit || ( max_hit > -1 && weight > max_hit ) ) {
-            add_msg_debug( debugmode::DF_ANATOMY_BP, "BP %s discarded - hitsize %.1f( min %d max %d )",
+            add_msg_debug( debugmode::DF_ANATOMY_BP, "BP {} discarded - hitsize %.1f( min {} max {} )",
                            body_part_name( bp ), weight, min_hit, max_hit );
             continue;
         }
 
         if( !can_attack_high ) {
             if( bp->has_flag( json_flag_LIMB_UPPER ) ) {
-                add_msg_debug( debugmode::DF_ANATOMY_BP, "limb %s discarded, we can't attack upper limbs",
+                add_msg_debug( debugmode::DF_ANATOMY_BP, "limb {} discarded, we can't attack upper limbs",
                                body_part_name( bp ) );
                 continue;
             }
             if( bp->has_flag( json_flag_LIMB_LOWER ) ) {
                 add_msg_debug( debugmode::DF_ANATOMY_BP,
-                               "limb %s's weight tripled for short attackers",
+                               "limb {}'s weight tripled for short attackers",
                                body_part_name( bp ) );
                 weight *= 3;
             }
@@ -232,16 +232,16 @@ bodypart_id anatomy::select_body_part( int min_hit, int max_hit, bool can_attack
 
     // Debug for seeing weights.
     for( const weighted_object<double, bodypart_id> &pr : hit_weights ) {
-        add_msg_debug( debugmode::DF_ANATOMY_BP, "%s = %.3f", pr.obj.obj().name, pr.weight );
+        add_msg_debug( debugmode::DF_ANATOMY_BP, "{} = %.3f", pr.obj.obj().name, pr.weight );
     }
 
     const bodypart_id *ret = hit_weights.pick();
     if( ret == nullptr ) {
-        debugmsg( "Attempted to select body part from empty anatomy %s", id.c_str() );
+        debugmsg( "Attempted to select body part from empty anatomy {}", id.c_str() );
         return bodypart_str_id::NULL_ID().id();
     }
 
-    add_msg_debug( debugmode::DF_ANATOMY_BP, "selected part: %s", ret->id().obj().name );
+    add_msg_debug( debugmode::DF_ANATOMY_BP, "selected part: {}", ret->id().obj().name );
     return *ret;
 }
 
@@ -260,7 +260,7 @@ bodypart_id anatomy::select_blocking_part( const Creature *blocker, bool arm, bo
 
         // Filter out nonblocking / broken limbs
         if( block_score == 0 ) {
-            add_msg_debug( debugmode::DF_MELEE, "BP %s discarded, no blocking score",
+            add_msg_debug( debugmode::DF_MELEE, "BP {} discarded, no blocking score",
                            body_part_name( bp ) );
             continue;
         }
@@ -268,7 +268,7 @@ bodypart_id anatomy::select_blocking_part( const Creature *blocker, bool arm, bo
         // Always blocking limbs block always (if they have a block score)
         if( bp->has_flag( json_flag_ALWAYS_BLOCK ) ) {
             block_scores.add( bp, block_score );
-            add_msg_debug( debugmode::DF_MELEE, "BP %s always blocks",
+            add_msg_debug( debugmode::DF_MELEE, "BP {} always blocks",
                            body_part_name( bp ) );
             continue;
         }
@@ -276,20 +276,20 @@ bodypart_id anatomy::select_blocking_part( const Creature *blocker, bool arm, bo
         // Can we block with our normal boring arm?
         if( bp->has_type( body_part_type::type::arm ) && !bp->has_flag( json_flag_NONSTANDARD_BLOCK ) &&
             !arm ) {
-            add_msg_debug( debugmode::DF_MELEE, "BP %s discarded, no arm blocks allowed",
+            add_msg_debug( debugmode::DF_MELEE, "BP {} discarded, no arm blocks allowed",
                            body_part_name( bp ) );
             continue;
             // Can we block with our normal boring legs?
         } else if( bp->has_type( body_part_type::type::leg ) &&
                    !bp->has_flag( json_flag_NONSTANDARD_BLOCK ) && !leg ) {
-            add_msg_debug( debugmode::DF_MELEE, "BP %s discarded, no leg blocks allowed",
+            add_msg_debug( debugmode::DF_MELEE, "BP {} discarded, no leg blocks allowed",
                            body_part_name( bp ) );
             continue;
             // Can we block with our non-normal non-arms/non-legs?
         } else if( ( ( !bp->has_type( body_part_type::type::arm ) &&
                        !bp->has_type( body_part_type::type::leg ) ) || bp->has_flag( json_flag_NONSTANDARD_BLOCK ) ) &&
                    !nonstandard ) {
-            add_msg_debug( debugmode::DF_MELEE, "BP %s discarded, no nonstandard blocks allowed",
+            add_msg_debug( debugmode::DF_MELEE, "BP {} discarded, no nonstandard blocks allowed",
                            body_part_name( bp ) );
             continue;
         }
@@ -299,16 +299,16 @@ bodypart_id anatomy::select_blocking_part( const Creature *blocker, bool arm, bo
 
     // Debug for seeing weights.
     for( const weighted_object<double, bodypart_id> &pr : block_scores ) {
-        add_msg_debug( debugmode::DF_MELEE, "%s = %.3f", pr.obj.obj().name, pr.weight );
+        add_msg_debug( debugmode::DF_MELEE, "{} = %.3f", pr.obj.obj().name, pr.weight );
     }
 
     const bodypart_id *ret = block_scores.pick();
     if( ret == nullptr ) {
-        debugmsg( "Attempted to select body part from empty anatomy %s", id.c_str() );
+        debugmsg( "Attempted to select body part from empty anatomy {}", id.c_str() );
         return bodypart_str_id::NULL_ID().id();
     }
 
-    add_msg_debug( debugmode::DF_MELEE, "selected part: %s", ret->id().obj().name );
+    add_msg_debug( debugmode::DF_MELEE, "selected part: {}", ret->id().obj().name );
     return *ret;
 }
 

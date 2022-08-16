@@ -58,7 +58,7 @@ class basic_animation
         void draw() const {
             static_popup popup;
             popup
-            .wait_message( "%s", _( "Hang on a bit…" ) )
+            .wait_message( "{}", _( "Hang on a bit…" ) )
             .on_top( true );
 
             g->invalidate_main_ui_adaptor();

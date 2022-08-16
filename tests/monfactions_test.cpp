@@ -34,7 +34,7 @@ static std::string att_enum_to_string( mf_attitude att )
             break;
     }
 
-    printf( "Unknown monster faction attitude %d\n", static_cast<int>( att ) );
+    printf( "Unknown monster faction attitude {}\n", static_cast<int>( att ) );
     return "?";
 }
 
@@ -78,9 +78,9 @@ TEST_CASE( "monfactions_reciprocate", "[monster][monfactions]" )
                     if( ( rev_att != MFA_FRIENDLY ) && ( rev_att != MFA_NEUTRAL ) ) {
                         std::string att_str = att_enum_to_string( att );
                         std::string rev_att_str = att_enum_to_string( rev_att );
-                        printf( "\n%s has an attitude of %s to %s, but %s has an attitude of %s to %s."
-                                "\nEither %s should not be FRIENDLY/NEUTRAL to %s, or"
-                                "\n%s should be FRIENDLY/NEUTRAL to %s\n\n",
+                        printf( "\n{} has an attitude of {} to {}, but {} has an attitude of {} to {}."
+                                "\nEither {} should not be FRIENDLY/NEUTRAL to {}, or"
+                                "\n{} should be FRIENDLY/NEUTRAL to {}\n\n",
                                 f.id.c_str(), att_str.c_str(), f1.id.c_str(), f1.id.c_str(), rev_att_str.c_str(), f.id.c_str(),
                                 f.id.c_str(), f1.id.c_str(), f1.id.c_str(), f.id.c_str() );
 

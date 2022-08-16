@@ -44,7 +44,7 @@ static void draw_exam_window( const catacurses::window &win, const int border_y 
 
 static const auto shortcut_desc = []( const std::string &comment, const std::string &keys )
 {
-    return string_format( comment, string_format( "[<color_yellow>%s</color>]", keys ) );
+    return string_format( comment, string_format( "[<color_yellow>{}</color>]", keys ) );
 };
 
 // needs extensive improvement
@@ -72,23 +72,23 @@ static void show_mutations_titlebar( const catacurses::window &window,
     }
     if( menu_mode == mutation_menu_mode::activating ) {
         desc += colorize( _( "Activating" ),
-                          c_green ) + "  " + shortcut_desc( _( "%s Examine, " ),
+                          c_green ) + "  " + shortcut_desc( _( "{} Examine, " ),
                                   ctxt.get_desc( "TOGGLE_EXAMINE" ) );
     }
     if( menu_mode == mutation_menu_mode::examining ) {
         desc += colorize( _( "Examining" ),
-                          c_light_blue ) + "  " + shortcut_desc( _( "%s Activate, " ),
+                          c_light_blue ) + "  " + shortcut_desc( _( "{} Activate, " ),
                                   ctxt.get_desc( "TOGGLE_EXAMINE" ) );
     }
     if( menu_mode == mutation_menu_mode::hiding ) {
-        desc += colorize( _( "Hidding" ), c_cyan ) + "  " + shortcut_desc( _( "%s Activate, " ),
+        desc += colorize( _( "Hidding" ), c_cyan ) + "  " + shortcut_desc( _( "{} Activate, " ),
                 ctxt.get_desc( "TOGGLE_EXAMINE" ) );
     }
     if( menu_mode != mutation_menu_mode::reassigning ) {
-        desc += shortcut_desc( _( "%s Reassign, " ), ctxt.get_desc( "REASSIGN" ) );
+        desc += shortcut_desc( _( "{} Reassign, " ), ctxt.get_desc( "REASSIGN" ) );
     }
-    desc += shortcut_desc( _( "%s Toggle sprite visibility, " ), ctxt.get_desc( "TOGGLE_SPRITE" ) );
-    desc += shortcut_desc( _( "%s Change keybindings." ), ctxt.get_desc( "HELP_KEYBINDINGS" ) );
+    desc += shortcut_desc( _( "{} Toggle sprite visibility, " ), ctxt.get_desc( "TOGGLE_SPRITE" ) );
+    desc += shortcut_desc( _( "{} Change keybindings." ), ctxt.get_desc( "HELP_KEYBINDINGS" ) );
     // NOLINTNEXTLINE(cata-use-named-point-constants)
     fold_and_print( window, point( 1, 0 ), getmaxx( window ) - 1, c_white, desc );
     wnoutrefresh( window );
@@ -261,7 +261,7 @@ void avatar::power_mutations()
                     type = has_base_trait( passive[i] ) ? c_cyan : c_light_cyan;
                 }
                 mvwprintz( wBio, point( 2, list_start_y + i - scroll_position ),
-                           type, "%c %s", td.key, mutation_name( md.id ) );
+                           type, "{} {}", td.key, mutation_name( md.id ) );
                 if( !td.show_sprite ) {
                     //~ Hint: Letter to show which mutation is Hidden in the mutation menu
                     wprintz( wBio, c_cyan, _( " H" ) );
@@ -319,12 +319,12 @@ void avatar::power_mutations()
                 }
                 mut_desc += mutation_name( md.id );
                 if( md.cost > 0 && md.cooldown > 0_turns ) {
-                    mut_desc += string_format( _( " - %d%s / %s" ),
+                    mut_desc += string_format( _( " - {}{} / {}" ),
                                                md.cost, resource_unit, to_string_clipped( md.cooldown ) );
                 } else if( md.cost > 0 ) {
-                    mut_desc += string_format( _( " - %d%s" ), md.cost, resource_unit );
+                    mut_desc += string_format( _( " - {}{}" ), md.cost, resource_unit );
                 } else if( md.cooldown > 0_turns ) {
-                    mut_desc += string_format( _( " - %s" ), to_string_clipped( md.cooldown ) );
+                    mut_desc += string_format( _( " - {}" ), to_string_clipped( md.cooldown ) );
                 }
                 if( td.powered ) {
                     mut_desc += _( " - Active" );
@@ -365,7 +365,7 @@ void avatar::power_mutations()
                 switch( menu_mode ) {
                     case mutation_menu_mode::reassigning: {
                         query_popup pop;
-                        pop.message( _( "%s; enter new letter." ), mutation_name( mut_id ) )
+                        pop.message( _( "{}; enter new letter." ), mutation_name( mut_id ) )
                         .preferred_keyboard_mode( keyboard_mode::keychar )
                         .context( "POPUP_WAIT" )
                         .allow_cancel( true )
@@ -393,7 +393,7 @@ void avatar::power_mutations()
                                     pop_exit = true;
                                 } else if( ret.action != "HELP_KEYBINDINGS" &&
                                            ret.evt.type == input_event_t::keyboard_char ) {
-                                    popup( _( "Invalid mutation letter.  Only those characters are valid:\n\n%s" ),
+                                    popup( _( "Invalid mutation letter.  Only those characters are valid:\n\n{}" ),
                                            mutation_chars.get_allowed_chars() );
                                 }
                             }
@@ -407,7 +407,7 @@ void avatar::power_mutations()
                     case mutation_menu_mode::activating: {
                         if( mut_data.activated ) {
                             if( my_mutations[mut_id].powered ) {
-                                add_msg_if_player( m_neutral, _( "You stop using your %s." ), mutation_name( mut_data.id ) );
+                                add_msg_if_player( m_neutral, _( "You stop using your {}." ), mutation_name( mut_data.id ) );
                                 // Reset menu in advance
                                 ui.reset();
                                 deactivate_mutation( mut_id );
@@ -416,18 +416,18 @@ void avatar::power_mutations()
                             } else if( ( !mut_data.hunger || get_kcal_percent() >= 0.8f ) &&
                                        ( !mut_data.thirst || get_thirst() <= 400 ) &&
                                        ( !mut_data.fatigue || get_fatigue() <= 400 ) ) {
-                                add_msg_if_player( m_neutral, _( "You activate your %s." ), mutation_name( mut_data.id ) );
+                                add_msg_if_player( m_neutral, _( "You activate your {}." ), mutation_name( mut_data.id ) );
                                 // Reset menu in advance
                                 ui.reset();
                                 activate_mutation( mut_id );
                                 // Action done, leave screen
                                 exit = true;
                             } else {
-                                popup( _( "You don't have enough in you to activate your %s!" ), mutation_name( mut_data.id ) );
+                                popup( _( "You don't have enough in you to activate your {}!" ), mutation_name( mut_data.id ) );
                             }
                         } else {
-                            popup( _( "You cannot activate %1$s!  To read a description of "
-                                      "%1$s, press '!', then '%2$c'." ),
+                            popup( _( "You cannot activate {1}!  To read a description of "
+                                      "{1}, press '!', then '{2}'." ),
                                    mutation_name( mut_data.id ), my_mutations[mut_id].key );
                         }
                         break;
@@ -528,7 +528,7 @@ void avatar::power_mutations()
                     switch( menu_mode ) {
                         case mutation_menu_mode::reassigning: {
                             query_popup pop;
-                            pop.message( _( "%s; enter new letter." ), mutation_name( mut_id ) )
+                            pop.message( _( "{}; enter new letter." ), mutation_name( mut_id ) )
                             .preferred_keyboard_mode( keyboard_mode::keychar )
                             .context( "POPUP_WAIT" )
                             .allow_cancel( true )
@@ -560,7 +560,7 @@ void avatar::power_mutations()
                                         pop_exit = true;
                                     } else if( ret.action != "HELP_KEYBINDINGS" &&
                                                ret.evt.type == input_event_t::keyboard_char ) {
-                                        popup( _( "Invalid mutation letter.  Only those characters are valid:\n\n%s" ),
+                                        popup( _( "Invalid mutation letter.  Only those characters are valid:\n\n{}" ),
                                                mutation_chars.get_allowed_chars() );
                                     }
                                 }
@@ -574,7 +574,7 @@ void avatar::power_mutations()
                         case mutation_menu_mode::activating: {
                             if( mut_data.activated ) {
                                 if( my_mutations[mut_id].powered ) {
-                                    add_msg_if_player( m_neutral, _( "You stop using your %s." ), mutation_name( mut_data.id ) );
+                                    add_msg_if_player( m_neutral, _( "You stop using your {}." ), mutation_name( mut_data.id ) );
                                     // Reset menu in advance
                                     ui.reset();
                                     deactivate_mutation( mut_id );
@@ -583,18 +583,18 @@ void avatar::power_mutations()
                                 } else if( ( !mut_data.hunger || get_kcal_percent() >= 0.8f ) &&
                                            ( !mut_data.thirst || get_thirst() <= 400 ) &&
                                            ( !mut_data.fatigue || get_fatigue() <= 400 ) ) {
-                                    add_msg_if_player( m_neutral, _( "You activate your %s." ), mutation_name( mut_data.id ) );
+                                    add_msg_if_player( m_neutral, _( "You activate your {}." ), mutation_name( mut_data.id ) );
                                     // Reset menu in advance
                                     ui.reset();
                                     activate_mutation( mut_id );
                                     // Action done, leave screen
                                     exit = true;
                                 } else {
-                                    popup( _( "You don't have enough in you to activate your %s!" ), mutation_name( mut_data.id ) );
+                                    popup( _( "You don't have enough in you to activate your {}!" ), mutation_name( mut_data.id ) );
                                 }
                             } else {
-                                popup( _( "You cannot activate %1$s!  To read a description of "
-                                          "%1$s, press '!', then '%2$c'." ),
+                                popup( _( "You cannot activate {1}!  To read a description of "
+                                          "{1}, press '!', then '{2}'." ),
                                        mutation_name( mut_data.id ), my_mutations[mut_id].key );
                             }
                             break;

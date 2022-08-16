@@ -64,7 +64,7 @@ const recipe &string_id<recipe>::obj() const
         return iter->second;
     }
     if( *this != NULL_ID() ) {
-        debugmsg( "invalid recipe id \"%s\"", c_str() );
+        debugmsg( "invalid recipe id \"{}\"", c_str() );
     }
     return null_recipe;
 }
@@ -459,7 +459,7 @@ void recipe_dictionary::finalize_internal( std::map<recipe_id, recipe> &obj )
         const std::string error = elem.get_consistency_error();
 
         if( !error.empty() ) {
-            debugmsg( "Recipe %s %s.", elem.ident().c_str(), error.c_str() );
+            debugmsg( "Recipe {} {}.", elem.ident().c_str(), error.c_str() );
         }
 
         return !error.empty();
@@ -588,7 +588,7 @@ void recipe_dictionary::check_consistency()
 
         if( r.category.empty() ) {
             if( !r.subcategory.empty() ) {
-                debugmsg( "recipe %s has subcategory but no category", r.ident().str() );
+                debugmsg( "recipe {} has subcategory but no category", r.ident().str() );
             }
 
             continue;
@@ -596,7 +596,7 @@ void recipe_dictionary::check_consistency()
 
         const std::vector<std::string> *subcategories = subcategories_for_category( r.category );
         if( !subcategories ) {
-            debugmsg( "recipe %s has invalid category %s", r.ident().str(), r.category );
+            debugmsg( "recipe {} has invalid category {}", r.ident().str(), r.category );
             continue;
         }
 
@@ -604,7 +604,7 @@ void recipe_dictionary::check_consistency()
             auto it = std::find( subcategories->begin(), subcategories->end(), r.subcategory );
             if( it == subcategories->end() ) {
                 debugmsg(
-                    "recipe %s has subcategory %s which is invalid or doesn't match category %s",
+                    "recipe {} has subcategory {} which is invalid or doesn't match category {}",
                     r.ident().str(), r.subcategory, r.category );
             }
         }
@@ -614,7 +614,7 @@ void recipe_dictionary::check_consistency()
         recipe &r = e.second;
 
         if( !r.blueprint.is_empty() && !has_update_mapgen_for( r.blueprint ) ) {
-            debugmsg( "recipe %s specifies invalid construction_blueprint %s; that should be a "
+            debugmsg( "recipe {} specifies invalid construction_blueprint {}; that should be a "
                       "defined update_mapgen_id but is not", r.ident().str(), r.blueprint.str() );
         }
     }

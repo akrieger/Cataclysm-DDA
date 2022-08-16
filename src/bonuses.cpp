@@ -210,19 +210,19 @@ std::string bonus_container::get_description() const
         std::string type = string_from_affected_stat( boni.first.get_stat() );
 
         if( needs_damage_type( boni.first.get_stat() ) ) {
-            //~ %1$s: damage type, %2$s: damage-related bonus name
-            type = string_format( pgettext( "type of damage", "%1$s %2$s" ),
+            //~ {1}: damage type, {2}: damage-related bonus name
+            type = string_format( pgettext( "type of damage", "{1} {2}" ),
                                   name_by_dt( boni.first.get_damage_type() ), type );
         }
 
         for( const effect_scaling &sf : boni.second ) {
             if( sf.stat ) {
-                //~ %1$s: bonus name, %2$d: bonus percentage, %3$s: stat name
-                dump += string_format( pgettext( "martial art bonus", "* %1$s: <stat>%2$d%%</stat> of %3$s" ),
+                //~ {1}: bonus name, {2}: bonus percentage, {3}: stat name
+                dump += string_format( pgettext( "martial art bonus", "* {1}: <stat>{2}%%</stat> of {3}" ),
                                        type, static_cast<int>( sf.scale * 100 ), string_from_scaling_stat( sf.stat ) );
             } else {
-                //~ %1$s: bonus name, %2$d: bonus percentage
-                dump += string_format( pgettext( "martial art bonus", "* %1$s: <stat>%2$d%%</stat>" ),
+                //~ {1}: bonus name, {2}: bonus percentage
+                dump += string_format( pgettext( "martial art bonus", "* {1}: <stat>{2}%%</stat>" ),
                                        type, static_cast<int>( sf.scale * 100 ) );
             }
             dump += "\n";
@@ -233,19 +233,19 @@ std::string bonus_container::get_description() const
         std::string type = string_from_affected_stat( boni.first.get_stat() );
 
         if( needs_damage_type( boni.first.get_stat() ) ) {
-            //~ %1$s: damage type, %2$s: damage-related bonus name
-            type = string_format( pgettext( "type of damage", "%1$s %2$s" ),
+            //~ {1}: damage type, {2}: damage-related bonus name
+            type = string_format( pgettext( "type of damage", "{1} {2}" ),
                                   name_by_dt( boni.first.get_damage_type() ), type );
         }
 
         for( const effect_scaling &sf : boni.second ) {
             if( sf.stat ) {
-                //~ %1$s: bonus name, %2$+d: bonus percentage, %3$s: stat name
-                dump += string_format( pgettext( "martial art bonus", "* %1$s: <stat>%2$+d%%</stat> of %3$s" ),
+                //~ {1}: bonus name, {}$+d: bonus percentage, {3}: stat name
+                dump += string_format( pgettext( "martial art bonus", "* {1}: <stat>{}$+d%%</stat> of {3}" ),
                                        type, static_cast<int>( sf.scale * 100 ), string_from_scaling_stat( sf.stat ) );
             } else {
-                //~ %1$s: bonus name, %2$+d: bonus value
-                dump += string_format( pgettext( "martial art bonus", "* %1$s: <stat>%2$+d</stat>" ),
+                //~ {1}: bonus name, {}$+d: bonus value
+                dump += string_format( pgettext( "martial art bonus", "* {1}: <stat>{}$+d</stat>" ),
                                        type, static_cast<int>( sf.scale ) );
             }
             dump += "\n";

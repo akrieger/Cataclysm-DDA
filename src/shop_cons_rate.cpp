@@ -146,11 +146,11 @@ void shopkeeper_cons_rates::check() const
     for( const shopkeeper_cons_rate_entry &rate : rates ) {
         if( !rate.itype.is_empty() &&
             ( !rate.category.is_empty() || !rate.item_group.is_empty() ) ) {
-            debugmsg( "category/item_group filters are redundant when itype is specified in %s.",
+            debugmsg( "category/item_group filters are redundant when itype is specified in {}.",
                       id.c_str() );
         }
         if( rate.itype.is_empty() && rate.category.is_empty() && rate.item_group.is_empty() ) {
-            debugmsg( "empty shop rate filter in %s.", id.c_str() );
+            debugmsg( "empty shop rate filter in {}.", id.c_str() );
         }
     }
 }

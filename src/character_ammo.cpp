@@ -121,8 +121,8 @@ item::reload_option Character::select_ammo( const item_location &base,
 
     std::string name = name_override.empty() ? base->tname() : name_override;
     uilist menu;
-    menu.text = string_format( base->is_watertight_container() ? _( "Refill %s" ) :
-                               base->has_flag( flag_RELOAD_AND_SHOOT ) ? _( "Select ammo for %s" ) : _( "Reload %s" ),
+    menu.text = string_format( base->is_watertight_container() ? _( "Refill {}" ) :
+                               base->has_flag( flag_RELOAD_AND_SHOOT ) ? _( "Select ammo for {}" ) : _( "Reload {}" ),
                                name );
 
     // Construct item names
@@ -133,11 +133,11 @@ item::reload_option Character::select_ammo( const item_location &base,
             if( e.ammo->ammo_current() == itype_battery ) {
                 // This battery ammo is not a real object that can be recovered but pseudo-object that represents charge
                 //~ battery storage (charges)
-                return string_format( pgettext( "magazine", "%1$s (%2$d)" ), e.ammo->type_name(),
+                return string_format( pgettext( "magazine", "{1} ({2})" ), e.ammo->type_name(),
                                       e.ammo->ammo_remaining() );
             } else {
                 //~ magazine with ammo (count)
-                return string_format( pgettext( "magazine", "%1$s with %2$s (%3$d)" ), e.ammo->type_name(),
+                return string_format( pgettext( "magazine", "{1} with {2} ({3})" ), e.ammo->type_name(),
                                       e.ammo->ammo_data()->nname( e.ammo->ammo_remaining() ), e.ammo->ammo_remaining() );
             }
         } else if( e.ammo->is_watertight_container() ||
@@ -160,7 +160,7 @@ item::reload_option Character::select_ammo( const item_location &base,
             if( is_ammo_container && is_worn( *e.ammo ) ) {
                 return e.ammo->type_name();
             }
-            return string_format( _( "%s, %s" ), e.ammo->type_name(), e.ammo.describe( &player_character ) );
+            return string_format( _( "{}, {}" ), e.ammo->type_name(), e.ammo.describe( &player_character ) );
         }
         return e.ammo.describe( &player_character );
     } );
@@ -171,7 +171,7 @@ item::reload_option Character::select_ammo( const item_location &base,
         name = name_override.empty() ? e.target->tname( 1, false, 0, false ) :
                name_override;
         if( ( e.target->is_gunmod() || e.target->is_magazine() ) && e.target.has_parent() ) {
-            return string_format( _( "%s in %s" ), name, e.target.parent_item()->tname( 1, false, 0, false ) );
+            return string_format( _( "{} in {}" ), name, e.target.parent_item()->tname( 1, false, 0, false ) );
         } else {
             return name;
         }
@@ -215,7 +215,7 @@ item::reload_option Character::select_ammo( const item_location &base,
 
     auto draw_row = [&]( int idx ) {
         const item::reload_option &sel = opts[ idx ];
-        std::string row = string_format( "%s| %s | %s |", names[ idx ], where[ idx ], destination[ idx ] );
+        std::string row = string_format( "{}| {} | {} |", names[ idx ], where[ idx ], destination[ idx ] );
         row += string_format( ( sel.ammo->is_ammo() ||
                                 sel.ammo->is_ammo_container() ) ? " %-7d |" : "         |", sel.qty() );
         row += string_format( " %-7d ", sel.moves() );
@@ -363,7 +363,7 @@ item::reload_option Character::select_ammo( const item_location &base, bool prom
     if( ammo_list.empty() ) {
         if( !is_npc() ) {
             if( !base->magazine_integral() && !base->magazine_current() ) {
-                add_msg_if_player( m_info, _( "You need a compatible magazine to reload the %s!" ),
+                add_msg_if_player( m_info, _( "You need a compatible magazine to reload the {}!" ),
                                    base->tname() );
 
             } else if( ammo_match_found ) {
@@ -382,10 +382,10 @@ item::reload_option Character::select_ammo( const item_location &base, bool prom
                     }, enumeration_conjunction::none );
                 }
                 if( base->is_magazine_full() ) {
-                    add_msg_if_player( m_info, _( "The %s is already full!" ),
+                    add_msg_if_player( m_info, _( "The {} is already full!" ),
                                        base->tname() );
                 } else {
-                    add_msg_if_player( m_info, _( "You don't have any %s to reload your %s!" ),
+                    add_msg_if_player( m_info, _( "You don't have any {} to reload your {}!" ),
                                        name, base->tname() );
                 }
             }

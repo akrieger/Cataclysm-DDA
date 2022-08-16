@@ -221,7 +221,7 @@ skill_id Skill::from_legacy_int( const int legacy_id )
     if( static_cast<size_t>( legacy_id ) < legacy_skills.size() ) {
         return legacy_skills[legacy_id];
     }
-    debugmsg( "legacy skill id %d is invalid", legacy_id );
+    debugmsg( "legacy skill id {} is invalid", legacy_id );
     return skills.front().ident(); // return a non-null id because callers might not expect a null-id
 }
 
@@ -247,7 +247,7 @@ void SkillLevel::train( int amount, float catchup_modifier, float knowledge_modi
                         bool allow_multilevel )
 {
     if( amount < 0 ) {
-        debugmsg( "train() called with negative xp: %d", amount );
+        debugmsg( "train() called with negative xp: {}", amount );
         return;
     }
     // catchup gets faster the higher the level gap gets.
@@ -284,7 +284,7 @@ void SkillLevel::train( int amount, float catchup_modifier, float knowledge_modi
     }
     _exercise += catchup_amount;
     if( _exercise < 0 ) {
-        debugmsg( "integer overflow in train() amount=%d catchup_modifier=%g knowledge_modifier=%g level_gap=%g catchup_amount=%g knowledge_amount=%g scaling=%g _exercise=%d",
+        debugmsg( "integer overflow in train() amount={} catchup_modifier={} knowledge_modifier={} level_gap={} catchup_amount={} knowledge_amount={} scaling={} _exercise={}",
                   amount, catchup_modifier, knowledge_modifier, level_gap, catchup_amount, knowledge_amount, scaling,
                   _exercise );
         _exercise -= catchup_amount;
@@ -438,7 +438,7 @@ const SkillLevel &SkillLevelMap::get_skill_level_object( const skill_id &ident )
     static const SkillLevel null_skill{};
 
     if( ident && ident->is_contextual_skill() ) {
-        debugmsg( "Skill \"%s\" is context-dependent.  It cannot be assigned.", ident.str() );
+        debugmsg( "Skill \"{}\" is context-dependent.  It cannot be assigned.", ident.str() );
         return null_skill;
     }
 
@@ -456,7 +456,7 @@ SkillLevel &SkillLevelMap::get_skill_level_object( const skill_id &ident )
     static SkillLevel null_skill;
 
     if( ident && ident->is_contextual_skill() ) {
-        debugmsg( "Skill \"%s\" is context-dependent.  It cannot be assigned.", ident.str() );
+        debugmsg( "Skill \"{}\" is context-dependent.  It cannot be assigned.", ident.str() );
         return null_skill;
     }
 

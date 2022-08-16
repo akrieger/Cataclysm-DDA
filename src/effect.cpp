@@ -72,7 +72,7 @@ const effect_type &string_id<effect_type>::obj() const
 {
     const auto iter = effect_types.find( *this );
     if( iter == effect_types.end() ) {
-        debugmsg( "invalid effect type id %s", c_str() );
+        debugmsg( "invalid effect type id {}", c_str() );
         static const effect_type dummy{};
         return dummy;
     }
@@ -95,57 +95,57 @@ void weed_msg( Character &p )
         int msg = rng( 0, 5 );
         switch( msg ) {
             case 0:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Freakazoid_1" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Freakazoid_1" ).value_or(
                                          translation() ) );
                 return;
             case 1:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Simpsons_1" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Simpsons_1" ).value_or(
                                          translation() ) );
                 p.mod_hunger( 2 );
                 return;
             case 2:
                 if( smarts > 8 ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Timothy_Leary" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Timothy_Leary" ).value_or(
                                              translation() ) );
                 } else if( smarts < 3 ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_IASIF" ).value_or( translation() ) );
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_IASIF" ).value_or( translation() ) );
                 } else {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Durr" ).value_or( translation() ) );
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Durr" ).value_or( translation() ) );
                 }
                 return;
             case 3:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Dazed_and_Confused_1" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Dazed_and_Confused_1" ).value_or(
                                          translation() ) );
                 if( one_in( 2 ) ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Dazed_and_Confused_2" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Dazed_and_Confused_2" ).value_or(
                                              translation() ) );
                     if( one_in( 2 ) ) {
-                        p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Dazed_and_Confused_3" ).value_or(
+                        p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Dazed_and_Confused_3" ).value_or(
                                                  translation() ) );
                     }
                 }
                 return;
             case 4:
                 if( p.has_amount( itype_money_one, 1 ) ) { // Half Baked
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Half_Baked_1" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Half_Baked_1" ).value_or(
                                              translation() ) );
                     if( one_in( 2 ) ) {
-                        p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Half_Baked_2" ).value_or(
+                        p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Half_Baked_2" ).value_or(
                                                  translation() ) );
                         if( one_in( 3 ) ) {
-                            p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Half_Baked_3" ).value_or(
+                            p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Half_Baked_3" ).value_or(
                                                      translation() ) );
                         }
                     }
                 } else if( p.has_amount( itype_holybook_bible, 1 ) ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Bible" ).value_or( translation() ) );
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Bible" ).value_or( translation() ) );
                 } else {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Big_Lebowski" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Big_Lebowski" ).value_or(
                                              translation() ) );
                 }
                 return;
             case 5:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Mitch_Hedberg" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Mitch_Hedberg" ).value_or(
                                          translation() ) );
             default:
                 return;
@@ -154,46 +154,46 @@ void weed_msg( Character &p )
         int msg = rng( 0, 5 );
         switch( msg ) {
             case 0:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Bob_Marley" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Bob_Marley" ).value_or(
                                          translation() ) );
                 return;
             case 1:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Freakazoid_2" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Freakazoid_2" ).value_or(
                                          translation() ) );
                 return;
             case 2:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Simpsons_2" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Simpsons_2" ).value_or(
                                          translation() ) );
                 if( smarts > 2 && one_in( 2 ) ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Simpsons_3" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Simpsons_3" ).value_or(
                                              translation() ) );
                 }
                 return;
             case 3:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Bill_Hicks" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Bill_Hicks" ).value_or(
                                          translation() ) );
                 return;
             case 4:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Steve_Martin_1" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Steve_Martin_1" ).value_or(
                                          translation() ) );
                 if( one_in( 4 ) ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Steve_Martin_2" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Steve_Martin_2" ).value_or(
                                              translation() ) );
                 }
                 if( one_in( 4 ) ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Steve_Martin_3" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Steve_Martin_3" ).value_or(
                                              translation() ) );
                 }
                 if( one_in( 4 ) ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Steve_Martin_4" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Steve_Martin_4" ).value_or(
                                              translation() ) );
                 }
                 if( one_in( 4 ) ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Steve_Martin_5" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Steve_Martin_5" ).value_or(
                                              translation() ) );
                 }
                 if( smarts > 2 ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Steve_Martin_6" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Steve_Martin_6" ).value_or(
                                              translation() ) );
                 }
                 return;
@@ -205,27 +205,27 @@ void weed_msg( Character &p )
         int msg = rng( 0, 5 );
         switch( msg ) {
             case 0:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Cheech_and_Chong" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Cheech_and_Chong" ).value_or(
                                          translation() ) );
                 return;
             case 1:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Real_Life_1" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Real_Life_1" ).value_or(
                                          translation() ) );
                 p.mod_hunger( 4 );
                 if( p.has_trait( trait_VEGETARIAN ) ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Real_Life_2" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Real_Life_2" ).value_or(
                                              translation() ) );
                 } else if( p.has_trait( trait_LACTOSE ) ) {
-                    p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Real_Life_3" ).value_or(
+                    p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Real_Life_3" ).value_or(
                                              translation() ) );
                 }
                 return;
             case 2:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Dazed_and_Confused_4" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Dazed_and_Confused_4" ).value_or(
                                          translation() ) );
                 return;
             case 3:
-                p.add_msg_if_player( "%s", SNIPPET.random_from_category( "weed_Half_Baked_4" ).value_or(
+                p.add_msg_if_player( "{}", SNIPPET.random_from_category( "weed_Half_Baked_4" ).value_or(
                                          translation() ) );
                 return;
             case 4:
@@ -443,7 +443,7 @@ void effect_type::verify() const
                     *death_event );
         // Only allow events inheriting from event_spec_character at the moment.
         if( fields.size() != 1 || fields.count( "character" ) != 1 ) {
-            debugmsg( "Invalid death event type %s in effect_type %s", "lol",
+            debugmsg( "Invalid death event type {} in effect_type {}", "lol",
                       io::enum_to_string( *death_event ),
                       id.str() );
         }
@@ -568,7 +568,7 @@ bool effect_type::load_decay_msgs( const JsonObject &jo, const std::string &memb
                 rate = m_mixed;
             } else {
                 inner.throw_error(
-                    1, string_format( "Unexpected message type \"%s\"; expected \"good\", "
+                    1, string_format( "Unexpected message type \"{}\"; expected \"good\", "
                                       "\"neutral\", " "\"bad\", or \"mixed\"", r ) );
             }
             decay_msgs.emplace_back( msg, rate );
@@ -588,7 +588,7 @@ bool effect::is_null() const
 std::string effect::disp_name() const
 {
     if( eff_type->name.empty() ) {
-        debugmsg( "No names for effect type, ID: %s", eff_type->id.c_str() );
+        debugmsg( "No names for effect type, ID: {}", eff_type->id.c_str() );
         return "";
     }
 
@@ -608,14 +608,14 @@ std::string effect::disp_name() const
         ret += eff_type->name[0].translated();
         if( intensity > 1 && eff_type->show_intensity ) {
             if( eff_type->id == effect_bandaged || eff_type->id == effect_disinfected ) {
-                ret += string_format( " [%s]", texitify_healing_power( intensity ) );
+                ret += string_format( " [{}]", texitify_healing_power( intensity ) );
             } else {
-                ret += string_format( " [%d]", intensity );
+                ret += string_format( " [{}]", intensity );
             }
         }
     }
     if( bp != bodypart_str_id::NULL_ID() ) {
-        ret += string_format( " (%s)", body_part_name( bp.id() ) );
+        ret += string_format( " ({})", body_part_name( bp.id() ) );
     }
 
     return ret;
@@ -641,12 +641,12 @@ std::string effect::disp_desc( bool reduced ) const
     if( to_turns<int>( effect_dur_elapsed ) == 0 ) {
         timestr = _( "just now" );
     } else {
-        timestr = string_format( _( "%s ago" ),
+        timestr = string_format( _( "{} ago" ),
                                  debug_mode ? to_string( effect_dur_elapsed ) : to_string_clipped( effect_dur_elapsed ) );
     }
-    ret += string_format( _( "Effect started: <color_white>%s</color>" ), timestr );
+    ret += string_format( _( "Effect started: <color_white>{}</color>" ), timestr );
     if( debug_mode ) {
-        ret += string_format( _( "Effect ends in: <color_white>%s</color>" ), to_string( duration ) );
+        ret += string_format( _( "Effect ends in: <color_white>{}</color>" ), to_string( duration ) );
     }
     //Newline if necessary
     if( !ret.empty() && ret.back() != '\n' ) {
@@ -656,33 +656,33 @@ std::string effect::disp_desc( bool reduced ) const
     // First print stat changes, adding + if value is positive
     int tmp = get_avg_mod( "STR", reduced );
     if( tmp > 0 ) {
-        ret += string_format( _( "Strength <color_white>+%d</color>; " ), tmp );
+        ret += string_format( _( "Strength <color_white>+{}</color>; " ), tmp );
     } else if( tmp < 0 ) {
-        ret += string_format( _( "Strength <color_white>%d</color>; " ), tmp );
+        ret += string_format( _( "Strength <color_white>{}</color>; " ), tmp );
     }
     tmp = get_avg_mod( "DEX", reduced );
     if( tmp > 0 ) {
-        ret += string_format( _( "Dexterity <color_white>+%d</color>; " ), tmp );
+        ret += string_format( _( "Dexterity <color_white>+{}</color>; " ), tmp );
     } else if( tmp < 0 ) {
-        ret += string_format( _( "Dexterity <color_white>%d</color>; " ), tmp );
+        ret += string_format( _( "Dexterity <color_white>{}</color>; " ), tmp );
     }
     tmp = get_avg_mod( "PER", reduced );
     if( tmp > 0 ) {
-        ret += string_format( _( "Perception <color_white>+%d</color>; " ), tmp );
+        ret += string_format( _( "Perception <color_white>+{}</color>; " ), tmp );
     } else if( tmp < 0 ) {
-        ret += string_format( _( "Perception <color_white>%d</color>; " ), tmp );
+        ret += string_format( _( "Perception <color_white>{}</color>; " ), tmp );
     }
     tmp = get_avg_mod( "INT", reduced );
     if( tmp > 0 ) {
-        ret += string_format( _( "Intelligence <color_white>+%d</color>; " ), tmp );
+        ret += string_format( _( "Intelligence <color_white>+{}</color>; " ), tmp );
     } else if( tmp < 0 ) {
-        ret += string_format( _( "Intelligence <color_white>%d</color>; " ), tmp );
+        ret += string_format( _( "Intelligence <color_white>{}</color>; " ), tmp );
     }
     tmp = get_avg_mod( "SPEED", reduced );
     if( tmp > 0 ) {
-        ret += string_format( _( "Speed <color_white>+%d</color>; " ), tmp );
+        ret += string_format( _( "Speed <color_white>+{}</color>; " ), tmp );
     } else if( tmp < 0 ) {
-        ret += string_format( _( "Speed <color_white>%d</color>; " ), tmp );
+        ret += string_format( _( "Speed <color_white>{}</color>; " ), tmp );
     }
     // Newline if necessary
     if( !ret.empty() && ret.back() != '\n' ) {
@@ -800,7 +800,7 @@ std::string effect::disp_desc( bool reduced ) const
 
     if( debug_mode ) {
         ret += string_format(
-                   _( "\nDEBUG: ID: <color_white>%s</color> Intensity: <color_white>%d</color>" ),
+                   _( "\nDEBUG: ID: <color_white>{}</color> Intensity: <color_white>{}</color>" ),
                    eff_type->id.c_str(), intensity );
     }
 
@@ -891,7 +891,7 @@ void effect::set_duration( const time_duration &dur, bool alert )
         set_intensity( duration / eff_type->int_dur_factor + 1, alert );
     }
 
-    add_msg_debug( debugmode::DF_EFFECT, "ID: %s, Duration %s", get_id().c_str(),
+    add_msg_debug( debugmode::DF_EFFECT, "ID: {}, Duration {}", get_id().c_str(),
                    to_string_writable( duration ) );
 }
 void effect::mod_duration( const time_duration &dur, bool alert )
@@ -1013,7 +1013,7 @@ int effect::set_intensity( int val, bool alert )
 {
     if( intensity < 1 ) {
         // Fix bad intensity
-        add_msg_debug( debugmode::DF_EFFECT, "Bad intensity, ID: %s", get_id().c_str() );
+        add_msg_debug( debugmode::DF_EFFECT, "Bad intensity, ID: {}", get_id().c_str() );
         intensity = 1;
     }
 
@@ -1471,7 +1471,7 @@ void load_effect_type( const JsonObject &jo )
         } else {
             jo.throw_error_at(
                 "rating",
-                string_format( "Unexpected rating \"%s\"; expected \"good\", \"neutral\", "
+                string_format( "Unexpected rating \"{}\"; expected \"good\", \"neutral\", "
                                "\"bad\", or \"mixed\"", r ) );
         }
     } else {
@@ -1574,7 +1574,7 @@ event_type effect::death_event() const
         return *eff_type->death_event;
     }
 
-    debugmsg( "Asked for death event from effect of type %s, but it lacks one!", eff_type->id.str() );
+    debugmsg( "Asked for death event from effect of type {}, but it lacks one!", eff_type->id.str() );
     return event_type::num_event_types;
 }
 
@@ -1591,7 +1591,7 @@ const std::map<efftype_id, effect_type> &get_effect_types()
 void effect_type::register_ma_buff_effect( const effect_type &eff )
 {
     if( eff.id.is_valid() ) {
-        debugmsg( "effect id %s of a martial art buff is already used as id for an effect",
+        debugmsg( "effect id {} of a martial art buff is already used as id for an effect",
                   eff.id.c_str() );
         return;
     }

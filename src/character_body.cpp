@@ -710,28 +710,28 @@ void Character::update_bodytemp()
 
         // Warn the player if condition worsens
         if( temp_before > BODYTEMP_FREEZING && temp_after < BODYTEMP_FREEZING ) {
-            //~ %s is bodypart
-            add_msg( m_warning, _( "You feel your %s beginning to go numb from the cold!" ),
+            //~ {} is bodypart
+            add_msg( m_warning, _( "You feel your {} beginning to go numb from the cold!" ),
                      body_part_name( bp ) );
         } else if( temp_before > BODYTEMP_VERY_COLD && temp_after < BODYTEMP_VERY_COLD ) {
-            //~ %s is bodypart
-            add_msg( m_warning, _( "You feel your %s getting very cold." ),
+            //~ {} is bodypart
+            add_msg( m_warning, _( "You feel your {} getting very cold." ),
                      body_part_name( bp ) );
         } else if( temp_before > BODYTEMP_COLD && temp_after < BODYTEMP_COLD ) {
-            //~ %s is bodypart
-            add_msg( m_warning, _( "You feel your %s getting chilly." ),
+            //~ {} is bodypart
+            add_msg( m_warning, _( "You feel your {} getting chilly." ),
                      body_part_name( bp ) );
         } else if( temp_before < BODYTEMP_SCORCHING && temp_after > BODYTEMP_SCORCHING ) {
-            //~ %s is bodypart
-            add_msg( m_bad, _( "You feel your %s getting red hot from the heat!" ),
+            //~ {} is bodypart
+            add_msg( m_bad, _( "You feel your {} getting red hot from the heat!" ),
                      body_part_name( bp ) );
         } else if( temp_before < BODYTEMP_VERY_HOT && temp_after > BODYTEMP_VERY_HOT ) {
-            //~ %s is bodypart
-            add_msg( m_warning, _( "You feel your %s getting very hot." ),
+            //~ {} is bodypart
+            add_msg( m_warning, _( "You feel your {} getting very hot." ),
                      body_part_name( bp ) );
         } else if( temp_before < BODYTEMP_HOT && temp_after > BODYTEMP_HOT ) {
-            //~ %s is bodypart
-            add_msg( m_warning, _( "You feel your %s getting warm." ),
+            //~ {} is bodypart
+            add_msg( m_warning, _( "You feel your {} getting warm." ),
                      body_part_name( bp ) );
         }
 
@@ -755,14 +755,14 @@ void Character::update_bodytemp()
         // Warn the player that wind is going to be a problem.
         // But only if it can be a problem, no need to spam player with "wind chills your scorching body"
         if( conv_temp <= BODYTEMP_COLD && windchill < -10 && one_in( 200 ) ) {
-            add_msg( m_bad, _( "The wind is making your %s feel quite cold." ),
+            add_msg( m_bad, _( "The wind is making your {} feel quite cold." ),
                      body_part_name( bp ) );
         } else if( conv_temp <= BODYTEMP_COLD && windchill < -20 && one_in( 100 ) ) {
             add_msg( m_bad,
-                     _( "The wind is very strong; you should find some more wind-resistant clothing for your %s." ),
+                     _( "The wind is very strong; you should find some more wind-resistant clothing for your {}." ),
                      body_part_name( bp ) );
         } else if( conv_temp <= BODYTEMP_COLD && windchill < -30 && one_in( 50 ) ) {
-            add_msg( m_bad, _( "Your clothing is not providing enough protection from the wind for your %s!" ),
+            add_msg( m_bad, _( "Your clothing is not providing enough protection from the wind for your {}!" ),
                      body_part_name( bp ) );
         }
     }
@@ -822,7 +822,7 @@ void Character::update_frostbite( const bodypart_id &bp, const int FBwindPower,
                 mod_part_frostbite_timer( bp, 3 );
             }
             if( one_in( 100 ) && !has_effect( effect_frostbite, bp.id() ) ) {
-                add_msg( m_warning, _( "Your %s will be frostnipped in the next few hours." ),
+                add_msg( m_warning, _( "Your {} will be frostnipped in the next few hours." ),
                          body_part_name( bp ) );
             }
             // Medium risk zones
@@ -835,7 +835,7 @@ void Character::update_frostbite( const bodypart_id &bp, const int FBwindPower,
                        -4 * Ftemperature + 3 * FBwindPower - 170 >= 0 ) ) ) {
             mod_part_frostbite_timer( bp, 8 );
             if( one_in( 100 ) && intense < 2 ) {
-                add_msg( m_warning, _( "Your %s will be frostbitten within the hour!" ),
+                add_msg( m_warning, _( "Your {} will be frostbitten within the hour!" ),
                          body_part_name( bp ) );
             }
             // High risk zones
@@ -845,7 +845,7 @@ void Character::update_frostbite( const bodypart_id &bp, const int FBwindPower,
                      ( Ftemperature < -35 && FBwindPower >= 10 ) ) ) {
             mod_part_frostbite_timer( bp, 72 );
             if( one_in( 100 ) && intense < 2 ) {
-                add_msg( m_warning, _( "Your %s will be frostbitten any minute now!" ),
+                add_msg( m_warning, _( "Your {} will be frostbitten any minute now!" ),
                          body_part_name( bp ) );
             }
             // Risk free, so reduce frostbite timer
@@ -1135,7 +1135,7 @@ bodypart_id Character::body_window( const std::string &menu_header,
                 const int num = mend_perc / 20;
                 hp_str = colorize( std::string( num, '#' ) + std::string( 5 - num, '=' ), c_blue );
                 if( precise ) {
-                    hp_str = string_format( "%s %3d%%", hp_str, mend_perc );
+                    hp_str = string_format( "{} {}%%", hp_str, mend_perc );
                 }
             }
         } else if( limb_is_broken ) {
@@ -1157,29 +1157,29 @@ bodypart_id Character::body_window( const std::string &menu_header,
                      colorize( std::string( 5 - utf8_width( h_bar.first ), '.' ), c_white );
 
             if( precise ) {
-                hp_str = string_format( "%s %3d/%d", hp_str, current_hp, maximal_hp );
+                hp_str = string_format( "{} {}/{}", hp_str, current_hp, maximal_hp );
             }
         }
         msg += colorize( aligned_name, all_state_col ) + " " + hp_str;
 
         // BLEEDING block
         if( bleeding ) {
-            desc += string_format( _( "Bleeding: %s" ),
+            desc += string_format( _( "Bleeding: {}" ),
                                    colorize( get_effect( effect_bleed, bp ).get_speed_name(),
                                              colorize_bleeding_intensity( get_effect_int( effect_bleed, bp ) ) ) );
             if( bleed > 0 ) {
                 int percent = static_cast<int>( bleed * 100 / get_effect_int( effect_bleed, bp ) );
                 percent = std::min( percent, 100 );
-                desc += " -> " + colorize( string_format( _( "%d %% improvement" ), percent ), c_green );
+                desc += " -> " + colorize( string_format( _( "{} %% improvement" ), percent ), c_green );
             }
             desc += "\n";
         }
 
         // BANDAGE block
         if( e.allowed && ( new_b_power > 0 || b_power > 0 ) ) {
-            desc += string_format( _( "Bandaged: %s" ), texitify_healing_power( b_power ) );
+            desc += string_format( _( "Bandaged: {}" ), texitify_healing_power( b_power ) );
             if( new_b_power > 0 ) {
-                desc += string_format( " -> %s", texitify_healing_power( new_b_power ) );
+                desc += string_format( " -> {}", texitify_healing_power( new_b_power ) );
                 if( new_b_power <= b_power ) {
                     desc += _( " (no improvement)" );
                 }
@@ -1189,9 +1189,9 @@ bodypart_id Character::body_window( const std::string &menu_header,
 
         // DISINFECTANT block
         if( e.allowed && ( d_power > 0 || new_d_power > 0 ) ) {
-            desc += string_format( _( "Disinfected: %s" ), texitify_healing_power( d_power ) );
+            desc += string_format( _( "Disinfected: {}" ), texitify_healing_power( d_power ) );
             if( new_d_power > 0 ) {
-                desc += string_format( " -> %s",  texitify_healing_power( new_d_power ) );
+                desc += string_format( " -> {}",  texitify_healing_power( new_d_power ) );
                 if( new_d_power <= d_power ) {
                     desc += _( " (no improvement)" );
                 }
@@ -1201,9 +1201,9 @@ bodypart_id Character::body_window( const std::string &menu_header,
 
         // BITTEN block
         if( bitten ) {
-            desc += string_format( "%s: ", get_effect( effect_bite, bp ).get_speed_name() );
+            desc += string_format( "{}: ", get_effect( effect_bite, bp ).get_speed_name() );
             if( bite > 0 ) {
-                desc += colorize( string_format( _( "Chance to clean and disinfect: %d %%" ),
+                desc += colorize( string_format( _( "Chance to clean and disinfect: {} %%" ),
                                                  static_cast<int>( bite * 100 ) ), c_light_green );
             } else {
                 desc += colorize( _( "It has a deep bite wound that needs cleaning." ), c_red );
@@ -1213,9 +1213,9 @@ bodypart_id Character::body_window( const std::string &menu_header,
 
         // INFECTED block
         if( infected ) {
-            desc += string_format( "%s: ", get_effect( effect_infected, bp ).get_speed_name() );
+            desc += string_format( "{}: ", get_effect( effect_infected, bp ).get_speed_name() );
             if( infect > 0 ) {
-                desc += colorize( string_format( _( "Chance to cure infection: %d %%" ),
+                desc += colorize( string_format( _( "Chance to cure infection: {} %%" ),
                                                  static_cast<int>( infect * 100 ) ), c_light_green ) + "\n";
             } else {
                 desc += colorize( _( "It has a deep wound that looks infected.  Antibiotics might be required." ),
@@ -1241,7 +1241,7 @@ bodypart_id Character::body_window( const std::string &menu_header,
         bmenu.init();
         bmenu.desc_enabled = false;
         bmenu.text = _( "No limb would benefit from it." );
-        bmenu.addentry( parts.size(), true, 'q', "%s", _( "Cancel" ) );
+        bmenu.addentry( parts.size(), true, 'q', "{}", _( "Cancel" ) );
     }
 
     bmenu.query();

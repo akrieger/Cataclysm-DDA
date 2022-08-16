@@ -62,8 +62,8 @@ int divide_round_down( int a, int b )
 
 int modulo( int v, int m )
 {
-    // C++11: negative v and positive m result in negative v%m (or 0),
-    // but this is supposed to be mathematical modulo: 0 <= v%m < m,
+    // C++11: negative v and positive m result in negative v{} (or 0),
+    // but this is supposed to be mathematical modulo: 0 <= v{} < m,
     const int r = v % m;
     // Adding m in that (and only that) case.
     return r >= 0 ? r : r + m;
@@ -145,7 +145,7 @@ double logarithmic_range( int min, int max, int pos )
     const double LOGI_RANGE = LOGI_MAX - LOGI_MIN;
 
     if( min >= max ) {
-        debugmsg( "Invalid interval (%d, %d).", min, max );
+        debugmsg( "Invalid interval ({}, {}).", min, max );
         return 0.0;
     }
 
@@ -291,7 +291,7 @@ bool write_to_file( const std::string &path, const std::function<void( std::ostr
 
     } catch( const std::exception &err ) {
         if( fail_message ) {
-            popup( _( "Failed to write %1$s to \"%2$s\": %3$s" ), fail_message, path.c_str(), err.what() );
+            popup( _( "Failed to write {1} to \"{2}\": {3}" ), fail_message, path.c_str(), err.what() );
         }
         return false;
     }
@@ -412,7 +412,7 @@ bool read_from_file( const std::string &path, const std::function<void( std::ist
         return true;
 
     } catch( const std::exception &err ) {
-        debugmsg( _( "Failed to read from \"%1$s\": %2$s" ), path.c_str(), err.what() );
+        debugmsg( _( "Failed to read from \"{1}\": {2}" ), path.c_str(), err.what() );
         return false;
     }
 }

@@ -15,7 +15,7 @@ void mission_end::deposit_box( mission *miss )
 {
     npc *p = g->find_npc( miss->get_npc_id() );
     if( p == nullptr ) {
-        debugmsg( "could not find mission NPC %d", miss->get_npc_id().get_value() );
+        debugmsg( "could not find mission NPC {}", miss->get_npc_id().get_value() );
         return;
     }
     // Npc leaves your party
@@ -27,5 +27,5 @@ void mission_end::deposit_box( mission *miss )
         itemName = "m4_carbine";
     }
     get_player_character().i_add( item( itemName, calendar::turn_zero ) );
-    add_msg( m_good, _( "%s gave you an item from the deposit box." ), p->get_name() );
+    add_msg( m_good, _( "{} gave you an item from the deposit box." ), p->get_name() );
 }

@@ -89,7 +89,7 @@ mission *mission::find( int id )
         return &iter->second;
     }
     dbg( D_ERROR ) << "requested mission with uid " << id << " does not exist";
-    debugmsg( "requested mission with uid %d does not exist", id );
+    debugmsg( "requested mission with uid {} does not exist", id );
     return nullptr;
 }
 
@@ -171,7 +171,7 @@ void mission::on_creature_death( Creature &poor_dead_dude )
         for( const int mission_id : mon->mission_ids ) {
             mission *found_mission = mission::find( mission_id );
             if( !found_mission ) {
-                debugmsg( "invalid mission id %d", mission_id );
+                debugmsg( "invalid mission id {}", mission_id );
                 continue;
             }
             const mission_type *type = found_mission->type;
@@ -236,7 +236,7 @@ bool mission::on_creature_fusion( Creature &fuser, Creature &fused )
     for( const int mission_id : mon_fused->mission_ids ) {
         const mission *const found_mission = mission::find( mission_id );
         if( !found_mission ) {
-            debugmsg( "invalid mission id %d", mission_id );
+            debugmsg( "invalid mission id {}", mission_id );
             continue;
         }
         const mission_type *const type = found_mission->type;
@@ -278,11 +278,11 @@ mission *mission::reserve_random( const mission_origin origin, const tripoint_ab
 void mission::assign( avatar &u )
 {
     if( player_id == u.getID() ) {
-        debugmsg( "strange: player is already assigned to mission %d", uid );
+        debugmsg( "strange: player is already assigned to mission {}", uid );
         return;
     }
     if( player_id.is_valid() ) {
-        debugmsg( "tried to assign mission %d to player, but mission is already assigned to %d",
+        debugmsg( "tried to assign mission {} to player, but mission is already assigned to {}",
                   uid, player_id.get_value() );
         return;
     }
@@ -352,7 +352,7 @@ void mission::wrap_up()
     if( player_character.getID() != player_id ) {
         // This is called from npctalk.cpp, the npc should only offer the option to wrap up mission
         // that have been assigned to the current player.
-        debugmsg( "mission::wrap_up called, player %d was assigned, but current player is %d",
+        debugmsg( "mission::wrap_up called, player {} was assigned, but current player is {}",
                   player_id.get_value(), player_character.getID().get_value() );
     }
 
@@ -403,7 +403,7 @@ void mission::wrap_up()
                     if( player_character.consume_software_container( type->item_id ) ) {
                         consumed++;
                     } else {
-                        debugmsg( "Tried to consume more software %s than available", type->item_id.c_str() );
+                        debugmsg( "Tried to consume more software {} than available", type->item_id.c_str() );
                         break;
                     }
                 }
@@ -807,7 +807,7 @@ std::string mission::dialogue_for_topic( const std::string &in_topic ) const
         return response->second.translated();
     }
 
-    debugmsg( "Someone forgot to code this message id is %s, topic is %s!",
+    debugmsg( "Someone forgot to code this message id is {}, topic is {}!",
               type->id.c_str(), topic.c_str() );
     return "";
 }

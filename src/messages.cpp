@@ -61,8 +61,8 @@ struct game_message {
         if( count <= 1 ) {
             return message;
         }
-        //~ Message %s on the message log was repeated %d times, e.g. "You hear a whack! x 12"
-        return string_format( _( "%s x %d" ), message, count );
+        //~ Message {} on the message log was repeated {} times, e.g. "You hear a whack! x 12"
+        return string_format( _( "{} x {}" ), message, count );
     }
 
     /** Get whether or not a message should not be displayed (hidden) in the side bar because it's in a cooldown period.
@@ -654,11 +654,11 @@ void Messages::dialog::show()
     } else {
         if( filter_str.empty() ) {
             mvwprintz( w, point( border_width, w_height - 1 ), border_color,
-                       _( "< Press %s to filter, %s to reset >" ),
+                       _( "< Press {} to filter, {} to reset >" ),
                        ctxt.get_desc( "FILTER" ), ctxt.get_desc( "RESET_FILTER" ) );
         } else {
-            mvwprintz( w, point( border_width, w_height - 1 ), border_color, "< %s >", filter_str );
-            mvwprintz( w, point( border_width + 2, w_height - 1 ), filter_color, "%s", filter_str );
+            mvwprintz( w, point( border_width, w_height - 1 ), border_color, "< {} >", filter_str );
+            mvwprintz( w, point( border_width + 2, w_height - 1 ), filter_color, "{}", filter_str );
         }
         wnoutrefresh( w );
     }
@@ -775,7 +775,7 @@ std::vector<std::string> Messages::dialog::filter_help_text( int width )
     const char *const &help_fmt = _(
                                       "<color_light_gray>The default is to search the entire message log.  "
                                       "Use message-types as prefixes followed by (:) to filter more specific.\n"
-                                      "Valid message-type values are:</color> %s\n"
+                                      "Valid message-type values are:</color> {}\n"
                                       "\n"
                                       "<color_white>Examples:</color>\n"
                                       "  <color_light_green>good</color><color_white>:mutation\n"
@@ -795,12 +795,12 @@ std::vector<std::string> Messages::dialog::filter_help_text( int width )
                 next_it = std::next( next_it );
             }
             if( next_it != type_list.end() ) {
-                //~ the 2nd %s is a type name, this is used to format a list of type names
-                type_text += string_format( pgettext( "message log", "<color_%s>%s</color>, " ),
+                //~ the 2nd {} is a type name, this is used to format a list of type names
+                type_text += string_format( pgettext( "message log", "<color_{}>{}</color>, " ),
                                             col_name, pgettext( "message type", it->second ) );
             } else {
-                //~ the 2nd %s is a type name, this is used to format the last type name in a list of type names
-                type_text += string_format( pgettext( "message log", "<color_%s>%s</color>." ),
+                //~ the 2nd {} is a type name, this is used to format the last type name in a list of type names
+                type_text += string_format( pgettext( "message log", "<color_{}>{}</color>." ),
                                             col_name, pgettext( "message type", it->second ) );
             }
         }

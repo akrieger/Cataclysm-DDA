@@ -56,7 +56,7 @@ std::string enum_to_string<clothing_mod_type>( clothing_mod_type data )
         case num_clothing_mod_types:
             break;
     }
-    debugmsg( "Invalid mod type value '%d'.", data );
+    debugmsg( "Invalid mod type value '{}'.", data );
     return "invalid";
 }
 

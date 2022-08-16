@@ -383,7 +383,7 @@ void MonsterGenerator::finalize_mtypes()
         mtype &mon = const_cast<mtype &>( elem );
 
         if( !mon.default_faction.is_valid() ) {
-            debugmsg( "Monster type '%s' has invalid default_faction: '%s'. "
+            debugmsg( "Monster type '{}' has invalid default_faction: '{}'. "
                       "Add this faction to json as MONSTER_FACTION type.",
                       mon.id.str(), mon.default_faction.str() );
         }
@@ -636,7 +636,7 @@ void MonsterGenerator::validate_species_ids( mtype &mon )
 {
     for( const auto &s : mon.species ) {
         if( !s.is_valid() ) {
-            debugmsg( "Tried to assign species %s to monster %s, but no entry for the species exists",
+            debugmsg( "Tried to assign species {} to monster {}, but no entry for the species exists",
                       s.c_str(), mon.id.c_str() );
         }
     }
@@ -682,7 +682,7 @@ void mon_effect_data::load( const JsonObject &jo )
 
     if( chance > 100.f || chance < 0.f ) {
         jo.throw_error_at( "chance",
-                           string_format( "\"chance\" is defined as %f, "
+                           string_format( "\"chance\" is defined as {}, "
                                           "but must be a decimal number between 0.0 and 100.0", chance ) );
         chance = clamp<float>( chance, 0.f, 100.f );
     }
@@ -1202,7 +1202,7 @@ void MonsterGenerator::add_attack( const mtype_special_attack &wrapper )
 {
     if( attack_map.count( wrapper->id ) > 0 ) {
         if( test_mode ) {
-            debugmsg( "Overwriting monster attack with id %s", wrapper->id.c_str() );
+            debugmsg( "Overwriting monster attack with id {}", wrapper->id.c_str() );
         }
 
         attack_map.erase( wrapper->id );
@@ -1287,7 +1287,7 @@ void mtype::add_special_attack( const JsonObject &obj, const std::string &src )
             special_attacks_names.erase( iter );
         }
         if( test_mode ) {
-            debugmsg( "%s specifies more than one attack of (sub)type %s, ignoring all but the last",
+            debugmsg( "{} specifies more than one attack of (sub)type {}, ignoring all but the last",
                       id.c_str(), new_attack->id.c_str() );
         }
     }
@@ -1312,7 +1312,7 @@ void mtype::add_special_attack( const JsonArray &inner, const std::string & )
             special_attacks_names.erase( iter );
         }
         if( test_mode ) {
-            debugmsg( "%s specifies more than one attack of (sub)type %s, ignoring all but the last",
+            debugmsg( "{} specifies more than one attack of (sub)type {}, ignoring all but the last",
                       id.c_str(), name );
         }
     }
@@ -1363,7 +1363,7 @@ void mtype::add_regeneration_modifier( const JsonArray &inner, const std::string
     if( regeneration_modifiers.count( effect ) > 0 ) {
         regeneration_modifiers.erase( effect );
         if( test_mode ) {
-            debugmsg( "%s specifies more than one regeneration modifier for effect %s, ignoring all but the last",
+            debugmsg( "{} specifies more than one regeneration modifier for effect {}, ignoring all but the last",
                       id.c_str(), effect_name );
         }
     }
@@ -1403,152 +1403,152 @@ void MonsterGenerator::check_monster_definitions() const
 {
     for( const mtype &mon : mon_templates->get_all() ) {
         if( mon.harvest.is_null() && !mon.has_flag( MF_ELECTRONIC ) && !mon.id.is_null() ) {
-            debugmsg( "monster %s has no harvest entry", mon.id.c_str(), mon.harvest.c_str() );
+            debugmsg( "monster {} has no harvest entry", mon.id.c_str(), mon.harvest.c_str() );
         }
         if( mon.has_flag( MF_MILKABLE ) && mon.starting_ammo.empty() ) {
-            debugmsg( "monster %s is flagged milkable, but has no starting ammo", mon.id.c_str() );
+            debugmsg( "monster {} is flagged milkable, but has no starting ammo", mon.id.c_str() );
         }
         if( mon.has_flag( MF_MILKABLE ) && !mon.starting_ammo.empty() &&
             !item( mon.starting_ammo.begin()->first ).made_of( phase_id::LIQUID ) ) {
-            debugmsg( "monster %s is flagged milkable, but starting ammo %s is not a liquid type",
+            debugmsg( "monster {} is flagged milkable, but starting ammo {} is not a liquid type",
                       mon.id.c_str(), mon.starting_ammo.begin()->first.str() );
         }
         if( mon.has_flag( MF_MILKABLE ) && mon.starting_ammo.size() > 1 ) {
-            debugmsg( "monster %s is flagged milkable, but has multiple starting_ammo defined",
+            debugmsg( "monster {} is flagged milkable, but has multiple starting_ammo defined",
                       mon.id.c_str() );
         }
         for( const species_id &spec : mon.species ) {
             if( !spec.is_valid() ) {
-                debugmsg( "monster %s has invalid species %s", mon.id.c_str(), spec.c_str() );
+                debugmsg( "monster {} has invalid species {}", mon.id.c_str(), spec.c_str() );
             }
         }
         if( !mon.death_drops.is_empty() && !item_group::group_is_defined( mon.death_drops ) ) {
-            debugmsg( "monster %s has unknown death drop item group: %s", mon.id.c_str(),
+            debugmsg( "monster {} has unknown death drop item group: {}", mon.id.c_str(),
                       mon.death_drops.c_str() );
         }
         for( const auto &m : mon.mat ) {
             if( m.first.str() == "null" || !m.first.is_valid() ) {
-                debugmsg( "monster %s has unknown material: %s", mon.id.c_str(), m.first.c_str() );
+                debugmsg( "monster {} has unknown material: {}", mon.id.c_str(), m.first.c_str() );
             }
         }
         if( !mon.revert_to_itype.is_empty() && !item::type_is_defined( mon.revert_to_itype ) ) {
-            debugmsg( "monster %s has unknown revert_to_itype: %s", mon.id.c_str(),
+            debugmsg( "monster {} has unknown revert_to_itype: {}", mon.id.c_str(),
                       mon.revert_to_itype.c_str() );
         }
         if( !mon.zombify_into.is_empty() && !mon.zombify_into.is_valid() ) {
-            debugmsg( "monster %s has unknown zombify_into: %s", mon.id.c_str(),
+            debugmsg( "monster {} has unknown zombify_into: {}", mon.id.c_str(),
                       mon.zombify_into.c_str() );
         }
         if( !mon.fungalize_into.is_empty() && !mon.fungalize_into.is_valid() ) {
-            debugmsg( "monster %s has unknown fungalize_into: %s", mon.id.c_str(),
+            debugmsg( "monster {} has unknown fungalize_into: {}", mon.id.c_str(),
                       mon.fungalize_into.c_str() );
         }
         if( !mon.picture_id.is_empty() && !mon.picture_id.is_valid() ) {
-            debugmsg( "monster %s has unknown ascii_picture: %s", mon.id.c_str(),
+            debugmsg( "monster {} has unknown ascii_picture: {}", mon.id.c_str(),
                       mon.picture_id.c_str() );
         }
         if( !mon.mech_weapon.is_empty() && !item::type_is_defined( mon.mech_weapon ) ) {
-            debugmsg( "monster %s has unknown mech_weapon: %s", mon.id.c_str(),
+            debugmsg( "monster {} has unknown mech_weapon: {}", mon.id.c_str(),
                       mon.mech_weapon.c_str() );
         }
         if( !mon.mech_battery.is_empty() && !item::type_is_defined( mon.mech_battery ) ) {
-            debugmsg( "monster %s has unknown mech_battery: %s", mon.id.c_str(),
+            debugmsg( "monster {} has unknown mech_battery: {}", mon.id.c_str(),
                       mon.mech_battery.c_str() );
         }
         if( !mon.harvest.is_valid() ) {
-            debugmsg( "monster %s has invalid harvest_entry: %s", mon.id.c_str(), mon.harvest.c_str() );
+            debugmsg( "monster {} has invalid harvest_entry: {}", mon.id.c_str(), mon.harvest.c_str() );
         }
         if( !mon.dissect.is_empty() && !mon.dissect.is_valid() ) {
-            debugmsg( "monster %s has invalid dissection harvest_entry: %s", mon.id.c_str(),
+            debugmsg( "monster {} has invalid dissection harvest_entry: {}", mon.id.c_str(),
                       mon.dissect.c_str() );
         }
         if( mon.has_flag( MF_WATER_CAMOUFLAGE ) && !monster( mon.id ).can_submerge() ) {
-            debugmsg( "monster %s has WATER_CAMOUFLAGE but cannot submerge", mon.id.c_str() );
+            debugmsg( "monster {} has WATER_CAMOUFLAGE but cannot submerge", mon.id.c_str() );
         }
         for( const scenttype_id &s_id : mon.scents_tracked ) {
             if( !s_id.is_empty() && !s_id.is_valid() ) {
-                debugmsg( "monster %s has unknown scents_tracked %s", mon.id.c_str(), s_id.c_str() );
+                debugmsg( "monster {} has unknown scents_tracked {}", mon.id.c_str(), s_id.c_str() );
             }
         }
         for( const scenttype_id &s_id : mon.scents_ignored ) {
             if( !s_id.is_empty() && !s_id.is_valid() ) {
-                debugmsg( "monster %s has unknown scents_ignored %s", mon.id.c_str(), s_id.c_str() );
+                debugmsg( "monster {} has unknown scents_ignored {}", mon.id.c_str(), s_id.c_str() );
             }
         }
         for( const std::pair<const itype_id, int> &s : mon.starting_ammo ) {
             if( !item::type_is_defined( s.first ) ) {
-                debugmsg( "starting ammo %s of monster %s is unknown", s.first.c_str(), mon.id.c_str() );
+                debugmsg( "starting ammo {} of monster {} is unknown", s.first.c_str(), mon.id.c_str() );
             }
         }
         for( const mon_effect_data &e : mon.atk_effs ) {
             if( !e.id.is_valid() ) {
-                debugmsg( "attack effect %s of monster %s is unknown", e.id.c_str(), mon.id.c_str() );
+                debugmsg( "attack effect {} of monster {} is unknown", e.id.c_str(), mon.id.c_str() );
             }
         }
 
         for( const std::pair<const emit_id, time_duration> &e : mon.emit_fields ) {
             const emit_id emid = e.first;
             if( !emid.is_valid() ) {
-                debugmsg( "monster %s has invalid emit source %s", mon.id.c_str(), emid.c_str() );
+                debugmsg( "monster {} has invalid emit source {}", mon.id.c_str(), emid.c_str() );
             }
         }
 
         if( mon.upgrades ) {
             if( mon.half_life < 0 && mon.age_grow < 0 ) {
-                debugmsg( "half_life %d and age_grow %d (<0) of monster %s is invalid",
+                debugmsg( "half_life {} and age_grow {} (<0) of monster {} is invalid",
                           mon.half_life, mon.age_grow, mon.id.c_str() );
             }
             if( !mon.upgrade_into && !mon.upgrade_group ) {
-                debugmsg( "no into nor into_group defined for monster %s", mon.id.c_str() );
+                debugmsg( "no into nor into_group defined for monster {}", mon.id.c_str() );
             }
             if( mon.upgrade_into && mon.upgrade_group ) {
-                debugmsg( "both into and into_group defined for monster %s", mon.id.c_str() );
+                debugmsg( "both into and into_group defined for monster {}", mon.id.c_str() );
             }
             if( !mon.upgrade_into.is_valid() ) {
-                debugmsg( "upgrade_into %s of monster %s is not a valid monster id",
+                debugmsg( "upgrade_into {} of monster {} is not a valid monster id",
                           mon.upgrade_into.c_str(), mon.id.c_str() );
             }
             if( !mon.upgrade_group.is_valid() ) {
-                debugmsg( "upgrade_group %s of monster %s is not a valid monster group id",
+                debugmsg( "upgrade_group {} of monster {} is not a valid monster group id",
                           mon.upgrade_group.c_str(), mon.id.c_str() );
             }
         }
 
         if( mon.reproduces ) {
             if( !mon.baby_timer || *mon.baby_timer <= 0_seconds ) {
-                debugmsg( "Time between reproductions (%d) is invalid for %s",
+                debugmsg( "Time between reproductions ({}) is invalid for {}",
                           mon.baby_timer ? to_turns<int>( *mon.baby_timer ) : -1, mon.id.c_str() );
             }
             if( mon.baby_count < 1 ) {
-                debugmsg( "Number of children (%d) is invalid for %s",
+                debugmsg( "Number of children ({}) is invalid for {}",
                           mon.baby_count, mon.id.c_str() );
             }
             if( !mon.baby_monster && mon.baby_egg.is_null() ) {
-                debugmsg( "No baby or egg defined for monster %s", mon.id.c_str() );
+                debugmsg( "No baby or egg defined for monster {}", mon.id.c_str() );
             }
             if( mon.baby_monster && !mon.baby_egg.is_null() ) {
-                debugmsg( "Both an egg and a live birth baby are defined for %s", mon.id.c_str() );
+                debugmsg( "Both an egg and a live birth baby are defined for {}", mon.id.c_str() );
             }
             if( !mon.baby_monster.is_valid() ) {
-                debugmsg( "baby_monster %s of monster %s is not a valid monster id",
+                debugmsg( "baby_monster {} of monster {} is not a valid monster id",
                           mon.baby_monster.c_str(), mon.id.c_str() );
             }
             if( !item::type_is_defined( mon.baby_egg ) ) {
-                debugmsg( "item_id %s of monster %s is not a valid item id",
+                debugmsg( "item_id {} of monster {} is not a valid item id",
                           mon.baby_egg.c_str(), mon.id.c_str() );
             }
         }
 
         if( mon.biosignatures ) {
             if( !mon.biosig_timer || *mon.biosig_timer <= 0_seconds ) {
-                debugmsg( "Time between biosignature drops (%d) is invalid for %s",
+                debugmsg( "Time between biosignature drops ({}) is invalid for {}",
                           mon.biosig_timer ? to_turns<int>( *mon.biosig_timer ) : -1, mon.id.c_str() );
             }
             if( mon.biosig_item.is_null() ) {
-                debugmsg( "No biosignature drop defined for monster %s", mon.id.c_str() );
+                debugmsg( "No biosignature drop defined for monster {}", mon.id.c_str() );
             }
             if( !item::type_is_defined( mon.biosig_item ) ) {
-                debugmsg( "item_id %s of monster %s is not a valid item id",
+                debugmsg( "item_id {} of monster {} is not a valid item id",
                           mon.biosig_item.c_str(), mon.id.c_str() );
             }
         }
@@ -1557,7 +1557,7 @@ void MonsterGenerator::check_monster_definitions() const
 
 void monster_death_effect::load( const JsonObject &jo )
 {
-    optional( jo, was_loaded, "message", death_message, to_translation( "The %s dies!" ) );
+    optional( jo, was_loaded, "message", death_message, to_translation( "The {} dies!" ) );
     optional( jo, was_loaded, "effect", sp );
     has_effect = sp.is_valid();
     optional( jo, was_loaded, "corpse_type", corpse_type, mdeath_type::NORMAL );

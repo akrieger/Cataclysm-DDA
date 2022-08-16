@@ -278,7 +278,7 @@ void game::unserialize( std::istream &fin, const std::string &path )
         Messages::deserialize( data );
 
     } catch( const JsonError &jsonerr ) {
-        debugmsg( "Bad save json\n%s", jsonerr.c_str() );
+        debugmsg( "Bad save json\n{}", jsonerr.c_str() );
         return;
     }
 }
@@ -324,7 +324,7 @@ void game::load_shortcuts( std::istream &fin, const std::string &path )
             }
         }
     } catch( const JsonError &jsonerr ) {
-        debugmsg( "Bad shortcuts json\n%s", jsonerr.c_str() );
+        debugmsg( "Bad shortcuts json\n{}", jsonerr.c_str() );
         return;
     }
 }
@@ -549,7 +549,7 @@ void overmap::unserialize( std::istream &fin )
                             } else if( oter_str_id( tmp_ter ).is_valid() ) {
                                 tmp_otid = oter_id( tmp_ter );
                             } else {
-                                debugmsg( "Loaded bad ter!  ter %s", tmp_ter.c_str() );
+                                debugmsg( "Loaded bad ter!  ter {}", tmp_ter.c_str() );
                                 tmp_otid = oter_id( 0 );
                             }
                         }
@@ -813,7 +813,7 @@ void overmap::unserialize_omap( std::istream &fin )
     if( type == "overmap" ) {
         std::unordered_map<tripoint_om_omt, std::string> needs_conversion;
         if( om_pos != pos() ) {
-            debugmsg( "Loaded invalid overmap from omap file %s. Loaded %s, expected %s",
+            debugmsg( "Loaded invalid overmap from omap file {}. Loaded {}, expected {}",
                       *jsin.get_path(), om_pos.to_string(), pos().to_string() );
         } else {
             int count = 0;
@@ -834,7 +834,7 @@ void overmap::unserialize_omap( std::istream &fin )
                         } else if( oter_str_id( tmp_ter ).is_valid() ) {
                             tmp_otid = oter_id( tmp_ter );
                         } else {
-                            debugmsg( "Loaded bad ter!  ter %s", tmp_ter.c_str() );
+                            debugmsg( "Loaded bad ter!  ter {}", tmp_ter.c_str() );
                             tmp_otid = oter_id( 0 );
                         }
                     }
@@ -1459,7 +1459,7 @@ void game::unserialize_master( std::istream &fin )
             }
         }
     } catch( const JsonError &e ) {
-        debugmsg( "error loading %s: %s", SAVE_MASTER, e.c_str() );
+        debugmsg( "error loading {}: {}", SAVE_MASTER, e.c_str() );
     }
 }
 
@@ -1558,7 +1558,7 @@ void game::serialize_master( std::ostream &fout )
         json.end_object();
         json.end_object();
     } catch( const JsonError &e ) {
-        debugmsg( "error saving to %s: %s", SAVE_MASTER, e.c_str() );
+        debugmsg( "error saving to {}: {}", SAVE_MASTER, e.c_str() );
     }
 }
 

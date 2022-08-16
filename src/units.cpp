@@ -8,9 +8,9 @@ template<>
 void volume::serialize( JsonOut &jsout ) const
 {
     if( value_ % 1000 == 0 ) {
-        jsout.write( string_format( "%d L", value_ / 1000 ) );
+        jsout.write( string_format( "{} L", value_ / 1000 ) );
     } else {
-        jsout.write( string_format( "%d ml", value_ ) );
+        jsout.write( string_format( "{} ml", value_ ) );
     }
 }
 
@@ -18,11 +18,11 @@ template<>
 void mass::serialize( JsonOut &jsout ) const
 {
     if( value_ % 1000000 == 0 ) {
-        jsout.write( string_format( "%d kg", value_ / 1000000 ) );
+        jsout.write( string_format( "{} kg", value_ / 1000000 ) );
     } else if( value_ % 1000 == 0 ) {
-        jsout.write( string_format( "%d g", value_ / 1000 ) );
+        jsout.write( string_format( "{} g", value_ / 1000 ) );
     } else {
-        jsout.write( string_format( "%d mg", value_ ) );
+        jsout.write( string_format( "{} mg", value_ ) );
     }
 }
 
@@ -35,7 +35,7 @@ void length::deserialize( const JsonValue &jv )
 template<>
 void specific_energy::serialize( JsonOut &jsout ) const
 {
-    jsout.write( string_format( "%f", value_ ) );
+    jsout.write( string_format( "{}", value_ ) );
 }
 
 template<>
@@ -52,7 +52,7 @@ void specific_energy::deserialize( const JsonValue &jv )
 template<>
 void temperature::serialize( JsonOut &jsout ) const
 {
-    jsout.write( string_format( "%f", value_ ) );
+    jsout.write( string_format( "{}", value_ ) );
 }
 
 template<>
@@ -70,11 +70,11 @@ template<>
 void energy::serialize( JsonOut &jsout ) const
 {
     if( value_ % 1000000 == 0 ) {
-        jsout.write( string_format( "%d kJ", value_ / 1000000 ) );
+        jsout.write( string_format( "{} kJ", value_ / 1000000 ) );
     } else if( value_ % 1000 == 0 ) {
-        jsout.write( string_format( "%d J", value_ / 1000 ) ) ;
+        jsout.write( string_format( "{} J", value_ / 1000 ) ) ;
     } else {
-        jsout.write( string_format( "%d mJ", value_ ) );
+        jsout.write( string_format( "{} mJ", value_ ) );
     }
 }
 
@@ -87,7 +87,7 @@ void energy::deserialize( const JsonValue &jv )
 template<>
 void angle::serialize( JsonOut &jsout ) const
 {
-    jsout.write( string_format( "%f rad", value_ ) );
+    jsout.write( string_format( "{} rad", value_ ) );
 }
 
 template<>

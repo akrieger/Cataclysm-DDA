@@ -61,7 +61,7 @@ static void reveal_route( mission *miss, const tripoint_abs_omt &destination )
     const tripoint_abs_omt dest_road = overmap_buffer.find_closest( destination, "road", 3, false );
 
     if( overmap_buffer.reveal_route( source_road, dest_road ) ) {
-        add_msg( _( "%s also marks the road that leads to it…" ), p->get_name() );
+        add_msg( _( "{} also marks the road that leads to it…" ), p->get_name() );
     }
 }
 
@@ -76,7 +76,7 @@ static void reveal_target( mission *miss, const std::string &omter_id )
     const tripoint_abs_omt destination = reveal_destination( omter_id );
     if( destination != overmap::invalid_tripoint ) {
         const oter_id oter = overmap_buffer.ter( destination );
-        add_msg( _( "%s has marked the only %s known to them on your map." ), p->get_name(),
+        add_msg( _( "{} has marked the only {} known to them on your map." ), p->get_name(),
                  oter->get_name() );
         miss->set_target( destination );
         if( one_in( 3 ) ) {
@@ -254,7 +254,7 @@ static cata::optional<tripoint_abs_omt> find_or_create_om_terrain(
     // If we got here and this is still invalid, it means that we couldn't find it nor create it
     // on any overmap (new or existing) within the allowed search range.
     if( target_pos == overmap::invalid_tripoint ) {
-        debugmsg( "Unable to find and assign mission target %s.", params.overmap_terrain );
+        debugmsg( "Unable to find and assign mission target {}.", params.overmap_terrain );
         return cata::nullopt;
     }
     return target_pos;

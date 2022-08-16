@@ -104,7 +104,7 @@ tripoint rotate_point( const tripoint &p, int rotations )
 {
     if( p.x < 0 || p.x >= SEEX * 2 ||
         p.y < 0 || p.y >= SEEY * 2 ) {
-        debugmsg( "Point out of range: %d,%d,%d", p.x, p.y, p.z );
+        debugmsg( "Point out of range: {},{},{}", p.x, p.y, p.z );
         // Mapgen is vulnerable, don't supply invalid points, debugmsg is enough
         return tripoint( 0, 0, p.z );
     }

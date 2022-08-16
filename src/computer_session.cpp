@@ -129,7 +129,7 @@ void computer_session::use()
 
     avatar &player_character = get_avatar();
     // Login
-    print_line( _( "Logging into %s…" ), comp.name );
+    print_line( _( "Logging into {}…" ), comp.name );
     if( comp.security > 0 ) {
         if( calendar::turn < comp.next_attempt ) {
             print_error( _( "Access is temporary blocked for security purposes." ) );
@@ -137,7 +137,7 @@ void computer_session::use()
             reset_terminal();
             return;
         }
-        print_error( "%s", comp.access_denied );
+        print_error( "{}", comp.access_denied );
         switch( query_ynq( _( "Bypass security?" ) ) ) {
             case ynq::quit:
                 reset_terminal();
@@ -175,7 +175,7 @@ void computer_session::use()
         size_t options_size = comp.options.size();
 
         uilist computer_menu;
-        computer_menu.text = string_format( _( "%s - Root Menu" ), comp.name );
+        computer_menu.text = string_format( _( "{} - Root Menu" ), comp.name );
         computer_menu.selected = sel;
         computer_menu.fselected = sel;
 
@@ -183,7 +183,7 @@ void computer_session::use()
             bool activatable = can_activate( comp.options[i].action );
             std::string action_name = comp.options[i].name;
             if( !activatable ) {
-                action_name = string_format( _( "%s (UNAVAILABLE)" ), action_name );
+                action_name = string_format( _( "{} (UNAVAILABLE)" ), action_name );
             }
             computer_menu.addentry( i, activatable, MENU_AUTOASSIGN, action_name );
         }
@@ -587,7 +587,7 @@ void computer_session::action_research()
         get_player_character().moves -= 70;
     }
 
-    print_text( "%s", log.value() );
+    print_text( "{}", log.value() );
     // One's an anomaly
     if( comp.alerts == 0 ) {
         query_any( _( "Local data-access error logged, alerting helpdesk.  Press any key…" ) );
@@ -606,7 +606,7 @@ void computer_session::action_radio_archive()
     sfx::fade_audio_channel( sfx::channel::radio, 100 );
     sfx::play_ambient_variant_sound( "radio", "inaudible_chatter", 100, sfx::channel::radio,
                                      2000 );
-    print_text( "Accessing archive.  Playing audio recording nr %d.\n%s", rng( 1, 9999 ),
+    print_text( "Accessing archive.  Playing audio recording nr {}.\n{}", rng( 1, 9999 ),
                 SNIPPET.random_from_category( "radio_archive" ).value_or( translation() ) );
     if( one_in( 3 ) ) {
         query_any( _( "Warning: restricted data access.  Attempt logged.  Press any key…" ) );
@@ -765,10 +765,10 @@ void computer_session::action_list_bionics()
     print_newline();
 
     for( auto &name : names ) {
-        print_line( "%s", name );
+        print_line( "{}", name );
     }
     if( more > 0 ) {
-        print_line( n_gettext( "%d OTHER FOUND…", "%d OTHERS FOUND…", more ), more );
+        print_line( n_gettext( "{} OTHER FOUND…", "{} OTHERS FOUND…", more ), more );
     }
 
     print_newline();
@@ -794,24 +794,24 @@ void computer_session::action_amigara_log()
     player_character.moves -= 30;
     reset_terminal();
     point_abs_sm abs_sub = get_map().get_abs_sub().xy();
-    print_line( _( "NEPower Mine%s Log" ), abs_sub.to_string() );
-    print_text( "%s", SNIPPET.random_from_category( "amigara1" ).value_or( translation() ) );
+    print_line( _( "NEPower Mine{} Log" ), abs_sub.to_string() );
+    print_text( "{}", SNIPPET.random_from_category( "amigara1" ).value_or( translation() ) );
 
     if( !query_bool( _( "Continue reading?" ) ) ) {
         return;
     }
     player_character.moves -= 30;
     reset_terminal();
-    print_line( _( "NEPower Mine%s Log" ), abs_sub.to_string() );
-    print_text( "%s", SNIPPET.random_from_category( "amigara2" ).value_or( translation() ) );
+    print_line( _( "NEPower Mine{} Log" ), abs_sub.to_string() );
+    print_text( "{}", SNIPPET.random_from_category( "amigara2" ).value_or( translation() ) );
 
     if( !query_bool( _( "Continue reading?" ) ) ) {
         return;
     }
     player_character.moves -= 30;
     reset_terminal();
-    print_line( _( "NEPower Mine%s Log" ), abs_sub.to_string() );
-    print_text( "%s", SNIPPET.random_from_category( "amigara3" ).value_or( translation() ) );
+    print_line( _( "NEPower Mine{} Log" ), abs_sub.to_string() );
+    print_text( "{}", SNIPPET.random_from_category( "amigara3" ).value_or( translation() ) );
 
     if( !query_bool( _( "Continue reading?" ) ) ) {
         return;
@@ -832,10 +832,10 @@ void computer_session::action_amigara_log()
     player_character.moves -= 30;
     reset_terminal();
     tripoint_abs_sm abs_loc = get_map().get_abs_sub();
-    print_line( _( "SITE %d%d%d\n"
+    print_line( _( "SITE {}{}{}\n"
                    "PERTINENT FOREMAN LOGS WILL BE PREPENDED TO NOTES" ),
                 abs_loc.x(), abs_loc.y(), std::abs( abs_loc.z() ) );
-    print_text( "%s", SNIPPET.random_from_category( "amigara4" ).value_or( translation() ) );
+    print_text( "{}", SNIPPET.random_from_category( "amigara4" ).value_or( translation() ) );
     print_gibberish_line();
     print_gibberish_line();
     print_newline();
@@ -1035,59 +1035,59 @@ void computer_session::action_tower_unresponsive()
 void computer_session::action_sr1_mess()
 {
     reset_terminal();
-    print_text( "%s", SNIPPET.random_from_category( "sr1_mess" ).value_or( translation() ) );
+    print_text( "{}", SNIPPET.random_from_category( "sr1_mess" ).value_or( translation() ) );
     query_any( _( "Press any key to continue…" ) );
 }
 
 void computer_session::action_sr2_mess()
 {
     reset_terminal();
-    print_text( "%s", SNIPPET.random_from_category( "sr2_mess" ).value_or( translation() ) );
+    print_text( "{}", SNIPPET.random_from_category( "sr2_mess" ).value_or( translation() ) );
     query_any( _( "Press any key to continue…" ) );
 }
 
 void computer_session::action_sr3_mess()
 {
     reset_terminal();
-    print_text( "%s", SNIPPET.random_from_category( "sr3_mess" ).value_or( translation() ) );
+    print_text( "{}", SNIPPET.random_from_category( "sr3_mess" ).value_or( translation() ) );
     query_any( _( "Press any key to continue…" ) );
 }
 
 void computer_session::action_sr4_mess()
 {
     reset_terminal();
-    print_text( "%s", SNIPPET.random_from_category( "sr4_mess" ).value_or( translation() ) );
+    print_text( "{}", SNIPPET.random_from_category( "sr4_mess" ).value_or( translation() ) );
     query_any( _( "Press any key to continue…" ) );
 }
 
 void computer_session::action_srcf_1_mess()
 {
     reset_terminal();
-    print_text( "%s", SNIPPET.random_from_category( "scrf_1_mess" ).value_or( translation() ) );
+    print_text( "{}", SNIPPET.random_from_category( "scrf_1_mess" ).value_or( translation() ) );
     query_any( _( "Press any key to continue…" ) );
 }
 
 void computer_session::action_srcf_2_mess()
 {
     reset_terminal();
-    print_text( "%s", SNIPPET.random_from_category( "scrf_2_1_mess" ).value_or( translation() ) );
+    print_text( "{}", SNIPPET.random_from_category( "scrf_2_1_mess" ).value_or( translation() ) );
     query_any( _( "Press any key to continue…" ) );
     reset_terminal();
-    print_text( "%s", SNIPPET.random_from_category( "scrf_2_2_mess" ).value_or( translation() ) );
+    print_text( "{}", SNIPPET.random_from_category( "scrf_2_2_mess" ).value_or( translation() ) );
     query_any( _( "Press any key to continue…" ) );
 }
 
 void computer_session::action_srcf_3_mess()
 {
     reset_terminal();
-    print_text( "%s", SNIPPET.random_from_category( "scrf_3_mess" ).value_or( translation() ) );
+    print_text( "{}", SNIPPET.random_from_category( "scrf_3_mess" ).value_or( translation() ) );
     query_any( _( "Press any key to continue…" ) );
 }
 
 void computer_session::action_srcf_seal_order()
 {
     reset_terminal();
-    print_text( "%s", SNIPPET.random_from_category( "scrf_seal_order" ).value_or( translation() ) );
+    print_text( "{}", SNIPPET.random_from_category( "scrf_seal_order" ).value_or( translation() ) );
     query_any( _( "Press any key to continue…" ) );
 }
 
@@ -1252,7 +1252,7 @@ void computer_session::action_irradiator()
                 }
                 if( !error && platform_exists ) {
                     print_error( _( "PROCESSING…  CYCLE COMPLETE." ) );
-                    print_error( _( "GEIGER COUNTER @ PLATFORM: %s mSv/h." ), here.get_radiation( dest ) );
+                    print_error( _( "GEIGER COUNTER @ PLATFORM: {} mSv/h." ), here.get_radiation( dest ) );
                 }
             }
         }
@@ -1297,13 +1297,13 @@ void computer_session::action_geiger()
                 peak_rad = here.get_radiation( platform );
             }
         }
-        print_error( _( "GEIGER COUNTER @ ZONE:… AVG %s mSv/h." ), sum_rads / tiles_counted );
-        print_error( _( "GEIGER COUNTER @ ZONE:… MAX %s mSv/h." ), peak_rad );
+        print_error( _( "GEIGER COUNTER @ ZONE:… AVG {} mSv/h." ), sum_rads / tiles_counted );
+        print_error( _( "GEIGER COUNTER @ ZONE:… MAX {} mSv/h." ), peak_rad );
         print_newline();
     }
-    print_error( _( "GEIGER COUNTER @ CONSOLE:… %s mSv/h." ),
+    print_error( _( "GEIGER COUNTER @ CONSOLE:… {} mSv/h." ),
                  here.get_radiation( player_character.pos() ) );
-    print_error( _( "PERSONAL DOSIMETRY:… %s mSv." ), player_character.get_rad() );
+    print_error( _( "PERSONAL DOSIMETRY:… {} mSv." ), player_character.get_rad() );
     print_newline();
     query_any( _( "Press any key…" ) );
 }
@@ -1675,7 +1675,7 @@ void computer_session::action_emerg_ref_center()
     }
 
     //~555-0164 is a fake phone number in the US, please replace it with a number that will not cause issues in your locale if possible.
-    print_line( _( "\nREFUGEE CENTER FOUND!  LOCATION: %d %s\n\n"
+    print_line( _( "\nREFUGEE CENTER FOUND!  LOCATION: {} {}\n\n"
                    "IF YOU HAVE ANY FEEDBACK CONCERNING YOUR VISIT PLEASE CONTACT\n"
                    "THE DEPARTMENT OF EMERGENCY MANAGEMENT PUBLIC AFFAIRS OFFICE.\n"
                    "THE LOCAL OFFICE CAN BE REACHED BETWEEN THE HOURS OF 9AM AND\n"
@@ -1725,9 +1725,9 @@ computer_session::ynq computer_session::query_ynq( const std::string &text, Args
     ctxt.register_action( "HELP_KEYBINDINGS" );
     print_indented_line( 0, width, force_uc && !is_keycode_mode_supported()
                          //~ 1st: query string, 2nd-4th: keybinding descriptions
-                         ? pgettext( "query_ynq", "%s %s, %s, %s (Case sensitive)" )
+                         ? pgettext( "query_ynq", "{} {}, {}, {} (Case sensitive)" )
                          //~ 1st: query string, 2nd-4th: keybinding descriptions
-                         : pgettext( "query_ynq", "%s %s, %s, %s" ),
+                         : pgettext( "query_ynq", "{} {}, {}, {}" ),
                          formatted_text,
                          ctxt.describe_key_and_name( "YES", allow_key ),
                          ctxt.describe_key_and_name( "NO", allow_key ),
@@ -1792,7 +1792,7 @@ template<typename ...Args>
 void computer_session::print_error( const std::string &text, Args &&... args )
 {
     const std::string formatted_text = string_format( text, std::forward<Args>( args )... );
-    print_indented_line( 0, width, "%s", colorize( formatted_text, c_red ) );
+    print_indented_line( 0, width, "{}", colorize( formatted_text, c_red ) );
 }
 
 template<typename ...Args>
@@ -1821,7 +1821,7 @@ void computer_session::print_gibberish_line()
                 break;
         }
     }
-    print_indented_line( 0, width, "%s", colorize( gibberish, c_yellow ) );
+    print_indented_line( 0, width, "{}", colorize( gibberish, c_yellow ) );
 }
 
 void computer_session::reset_terminal()

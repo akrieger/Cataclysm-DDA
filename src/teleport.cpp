@@ -114,7 +114,7 @@ bool teleport::teleport_to_point( Creature &critter, tripoint target, bool safe,
             if( p && display_message ) {
                 p->add_msg_player_or_npc( m_warning, _( "You flicker." ), _( "<npcname> flickers." ) );
             } else if( get_player_view().sees( critter ) && display_message ) {
-                add_msg( _( "%1$s flickers." ), critter.disp_name() );
+                add_msg( _( "{1} flickers." ), critter.disp_name() );
             }
             return false;
         }
@@ -148,15 +148,15 @@ bool teleport::teleport_to_point( Creature &critter, tripoint target, bool safe,
             if( p ) {
                 if( display_message ) {
                     p->add_msg_player_or_npc( m_warning,
-                                              _( "You teleport into %s, and they explode into thousands of fragments." ),
-                                              _( "<npcname> teleports into %s, and they explode into thousands of fragments." ),
+                                              _( "You teleport into {}, and they explode into thousands of fragments." ),
+                                              _( "<npcname> teleports into {}, and they explode into thousands of fragments." ),
                                               poor_soul->disp_name() );
                 }
                 get_event_bus().send<event_type::telefrags_creature>( p->getID(), poor_soul->get_name() );
             } else {
                 if( get_player_view().sees( *poor_soul ) ) {
                     if( display_message ) {
-                        add_msg( m_good, _( "%1$s teleports into %2$s, killing them!" ),
+                        add_msg( m_good, _( "{1} teleports into {2}, killing them!" ),
                                  critter.disp_name(), poor_soul->disp_name() );
                     }
                 }

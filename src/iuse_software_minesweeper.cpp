@@ -31,7 +31,7 @@ minesweeper_game::minesweeper_game()
 void minesweeper_game::new_level()
 {
     auto set_num = [&]( const std::string & sType, int &iVal, const int iMin, const int iMax ) {
-        const std::string desc = string_format( _( "Min: %d Max: %d" ), iMin, iMax );
+        const std::string desc = string_format( _( "Min: {} Max: {}" ), iMin, iMax );
 
         do {
             if( iVal < iMin || iVal > iMax ) {

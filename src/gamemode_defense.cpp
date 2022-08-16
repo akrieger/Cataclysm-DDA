@@ -200,7 +200,7 @@ void defense_game::pre_action( action_id &act )
                 ( delta.y > 0 && player_character.posy() == HALF_MAPSIZE_Y + SEEY - 1 && abs_sub.y() >= 98 ) ||
                 ( delta.x < 0 && player_character.posx() == HALF_MAPSIZE_X && abs_sub.x() <= 93 ) ||
                 ( delta.x > 0 && player_character.posx() == HALF_MAPSIZE_X + SEEX - 1 && abs_sub.x() >= 98 ) ) {
-                action_error_message = string_format( _( "You cannot leave the %s behind!" ),
+                action_error_message = string_format( _( "You cannot leave the {} behind!" ),
                                                       defense_location_name( location ) );
             }
         }
@@ -220,7 +220,7 @@ void defense_game::post_action( action_id /*act*/ )
 
 void defense_game::game_over()
 {
-    popup( _( "You managed to survive through wave %d!" ), current_wave );
+    popup( _( "You managed to survive through wave {}!" ), current_wave );
 }
 
 void defense_game::init_mtypes()
@@ -245,7 +245,7 @@ void defense_game::init_map()
 {
     background_pane background;
     static_popup popup;
-    popup.message( _( "Please wait as the map generates [%2d%%]" ), 0 );
+    popup.message( _( "Please wait as the map generates [{}%%]" ), 0 );
     ui_manager::redraw();
     refresh_display();
 
@@ -297,7 +297,7 @@ void defense_game::init_map()
             int percent = 100 * ( j / 2 + MAPSIZE * ( i / 2 ) ) /
                           ( MAPSIZE * ( MAPSIZE + 1 ) );
             if( percent >= old_percent + 1 ) {
-                popup.message( _( "Please wait as the map generates [%2d%%]" ), percent );
+                popup.message( _( "Please wait as the map generates [{}%%]" ), percent );
                 ui_manager::redraw();
                 refresh_display();
                 inp_mngr.pump_events();
@@ -732,29 +732,29 @@ void defense_game::refresh_setup( const catacurses::window &w, int selection )
     mvwprintz( w, point( 28, 5 ), c_light_gray, defense_location_description( location ) );
 
     mvwprintz( w, point( 2, 7 ), c_white, _( "Initial Difficulty:" ) );
-    mvwprintz( w, point( NUMALIGN( initial_difficulty ), 7 ), SELCOL( 3 ), "%d", initial_difficulty );
+    mvwprintz( w, point( NUMALIGN( initial_difficulty ), 7 ), SELCOL( 3 ), "{}", initial_difficulty );
     mvwprintz( w, point( 28, 7 ), c_light_gray, _( "The difficulty of the first wave." ) );
     mvwprintz( w, point( 2, 8 ), c_white, _( "Wave Difficulty:" ) );
-    mvwprintz( w, point( NUMALIGN( wave_difficulty ), 8 ), SELCOL( 4 ), "%d", wave_difficulty );
+    mvwprintz( w, point( NUMALIGN( wave_difficulty ), 8 ), SELCOL( 4 ), "{}", wave_difficulty );
     mvwprintz( w, point( 28, 8 ), c_light_gray, _( "The increase of difficulty with each wave." ) );
 
     mvwprintz( w, point( 2, 10 ), c_white, _( "Time b/w Waves:" ) );
     mvwprintz( w, point( NUMALIGN( to_minutes<int>( time_between_waves ) ), 10 ), SELCOL( 5 ),
-               "%d", to_minutes<int>( time_between_waves ) );
+               "{}", to_minutes<int>( time_between_waves ) );
     mvwprintz( w, point( 28, 10 ), c_light_gray, _( "The time, in minutes, between waves." ) );
     mvwprintz( w, point( 2, 11 ), c_white, _( "Waves b/w Caravans:" ) );
-    mvwprintz( w, point( NUMALIGN( waves_between_caravans ), 11 ), SELCOL( 6 ), "%d",
+    mvwprintz( w, point( NUMALIGN( waves_between_caravans ), 11 ), SELCOL( 6 ), "{}",
                waves_between_caravans );
     mvwprintz( w, point( 28, 11 ), c_light_gray, _( "The number of waves in between caravans." ) );
 
     mvwprintz( w, point( 2, 13 ), c_white, _( "Initial Cash:" ) );
-    mvwprintz( w, point( NUMALIGN( initial_cash ), 13 ), SELCOL( 7 ), "%d", initial_cash / 100 );
+    mvwprintz( w, point( NUMALIGN( initial_cash ), 13 ), SELCOL( 7 ), "{}", initial_cash / 100 );
     mvwprintz( w, point( 28, 13 ), c_light_gray, _( "The amount of money the player starts with." ) );
     mvwprintz( w, point( 2, 14 ), c_white, _( "Cash for 1st Wave:" ) );
-    mvwprintz( w, point( NUMALIGN( cash_per_wave ), 14 ), SELCOL( 8 ), "%d", cash_per_wave / 100 );
+    mvwprintz( w, point( NUMALIGN( cash_per_wave ), 14 ), SELCOL( 8 ), "{}", cash_per_wave / 100 );
     mvwprintz( w, point( 28, 14 ), c_light_gray, _( "The cash awarded for the first wave." ) );
     mvwprintz( w, point( 2, 15 ), c_white, _( "Cash Increase:" ) );
-    mvwprintz( w, point( NUMALIGN( cash_increase ), 15 ), SELCOL( 9 ), "%d", cash_increase / 100 );
+    mvwprintz( w, point( NUMALIGN( cash_increase ), 15 ), SELCOL( 9 ), "{}", cash_increase / 100 );
     mvwprintz( w, point( 28, 15 ), c_light_gray, _( "The increase in the award each wave." ) );
 
     mvwprintz( w, point( 2, 17 ), c_white, _( "Enemy Selection:" ) );
@@ -941,9 +941,9 @@ void defense_game::caravan() const
         if( action == "HELP" ) {
             popup_top( _( "CARAVAN:\n"
                           "Start by selecting a category using your favorite up/down keys.\n"
-                          "Switch between category selection and item selecting by pressing %s.\n"
+                          "Switch between category selection and item selecting by pressing {}.\n"
                           "Pick an item with the up/down keys, press left/right to buy 1 less/more.\n"
-                          "Press %s to buy everything in your cart, %s to buy nothing." ),
+                          "Press {} to buy everything in your cart, {} to buy nothing." ),
                        ctxt.get_desc( "NEXT_TAB" ),
                        ctxt.get_desc( "CONFIRM" ),
                        ctxt.get_desc( "QUIT" )
@@ -1062,8 +1062,8 @@ void defense_game::caravan() const
                 popup( _( "You can't afford those items!" ) );
             } else if( ( items[0].empty() && query_yn( _( "Really buy nothing?" ) ) ) ||
                        ( !items[0].empty() &&
-                         query_yn( n_gettext( "Buy %d item, leaving you with %s?",
-                                              "Buy %d items, leaving you with %s?",
+                         query_yn( n_gettext( "Buy {} item, leaving you with {}?",
+                                              "Buy {} items, leaving you with {}?",
                                               items[0].size() ),
                                    items[0].size(),
                                    format_money( static_cast<int>( player_character.cash ) - static_cast<int>( total_price ) ) ) ) ) {
@@ -1241,9 +1241,9 @@ void draw_caravan_categories( const catacurses::window &w, int category_selected
         mvwprintz( w, point( 1, i ), c_black, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" );
     }
     // NOLINTNEXTLINE(cata-use-named-point-constants)
-    mvwprintz( w, point( 1, 1 ), c_white, _( "Your Cash: %s" ), format_money( cash ) );
+    mvwprintz( w, point( 1, 1 ), c_white, _( "Your Cash: {}" ), format_money( cash ) );
     wprintz( w, c_light_gray, " -> " );
-    wprintz( w, ( total_price > cash ? c_red : c_green ), "%s",
+    wprintz( w, ( total_price > cash ? c_red : c_green ), "{}",
              format_money( static_cast<int>( cash ) - static_cast<int>( total_price ) ) );
 
     for( int i = 0; i < NUM_CARAVAN_CATEGORIES; i++ ) {
@@ -1278,13 +1278,13 @@ void draw_caravan_items( const catacurses::window &w, std::vector<itype_id> *ite
          i < static_cast<int>( items->size() ); i++ ) {
         mvwprintz( w, point( 40, i - offset + 1 ), ( item_selected == i ? h_white : c_white ),
                    item::nname( ( *items )[i], ( *counts )[i] ) );
-        wprintz( w, c_white, " x %2d", ( *counts )[i] );
+        wprintz( w, c_white, " x {}", ( *counts )[i] );
         if( ( *counts )[i] > 0 ) {
             int price =
                 caravan_price(
                     player_character,
                     item( ( *items )[i], calendar::turn_zero ).price( false ) * ( *counts )[i] );
-            wprintz( w, ( price > player_character.cash ? c_red : c_green ), " (%s)", format_money( price ) );
+            wprintz( w, ( price > player_character.cash ? c_red : c_green ), " ({})", format_money( price ) );
         }
     }
     wnoutrefresh( w );
@@ -1318,7 +1318,7 @@ void defense_game::spawn_wave()
             }
         }
         if( valid.empty() ) {
-            add_msg( m_info, _( "Welcome to Wave %d!" ), current_wave );
+            add_msg( m_info, _( "Welcome to Wave {}!" ), current_wave );
             add_msg( m_info, "********" );
             return;
         }
@@ -1340,7 +1340,7 @@ void defense_game::spawn_wave()
         diff -= type.difficulty;
         spawn_wave_monster( type.id );
     }
-    add_msg( m_info, _( "Welcome to Wave %d!" ), current_wave );
+    add_msg( m_info, _( "Welcome to Wave {}!" ), current_wave );
     add_msg( m_info, "********" );
 }
 
@@ -1415,7 +1415,7 @@ void defense_game::spawn_wave_monster( const mtype_id &type )
 std::string defense_game::special_wave_message( std::string name )
 {
     std::string ret;
-    ret += string_format( _( "Wave %d: " ), current_wave );
+    ret += string_format( _( "Wave {}: " ), current_wave );
 
     std::vector<std::string> words = string_split( name, ' ' );
     std::transform( words.begin(), words.end(), words.begin(), uppercase_first_letter );
@@ -1429,28 +1429,28 @@ std::string defense_game::special_wave_message( std::string name )
 
     switch( rng( 1, 8 ) ) {
         case 1:
-            ret += string_format( _( "Invasion of the %s!" ), name );
+            ret += string_format( _( "Invasion of the {}!" ), name );
             break;
         case 2:
-            ret += string_format( _( "Attack of the %s!" ), name );
+            ret += string_format( _( "Attack of the {}!" ), name );
             break;
         case 3:
-            ret += string_format( _( "%s Attack!" ), name );
+            ret += string_format( _( "{} Attack!" ), name );
             break;
         case 4:
-            ret += string_format( _( "%s from Hell!" ), name );
+            ret += string_format( _( "{} from Hell!" ), name );
             break;
         case 5:
-            ret += string_format( _( "Beware!  %s!" ), name );
+            ret += string_format( _( "Beware!  {}!" ), name );
             break;
         case 6:
-            ret += string_format( _( "The Day of the %s!" ), name );
+            ret += string_format( _( "The Day of the {}!" ), name );
             break;
         case 7:
-            ret += string_format( _( "Revenge of the %s!" ), name );
+            ret += string_format( _( "Revenge of the {}!" ), name );
             break;
         case 8:
-            ret += string_format( _( "Rise of the %s!" ), name );
+            ret += string_format( _( "Rise of the {}!" ), name );
             break;
     }
 

@@ -261,7 +261,7 @@ void monster::on_move( const tripoint_abs_ms &old_pos )
     g->update_zombie_pos( *this, old_pos, get_location() );
     if( has_effect( effect_ridden ) && mounted_player &&
         mounted_player->get_location() != get_location() ) {
-        add_msg_debug( debugmode::DF_MONSTER, "Ridden monster %s moved independently and dumped player",
+        add_msg_debug( debugmode::DF_MONSTER, "Ridden monster {} moved independently and dumped player",
                        get_name() );
         mounted_player->forced_dismount();
     }
@@ -463,7 +463,7 @@ void monster::try_reproduce()
 void monster::refill_udders()
 {
     if( type->starting_ammo.empty() ) {
-        debugmsg( "monster %s has no starting ammo to refill udders", get_name() );
+        debugmsg( "monster {} has no starting ammo to refill udders", get_name() );
         return;
     }
     if( ammo.empty() ) {
@@ -546,13 +546,13 @@ std::string monster::name( unsigned int quantity ) const
         return nickname;
     }
     if( !unique_name.empty() ) {
-        //~ %1$s: monster name, %2$s: unique name
-        result = string_format( pgettext( "unique monster name", "%1$s: %2$s" ),
+        //~ {1}: monster name, {2}: unique name
+        result = string_format( pgettext( "unique monster name", "{1}: {2}" ),
                                 result, unique_name );
     }
     if( !mission_fused.empty() ) {
         //~ name when a monster fuses with a mission target
-        result = string_format( pgettext( "fused mission monster", "*%s" ), result );
+        result = string_format( pgettext( "fused mission monster", "*{}" ), result );
     }
     return result;
 }
@@ -579,7 +579,7 @@ std::string monster::name_with_armor() const
     if( has_effect( effect_monster_armor ) && !inv.empty() ) {
         for( const item &armor : inv ) {
             if( armor.is_pet_armor( true ) ) {
-                ret += string_format( _( "wearing %1$s" ), armor.tname( 1 ) );
+                ret += string_format( _( "wearing {1}" ), armor.tname( 1 ) );
                 break;
             }
         }
@@ -591,9 +591,9 @@ std::string monster::name_with_armor() const
 std::string monster::disp_name( bool possessive, bool capitalize_first ) const
 {
     if( !possessive ) {
-        return string_format( capitalize_first ? _( "The %s" ) : _( "the %s" ), name() );
+        return string_format( capitalize_first ? _( "The {}" ) : _( "the {}" ), name() );
     } else {
-        return string_format( capitalize_first ? _( "The %s's" ) : _( "the %s's" ), name() );
+        return string_format( capitalize_first ? _( "The {}'s" ) : _( "the {}'s" ), name() );
     }
 }
 
@@ -642,7 +642,7 @@ static std::pair<std::string, nc_color> hp_description( int cur_hp, int max_hp )
 
     if( debug_mode ) {
         damage_info += "  ";
-        damage_info += string_format( _( "%1$d/%2$d HP" ), cur_hp, max_hp );
+        damage_info += string_format( _( "{1}/{2} HP" ), cur_hp, max_hp );
     }
 
     return std::make_pair( damage_info, col );
@@ -686,7 +686,7 @@ int monster::print_info( const catacurses::window &w, int vStart, int vLines, in
     oss << get_tag_from_color( c_white ) << _( "Origin: " );
     oss << enumerate_as_string( type->src.begin(),
     type->src.end(), []( const std::pair<mtype_id, mod_id> &source ) {
-        return string_format( "'%s'", source.second->name() );
+        return string_format( "'{}'", source.second->name() );
     }, enumeration_conjunction::arrow );
     oss << "</color>" << "\n";
 
@@ -740,7 +740,7 @@ int monster::print_info( const catacurses::window &w, int vStart, int vLines, in
 
     if( !mission_fused.empty() ) {
         // Mission monsters fused into this monster
-        const std::string fused_desc = string_format( _( "Parts of %s protrude from its body." ),
+        const std::string fused_desc = string_format( _( "Parts of {} protrude from its body." ),
                                        enumerate_as_string( mission_fused ) );
         lines = foldstring( fused_desc, max_width );
         numlines = lines.size();
@@ -751,12 +751,12 @@ int monster::print_info( const catacurses::window &w, int vStart, int vLines, in
 
     // Riding indicator on next line after description.
     if( has_effect( effect_ridden ) && mounted_player ) {
-        mvwprintz( w, point( column, ++vStart ), c_white, _( "Rider: %s" ), mounted_player->disp_name() );
+        mvwprintz( w, point( column, ++vStart ), c_white, _( "Rider: {}" ), mounted_player->disp_name() );
     }
 
     // Show monster size on the last line
     if( size_bonus > 0 ) {
-        mvwprintz( w, point( column, ++vStart ), c_light_gray, _( " It is %s." ),
+        mvwprintz( w, point( column, ++vStart ), c_light_gray, _( " It is {}." ),
                    size_names.at( get_size() ) );
     }
 
@@ -801,7 +801,7 @@ std::string monster::extended_description() const
     ss += _( "Origin: " );
     ss += enumerate_as_string( type->src.begin(),
     type->src.end(), []( const std::pair<mtype_id, mod_id> &source ) {
-        return string_format( "'%s'", source.second->name() );
+        return string_format( "'{}'", source.second->name() );
     }, enumeration_conjunction::arrow );
 
     ss += "\n--\n";
@@ -811,11 +811,11 @@ std::string monster::extended_description() const
         ss += "\n";
     }
 
-    ss += string_format( _( "This is a %s. %s%s" ), name(),
+    ss += string_format( _( "This is a {}. {}{}" ), name(),
                          player_knows ? att_colored + " " : std::string(),
                          difficulty_str ) + "\n";
     if( !get_effect_status().empty() ) {
-        ss += string_format( _( "<stat>It is %s.</stat>" ), get_effect_status() ) + "\n";
+        ss += string_format( _( "<stat>It is {}.</stat>" ), get_effect_status() ) + "\n";
     }
 
     ss += "--\n";
@@ -829,17 +829,17 @@ std::string monster::extended_description() const
     ss += speed_desc + "\n";
 
     ss += "--\n";
-    ss += string_format( "<dark>%s</dark>", type->get_description() ) + "\n";
+    ss += string_format( "<dark>{}</dark>", type->get_description() ) + "\n";
     ss += "--\n";
     if( !mission_fused.empty() ) {
         // Mission monsters fused into this monster
-        const std::string fused_desc = string_format( _( "Parts of %s protrude from its body." ),
+        const std::string fused_desc = string_format( _( "Parts of {} protrude from its body." ),
                                        enumerate_as_string( mission_fused ) );
-        ss += string_format( "<dark>%s</dark>", fused_desc ) + "\n";
+        ss += string_format( "<dark>{}</dark>", fused_desc ) + "\n";
         ss += "--\n";
     }
 
-    ss += string_format( _( "It is %s in size." ),
+    ss += string_format( _( "It is {} in size." ),
                          size_names.at( get_size() ) ) + "\n";
 
     std::vector<std::string> types = type->species_descriptions();
@@ -847,7 +847,7 @@ std::string monster::extended_description() const
         types.emplace_back( _( "an animal" ) );
     }
     if( !types.empty() ) {
-        ss += string_format( _( "It is %s." ),
+        ss += string_format( _( "It is {}." ),
                              enumerate_as_string( types ) ) + "\n";
     }
 
@@ -883,20 +883,20 @@ std::string monster::extended_description() const
         }
     };
 
-    describe_flags( _( "It has the following senses: %s." ), {
+    describe_flags( _( "It has the following senses: {}." ), {
         {m_flag::MF_HEARS, pgettext( "Hearing as sense", "hearing" )},
         {m_flag::MF_SEES, pgettext( "Sight as sense", "sight" )},
         {m_flag::MF_SMELLS, pgettext( "Smell as sense", "smell" )},
     }, _( "It doesn't have senses." ) );
 
-    describe_properties( _( "It can %s." ), {
+    describe_properties( _( "It can {}." ), {
         {swims(), pgettext( "Swim as an action", "swim" )},
         {flies(), pgettext( "Fly as an action", "fly" )},
         {can_dig(), pgettext( "Dig as an action", "dig" )},
         {climbs(), pgettext( "Climb as an action", "climb" )}
     } );
 
-    describe_flags( _( "<bad>In fight it can %s.</bad>" ), {
+    describe_flags( _( "<bad>In fight it can {}.</bad>" ), {
         {m_flag::MF_GRABS, pgettext( "Grab as an action", "grab" )},
         {m_flag::MF_VENOM, pgettext( "Poison as an action", "poison" )},
         {m_flag::MF_PARALYZE, pgettext( "Paralyze as an action", "paralyze" )}
@@ -909,30 +909,30 @@ std::string monster::extended_description() const
     if( debug_mode ) {
         ss += "--\n";
 
-        ss += string_format( _( "Current Speed: %1$d" ), get_speed() ) + "\n";
-        ss += string_format( _( "Anger: %1$d" ), anger ) + "\n";
-        ss += string_format( _( "Friendly: %1$d" ), friendly ) + "\n";
-        ss += string_format( _( "Morale: %1$d" ), morale ) + "\n";
+        ss += string_format( _( "Current Speed: {1}" ), get_speed() ) + "\n";
+        ss += string_format( _( "Anger: {1}" ), anger ) + "\n";
+        ss += string_format( _( "Friendly: {1}" ), friendly ) + "\n";
+        ss += string_format( _( "Morale: {1}" ), morale ) + "\n";
 
         const time_duration current_time = calendar::turn - calendar::turn_zero;
-        ss += string_format( _( "Current Time: Turn %1$d  |  Day: %2$d" ),
+        ss += string_format( _( "Current Time: Turn {1}  |  Day: {2}" ),
                              to_turns<int>( current_time ),
                              to_days<int>( current_time ) ) + "\n";
 
-        ss += string_format( _( "Upgrade time: %1$d (turns left %2$d) %3$s" ),
+        ss += string_format( _( "Upgrade time: {1} (turns left {2}) {3}" ),
                              upgrade_time,
                              to_turns<int>( time_duration::from_days( upgrade_time ) - current_time ),
                              can_upgrade() ? "" : _( "<color_red>(can't upgrade)</color>" ) ) + "\n";
 
         if( baby_timer.has_value() ) {
-            ss += string_format( _( "Reproduce time: %1$d (turns left %2$d) %3$s" ),
+            ss += string_format( _( "Reproduce time: {1} (turns left {2}) {3}" ),
                                  to_turn<int>( baby_timer.value() ),
                                  to_turn<int>( baby_timer.value() - current_time ),
                                  reproduces ? "" : _( "<color_red>(can't reproduce)</color>" ) ) + "\n";
         }
 
         if( biosig_timer.has_value() ) {
-            ss += string_format( _( "Biosignature time: %1$d (turns left %2$d) %3$s" ),
+            ss += string_format( _( "Biosignature time: {1} (turns left {2}) {3}" ),
                                  to_turn<int>( biosig_timer.value() ),
                                  to_turn<int>( biosig_timer.value()  - current_time ),
                                  biosignatures ? "" : _( "<color_red>(no biosignature)</color>" ) ) + "\n";
@@ -1586,10 +1586,10 @@ const weakpoint *monster::absorb_hit( const weakpoint_attack &attack, const body
     wp->apply_to( r );
     for( damage_unit &elem : dam.damage_units ) {
         add_msg_debug( debugmode::DF_MONSTER,
-                       "Dam Type: %s :: Dam Amt: %.1f :: Ar Pen: %.1f :: Armor Mult: %.1f",
+                       "Dam Type: {} :: Dam Amt: %.1f :: Ar Pen: %.1f :: Armor Mult: %.1f",
                        io::enum_to_string( elem.type ), elem.amount, elem.res_pen, elem.res_mult );
         add_msg_debug( debugmode::DF_MONSTER,
-                       "Weakpoint: %s :: Armor Mult: %.1f :: Armor Penalty: %.1f :: Resist: %.1f",
+                       "Weakpoint: {} :: Armor Mult: %.1f :: Armor Penalty: %.1f :: Resist: %.1f",
                        wp->id, wp->armor_mult[static_cast<int>( elem.type )],
                        wp->armor_penalty[static_cast<int>( elem.type )],
                        r.get_effective_resist( elem ) );
@@ -1614,7 +1614,7 @@ bool monster::melee_attack( Creature &target, float accuracy )
         return false;
     }
     if( !sees( target ) && !target.is_hallucination() ) {
-        debugmsg( "Z-Level view violation: %s tried to attack %s.", disp_name(), target.disp_name() );
+        debugmsg( "Z-Level view violation: {} tried to attack {}.", disp_name(), target.disp_name() );
         return false;
     }
 
@@ -1657,15 +1657,15 @@ bool monster::melee_attack( Creature &target, float accuracy )
         if( u_see_my_spot && !target.in_sleep_state() ) {
             if( target.is_avatar() ) {
                 if( target_dodging ) {
-                    add_msg( _( "You dodge %s." ), u_see_me ? disp_name() : _( "something" ) );
+                    add_msg( _( "You dodge {}." ), u_see_me ? disp_name() : _( "something" ) );
                 } else {
-                    add_msg( _( "%s misses you." ), u_see_me ? disp_name( false, true ) : _( "Something" ) );
+                    add_msg( _( "{} misses you." ), u_see_me ? disp_name( false, true ) : _( "Something" ) );
                 }
             } else if( target.is_npc() && target_dodging ) {
-                add_msg( _( "%1$s dodges %2$s attack." ),
+                add_msg( _( "{1} dodges {2} attack." ),
                          target.disp_name(), u_see_me ? name() : _( "something" ) );
             } else {
-                add_msg( _( "%1$s misses %2$s!" ),
+                add_msg( _( "{1} misses {2}!" ),
                          u_see_me ? disp_name( false, true ) : _( "Something" ), target.disp_name() );
             }
         } else if( target.is_avatar() ) {
@@ -1679,39 +1679,39 @@ bool monster::melee_attack( Creature &target, float accuracy )
                                          sfx::get_heard_volume( target.pos() ) );
                 sfx::do_player_death_hurt( dynamic_cast<Character &>( target ), false );
                 //~ 1$s is attacker name, 2$s is bodypart name in accusative.
-                add_msg( m_bad, _( "%1$s hits your %2$s." ), u_see_me ? disp_name( false, true ) : _( "Something" ),
+                add_msg( m_bad, _( "{1} hits your {2}." ), u_see_me ? disp_name( false, true ) : _( "Something" ),
                          body_part_name_accusative( dealt_dam.bp_hit ) );
             } else if( target.is_npc() ) {
                 if( has_effect( effect_ridden ) && has_flag( MF_RIDEABLE_MECH ) &&
                     pos() == player_character.pos() ) {
-                    //~ %1$s: name of your mount, %2$s: target NPC name, %3$d: damage value
-                    add_msg( m_good, _( "Your %1$s hits %2$s for %3$d damage!" ), name(), target.disp_name(),
+                    //~ {1}: name of your mount, {2}: target NPC name, {3}: damage value
+                    add_msg( m_good, _( "Your {1} hits {2} for {3} damage!" ), name(), target.disp_name(),
                              total_dealt );
                 } else {
-                    //~ %1$s: attacker name, %2$s: target NPC name, %3$s: bodypart name in accusative
-                    add_msg( _( "%1$s hits %2$s %3$s." ), u_see_me ? disp_name( false, true ) : _( "Something" ),
+                    //~ {1}: attacker name, {2}: target NPC name, {3}: bodypart name in accusative
+                    add_msg( _( "{1} hits {2} {3}." ), u_see_me ? disp_name( false, true ) : _( "Something" ),
                              target.disp_name( true ),
                              body_part_name_accusative( dealt_dam.bp_hit ) );
                 }
             } else {
                 if( has_effect( effect_ridden ) && has_flag( MF_RIDEABLE_MECH ) &&
                     pos() == player_character.pos() ) {
-                    //~ %1$s: name of your mount, %2$s: target creature name, %3$d: damage value
-                    add_msg( m_good, _( "Your %1$s hits %2$s for %3$d damage!" ), get_name(), target.disp_name(),
+                    //~ {1}: name of your mount, {2}: target creature name, {3}: damage value
+                    add_msg( m_good, _( "Your {1} hits {2} for {3} damage!" ), get_name(), target.disp_name(),
                              total_dealt );
                 }
                 if( !u_see_me && u_see_target ) {
-                    add_msg( _( "Something hits the %1$s!" ), target.disp_name() );
+                    add_msg( _( "Something hits the {1}!" ), target.disp_name() );
                 } else if( !u_see_target ) {
-                    add_msg( _( "The %1$s hits something!" ), name() );
+                    add_msg( _( "The {1} hits something!" ), name() );
                 } else {
-                    //~ %1$s: attacker name, %2$s: target creature name
-                    add_msg( _( "The %1$s hits %2$s!" ), name(), target.disp_name() );
+                    //~ {1}: attacker name, {2}: target creature name
+                    add_msg( _( "The {1} hits {2}!" ), name(), target.disp_name() );
                 }
             }
         } else if( target.is_avatar() ) {
-            //~ %s is bodypart name in accusative.
-            add_msg( m_bad, _( "Something hits your %s." ),
+            //~ {} is bodypart name in accusative.
+            add_msg( m_bad, _( "Something hits your {}." ),
                      body_part_name_accusative( dealt_dam.bp_hit ) );
         }
     } else {
@@ -1719,30 +1719,30 @@ bool monster::melee_attack( Creature &target, float accuracy )
         if( u_see_my_spot ) {
             if( target.is_avatar() ) {
                 //~ 1$s is attacker name, 2$s is bodypart name in accusative, 3$s is armor name
-                add_msg( _( "%1$s hits your %2$s, but your %3$s protects you." ), u_see_me ? disp_name( false,
+                add_msg( _( "{1} hits your {2}, but your {3} protects you." ), u_see_me ? disp_name( false,
                          true ) : _( "Something" ),
                          body_part_name_accusative( dealt_dam.bp_hit ), target.skin_name() );
             } else if( target.is_npc() ) {
-                //~ $1s is monster name, %2$s is that monster target name,
+                //~ $1s is monster name, {2} is that monster target name,
                 //~ $3s is target bodypart name in accusative, $4s is the monster target name,
                 //~ 5$s is target armor name.
-                add_msg( _( "%1$s hits %2$s %3$s but is stopped by %4$s %5$s." ), u_see_me ? disp_name( false,
+                add_msg( _( "{1} hits {2} {3} but is stopped by {4} {5}." ), u_see_me ? disp_name( false,
                          true ) : _( "Something" ),
                          target.disp_name( true ),
                          body_part_name_accusative( dealt_dam.bp_hit ),
                          target.disp_name( true ),
                          target.skin_name() );
             } else {
-                //~ $1s is monster name, %2$s is that monster target name,
+                //~ $1s is monster name, {2} is that monster target name,
                 //~ $3s is target armor name.
-                add_msg( _( "%1$s hits %2$s but is stopped by its %3$s." ),
+                add_msg( _( "{1} hits {2} but is stopped by its {3}." ),
                          u_see_me ? disp_name( false, true ) : _( "Something" ),
                          target.disp_name(),
                          target.skin_name() );
             }
         } else if( target.is_avatar() ) {
             //~ 1$s is bodypart name in accusative, 2$s is armor name.
-            add_msg( _( "Something hits your %1$s, but your %2$s protects you." ),
+            add_msg( _( "Something hits your {1}, but your {2} protects you." ),
                      body_part_name_accusative( dealt_dam.bp_hit ), target.skin_name() );
         }
     }
@@ -1938,13 +1938,13 @@ bool monster::move_effects( bool )
                                type->in_species( species_ROBOT ) || type->bodytype == "snake" || type->bodytype == "blob";
         if( !immediate_break && rng( 0, 900 ) > type->melee_dice * type->melee_sides * 1.5 ) {
             if( u_see_me ) {
-                add_msg( _( "The %s struggles to break free of its bonds." ), name() );
+                add_msg( _( "The {} struggles to break free of its bonds." ), name() );
             }
         } else if( immediate_break ) {
             remove_effect( effect_tied );
             if( tied_item ) {
                 if( u_see_me ) {
-                    add_msg( _( "The %s easily slips out of its bonds." ), name() );
+                    add_msg( _( "The {} easily slips out of its bonds." ), name() );
                 }
                 here.add_item_or_charges( pos(), *tied_item );
                 tied_item.reset();
@@ -1959,9 +1959,9 @@ bool monster::move_effects( bool )
                 tied_item.reset();
                 if( u_see_me ) {
                     if( broken ) {
-                        add_msg( _( "The %s snaps the bindings holding it down." ), name() );
+                        add_msg( _( "The {} snaps the bindings holding it down." ), name() );
                     } else {
-                        add_msg( _( "The %s breaks free of the bindings holding it down." ), name() );
+                        add_msg( _( "The {} breaks free of the bindings holding it down." ), name() );
                     }
                 }
             }
@@ -1972,11 +1972,11 @@ bool monster::move_effects( bool )
     if( has_effect( effect_downed ) ) {
         if( rng( 0, 40 ) > type->melee_dice * type->melee_sides * 1.5 ) {
             if( u_see_me ) {
-                add_msg( _( "The %s struggles to stand." ), name() );
+                add_msg( _( "The {} struggles to stand." ), name() );
             }
         } else {
             if( u_see_me ) {
-                add_msg( _( "The %s climbs to its feet!" ), name() );
+                add_msg( _( "The {} climbs to its feet!" ), name() );
             }
             remove_effect( effect_downed );
         }
@@ -1985,7 +1985,7 @@ bool monster::move_effects( bool )
     if( has_effect( effect_webbed ) ) {
         if( x_in_y( type->melee_dice * type->melee_sides, 6 * get_effect_int( effect_webbed ) ) ) {
             if( u_see_me ) {
-                add_msg( _( "The %s breaks free of the webs!" ), name() );
+                add_msg( _( "The {} breaks free of the webs!" ), name() );
             }
             remove_effect( effect_webbed );
         }
@@ -1997,7 +1997,7 @@ bool monster::move_effects( bool )
             here.spawn_item( pos(), "string_36" );
             here.spawn_item( pos(), "snare_trigger" );
             if( u_see_me ) {
-                add_msg( _( "The %s escapes the light snare!" ), name() );
+                add_msg( _( "The {} escapes the light snare!" ), name() );
             }
         }
         return false;
@@ -2009,7 +2009,7 @@ bool monster::move_effects( bool )
                 here.spawn_item( pos(), "rope_6" );
                 here.spawn_item( pos(), "snare_trigger" );
                 if( u_see_me ) {
-                    add_msg( _( "The %s escapes the heavy snare!" ), name() );
+                    add_msg( _( "The {} escapes the heavy snare!" ), name() );
                 }
             }
         }
@@ -2020,7 +2020,7 @@ bool monster::move_effects( bool )
             if( x_in_y( type->melee_dice * type->melee_sides, 200 ) ) {
                 remove_effect( effect_beartrap );
                 if( u_see_me ) {
-                    add_msg( _( "The %s escapes the bear trap!" ), name() );
+                    add_msg( _( "The {} escapes the bear trap!" ), name() );
                 }
             }
         }
@@ -2030,7 +2030,7 @@ bool monster::move_effects( bool )
         if( x_in_y( type->melee_dice * type->melee_sides, 100 ) ) {
             remove_effect( effect_crushed );
             if( u_see_me ) {
-                add_msg( _( "The %s frees itself from the rubble!" ), name() );
+                add_msg( _( "The {} frees itself from the rubble!" ), name() );
             }
         }
         return false;
@@ -2046,7 +2046,7 @@ bool monster::move_effects( bool )
             return false;
         } else {
             if( u_see_me ) {
-                add_msg( _( "The %s escapes the pit!" ), name() );
+                add_msg( _( "The {} escapes the pit!" ), name() );
             }
             remove_effect( effect_in_pit );
         }
@@ -2057,7 +2057,7 @@ bool monster::move_effects( bool )
             return false;
         } else {
             if( u_see_me ) {
-                add_msg( _( "The %s breaks free from the grab!" ), name() );
+                add_msg( _( "The {} breaks free from the grab!" ), name() );
             }
             remove_effect( effect_grabbed );
         }
@@ -2143,7 +2143,7 @@ int monster::get_armor_type( damage_type dt, bodypart_id bp ) const
             break;
     }
 
-    debugmsg( "Invalid damage type: %d", dt );
+    debugmsg( "Invalid damage type: {}", dt );
     return 0;
 }
 
@@ -2432,10 +2432,10 @@ void monster::process_turn()
                 if( t == ter_t_gas_pump || t == ter_t_gas_pump_a ) {
                     if( one_in( 4 ) ) {
                         explosion_handler::explosion( pos(), 40, 0.8, true );
-                        add_msg_if_player_sees( zap, m_warning, _( "The %s explodes in a fiery inferno!" ),
+                        add_msg_if_player_sees( zap, m_warning, _( "The {} explodes in a fiery inferno!" ),
                                                 here.tername( zap ) );
                     } else {
-                        add_msg_if_player_sees( zap, m_warning, _( "Lightning from %1$s engulfs the %2$s!" ),
+                        add_msg_if_player_sees( zap, m_warning, _( "Lightning from {1} engulfs the {2}!" ),
                                                 name(), here.tername( zap ) );
                         here.add_field( zap, fd_fire, 1, 2_turns );
                     }
@@ -2450,7 +2450,7 @@ void monster::process_turn()
                                "default" );
                 Character &player_character = get_player_character();
                 if( player_character.sees( pos() ) ) {
-                    add_msg( m_bad, _( "Lightning strikes the %s!" ), name() );
+                    add_msg( m_bad, _( "Lightning strikes the {}!" ), name() );
                     add_msg( m_bad, _( "Your vision goes white!" ) );
                     player_character.add_effect( effect_blind, rng( 1_minutes, 2_minutes ) );
                 }
@@ -2486,7 +2486,7 @@ void monster::die( Creature *nkiller )
             if( ch->is_avatar() && ch->has_trait( trait_KILLER ) ) {
                 if( one_in( 4 ) ) {
                     const translation snip = SNIPPET.random_from_category( "killer_on_kill" ).value_or( translation() );
-                    ch->add_msg_if_player( m_good, "%s", snip );
+                    ch->add_msg_if_player( m_good, "{}", snip );
                 }
                 ch->add_morale( MORALE_KILLER_HAS_KILLED, 5, 10, 6_hours, 4_hours );
                 ch->rem_morale( MORALE_KILLER_NEED_TO_KILL );
@@ -2671,7 +2671,7 @@ bool monster::check_mech_powered() const
     }
     const itype &type = *battery_item->type;
     if( battery_item->ammo_remaining() <= type.magazine->capacity / 10 && one_in( 10 ) ) {
-        add_msg( m_bad, _( "Your %s emits a beeping noise as its batteries start to get low." ),
+        add_msg( m_bad, _( "Your {} emits a beeping noise as its batteries start to get low." ),
                  get_name() );
     }
     return true;
@@ -2885,11 +2885,11 @@ void monster::process_effects()
     if( healed_amount > 0 && one_in( 2 ) ) {
         std::string healing_format_string;
         if( healed_amount >= 50 ) {
-            healing_format_string = _( "The %s is visibly regenerating!" );
+            healing_format_string = _( "The {} is visibly regenerating!" );
         } else if( healed_amount >= 10 ) {
-            healing_format_string = _( "The %s seems a little healthier." );
+            healing_format_string = _( "The {} seems a little healthier." );
         } else {
-            healing_format_string = _( "The %s is healing slowly." );
+            healing_format_string = _( "The {} is healing slowly." );
         }
         add_msg_if_player_sees( *this, m_warning, healing_format_string, name() );
     }
@@ -2898,7 +2898,7 @@ void monster::process_effects()
         const float light = get_map().ambient_light_at( pos() );
         // Magic number 10000 was chosen so that a floodlight prevents regeneration in a range of 20 tiles
         if( heal( static_cast<int>( 50.0 *  std::exp( - light * light / 10000 ) )  > 0 && one_in( 2 ) ) ) {
-            add_msg_if_player_sees( *this, m_warning, _( "The %s uses the darkness to regenerate." ), name() );
+            add_msg_if_player_sees( *this, m_warning, _( "The {} uses the darkness to regenerate." ), name() );
         }
     }
 
@@ -2927,7 +2927,7 @@ void monster::process_effects()
 
     // If this critter dies in sunlight, check & assess damage.
     if( has_flag( MF_SUNDEATH ) && g->is_in_sunlight( pos() ) ) {
-        add_msg_if_player_sees( *this, m_good, _( "The %s burns horribly in the sunlight!" ), name() );
+        add_msg_if_player_sees( *this, m_good, _( "The {} burns horribly in the sunlight!" ), name() );
         apply_damage( nullptr, bodypart_id( "torso" ), 100 );
         if( hp < 0 ) {
             hp = 0;
@@ -2961,7 +2961,7 @@ bool monster::make_fungus()
     const std::string old_name = name();
     poly( type->fungalize_into );
 
-    add_msg_if_player_sees( pos(), m_info, _( "The spores transform %1$s into a %2$s!" ),
+    add_msg_if_player_sees( pos(), m_info, _( "The spores transform {1} into a {2}!" ),
                             old_name, name() );
 
     return true;
@@ -3463,7 +3463,7 @@ void monster::on_load()
         }
     }
 
-    add_msg_debug( debugmode::DF_MONSTER, "on_load() by %s, %d turns, healed %d hp, %d speed",
+    add_msg_debug( debugmode::DF_MONSTER, "on_load() by {}, {} turns, healed {} hp, {} speed",
                    name(), to_turns<int>( dt ), healed, healed_speed );
 }
 

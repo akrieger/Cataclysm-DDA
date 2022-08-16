@@ -343,7 +343,7 @@ const MonsterGroup &MonsterGroupManager::GetMonsterGroup( const mongroup_id &gro
 {
     const auto it = monsterGroupMap.find( group );
     if( it == monsterGroupMap.end() ) {
-        debugmsg( "Unable to get the group '%s'", group.c_str() );
+        debugmsg( "Unable to get the group '{}'", group.c_str() );
         // Initialize the group with a null-monster, it's ignored while spawning,
         // but it prevents further messages about invalid monster type id
         auto &g = monsterGroupMap[group];
@@ -412,12 +412,12 @@ void MonsterGroupManager::FinalizeMonsterGroups()
 {
     for( const std::string &mtid : monster_whitelist ) {
         if( !mtype_id( mtid ).is_valid() ) {
-            debugmsg( "monster on whitelist %s does not exist", mtid.c_str() );
+            debugmsg( "monster on whitelist {} does not exist", mtid.c_str() );
         }
     }
     for( const std::string &mtid : monster_blacklist ) {
         if( !mtype_id( mtid ).is_valid() ) {
-            debugmsg( "monster on blacklist %s does not exist", mtid.c_str() );
+            debugmsg( "monster on blacklist {} does not exist", mtid.c_str() );
         }
     }
     // Further, remove all blacklisted monsters
@@ -574,12 +574,12 @@ static void check_group_def( const mongroup_id &g )
     for( const MonsterGroupEntry &m : g.obj().monsters ) {
         if( m.is_group() ) {
             if( !m.group.is_valid() ) {
-                debugmsg( "monster group %s contains unknown subgroup %s", g.c_str(), m.group.c_str() );
+                debugmsg( "monster group {} contains unknown subgroup {}", g.c_str(), m.group.c_str() );
             } else {
                 check_group_def( m.group );
             }
         } else if( !m.name.is_valid() ) {
-            debugmsg( "monster group %s contains unknown monster %s", g.c_str(), m.name.c_str() );
+            debugmsg( "monster group {} contains unknown monster {}", g.c_str(), m.name.c_str() );
         }
     }
 }
@@ -591,13 +591,13 @@ void MonsterGroupManager::check_group_definitions()
         for( const MonsterGroupEntry &mge : mg.monsters ) {
             if( mge.is_group() ) {
                 if( !mge.group.is_valid() ) {
-                    debugmsg( "monster group %s contains unknown subgroup %s", mg.name.c_str(), mge.group.c_str() );
+                    debugmsg( "monster group {} contains unknown subgroup {}", mg.name.c_str(), mge.group.c_str() );
                 } else {
                     check_group_def( mge.group );
                 }
             } else if( !mge.name.is_valid() ) {
                 // mon_null should not be valid here
-                debugmsg( "monster group %s contains unknown monster %s", mg.name.c_str(), mge.name.c_str() );
+                debugmsg( "monster group {} contains unknown monster {}", mg.name.c_str(), mge.name.c_str() );
             }
         }
     }

@@ -106,26 +106,26 @@ void gate_data::check() const
     const ter_str_id winch_tid( id.str() );
 
     if( !winch_tid.is_valid() ) {
-        debugmsg( "Gates \"%s\" have no terrain of the same name, working as a winch.", id.c_str() );
+        debugmsg( "Gates \"{}\" have no terrain of the same name, working as a winch.", id.c_str() );
     } else if( !winch_tid->has_examine( iexamine::controls_gate ) ) {
-        debugmsg( "Terrain \"%s\" can't control gates, but gates \"%s\" depend on it.",
+        debugmsg( "Terrain \"{}\" can't control gates, but gates \"{}\" depend on it.",
                   winch_tid.c_str(), id.c_str() );
     }
 
     if( !door.is_valid() ) {
-        debugmsg( "Invalid door \"%s\" in \"%s\".", door.c_str(), id.c_str() );
+        debugmsg( "Invalid door \"{}\" in \"{}\".", door.c_str(), id.c_str() );
     }
     if( !floor.is_valid() ) {
-        debugmsg( "Invalid floor \"%s\" in \"%s\".", floor.c_str(), id.c_str() );
+        debugmsg( "Invalid floor \"{}\" in \"{}\".", floor.c_str(), id.c_str() );
     }
     for( const auto &elem : walls ) {
         if( !elem.is_valid() ) {
-            debugmsg( "Invalid wall \"%s\" in \"%s\".", elem.c_str(), id.c_str() );
+            debugmsg( "Invalid wall \"{}\" in \"{}\".", elem.c_str(), id.c_str() );
         }
     }
 
     if( moves < 0 ) {
-        debugmsg( "Gates \"%s\" grant moves.", id.c_str() );
+        debugmsg( "Gates \"{}\" grant moves.", id.c_str() );
     }
 }
 
@@ -264,9 +264,9 @@ void doors::close_door( map &m, Creature &who, const tripoint &closep )
             who.add_msg_if_player( m_info, _( "There's some buffoon in the way!" ) );
         } else if( mon->is_monster() ) {
             // TODO: Houseflies, mosquitoes, etc shouldn't count
-            who.add_msg_if_player( m_info, _( "The %s is in the way!" ), mon->get_name() );
+            who.add_msg_if_player( m_info, _( "The {} is in the way!" ), mon->get_name() );
         } else {
-            who.add_msg_if_player( m_info, _( "%s is in the way!" ), mon->disp_name() );
+            who.add_msg_if_player( m_info, _( "{} is in the way!" ), mon->disp_name() );
         }
         return;
     }
@@ -286,28 +286,28 @@ void doors::close_door( map &m, Creature &who, const tripoint &closep )
             Character *ch = who.as_character();
             if( ch && veh->can_close( closable, *ch ) ) {
                 veh->close( closable );
-                //~ %1$s - vehicle name, %2$s - part name
-                who.add_msg_if_player( _( "You close the %1$s's %2$s." ), veh->name, veh->part( closable ).name() );
+                //~ {1} - vehicle name, {2} - part name
+                who.add_msg_if_player( _( "You close the {1}'s {2}." ), veh->name, veh->part( closable ).name() );
                 didit = true;
             }
         } else if( inside_closable >= 0 ) {
-            who.add_msg_if_player( m_info, _( "That %s can only be closed from the inside." ),
+            who.add_msg_if_player( m_info, _( "That {} can only be closed from the inside." ),
                                    veh->part( inside_closable ).name() );
         } else if( openable >= 0 ) {
-            who.add_msg_if_player( m_info, _( "That %s is already closed." ),
+            who.add_msg_if_player( m_info, _( "That {} is already closed." ),
                                    veh->part( openable ).name() );
         } else {
-            who.add_msg_if_player( m_info, _( "You cannot close the %s." ), veh->part( vpart ).name() );
+            who.add_msg_if_player( m_info, _( "You cannot close the {}." ), veh->part( vpart ).name() );
         }
     } else if( m.furn( closep ) == furn_f_crate_o ) {
         who.add_msg_if_player( m_info, _( "You'll need to construct a seal to close the crate!" ) );
     } else if( !m.close_door( closep, inside, true ) ) {
         if( m.close_door( closep, true, true ) ) {
             who.add_msg_if_player( m_info,
-                                   _( "You cannot close the %s from outside.  You must be inside the building." ),
+                                   _( "You cannot close the {} from outside.  You must be inside the building." ),
                                    m.name( closep ) );
         } else {
-            who.add_msg_if_player( m_info, _( "You cannot close the %s." ), m.name( closep ) );
+            who.add_msg_if_player( m_info, _( "You cannot close the {}." ), m.name( closep ) );
         }
     } else {
         map_stack items_in_way = m.i_at( closep );
@@ -320,14 +320,14 @@ void doors::close_door( map &m, Creature &who, const tripoint &closep )
                 return it.volume() > max_nudge;
             } );
             if( toobig != items_in_way.end() ) {
-                who.add_msg_if_player( m_info, _( "The %s is too big to just nudge out of the way." ),
+                who.add_msg_if_player( m_info, _( "The {} is too big to just nudge out of the way." ),
                                        toobig->tname() );
             } else if( items_in_way.stored_volume() > max_nudge ) {
                 who.add_msg_if_player( m_info, _( "There is too much stuff in the way." ) );
             } else {
                 m.close_door( closep, inside, false );
                 didit = true;
-                who.add_msg_if_player( m_info, _( "You push the %s out of the way." ),
+                who.add_msg_if_player( m_info, _( "You push the {} out of the way." ),
                                        items_in_way.size() == 1 ? items_in_way.only_item().tname() : _( "stuff" ) );
                 who.mod_moves( -std::min( items_in_way.stored_volume() / ( max_nudge / 50 ), 100 ) );
 
@@ -343,7 +343,7 @@ void doors::close_door( map &m, Creature &who, const tripoint &closep )
         } else {
             const std::string door_name = m.obstacle_name( closep );
             m.close_door( closep, inside, false );
-            who.add_msg_if_player( _( "You close the %s." ), door_name );
+            who.add_msg_if_player( _( "You close the {}." ), door_name );
             didit = true;
         }
     }

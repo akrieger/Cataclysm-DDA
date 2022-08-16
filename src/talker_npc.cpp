@@ -75,9 +75,9 @@ std::string talker_npc::distance_to_goal() const
         if( fullmiles < 0 ) {
             fullmiles = 0;
         }
-        response = string_format( _( "%d.%d miles." ), fullmiles, miles );
+        response = string_format( _( "{}.{} miles." ), fullmiles, miles );
     } else {
-        response = string_format( n_gettext( "%d foot.", "%d feet.", dist ), dist );
+        response = string_format( n_gettext( "{} foot.", "{} feet.", dist ), dist );
     }
     return response;
 }
@@ -99,10 +99,10 @@ bool talker_npc::will_talk_to_u( const Character &you, bool force )
         me_npc->set_attitude( NPCATT_NULL );
     } else if( !force && ( me_npc->get_attitude() == NPCATT_FLEE ||
                            me_npc-> get_attitude() == NPCATT_FLEE_TEMP ) ) {
-        add_msg( _( "%s is fleeing from you!" ), disp_name() );
+        add_msg( _( "{} is fleeing from you!" ), disp_name() );
         return false;
     } else if( !force && me_npc->get_attitude() == NPCATT_KILL ) {
-        add_msg( _( "%s is hostile!" ), disp_name() );
+        add_msg( _( "{} is hostile!" ), disp_name() );
         return false;
     }
     return true;
@@ -301,8 +301,8 @@ std::string talker_npc::skill_training_text( const talker &student,
     const int next_level_exercise = skill_level_obj.knowledgeExperience();
 
     //~Skill name: current level (experience) -> next level (experience) (cost in dollars)
-    return string_format( cost > 0 ?  _( "%s: %d (%d%%) -> %d (%d%%) (cost $%d)" ) :
-                          _( "%s: %d (%d%%) -> %d (%d%%)" ), skill.obj().name(), cur_level,
+    return string_format( cost > 0 ?  _( "{}: {} ({}%%) -> {} ({}%%) (cost ${})" ) :
+                          _( "{}: {} ({}%%) -> {} ({}%%)" ), skill.obj().name(), cur_level,
                           cur_level_exercise, next_level, next_level_exercise, cost / 100 );
 }
 
@@ -330,14 +330,14 @@ std::string talker_npc::proficiency_training_text( const talker &student,
     const float pct_before = current_time / time_needed * 100;
     const float pct_after = ( current_time + 15_minutes ) / time_needed * 100;
     const std::string after_str = pct_after >= 100.0f ? pgettext( "NPC training: proficiency learned",
-                                  "done" ) : string_format( "%2.0f%%", pct_after );
+                                  "done" ) : string_format( "{}.0f%%", pct_after );
 
     if( cost > 0 ) {
         //~ Proficiency name: (current_practice) -> (next_practice) (cost in dollars)
-        return string_format( _( "%s: (%2.0f%%) -> (%s) (cost $%d)" ), name, pct_before, after_str, cost );
+        return string_format( _( "{}: ({}.0f%%) -> ({}) (cost ${})" ), name, pct_before, after_str, cost );
     }
     //~ Proficiency name: (current_practice) -> (next_practice)
-    return string_format( _( "%s: (%2.0f%%) -> (%s)" ), name, pct_before, after_str );
+    return string_format( _( "{}: ({}.0f%%) -> ({})" ), name, pct_before, after_str );
 }
 
 std::vector<matype_id> talker_npc::styles_offered_to( const talker &student ) const
@@ -355,9 +355,9 @@ std::string talker_npc::style_training_text( const talker &student,
     if( !student.get_character() ) {
         return "";
     } else if( me_npc->is_ally( *student.get_character() ) ) {
-        return string_format( "%s", style.obj().name );
+        return string_format( "{}", style.obj().name );
     } else {
-        return string_format( _( "%s ( cost $%d )" ), style.obj().name, 8 );
+        return string_format( _( "{} ( cost ${} )" ), style.obj().name, 8 );
     }
 }
 
@@ -382,10 +382,10 @@ std::string talker_npc::spell_training_text( talker &student, const spell_id &sp
                      temp_spell.get_level() );
     std::string text;
     if( knows ) {
-        text = string_format( _( "%s: 1 hour lesson (cost %s)" ), temp_spell.name(),
+        text = string_format( _( "{}: 1 hour lesson (cost {})" ), temp_spell.name(),
                               format_money( cost ) );
     } else {
-        text = string_format( _( "%s: teaching spell knowledge (cost %s)" ),
+        text = string_format( _( "{}: teaching spell knowledge (cost {})" ),
                               temp_spell.name(), format_money( cost ) );
     }
     return text;
@@ -501,7 +501,7 @@ static consumption_result try_consume( npc &p, item &it, std::string &reason )
         to_eat.charges -= amount_used;
         p.moves -= 250;
     } else {
-        debugmsg( "Unknown comestible type of item: %s\n", to_eat.tname() );
+        debugmsg( "Unknown comestible type of item: {}\n", to_eat.tname() );
     }
 
     if( to_eat.charges > 0 ) {
@@ -546,9 +546,9 @@ std::string talker_npc::give_item_to( const bool to_use )
     const double new_weapon_value = me_npc->weapon_value( given, new_ammo );
     const item &weap = weapon ? *weapon : null_item_reference();
     const double cur_weapon_value = me_npc->weapon_value( weap, our_ammo );
-    add_msg_debug( debugmode::DF_TALKER, "NPC evaluates own %s (%d ammo): %0.1f",
+    add_msg_debug( debugmode::DF_TALKER, "NPC evaluates own {} ({} ammo): {}.1f",
                    weap.typeId().str(), our_ammo, cur_weapon_value );
-    add_msg_debug( debugmode::DF_TALKER, "NPC evaluates your %s (%d ammo): %0.1f",
+    add_msg_debug( debugmode::DF_TALKER, "NPC evaluates your {} ({} ammo): {}.1f",
                    given.typeId().str(), new_ammo, new_weapon_value );
     if( to_use ) {
         // Eating first, to avoid evaluating bread as a weapon
@@ -829,24 +829,24 @@ std::string talker_npc::evaluation_by( const talker &alpha ) const
     std::string info = "&";
     int str_range = static_cast<int>( 100 / ability );
     int str_min = static_cast<int>( me_npc->str_max / str_range ) * str_range;
-    info += string_format( _( "Str %d - %d" ), str_min, str_min + str_range );
+    info += string_format( _( "Str {} - {}" ), str_min, str_min + str_range );
 
     if( ability >= 40 ) {
         int dex_range = static_cast<int>( 160 / ability );
         int dex_min = static_cast<int>( me_npc->dex_max / dex_range ) * dex_range;
-        info += string_format( _( "  Dex %d - %d" ), dex_min, dex_min + dex_range );
+        info += string_format( _( "  Dex {} - {}" ), dex_min, dex_min + dex_range );
     }
 
     if( ability >= 50 ) {
         int int_range = static_cast<int>( 200 / ability );
         int int_min = static_cast<int>( me_npc->int_max / int_range ) * int_range;
-        info += string_format( _( "  Int %d - %d" ), int_min, int_min + int_range );
+        info += string_format( _( "  Int {} - {}" ), int_min, int_min + int_range );
     }
 
     if( ability >= 60 ) {
         int per_range = static_cast<int>( 240 / ability );
         int per_min = static_cast<int>( me_npc->per_max / per_range ) * per_range;
-        info += string_format( _( "  Per %d - %d" ), per_min, per_min + per_range );
+        info += string_format( _( "  Per {} - {}" ), per_min, per_min + per_range );
     }
     needs_rates rates = me_npc->calc_needs_rates();
     if( ability >= 100 - ( get_fatigue() / 10 ) ) {

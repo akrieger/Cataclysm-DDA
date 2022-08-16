@@ -8,7 +8,7 @@ void report_strict_violation( const JsonObject &jo, const std::string &message,
         jo.throw_error_at( name, message );
     } catch( const JsonError &err ) {
         // And catch the exception so the loading continues like normal.
-        debugmsg( "(json-error)\n%s", err.what() );
+        debugmsg( "(json-error)\n{}", err.what() );
     }
 }
 
@@ -590,7 +590,7 @@ bool assign( const JsonObject &jo, const std::string &name, damage_instance &val
         if( with_legacy ) {
             // Give a load warning, it's likely anything loading damage this way
             // is a gun, and as such is using the wrong damage type
-            debugmsg( "Warning: %s loads damage using legacy methods - damage type may be wrong", id_err );
+            debugmsg( "Warning: {} loads damage using legacy methods - damage type may be wrong", id_err );
             out.add_damage( damage_type::STAB, amount, arpen, 1.0f, 1.0f, 1.0f, unc_dmg_mult );
             assigned = true;
         }
@@ -642,7 +642,7 @@ bool assign( const JsonObject &jo, const std::string &name, damage_instance &val
 
         // Give a load warning, it's likely anything loading damage this way
         // is a gun, and as such is using the wrong damage type
-        debugmsg( "Warning: %s loads damage using legacy methods - damage type may be wrong", id_err );
+        debugmsg( "Warning: {} loads damage using legacy methods - damage type may be wrong", id_err );
 
         assign_dmg_relative( out, val, damage_instance( damage_type::STAB, amt, arpen, 1.0f, 1.0f, 1.0f,
                              unc_dmg_mul ), strict );
@@ -668,7 +668,7 @@ bool assign( const JsonObject &jo, const std::string &name, damage_instance &val
 
         // Give a load warning, it's likely anything loading damage this way
         // is a gun, and as such is using the wrong damage type
-        debugmsg( "Warning: %s loads damage using legacy methods - damage type may be wrong", id_err );
+        debugmsg( "Warning: {} loads damage using legacy methods - damage type may be wrong", id_err );
 
         assign_dmg_proportional( proportional, name, out, val, damage_instance( damage_type::STAB, amt,
                                  arpen, 1.0f,

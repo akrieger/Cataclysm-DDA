@@ -231,7 +231,7 @@ void string_editor_window::print_editor( ui_adaptor &ui )
     for( int i = topoflist; i < bottomoflist; i++ ) {
         const int y = i - topoflist;
         const folded_line &line = _folded->get_lines()[i];
-        mvwprintz( _win, point( 1, y ), c_white, "%s", line.str );
+        mvwprintz( _win, point( 1, y ), c_white, "{}", line.str );
         if( !_ime_preview_range && i == _cursor_display.y ) {
             uint32_t c_cursor = 0;
             const char *src = line.str.c_str();
@@ -249,7 +249,7 @@ void string_editor_window::print_editor( ui_adaptor &ui )
                 c_cursor = ' ';
             }
             const point cursor_pos( _cursor_display.x + 1, y );
-            mvwprintz( _win, cursor_pos, h_white, "%s", utf32_to_utf8( c_cursor ) );
+            mvwprintz( _win, cursor_pos, h_white, "{}", utf32_to_utf8( c_cursor ) );
             ui.set_cursor( _win, cursor_pos );
         }
         if( _ime_preview_range && i >= _ime_preview_range->display_first.y
@@ -260,7 +260,7 @@ void string_editor_window::print_editor( ui_adaptor &ui )
             const point disp = i == _ime_preview_range->display_first.y
                                ? point( _ime_preview_range->display_first.x + 1, y )
                                : point( 1, y );
-            mvwprintz( _win, disp, c_dark_gray_white, "%s", preview.str() );
+            mvwprintz( _win, disp, c_dark_gray_white, "{}", preview.str() );
         }
     }
     if( _ime_preview_range ) {

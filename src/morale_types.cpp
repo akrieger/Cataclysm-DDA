@@ -265,7 +265,7 @@ const morale_type &morale_type_data::convert_legacy( int lmt )
         return legacy_morale_types[ lmt ];
     }
 
-    debugmsg( "Requested invalid legacy morale type %d", lmt );
+    debugmsg( "Requested invalid legacy morale type {}", lmt );
     return legacy_morale_types.front();
 }
 
@@ -320,7 +320,7 @@ std::string morale_type_data::describe( const itype *it ) const
     if( it ) {
         return string_format( text, it->nname( 1 ) );
     } else {
-        // if `msg` contains conversion specification (e.g. %s) but `it` is nullptr,
+        // if `msg` contains conversion specification (e.g. {}) but `it` is nullptr,
         // `string_format` will return an error message
         return string_format( text );
     }

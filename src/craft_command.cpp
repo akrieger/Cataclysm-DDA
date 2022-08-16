@@ -132,7 +132,7 @@ void craft_command::execute( bool only_cache_comps )
     if( need_selections ) {
         if( !crafter->can_make( rec, batch_size ) ) {
             if( crafter->can_start_craft( rec, recipe_filter_flags::none, batch_size ) ) {
-                if( !query_yn( _( "You don't have enough charges to complete the %s.\n"
+                if( !query_yn( _( "You don't have enough charges to complete the {}.\n"
                                   "Start crafting anyway?" ), rec->result_name() ) ) {
                     return;
                 }
@@ -264,7 +264,7 @@ bool craft_command::continue_prompt_liquids( const std::function<bool( const ite
             return it.empty_container() && filter( it );
         };
 
-        const char *liq_cont_msg = _( "%1$s is not empty.  Continue anyway?" );
+        const char *liq_cont_msg = _( "{1} is not empty.  Continue anyway?" );
         std::vector<std::pair<const tripoint, item>> map_items;
         std::vector<std::pair<const vpart_reference, item>> veh_items;
         std::vector<item> inv_items;

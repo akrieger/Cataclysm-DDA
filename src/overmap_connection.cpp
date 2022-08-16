@@ -106,16 +106,16 @@ void overmap_connection::load( const JsonObject &jo, const std::string & )
 void overmap_connection::check() const
 {
     if( subtypes.empty() ) {
-        debugmsg( "Overmap connection \"%s\" doesn't have subtypes.", id.c_str() );
+        debugmsg( "Overmap connection \"{}\" doesn't have subtypes.", id.c_str() );
     }
     for( const overmap_connection::subtype &subtype : subtypes ) {
         if( !subtype.terrain.is_valid() ) {
-            debugmsg( "In overmap connection \"%s\", terrain \"%s\" is invalid.", id.c_str(),
+            debugmsg( "In overmap connection \"{}\", terrain \"{}\" is invalid.", id.c_str(),
                       subtype.terrain.c_str() );
         }
         for( const auto &location : subtype.locations ) {
             if( !location.is_valid() ) {
-                debugmsg( "In overmap connection \"%s\", location \"%s\" is invalid.", id.c_str(),
+                debugmsg( "In overmap connection \"{}\", location \"{}\" is invalid.", id.c_str(),
                           location.c_str() );
             }
         }

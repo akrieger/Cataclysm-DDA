@@ -223,7 +223,7 @@ static float workbench_crafting_speed_multiplier( const item &craft,
             allowed_mass = wb_info->allowed_mass;
             allowed_volume = wb_info->allowed_volume;
         } else {
-            debugmsg( "part '%S' with WORKBENCH flag has no workbench info", vp->part().name() );
+            debugmsg( "part '{}' with WORKBENCH flag has no workbench info", vp->part().name() );
             return 0.0f;
         }
     } else if( here.furn( *loc ).obj().workbench ) {
@@ -254,7 +254,7 @@ float Character::crafting_speed_multiplier( const recipe &rec ) const
     const float result = morale_crafting_speed_multiplier( rec ) *
                          lighting_craft_speed_multiplier( rec ) *
                          get_limb_score( limb_score_manip );
-    add_msg_debug( debugmode::DF_CHARACTER, "Limb score multiplier %.1f, crafting speed multiplier %1f",
+    add_msg_debug( debugmode::DF_CHARACTER, "Limb score multiplier %.1f, crafting speed multiplier {}",
                    get_limb_score( limb_score_manip ), result );
 
     return std::max( result, 0.0f );
@@ -264,7 +264,7 @@ float Character::crafting_speed_multiplier( const item &craft,
         const cata::optional<tripoint> &loc ) const
 {
     if( !craft.is_craft() ) {
-        debugmsg( "Can't calculate crafting speed multiplier of non-craft '%s'", craft.tname() );
+        debugmsg( "Can't calculate crafting speed multiplier of non-craft '{}'", craft.tname() );
         return 1.0f;
     }
 
@@ -283,7 +283,7 @@ float Character::crafting_speed_multiplier( const item &craft,
         return 0.0f;
     }
     if( bench_multi <= 0.1f || ( bench_multi <= 0.33f && total_multi <= 0.2f ) ) {
-        add_msg_if_player( m_bad, _( "The %s is too large and/or heavy to work on.  You may want to"
+        add_msg_if_player( m_bad, _( "The {} is too large and/or heavy to work on.  You may want to"
                                      " use a workbench or a smaller batch size" ), craft.tname() );
         return 0.0f;
     }
@@ -304,7 +304,7 @@ float Character::crafting_speed_multiplier( const item &craft,
         }
         if( bench_multi <= 0.5f ) {
             add_msg_if_player( m_bad,
-                               _( "The %s is too large and/or heavy to work on comfortably.  You are"
+                               _( "The {} is too large and/or heavy to work on comfortably.  You are"
                                   " working slowly." ), craft.tname() );
         }
         if( morale_multi <= 0.5f ) {
@@ -434,7 +434,7 @@ bool Character::check_eligible_containers_for_crafting( const recipe &rec, int b
 
         if( charges_to_store > 0 ) {
             if( !query_yn(
-                    _( "You don't have anything in which to store %s and may have to pour it out as soon as it is prepared!  Proceed?" ),
+                    _( "You don't have anything in which to store {} and may have to pour it out as soon as it is prepared!  Proceed?" ),
                     prod.tname() ) ) {
                 return false;
             }
@@ -666,9 +666,9 @@ static cata::optional<item_location> wield_craft( Character &p, item &craft )
     if( p.wield( craft ) ) {
         item_location weapon = p.get_wielded_item();
         if( weapon->invlet ) {
-            p.add_msg_if_player( m_info, _( "Wielding %c - %s" ), weapon->invlet, weapon->display_name() );
+            p.add_msg_if_player( m_info, _( "Wielding {} - {}" ), weapon->invlet, weapon->display_name() );
         } else {
-            p.add_msg_if_player( m_info, _( "Wielding - %s" ), weapon->display_name() );
+            p.add_msg_if_player( m_info, _( "Wielding - {}" ), weapon->display_name() );
         }
         return weapon;
     }
@@ -689,7 +689,7 @@ static item_location set_item_inventory( Character &p, item &newit )
             put_into_vehicle_or_drop( p, item_drop_reason::too_heavy, { newit } );
         } else {
             ret_val = p.i_add( newit );
-            add_msg( m_info, "%c - %s", ret_val->invlet == 0 ? ' ' : ret_val->invlet,
+            add_msg( m_info, "{} - {}", ret_val->invlet == 0 ? ' ' : ret_val->invlet,
                      ret_val->tname() );
         }
     }
@@ -710,7 +710,7 @@ static item_location set_item_map( const tripoint &loc, item &newit )
             return item_location( map_cursor( tile ), it_on_map );
         }
     }
-    debugmsg( "Could not place %s on map near (%d, %d, %d)", newit.tname(), loc.x, loc.y, loc.z );
+    debugmsg( "Could not place {} on map near ({}, {}, {})", newit.tname(), loc.x, loc.y, loc.z );
     return item_location();
 }
 
@@ -726,9 +726,9 @@ static item_location set_item_map_or_vehicle( const Character &p, const tripoint
         if( const cata::optional<vehicle_stack::iterator> it = vp->vehicle().add_item( vp->part_index(),
                 newit ) ) {
             p.add_msg_player_or_npc(
-                //~ %1$s: name of item being placed, %2$s: vehicle part name
-                pgettext( "item, furniture", "You put the %1$s on the %2$s." ),
-                pgettext( "item, furniture", "<npcname> puts the %1$s on the %2$s." ),
+                //~ {1}: name of item being placed, {2}: vehicle part name
+                pgettext( "item, furniture", "You put the {1} on the {2}." ),
+                pgettext( "item, furniture", "<npcname> puts the {1} on the {2}." ),
                 ( *it )->tname(), vp->part().name() );
 
             return item_location( vehicle_cursor( vp->vehicle(), vp->part_index() ), & **it );
@@ -736,10 +736,10 @@ static item_location set_item_map_or_vehicle( const Character &p, const tripoint
 
         // Couldn't add the in progress craft to the target part, so drop it to the map.
         p.add_msg_player_or_npc(
-            //~ %1$s: vehicle part name, %2$s: name of the item being placed
-            pgettext( "furniture, item", "Not enough space on the %1$s. You drop the %2$s on the ground." ),
+            //~ {1}: vehicle part name, {2}: name of the item being placed
+            pgettext( "furniture, item", "Not enough space on the {1}. You drop the {2} on the ground." ),
             pgettext( "furniture, item",
-                      "Not enough space on the %1$s. <npcname> drops the %2$s on the ground." ),
+                      "Not enough space on the {1}. <npcname> drops the {2} on the ground." ),
             vp->part().name(), newit.tname() );
 
         return set_item_map( loc, newit );
@@ -748,14 +748,14 @@ static item_location set_item_map_or_vehicle( const Character &p, const tripoint
         if( here.has_furn( loc ) ) {
             const furn_t &workbench = here.furn( loc ).obj();
             p.add_msg_player_or_npc(
-                //~ %1$s: name of item being placed, %2$s: vehicle part name
-                pgettext( "item, furniture", "You put the %1$s on the %2$s." ),
-                pgettext( "item, furniture", "<npcname> puts the %1$s on the %2$s." ),
+                //~ {1}: name of item being placed, {2}: vehicle part name
+                pgettext( "item, furniture", "You put the {1} on the {2}." ),
+                pgettext( "item, furniture", "<npcname> puts the {1} on the {2}." ),
                 newit.tname(), workbench.name() );
         } else {
             p.add_msg_player_or_npc(
-                pgettext( "item", "You put the %s on the ground." ),
-                pgettext( "item", "<npcname> puts the %s on the ground." ),
+                pgettext( "item", "You put the {} on the ground." ),
+                pgettext( "item", "<npcname> puts the {} on the ground." ),
                 newit.tname() );
         }
         return set_item_map( loc, newit );
@@ -787,7 +787,7 @@ static item_location place_craft_or_disassembly(
                     target = adj;
                 }
             } else {
-                debugmsg( "part '%s' with WORKBENCH flag has no workbench info", vp->part().name() );
+                debugmsg( "part '{}' with WORKBENCH flag has no workbench info", vp->part().name() );
             }
         }
     }
@@ -812,11 +812,11 @@ static item_location place_craft_or_disassembly(
             };
 
             uilist amenu;
-            amenu.text = string_format( pgettext( "in progress craft", "What to do with the %s?" ),
+            amenu.text = string_format( pgettext( "in progress craft", "What to do with the {}?" ),
                                         craft.display_name() );
 
             amenu.addentry( WIELD_CRAFT, ch.can_unwield( *ch.get_wielded_item() ).success(),
-                            '1', _( "Dispose of your wielded %s and start working." ), ch.get_wielded_item()->tname() );
+                            '1', _( "Dispose of your wielded {} and start working." ), ch.get_wielded_item()->tname() );
             amenu.addentry( DROP_CRAFT, true, '2', _( "Put it down and start working." ) );
             const bool can_stash = ch.can_pickVolume( craft ) &&
                                    ch.can_pickWeight( craft, !get_option<bool>( "DANGEROUS_PICKUPS" ) );
@@ -855,7 +855,7 @@ static item_location place_craft_or_disassembly(
     }
 
     if( !craft_in_world ) {
-        ch.add_msg_if_player( _( "Wield and activate the %s to start working." ), craft.tname() );
+        ch.add_msg_if_player( _( "Wield and activate the {} to start working." ), craft.tname() );
     }
 
     return craft_in_world;
@@ -891,15 +891,15 @@ void Character::start_craft( craft_command &command, const cata::optional<tripoi
     assign_activity( player_activity( craft_activity_actor( craft_in_world, command.is_long() ) ) );
 
     add_msg_player_or_npc(
-        pgettext( "in progress craft", "You start working on the %s." ),
-        pgettext( "in progress craft", "<npcname> starts working on the %s." ),
+        pgettext( "in progress craft", "You start working on the {}." ),
+        pgettext( "in progress craft", "<npcname> starts working on the {}." ),
         craft.tname() );
 }
 
 bool Character::craft_skill_gain( const item &craft, const int &num_practice_ticks )
 {
     if( !craft.is_craft() ) {
-        debugmsg( "craft_skill_check() called on non-craft '%s.' Aborting.", craft.tname() );
+        debugmsg( "craft_skill_check() called on non-craft '{}.' Aborting.", craft.tname() );
         return false;
     }
 
@@ -917,16 +917,16 @@ bool Character::craft_skill_gain( const item &craft, const int &num_practice_tic
             helper->practice( making.skill_used, roll_remainder( num_practice_ticks / 2.0 ),
                               skill_cap );
             if( batch_size > 1 && one_in( 300 ) ) {
-                add_msg( m_info, _( "%s assists with crafting…" ), helper->get_name() );
+                add_msg( m_info, _( "{} assists with crafting…" ), helper->get_name() );
             }
             if( batch_size == 1 && one_in( 300 ) ) {
-                add_msg( m_info, _( "%s could assist you with a batch…" ), helper->get_name() );
+                add_msg( m_info, _( "{} could assist you with a batch…" ), helper->get_name() );
             }
         } else {
             helper->practice( making.skill_used, roll_remainder( num_practice_ticks / 10.0 ),
                               skill_cap );
             if( one_in( 300 ) ) {
-                add_msg( m_info, _( "%s watches you craft…" ), helper->get_name() );
+                add_msg( m_info, _( "{} watches you craft…" ), helper->get_name() );
             }
         }
     }
@@ -936,7 +936,7 @@ bool Character::craft_skill_gain( const item &craft, const int &num_practice_tic
 bool Character::craft_proficiency_gain( const item &craft, const time_duration &time )
 {
     if( !craft.is_craft() ) {
-        debugmsg( "craft_proficiency_gain() called on non-craft %s", craft.tname() );
+        debugmsg( "craft_proficiency_gain() called on non-craft {}", craft.tname() );
         return false;
     }
     const recipe &making = craft.get_making();
@@ -1018,7 +1018,7 @@ double Character::crafting_success_roll( const recipe &making ) const
             get_skill_level( making.skill_used ) ) {
             // NPC assistance is worth half a skill level
             skill_dice += 2;
-            add_msg_if_player( m_info, _( "%s helps with crafting…" ), np->get_name() );
+            add_msg_if_player( m_info, _( "{} helps with crafting…" ), np->get_name() );
             break;
         }
     }
@@ -1074,7 +1074,7 @@ double Character::crafting_success_roll( const recipe &making ) const
 int item::get_next_failure_point() const
 {
     if( !is_craft() ) {
-        debugmsg( "get_next_failure_point() called on non-craft '%s.'  Aborting.", tname() );
+        debugmsg( "get_next_failure_point() called on non-craft '{}.'  Aborting.", tname() );
         return INT_MAX;
     }
     return craft_data_->next_failure_point >= 0 ? craft_data_->next_failure_point : INT_MAX;
@@ -1083,7 +1083,7 @@ int item::get_next_failure_point() const
 void item::set_next_failure_point( const Character &crafter )
 {
     if( !is_craft() ) {
-        debugmsg( "set_next_failure_point() called on non-craft '%s.'  Aborting.", tname() );
+        debugmsg( "set_next_failure_point() called on non-craft '{}.'  Aborting.", tname() );
         return;
     }
 
@@ -1103,14 +1103,14 @@ static void destroy_random_component( item &craft, const Character &crafter )
     item destroyed = random_entry_removed( craft.components );
 
     crafter.add_msg_player_or_npc( game_message_params( game_message_type::m_bad ),
-                                   _( "You mess up and destroy the %s." ),
-                                   _( "<npcname> messes up and destroys the %s" ), destroyed.tname() );
+                                   _( "You mess up and destroy the {}." ),
+                                   _( "<npcname> messes up and destroys the {}" ), destroyed.tname() );
 }
 
 bool item::handle_craft_failure( Character &crafter )
 {
     if( !is_craft() ) {
-        debugmsg( "handle_craft_failure() called on non-craft '%s.'  Aborting.", tname() );
+        debugmsg( "handle_craft_failure() called on non-craft '{}.'  Aborting.", tname() );
         return false;
     }
 
@@ -1140,8 +1140,8 @@ bool item::handle_craft_failure( Character &crafter )
     // Ensure only positive losses have an effect on progress
     if( percent_progress_loss > 0.0 ) {
         const int progress_loss = item_counter * percent_progress_loss;
-        crafter.add_msg_player_or_npc( _( "You mess up and lose %d%% progress." ),
-                                       _( "<npcname> messes up and loses %d%% progress." ), progress_loss / 100000 );
+        crafter.add_msg_player_or_npc( _( "You mess up and lose {}%% progress." ),
+                                       _( "<npcname> messes up and loses {}%% progress." ), progress_loss / 100000 );
         item_counter = clamp( item_counter - progress_loss, 0, 10000000 );
     }
 
@@ -1157,7 +1157,7 @@ bool item::handle_craft_failure( Character &crafter )
 requirement_data item::get_continue_reqs() const
 {
     if( !is_craft() ) {
-        debugmsg( "get_continue_reqs() called on non-craft '%s.'  Aborting.", tname() );
+        debugmsg( "get_continue_reqs() called on non-craft '{}.'  Aborting.", tname() );
         return requirement_data();
     }
     return requirement_data::continue_requirements( craft_data_->comps_used, components );
@@ -1201,7 +1201,7 @@ void item::inherit_flags( const std::list<item> &parents, const recipe &making )
 void Character::complete_craft( item &craft, const cata::optional<tripoint> &loc )
 {
     if( !craft.is_craft() ) {
-        debugmsg( "complete_craft() called on non-craft '%s.'  Aborting.", craft.tname() );
+        debugmsg( "complete_craft() called on non-craft '{}.'  Aborting.", craft.tname() );
         return;
     }
 
@@ -1214,7 +1214,7 @@ void Character::complete_craft( item &craft, const cata::optional<tripoint> &loc
     std::vector<item> newits;
 
     if( making.is_practice() ) {
-        add_msg( _( "You finish practicing %s." ), making.result_name() );
+        add_msg( _( "You finish practicing {}." ), making.result_name() );
         // practice recipes don't produce a result item
     } else {
         // Set up the new item, and assign an inventory letter if available
@@ -1234,9 +1234,9 @@ void Character::complete_craft( item &craft, const cata::optional<tripoint> &loc
             first = false;
             // TODO: reconsider recipe memorization
             if( knows_recipe( &making ) ) {
-                add_msg( _( "You craft %s from memory." ), making.result_name() );
+                add_msg( _( "You craft {} from memory." ), making.result_name() );
             } else {
-                add_msg( _( "You craft %s using a reference." ), making.result_name() );
+                add_msg( _( "You craft {} using a reference." ), making.result_name() );
                 // If we made it, but we don't know it, we're using a book, device or NPC
                 // as a reference and have a chance to learn it.
                 // Base expected time to learn is 1000*(difficulty^4)/skill/int moves.
@@ -1252,7 +1252,7 @@ void Character::complete_craft( item &craft, const cata::optional<tripoint> &loc
                 const double time_to_learn = 1000 * 8 * std::pow( difficulty, 4 ) / learning_speed;
                 if( x_in_y( making.time_to_craft_moves( *this ),  time_to_learn ) ) {
                     learn_recipe( &making );
-                    add_msg( m_good, _( "You memorized the recipe for %s!" ),
+                    add_msg( m_good, _( "You memorized the recipe for {}!" ),
                              making.result_name() );
                 }
             }
@@ -1398,7 +1398,7 @@ void Character::complete_craft( item &craft, const cata::optional<tripoint> &loc
 bool Character::can_continue_craft( item &craft )
 {
     if( !craft.is_craft() ) {
-        debugmsg( "complete_craft() called on non-craft '%s.'  Aborting.", craft.tname() );
+        debugmsg( "complete_craft() called on non-craft '{}.'  Aborting.", craft.tname() );
         return false;
     }
 
@@ -1719,21 +1719,21 @@ comp_selection<item_comp> Character::select_item_component( const std::vector<it
 
             switch( inv_source ) {
                 case inventory_source::MAP:
-                    text = _( "%s (%d/%d nearby)" );
+                    text = _( "{} ({}/{} nearby)" );
                     kcal_values = map_inv.kcal_range( ingredient_type, filter, player_character );
                     available = item::count_by_charges( ingredient_type ) ?
                                 map_inv.charges_of( ingredient_type, INT_MAX, filter ) :
                                 map_inv.amount_of( ingredient_type, false, INT_MAX, filter );
                     break;
                 case inventory_source::SELF:
-                    text = _( "%s (%d/%d on person)" );
+                    text = _( "{} ({}/{} on person)" );
                     kcal_values = player_character.kcal_range( ingredient_type, filter, player_character );
                     available = item::count_by_charges( ingredient_type ) ?
                                 player_character.charges_of( ingredient_type, INT_MAX, filter ) :
                                 player_character.amount_of( ingredient_type, false, INT_MAX, filter );
                     break;
                 case inventory_source::BOTH:
-                    text = _( "%s (%d/%d nearby & on person)" );
+                    text = _( "{} ({}/{} nearby & on person)" );
                     kcal_values = map_inv.kcal_range( ingredient_type, filter, player_character );
                     const std::pair<int, int> kcal_values_tmp = player_character.kcal_range( ingredient_type, filter,
                             player_character );
@@ -1748,7 +1748,7 @@ comp_selection<item_comp> Character::select_item_component( const std::vector<it
             }
 
             if( is_food && ingredient.is_food() ) {
-                text += kcal_values.first == kcal_values.second ? _( " %d kcal" ) : _( " %d-%d kcal" );
+                text += kcal_values.first == kcal_values.second ? _( " {} kcal" ) : _( " {}-{} kcal" );
                 if( ingredient.has_flag( flag_RAW ) && remove_raw ) {
                     //Multiplier for RAW food digestion
                     kcal_values.first /= 0.75f;
@@ -2007,7 +2007,7 @@ Character::select_tool_component( const std::vector<tool_comp> &tools, int batch
         uilist tmenu;
         for( tool_comp &map_ha : map_has ) {
             if( item::find_type( map_ha.type )->maximum_charges() > 1 ) {
-                std::string tmpStr = string_format( _( "%s (%d/%d charges nearby)" ),
+                std::string tmpStr = string_format( _( "{} ({}/{} charges nearby)" ),
                                                     item::nname( map_ha.type ), calc_charges( map_ha, true ),
                                                     map_inv.charges_of( map_ha.type ) );
                 tmenu.addentry( tmpStr );
@@ -2018,7 +2018,7 @@ Character::select_tool_component( const std::vector<tool_comp> &tools, int batch
         }
         for( tool_comp &player_ha : player_has ) {
             if( item::find_type( player_ha.type )->maximum_charges() > 1 ) {
-                std::string tmpStr = string_format( _( "%s (%d/%d charges on person)" ),
+                std::string tmpStr = string_format( _( "{} ({}/{} charges on person)" ),
                                                     item::nname( player_ha.type ), calc_charges( player_ha, true ),
                                                     charges_of( player_ha.type ) );
                 tmenu.addentry( tmpStr );
@@ -2028,7 +2028,7 @@ Character::select_tool_component( const std::vector<tool_comp> &tools, int batch
         }
         for( tool_comp &both_ha : both_has ) {
             if( item::find_type( both_ha.type )->maximum_charges() > 1 ) {
-                std::string tmpStr = string_format( _( "%s (%d/%d charges nearby or on person)" ),
+                std::string tmpStr = string_format( _( "{} ({}/{} charges nearby or on person)" ),
                                                     item::nname( both_ha.type ), calc_charges( both_ha, true ),
                                                     charges_of( both_ha.type ) );
                 tmenu.addentry( tmpStr );
@@ -2076,7 +2076,7 @@ Character::select_tool_component( const std::vector<tool_comp> &tools, int batch
 bool Character::craft_consume_tools( item &craft, int multiplier, bool start_craft )
 {
     if( !craft.is_craft() ) {
-        debugmsg( "craft_consume_tools() called on non-craft '%s.' Aborting.", craft.tname() );
+        debugmsg( "craft_consume_tools() called on non-craft '{}.' Aborting.", craft.tname() );
         return false;
     }
     if( has_trait( trait_DEBUG_HS ) ) {
@@ -2121,8 +2121,8 @@ bool Character::craft_consume_tools( item &craft, int multiplier, bool start_cra
                 case usage_from::player:
                     if( !has_charges( type, count ) ) {
                         add_msg_player_or_npc(
-                            _( "You have insufficient %s charges and can't continue crafting." ),
-                            _( "<npcname> has insufficient %s charges and can't continue crafting." ),
+                            _( "You have insufficient {} charges and can't continue crafting." ),
+                            _( "<npcname> has insufficient {} charges and can't continue crafting." ),
                             item::nname( type ) );
                         craft.set_tools_to_continue( false );
                         return false;
@@ -2131,8 +2131,8 @@ bool Character::craft_consume_tools( item &craft, int multiplier, bool start_cra
                 case usage_from::map:
                     if( !map_inv.has_charges( type, count ) ) {
                         add_msg_player_or_npc(
-                            _( "You have insufficient %s charges and can't continue crafting." ),
-                            _( "<npcname> has insufficient %s charges and can't continue crafting." ),
+                            _( "You have insufficient {} charges and can't continue crafting." ),
+                            _( "<npcname> has insufficient {} charges and can't continue crafting." ),
                             item::nname( type ) );
                         craft.set_tools_to_continue( false );
                         return false;
@@ -2141,8 +2141,8 @@ bool Character::craft_consume_tools( item &craft, int multiplier, bool start_cra
                 case usage_from::both:
                     if( !crafting_inventory().has_charges( type, count ) ) {
                         add_msg_player_or_npc(
-                            _( "You have insufficient %s charges and can't continue crafting." ),
-                            _( "<npcname> has insufficient %s charges and can't continue crafting." ),
+                            _( "You have insufficient {} charges and can't continue crafting." ),
+                            _( "<npcname> has insufficient {} charges and can't continue crafting." ),
                             item::nname( type ) );
                         craft.set_tools_to_continue( false );
                         return false;
@@ -2155,8 +2155,8 @@ bool Character::craft_consume_tools( item &craft, int multiplier, bool start_cra
         } else if( ( type != itype_id::NULL_ID() ) && !has_amount( type, 1 ) &&
                    !map_inv.has_tools( type, 1 ) ) {
             add_msg_player_or_npc(
-                _( "You no longer have a %s and can't continue crafting." ),
-                _( "<npcname> no longer has a %s and can't continue crafting." ),
+                _( "You no longer have a {} and can't continue crafting." ),
+                _( "<npcname> no longer has a {} and can't continue crafting." ),
                 item::nname( type ) );
             craft.set_tools_to_continue( false );
             return false;
@@ -2234,7 +2234,7 @@ ret_val<void> Character::can_disassemble( const item &obj, const read_only_visit
     // refuse to disassemble items containing monsters/pets
     std::string monster = obj.get_var( "contained_name" );
     if( !monster.empty() ) {
-        return ret_val<void>::make_failure( _( "You must remove the %s before you can disassemble this." ),
+        return ret_val<void>::make_failure( _( "You must remove the {} before you can disassemble this." ),
                                             monster );
     }
 
@@ -2243,8 +2243,8 @@ ret_val<void> Character::can_disassemble( const item &obj, const read_only_visit
             // Create a new item to get the default charges
             int qty = r.create_result().charges;
             if( obj.charges < qty ) {
-                const char *msg = n_gettext( "You need at least %d charge of %s.",
-                                             "You need at least %d charges of %s.", qty );
+                const char *msg = n_gettext( "You need at least {} charge of {}.",
+                                             "You need at least {} charges of {}.", qty );
                 return ret_val<void>::make_failure( msg, qty, obj.tname() );
             }
         }
@@ -2255,7 +2255,7 @@ ret_val<void> Character::can_disassemble( const item &obj, const read_only_visit
         for( const quality_requirement &qual : opts ) {
             if( !qual.has( inv, return_true<item> ) ) {
                 // Here should be no dot at the end of the string as 'to_string()' provides it.
-                return ret_val<void>::make_failure( _( "You need %s" ), qual.to_string() );
+                return ret_val<void>::make_failure( _( "You need {}" ), qual.to_string() );
             }
         }
     }
@@ -2270,12 +2270,12 @@ ret_val<void> Character::can_disassemble( const item &obj, const read_only_visit
         if( !found ) {
             const tool_comp &tool_required = opts.front();
             if( tool_required.count <= 0 ) {
-                return ret_val<void>::make_failure( _( "You need %s." ),
+                return ret_val<void>::make_failure( _( "You need {}." ),
                                                     item::nname( tool_required.type ) );
             } else {
-                //~ %1$s: tool name, %2$d: needed charges
-                return ret_val<void>::make_failure( n_gettext( "You need a %1$s with %2$d charge.",
-                                                    "You need a %1$s with %2$d charges.", tool_required.count ),
+                //~ {1}: tool name, {2}: needed charges
+                return ret_val<void>::make_failure( n_gettext( "You need a {1} with {2} charge.",
+                                                    "You need a {1} with {2} charges.", tool_required.count ),
                                                     item::nname( tool_required.type ),
                                                     tool_required.count );
             }
@@ -2339,7 +2339,7 @@ bool Character::disassemble( item_location target, bool interactive, bool disass
     const auto ret = can_disassemble( obj, crafting_inventory() );
 
     if( !ret.success() ) {
-        add_msg_if_player( m_info, "%s", ret.c_str() );
+        add_msg_if_player( m_info, "{}", ret.c_str() );
         return false;
     }
 
@@ -2347,7 +2347,7 @@ bool Character::disassemble( item_location target, bool interactive, bool disass
     const recipe &r = ( obj.typeId() == itype_disassembly ) ? obj.get_making() :
                       recipe_dictionary::get_uncraft( obj.typeId() );
     if( !obj.is_owned_by( player_character, true ) ) {
-        if( !query_yn( _( "Disassembling the %s may anger the people who own it, continue?" ),
+        if( !query_yn( _( "Disassembling the {} may anger the people who own it, continue?" ),
                        obj.tname() ) ) {
             return false;
         } else {
@@ -2380,12 +2380,12 @@ bool Character::disassemble( item_location target, bool interactive, bool disass
         }
         if( !r.learn_by_disassembly.empty() && !knows_recipe( &r ) && can_decomp_learn( r ) ) {
             if( !query_yn(
-                    _( "Disassembling the %s may yield:\n%s\nReally disassemble?\nYou feel you may be able to understand this object's construction.\n" ),
+                    _( "Disassembling the {} may yield:\n{}\nReally disassemble?\nYou feel you may be able to understand this object's construction.\n" ),
                     colorize( obj.tname(), obj.color_in_inventory() ),
                     list ) ) {
                 return false;
             }
-        } else if( !query_yn( _( "Disassembling the %s may yield:\n%s\nReally disassemble?" ),
+        } else if( !query_yn( _( "Disassembling the {} may yield:\n{}\nReally disassemble?" ),
                               colorize( obj.tname(), obj.color_in_inventory() ),
                               list ) ) {
             return false;
@@ -2399,7 +2399,7 @@ bool Character::disassemble( item_location target, bool interactive, bool disass
         if( obj.count_by_charges() ) {
             if( !disassemble_all && obj.charges > 1 ) {
                 string_input_popup popup_input;
-                const std::string title = string_format( _( "Disassemble how many %s [MAX: %d]: " ),
+                const std::string title = string_format( _( "Disassemble how many {} [MAX: {}]: " ),
                                           obj.type_name( 1 ), obj.charges );
                 popup_input.title( title ).edit( num_dis );
                 if( popup_input.canceled() || num_dis <= 0 ) {
@@ -2477,7 +2477,7 @@ void Character::complete_disassemble( item_location target )
     if( rec ) {
         complete_disassemble( target, rec );
     } else {
-        debugmsg( "bad disassembly recipe: %s", temp.type_name() );
+        debugmsg( "bad disassembly recipe: {}", temp.type_name() );
         activity.set_to_null();
         return;
     }
@@ -2515,7 +2515,7 @@ void Character::complete_disassemble( item_location target )
         // get_value( 0 ) is true if the player wants to disassemble all charges
         if( !activity.get_value( 0 ) && obj.charges > 1 ) {
             string_input_popup popup_input;
-            const std::string title = string_format( _( "Disassemble how many %s [MAX: %d]: " ),
+            const std::string title = string_format( _( "Disassemble how many {} [MAX: {}]: " ),
                                       obj.type_name( 1 ), obj.charges );
             popup_input.title( title ).edit( num_dis );
             if( popup_input.canceled() || num_dis <= 0 ) {
@@ -2549,9 +2549,9 @@ void Character::complete_disassemble( item_location &target, const recipe &dis )
     item dis_item = org_item;
 
     if( this->is_avatar() ) {
-        add_msg( _( "You disassemble the %s into its components." ), dis_item.tname() );
+        add_msg( _( "You disassemble the {} into its components." ), dis_item.tname() );
     } else {
-        add_msg_if_player_sees( *this, _( "%1s disassembles the %2s into its components." ),
+        add_msg_if_player_sees( *this, _( "{} disassembles the {} into its components." ),
                                 this->disp_name( false, true ), dis_item.tname() );
     }
 
@@ -2706,11 +2706,11 @@ void Character::complete_disassemble( item_location &target, const recipe &dis )
         // Get name of item, pluralized for its quantity
         const std::string it_name = item( destroyed.first ).type_name( destroyed.second );
         if( this->is_avatar() ) {
-            //~ %1$d: quantity destroyed, %2$s: pluralized name of destroyed item
-            add_msg( m_bad, _( "You fail to recover %1$d %2$s." ), destroyed.second, it_name );
+            //~ {1}: quantity destroyed, {2}: pluralized name of destroyed item
+            add_msg( m_bad, _( "You fail to recover {1} {2}." ), destroyed.second, it_name );
         } else {
-            //~ %1$s: NPC name, %2$d: quantity destroyed, %2$s: pluralized name of destroyed item
-            add_msg_if_player_sees( *this, m_bad, _( "%1$s fails to recover %2$d %3$s." ),
+            //~ {1}: NPC name, {2}: quantity destroyed, {2}: pluralized name of destroyed item
+            add_msg_if_player_sees( *this, m_bad, _( "{1} fails to recover {2} {3}." ),
                                     this->disp_name( false, true ), destroyed.second, it_name );
         }
     }
@@ -2721,11 +2721,11 @@ void Character::complete_disassemble( item_location &target, const recipe &dis )
         const std::string it_name = item( recovered.first ).type_name( recovered.second );
         // Recovery successful; inform player
         if( this->is_avatar() ) {
-            //~ %1$d: quantity recovered, %2$s: pluralized name of recovered item
-            add_msg( m_good, _( "You recover %1$d %2$s." ), recovered.second, it_name );
+            //~ {1}: quantity recovered, {2}: pluralized name of recovered item
+            add_msg( m_good, _( "You recover {1} {2}." ), recovered.second, it_name );
         } else {
-            //~ %1$s: NPC name, %2$d: quantity recovered, %2$s: pluralized name of recovered item
-            add_msg_if_player_sees( *this, m_good, _( "%1$s recovers %2$d %3$s." ),
+            //~ {1}: NPC name, {2}: quantity recovered, {2}: pluralized name of recovered item
+            add_msg_if_player_sees( *this, m_good, _( "{1} recovers {2} {3}." ),
                                     this->disp_name( false, true ), recovered.second, it_name );
         }
     }
@@ -2739,11 +2739,11 @@ void Character::complete_disassemble( item_location &target, const recipe &dis )
             if( one_in( 4 ) ) {
                 // TODO: change to forward an id or a reference
                 learn_recipe( &dis.ident().obj() );
-                add_msg_if_player( m_good, _( "You learned a recipe for %s from disassembling it!" ),
+                add_msg_if_player( m_good, _( "You learned a recipe for {} from disassembling it!" ),
                                    dis_item.tname() );
             } else {
                 add_msg_if_player( m_info,
-                                   _( "You might be able to learn a recipe for %s if you disassemble another." ),
+                                   _( "You might be able to learn a recipe for {} if you disassemble another." ),
                                    dis_item.tname() );
             }
         } else {

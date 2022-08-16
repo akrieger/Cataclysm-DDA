@@ -65,7 +65,7 @@ std::string trade_preset::get_denial( const item_location &loc ) const
         ret_val<void> const ret = np.wants_to_sell( *loc, price, market_price );
         if( !ret.success() ) {
             if( ret.str().empty() ) {
-                return string_format( _( "%s does not want to sell this" ), np.get_name() );
+                return string_format( _( "{} does not want to sell this" ), np.get_name() );
             }
             return np.replace_with_npc_name( ret.str() );
         }
@@ -74,7 +74,7 @@ std::string trade_preset::get_denial( const item_location &loc ) const
         ret_val<void> const ret = np.wants_to_buy( *loc, price, market_price );
         if( !ret.success() ) {
             if( ret.str().empty() ) {
-                return string_format( _( "%s does not want to buy this" ), np.get_name() );
+                return string_format( _( "{} does not want to buy this" ), np.get_name() );
             }
             return np.replace_with_npc_name( ret.str() );
         }
@@ -259,17 +259,17 @@ bool trade_ui::_confirm_trade() const
         if( np.max_credit_extended() == 0 ) {
             popup( _( "You'll need to offer me more than that." ) );
         } else {
-            popup( _( "Sorry, I'm only willing to extend you %s in credit." ),
+            popup( _( "Sorry, I'm only willing to extend you {} in credit." ),
                    format_money( np.max_credit_extended() ) );
         }
     } else if( np.mission != NPC_MISSION_SHOPKEEP &&
                !npc_trading::npc_can_fit_items( np, _panes[_you]->to_trade() ) ) {
-        popup( _( "%s doesn't have the appropriate pockets to accept that." ), np.get_name() );
+        popup( _( "{} doesn't have the appropriate pockets to accept that." ), np.get_name() );
     } else if( npc_trading::calc_npc_owes_you( np, _balance ) < _balance ) {
         // NPC is happy with the trade, but isn't willing to remember the whole debt.
         return query_yn(
                    _( "I'm never going to be able to pay you back for all that.  The most I'm "
-                      "willing to owe you is %s.\n\nContinue with trade?" ),
+                      "willing to owe you is {}.\n\nContinue with trade?" ),
                    format_money( np.max_willing_to_owe() ) );
 
     } else {
@@ -288,19 +288,19 @@ void trade_ui::_draw_header()
         npc_trading::npc_will_accept_trade( np, _balance ) ? c_green : c_red;
     std::string cost_str = _( "Exchange" );
     if( !np.will_exchange_items_freely() ) {
-        cost_str = string_format( _balance >= 0 ? _( "Credit %s" ) : _( "Debt %s" ),
+        cost_str = string_format( _balance >= 0 ? _( "Credit {}" ) : _( "Debt {}" ),
                                   format_money( std::abs( _balance ) ) );
     }
     center_print( _header_w, 2, trade_color, cost_str );
     mvwprintz( _header_w, { 1, 3 }, c_white, _parties[_trader]->get_name() );
     right_print( _header_w, 3, 1, c_white, _( "You" ) );
     center_print( _header_w, header_size - 1, c_white,
-                  string_format( _( "%s to switch panes" ),
+                  string_format( _( "{} to switch panes" ),
                                  colorize( _panes[_you]->get_ctxt()->get_desc(
                                          trade_selector::ACTION_SWITCH_PANES ),
                                            c_yellow ) ) );
     center_print( _header_w, header_size - 2, c_white,
-                  string_format( _( "%s to auto balance with highlighted item" ),
+                  string_format( _( "{} to auto balance with highlighted item" ),
                                  colorize( _panes[_you]->get_ctxt()->get_desc(
                                          trade_selector::ACTION_AUTOBALANCE ),
                                            c_yellow ) ) );

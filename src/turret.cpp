@@ -464,7 +464,7 @@ void vehicle::turrets_set_targeting()
 
         for( vehicle_part *&p : turrets ) {
             menu.addentry( -1, has_part( global_part_pos3( *p ), "TURRET_CONTROLS" ), MENU_AUTOASSIGN,
-                           "%s [%s]", p->name(), p->enabled ?
+                           "{} [{}]", p->name(), p->enabled ?
                            _( "auto -> manual" ) : has_part( global_part_pos3( *p ), "TURRET_CONTROLS" ) ?
                            _( "manual -> auto" ) :
                            _( "manual (turret control unit required for auto mode)" ) );
@@ -519,7 +519,7 @@ void vehicle::turrets_set_mode()
         menu.w_y_setup = 2;
 
         for( vehicle_part *&p : turrets ) {
-            menu.addentry( -1, true, MENU_AUTOASSIGN, "%s [%s]",
+            menu.addentry( -1, true, MENU_AUTOASSIGN, "{} [{}]",
                            p->name(), p->base.gun_current_mode().tname() );
         }
 
@@ -539,7 +539,7 @@ npc vehicle::get_targeting_npc( const vehicle_part &pt ) const
     npc cpu;
     cpu.set_body();
     cpu.set_fake( true );
-    cpu.name = string_format( _( "The %s turret" ), pt.get_base().tname( 1 ) );
+    cpu.name = string_format( _( "The {} turret" ), pt.get_base().tname( 1 ) );
     // turrets are subject only to recoil_vehicle()
     cpu.recoil = 0;
 
@@ -598,19 +598,19 @@ int vehicle::automatic_fire_turret( vehicle_part &pt )
         Creature *auto_target = cpu.auto_find_hostile_target( range, boo_hoo, area );
         if( auto_target == nullptr ) {
             if( boo_hoo ) {
-                cpu.get_name() = string_format( pgettext( "vehicle turret", "The %s" ), pt.name() );
+                cpu.get_name() = string_format( pgettext( "vehicle turret", "The {}" ), pt.name() );
                 // check if the player can see or hear then print chooses a message accordingly
                 if( u_see & u_hear ) {
-                    add_msg( m_warning, n_gettext( "%s points in your direction and emits an IFF warning beep.",
-                                                   "%s points in your direction and emits %d annoyed sounding beeps.",
+                    add_msg( m_warning, n_gettext( "{} points in your direction and emits an IFF warning beep.",
+                                                   "{} points in your direction and emits {} annoyed sounding beeps.",
                                                    boo_hoo ),
                              cpu.get_name(), boo_hoo );
                 } else if( !u_see & u_hear ) {
                     add_msg( m_warning, n_gettext( "You hear a warning beep.",
-                                                   "You hear %d annoyed sounding beeps.",
+                                                   "You hear {} annoyed sounding beeps.",
                                                    boo_hoo ), boo_hoo );
                 } else if( u_see & !u_hear ) {
-                    add_msg( m_warning, _( "%s points in your direction." ), cpu.get_name() );
+                    add_msg( m_warning, _( "{} points in your direction." ), cpu.get_name() );
                 }
             }
             return shots;
@@ -622,7 +622,7 @@ int vehicle::automatic_fire_turret( vehicle_part &pt )
         // Target is already set, make sure we didn't move after aiming (it's a bug if we did).
         if( pos != target.first ) {
             target.second = target.first;
-            debugmsg( "%s moved after aiming but before it could fire.", cpu.get_name() );
+            debugmsg( "{} moved after aiming but before it could fire.", cpu.get_name() );
             return shots;
         }
     }
@@ -634,7 +634,7 @@ int vehicle::automatic_fire_turret( vehicle_part &pt )
     shots = gun.fire( cpu, targ );
 
     if( shots && u_see ) {
-        add_msg_if_player_sees( targ, _( "The %1$s fires its %2$s!" ), name, pt.name() );
+        add_msg_if_player_sees( targ, _( "The {1} fires its {2}!" ), name, pt.name() );
     }
 
     return shots;

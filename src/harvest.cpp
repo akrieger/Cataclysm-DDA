@@ -214,10 +214,10 @@ void harvest_list::check_consistency()
         const std::string errors = enumerate_as_string( hl.entries_.begin(), hl.entries_.end(),
                                    error_func );
         if( !errors.empty() ) {
-            debugmsg( "Harvest list %s has invalid entry: %s", hl_id, errors );
+            debugmsg( "Harvest list {} has invalid entry: {}", hl_id, errors );
         }
         if( !hl.leftovers.is_valid() ) {
-            debugmsg( "Harvest id %s has invalid leftovers: %s", hl.id.c_str(), hl.leftovers.c_str() );
+            debugmsg( "Harvest id {} has invalid leftovers: {}", hl.id.c_str(), hl.leftovers.c_str() );
         }
     }
 }
@@ -278,11 +278,11 @@ std::string harvest_list::describe( int at_skill ) const
         }
         ss += ": ";
         if( min_drops == max_drops ) {
-            ss += string_format( "<stat>%d</stat>", min_drops );
+            ss += string_format( "<stat>{}</stat>", min_drops );
         } else if( max_drops < 1000 ) {
-            ss += string_format( "<stat>%d-%d</stat>", min_drops, max_drops );
+            ss += string_format( "<stat>{}-{}</stat>", min_drops, max_drops );
         } else {
-            ss += string_format( "<stat>%d+</stat>", min_drops );
+            ss += string_format( "<stat>{}+</stat>", min_drops );
         }
 
         return ss;

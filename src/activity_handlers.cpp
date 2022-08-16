@@ -360,8 +360,8 @@ static bool check_butcher_dissect( const int roll )
     // 100% at roll 0, 66% at roll 1, 50% at roll 2, 40% @ 3, 33% @ 4, 28% @ 5, ... , 16% @ 10
     // Roll is roughly a rng(0, -3 + 1st_aid + fine_cut_quality + 1/2 electronics + small_dex_bonus)
     // Roll is reduced by corpse damage level, but to no less then 0
-    add_msg_debug( debugmode::DF_ACT_BUTCHER, "Roll = %i", roll );
-    add_msg_debug( debugmode::DF_ACT_BUTCHER, "Failure chance = %f%%",
+    add_msg_debug( debugmode::DF_ACT_BUTCHER, "Roll = {}", roll );
+    add_msg_debug( debugmode::DF_ACT_BUTCHER, "Failure chance = {}%%",
                    ( 19.0f / ( 10.0f + roll * 5.0f ) ) * 100.0f );
     const bool failed = x_in_y( 10, ( 10 + roll * 5 ) );
     return !failed;
@@ -377,10 +377,10 @@ static bool butcher_dissect_item( item &what, const tripoint &pos,
     map &here = get_map();
     if( what.is_bionic() && !success ) {
         item burnt_out_cbm( itype_burnt_out_bionic, age );
-        add_msg( m_good, _( "You discover a %s!" ), burnt_out_cbm.tname() );
+        add_msg( m_good, _( "You discover a {}!" ), burnt_out_cbm.tname() );
         here.add_item( pos, burnt_out_cbm );
     } else if( success ) {
-        add_msg( m_good, _( "You discover a %s!" ), what.tname() );
+        add_msg( m_good, _( "You discover a {}!" ), what.tname() );
         here.add_item( pos, what );
     }
     return success;
@@ -568,7 +568,7 @@ int butcher_time_to_cut( Character &you, const item &corpse_item, const butcher_
             time_to_cut = 1800;
             break;
         default:
-            debugmsg( "ERROR: Invalid creature_size on %s", corpse.nname() );
+            debugmsg( "ERROR: Invalid creature_size on {}", corpse.nname() );
             time_to_cut = 450; // default to medium
             break;
     }
@@ -758,7 +758,7 @@ static bool butchery_drops_harvest( item *corpse_item, const mtype &mt, Characte
     int practice = 0;
 
     if( mt.harvest.is_null() ) {
-        debugmsg( "ERROR: %s has no harvest entry.", mt.id.c_str() );
+        debugmsg( "ERROR: {} has no harvest entry.", mt.id.c_str() );
         return false;
     }
 
@@ -773,7 +773,7 @@ static bool butchery_drops_harvest( item *corpse_item, const mtype &mt, Characte
             dissectable_practice += ( 4 + butchery );
             int roll = butchery - corpse_item->damage_level();
             roll = roll < 0 ? 0 : roll;
-            add_msg_debug( debugmode::DF_ACT_BUTCHER, "Roll penalty for corpse damage = %s",
+            add_msg_debug( debugmode::DF_ACT_BUTCHER, "Roll penalty for corpse damage = {}",
                            0 - corpse_item->damage_level() );
             butcher_dissect_item( *item, you.pos(), calendar::turn, roll );
         }
@@ -925,7 +925,7 @@ static bool butchery_drops_harvest( item *corpse_item, const mtype &mt, Characte
             }
 
             if( roll <= 0 ) {
-                you.add_msg_if_player( m_bad, _( "You fail to harvest: %s" ), drop->nname( 1 ) );
+                you.add_msg_if_player( m_bad, _( "You fail to harvest: {}" ), drop->nname( 1 ) );
                 continue;
             }
             if( drop->phase == phase_id::LIQUID ) {
@@ -990,7 +990,7 @@ static bool butchery_drops_harvest( item *corpse_item, const mtype &mt, Characte
                     here.add_item_or_charges( you.pos(), obj );
                 }
             }
-            you.add_msg_if_player( m_good, _( "You harvest: %s" ), drop->nname( roll ) );
+            you.add_msg_if_player( m_good, _( "You harvest: {}" ), drop->nname( roll ) );
         }
         practice++;
     }
@@ -1048,8 +1048,8 @@ static bool butchery_drops_harvest( item *corpse_item, const mtype &mt, Characte
         for( item *content : corpse_item->all_items_top( item_pocket::pocket_type::CONTAINER ) ) {
             if( ( roll_butchery_dissect( you.get_skill_level( skill_survival ), you.dex_cur,
                                          tool_quality ) + 10 ) * 5 > rng( 0, 100 ) ) {
-                //~ %1$s - item name, %2$s - monster name
-                you.add_msg_if_player( m_good, _( "You discover a %1$s in the %2$s!" ), content->tname(),
+                //~ {1} - item name, {2} - monster name
+                you.add_msg_if_player( m_good, _( "You discover a {1} in the {2}!" ), content->tname(),
                                        corpse_item->get_mtype()->nname() );
                 here.add_item_or_charges( you.pos(), *content );
             } else if( content->is_bionic() ) {
@@ -1064,7 +1064,7 @@ static void butchery_quarter( item *corpse_item, const Character &you )
 {
     corpse_item->set_flag( flag_QUARTERED );
     you.add_msg_if_player( m_good,
-                           _( "You roughly slice the corpse of %s into four parts and set them aside." ),
+                           _( "You roughly slice the corpse of {} into four parts and set them aside." ),
                            corpse_item->get_mtype()->nname() );
     map &here = get_map();
     tripoint pos = you.pos();
@@ -1345,7 +1345,7 @@ void activity_handlers::fill_liquid_do_turn( player_activity *act, Character *yo
                     iexamine::pour_into_keg( act_ref.coords.at( 1 ), liquid );
                 } else {
                     here.add_item_or_charges( act_ref.coords.at( 1 ), liquid );
-                    you->add_msg_if_player( _( "You pour %1$s onto the ground." ), liquid.tname() );
+                    you->add_msg_if_player( _( "You pour {1} onto the ground." ), liquid.tname() );
                     liquid.charges = 0;
                 }
                 break;
@@ -1392,10 +1392,10 @@ void activity_handlers::fill_liquid_do_turn( player_activity *act, Character *yo
                 if( on_ground->charges <= 0 ) {
                     source_stack.erase( on_ground );
                     if( here.ter( source_pos )->has_examine( iexamine::gaspump ) ) {
-                        add_msg( _( "With a clang and a shudder, the %s pump goes silent." ),
+                        add_msg( _( "With a clang and a shudder, the {} pump goes silent." ),
                                  liquid.type_name( 1 ) );
                     } else if( here.furn( source_pos )->has_examine( iexamine::fvat_full ) ) {
-                        add_msg( _( "You squeeze the last drops of %s from the vat." ),
+                        add_msg( _( "You squeeze the last drops of {} from the vat." ),
                                  liquid.type_name( 1 ) );
                         map_stack items_here = here.i_at( source_pos );
                         if( items_here.empty() ) {
@@ -1422,7 +1422,7 @@ void activity_handlers::fill_liquid_do_turn( player_activity *act, Character *yo
         }
 
     } catch( const std::runtime_error &err ) {
-        debugmsg( "error in activity data: \"%s\"", err.what() );
+        debugmsg( "error in activity data: \"{}\"", err.what() );
         act_ref.set_to_null();
         return;
     }
@@ -1441,7 +1441,7 @@ void activity_handlers::generic_game_turn_handler( player_activity *act, Charact
             if( fail ) {
                 act->moves_left = 0;
                 if( you->is_avatar() ) {
-                    add_msg( m_info, _( "The %s runs out of batteries." ), game_item.tname() );
+                    add_msg( m_info, _( "The {} runs out of batteries." ), game_item.tname() );
                 }
                 return;
             }
@@ -1740,13 +1740,13 @@ static bool magic_train( player_activity *act, Character *you )
             const int expert_multiplier = act->values.empty() ? 0 : act->values[0];
             const int xp = roll_remainder( studying.exp_modifier( *you ) * expert_multiplier );
             studying.gain_exp( xp );
-            you->add_msg_if_player( m_good, _( "You learn a little about the spell: %s" ),
+            you->add_msg_if_player( m_good, _( "You learn a little about the spell: {}" ),
                                     sp_id->name );
         } else {
             you->magic->learn_spell( act->name, *you );
             // you can decline to learn this spell , as it may lock you out of other magic.
             if( you->magic->knows_spell( sp_id ) ) {
-                add_msg( m_good, _( "You learn %s." ), sp_id->name.translated() );
+                add_msg( m_good, _( "You learn {}." ), sp_id->name.translated() );
             } else {
                 act->set_to_null();
             }
@@ -1777,9 +1777,9 @@ void activity_handlers::teach_finish( player_activity *act, Character *you )
     }
 
     if( you->is_avatar() ) {
-        add_msg( m_good, _( "You finish teaching %s." ), subject );
+        add_msg( m_good, _( "You finish teaching {}." ), subject );
     } else {
-        add_msg( m_good, _( "%s finishes teaching %s." ), you->name, subject );
+        add_msg( m_good, _( "{} finishes teaching {}." ), you->name, subject );
     }
 
     act->set_to_null();
@@ -1819,12 +1819,12 @@ void activity_handlers::train_finish( player_activity *act, Character *you )
         int new_skill_level = you->get_knowledge_level( sk );
         if( old_skill_level != new_skill_level ) {
             if( you->is_avatar() ) {
-                add_msg( m_good, _( "You finish training %s to level %d." ),
+                add_msg( m_good, _( "You finish training {} to level {}." ),
                          skill_name, new_skill_level );
             }
             get_event_bus().send<event_type::gains_skill_level>( you->getID(), sk, new_skill_level );
         } else if( you->is_avatar() ) {
-            add_msg( m_good, _( "You get some training in %s." ), skill_name );
+            add_msg( m_good, _( "You get some training in {}." ), skill_name );
         }
         act->set_to_null();
         return;
@@ -1834,7 +1834,7 @@ void activity_handlers::train_finish( player_activity *act, Character *you )
     if( proficiency.is_valid() ) {
         you->practice_proficiency( proficiency, 15_minutes );
         if( you->is_avatar() ) {
-            add_msg( m_good, _( "You get some training in %s." ), proficiency->name() );
+            add_msg( m_good, _( "You get some training in {}." ), proficiency->name() );
         }
         act->set_to_null();
         return;
@@ -1876,7 +1876,7 @@ void activity_handlers::vehicle_finish( player_activity *act, Character *you )
         if( act->values.size() < 7 ) {
             dbg( D_ERROR ) << "game:process_activity: invalid ACT_VEHICLE values: "
                            << act->values.size();
-            debugmsg( "process_activity invalid ACT_VEHICLE values:%d",
+            debugmsg( "process_activity invalid ACT_VEHICLE values:{}",
                       act->values.size() );
         } else {
             if( vp ) {
@@ -1943,7 +1943,7 @@ void activity_handlers::vibe_do_turn( player_activity *act, Character *you )
             vibrator_item.ammo_consume( 1, you->pos(), you );
             you->add_morale( MORALE_FEELING_GOOD, 3, 40 );
             if( vibrator_item.ammo_remaining( you ) == 0 ) {
-                add_msg( m_info, _( "The %s runs out of batteries." ), vibrator_item.tname() );
+                add_msg( m_info, _( "The {} runs out of batteries." ), vibrator_item.tname() );
             }
         } else {
             //twenty minutes to fill
@@ -2007,24 +2007,24 @@ void activity_handlers::start_engines_finish( player_activity *act, Character *y
     sfx::do_vehicle_engine_sfx();
 
     if( attempted == 0 ) {
-        add_msg( m_info, _( "The %s doesn't have an engine!" ), veh->name );
+        add_msg( m_info, _( "The {} doesn't have an engine!" ), veh->name );
     } else if( non_muscle_attempted > 0 ) {
         //Some non-muscle engines tried to start
         if( non_muscle_attempted == non_muscle_started ) {
             //All of the non-muscle engines started
-            add_msg( n_gettext( "The %s's engine starts up.",
-                                "The %s's engines start up.", non_muscle_started ), veh->name );
+            add_msg( n_gettext( "The {}'s engine starts up.",
+                                "The {}'s engines start up.", non_muscle_started ), veh->name );
         } else if( non_muscle_started > 0 ) {
             //Only some of the non-muscle engines started
-            add_msg( n_gettext( "One of the %s's engines start up.",
-                                "Some of the %s's engines start up.", non_muscle_started ), veh->name );
+            add_msg( n_gettext( "One of the {}'s engines start up.",
+                                "Some of the {}'s engines start up.", non_muscle_started ), veh->name );
         } else if( non_combustion_started > 0 ) {
             //Non-combustions "engines" started
-            add_msg( _( "The %s is ready for movement." ), veh->name );
+            add_msg( _( "The {} is ready for movement." ), veh->name );
         } else {
             //All of the non-muscle engines failed
-            add_msg( m_bad, n_gettext( "The %s's engine fails to start.",
-                                       "The %s's engines fail to start.", non_muscle_attempted ), veh->name );
+            add_msg( m_bad, n_gettext( "The {}'s engine fails to start.",
+                                       "The {}'s engines fail to start.", non_muscle_attempted ), veh->name );
         }
     }
 
@@ -2199,7 +2199,7 @@ void repair_item_finish( player_activity *act, Character *you, bool no_menu )
         // TODO: Allow setting this in the actor
         // TODO: Don't use charges_to_use: welder has 50 charges per use, soldering iron has 1
         if( !used_tool->ammo_sufficient( you ) ) {
-            you->add_msg_if_player( _( "Your %s ran out of charges." ), used_tool->tname() );
+            you->add_msg_if_player( _( "Your {} ran out of charges." ), used_tool->tname() );
             act->set_to_null();
             return;
         }
@@ -2272,7 +2272,7 @@ void repair_item_finish( player_activity *act, Character *you, bool no_menu )
             action_type = repair_item_actor::RT_PRACTICE;
         }
 
-        std::string title = string_format( _( "%s %s\n" ),
+        std::string title = string_format( _( "{} {}\n" ),
                                            repair_item_actor::action_description( action_type ),
                                            fix.tname() );
         ammotype current_ammo;
@@ -2306,21 +2306,21 @@ void repair_item_finish( player_activity *act, Character *you, bool no_menu )
         for( const auto &component_id : valid_entries ) {
             if( item::count_by_charges( component_id ) ) {
                 if( crafting_inv.has_charges( component_id, 1 ) ) {
-                    material_list.push_back( string_format( _( "%s (%d)" ), item::nname( component_id ),
+                    material_list.push_back( string_format( _( "{} ({})" ), item::nname( component_id ),
                                                             crafting_inv.charges_of( component_id ) ) );
                 }
             } else if( crafting_inv.has_amount( component_id, 1, false, filter ) ) {
-                material_list.push_back( string_format( _( "%s (%d)" ), item::nname( component_id ),
+                material_list.push_back( string_format( _( "{} ({})" ), item::nname( component_id ),
                                                         crafting_inv.amount_of( component_id, false ) ) );
             }
         }
 
-        title += string_format( _( "Charges: <color_light_blue>%s/%s</color> %s (%s per use)\n" ),
+        title += string_format( _( "Charges: <color_light_blue>{}/{}</color> {} ({} per use)\n" ),
                                 ammo_remaining, used_tool->ammo_capacity( current_ammo ),
                                 ammo_name,
                                 used_tool->ammo_required() );
-        title += string_format( _( "Materials available: %s\n" ), join( material_list, ", " ) );
-        title += string_format( _( "Skill used: <color_light_blue>%s (%s)</color>\n" ),
+        title += string_format( _( "Materials available: {}\n" ), join( material_list, ", " ) );
+        title += string_format( _( "Skill used: <color_light_blue>{} ({})</color>\n" ),
                                 actor->used_skill.obj().name(), level );
         title += string_format( _( "Success chance: <color_light_blue>%.1f</color>%%\n" ),
                                 100.0f * chance.first );
@@ -2346,8 +2346,8 @@ void repair_item_finish( player_activity *act, Character *you, bool no_menu )
             if( repeat == repeat_type::FULL &&
                 fix.damage() <= fix.damage_floor( false ) ) {
                 const char *msg = fix.damage_level() > 0 ?
-                                  _( "Your %s is repaired as much as possible, considering the degradation." ) :
-                                  _( "Your %s is already fully repaired." );
+                                  _( "Your {} is repaired as much as possible, considering the degradation." ) :
+                                  _( "Your {} is already fully repaired." );
                 you->add_msg_if_player( m_info, msg, fix.tname() );
                 repeat = repeat_type::INIT;
             }
@@ -2370,7 +2370,7 @@ void activity_handlers::heat_item_finish( player_activity *act, Character *you )
         return;
     }
     if( !heat->has_temperature() ) {
-        debugmsg( "item %s is not heatable", heat->typeId().str() );
+        debugmsg( "item {} is not heatable", heat->typeId().str() );
         return;
     }
     item &target = *heat;
@@ -2402,7 +2402,7 @@ void activity_handlers::mend_item_finish( player_activity *act, Character *you )
 
     const auto f = target->faults.find( fault_id( act->name ) );
     if( f == target->faults.end() ) {
-        debugmsg( "item %s does not have fault %s", target->tname(), act->name );
+        debugmsg( "item {} does not have fault {}", target->tname(), act->name );
         return;
     }
 
@@ -2420,7 +2420,7 @@ void activity_handlers::mend_item_finish( player_activity *act, Character *you )
     const inventory inv = you->crafting_inventory();
     const requirement_data &reqs = method->requirements.obj();
     if( !reqs.can_make_with_inventory( inv, is_crafting_component ) ) {
-        add_msg( m_info, _( "You are currently unable to mend the %s." ), target->tname() );
+        add_msg( m_info, _( "You are currently unable to mend the {}." ), target->tname() );
     }
     for( const auto &e : reqs.get_components() ) {
         you->consume_items( e );
@@ -2459,7 +2459,7 @@ void activity_handlers::toolmod_add_finish( player_activity *act, Character *you
     }
     item &tool = *act->targets[0];
     item &mod = *act->targets[1];
-    you->add_msg_if_player( m_good, _( "You successfully attached the %1$s to your %2$s." ),
+    you->add_msg_if_player( m_good, _( "You successfully attached the {1} to your {2}." ),
                             mod.tname(), tool.tname() );
     mod.set_flag( flag_IRREMOVABLE );
     tool.put_in( mod, item_pocket::pocket_type::MOD );
@@ -2514,14 +2514,14 @@ void activity_handlers::view_recipe_do_turn( player_activity *act, Character *yo
         itname = id->result_name();
     }
     if( id.is_null() || !id.is_valid() ) {
-        add_msg( m_info, _( "You wonder if it's even possible to craft the %s…" ), itname );
+        add_msg( m_info, _( "You wonder if it's even possible to craft the {}…" ), itname );
         return;
     }
 
     const inventory &inven = you->crafting_inventory();
     const std::vector<npc *> &helpers = you->get_crafting_helpers();
     if( !you->get_available_recipes( inven, &helpers ).contains( &id.obj() ) ) {
-        add_msg( m_info, _( "You don't know how to craft the %s!" ), itname );
+        add_msg( m_info, _( "You don't know how to craft the {}!" ), itname );
         return;
     }
 
@@ -2607,7 +2607,7 @@ static void rod_fish( Character *you, const std::vector<monster *> &fishables )
         const mtype_id fish_mon = random_entry_ref( fish_group );
         here.add_item_or_charges( you->pos(), item::make_corpse( fish_mon, calendar::turn + rng( 0_turns,
                                   3_hours ) ) );
-        you->add_msg_if_player( m_good, _( "You caught a %s." ), fish_mon.obj().nname() );
+        you->add_msg_if_player( m_good, _( "You caught a {}." ), fish_mon.obj().nname() );
     } else {
         monster *chosen_fish = random_entry( fishables );
         chosen_fish->fish_population -= 1;
@@ -2617,7 +2617,7 @@ static void rod_fish( Character *you, const std::vector<monster *> &fishables )
             here.add_item_or_charges( you->pos(), item::make_corpse( chosen_fish->type->id,
                                       calendar::turn + rng( 0_turns,
                                               3_hours ) ) );
-            you->add_msg_if_player( m_good, _( "You caught a %s." ), chosen_fish->type->nname() );
+            you->add_msg_if_player( m_good, _( "You caught a {}." ), chosen_fish->type->nname() );
         }
     }
     for( item &elem : here.i_at( you->pos() ) ) {
@@ -2750,7 +2750,7 @@ void activity_handlers::find_mount_do_turn( player_activity *act, Character *you
 
 void activity_handlers::wait_npc_finish( player_activity *act, Character *you )
 {
-    you->add_msg_if_player( _( "%s finishes with you…" ), act->str_values[0] );
+    you->add_msg_if_player( _( "{} finishes with you…" ), act->str_values[0] );
     act->set_to_null();
 }
 
@@ -2775,7 +2775,7 @@ void activity_handlers::wait_stamina_finish( player_activity *act, Character *yo
         const int stamina_threshold = act->values[0];
         const int stamina_initial = ( act->values.size() > 1 ) ? act->values[1] : you->get_stamina();
         if( you->get_stamina() < stamina_threshold && you->get_stamina() <= stamina_initial ) {
-            debugmsg( "Failed to wait until stamina threshold %d reached, only at %d. You may not be regaining stamina.",
+            debugmsg( "Failed to wait until stamina threshold {} reached, only at {}. You may not be regaining stamina.",
                       act->values.front(), you->get_stamina() );
         }
     } else if( you->get_stamina() < you->get_stamina_max() ) {
@@ -2788,7 +2788,7 @@ void activity_handlers::wait_stamina_finish( player_activity *act, Character *yo
 
 void activity_handlers::socialize_finish( player_activity *act, Character *you )
 {
-    you->add_msg_if_player( _( "%s finishes chatting with you." ), act->str_values[0] );
+    you->add_msg_if_player( _( "{} finishes chatting with you." ), act->str_values[0] );
     act->set_to_null();
 }
 
@@ -2847,8 +2847,8 @@ void activity_handlers::operation_do_turn( player_activity *act, Character *you 
                     you->apply_damage( nullptr, bp, 20 * difficulty );
 
                     if( u_see ) {
-                        you->add_msg_player_or_npc( m_bad, _( "Your %s is ripped open." ),
-                                                    _( "<npcname>'s %s is ripped open." ), body_part_name_accusative( bp ) );
+                        you->add_msg_player_or_npc( m_bad, _( "Your {} is ripped open." ),
+                                                    _( "<npcname>'s {} is ripped open." ), body_part_name_accusative( bp ) );
                     }
 
                     if( bp == bodypart_id( "eyes" ) ) {
@@ -2867,8 +2867,8 @@ void activity_handlers::operation_do_turn( player_activity *act, Character *you 
             for( const bodypart_id &bp : bps ) {
                 if( calendar::once_every( message_freq ) && u_see && autodoc ) {
                     you->add_msg_player_or_npc( m_info,
-                                                _( "The Autodoc is meticulously cutting your %s open." ),
-                                                _( "The Autodoc is meticulously cutting <npcname>'s %s open." ),
+                                                _( "The Autodoc is meticulously cutting your {} open." ),
+                                                _( "The Autodoc is meticulously cutting <npcname>'s {} open." ),
                                                 body_part_name_accusative( bp ) );
                 }
             }
@@ -2888,7 +2888,7 @@ void activity_handlers::operation_do_turn( player_activity *act, Character *you 
             if( cata::optional<bionic *> bio = you->find_bionic_by_uid( act->values[2] ) ) {
                 you->perform_uninstall( **bio, act->values[0], act->values[1], act->values[3] );
             } else {
-                debugmsg( _( "Tried to uninstall bionic with UID %s, but you don't have this bionic installed." ),
+                debugmsg( _( "Tried to uninstall bionic with UID {}, but you don't have this bionic installed." ),
                           act->values[2] );
                 you->remove_effect( effect_under_operation );
                 act->set_to_null();
@@ -2909,7 +2909,7 @@ void activity_handlers::operation_do_turn( player_activity *act, Character *you 
                 you->perform_install( bid, upbio_uid, act->values[0], act->values[1], act->values[3],
                                       act->str_values[installer_name], bid->canceled_mutations, you->pos() );
             } else {
-                debugmsg( _( "%s is no a valid bionic_id" ), bid.c_str() );
+                debugmsg( _( "{} is no a valid bionic_id" ), bid.c_str() );
                 you->remove_effect( effect_under_operation );
                 act->set_to_null();
             }
@@ -2919,8 +2919,8 @@ void activity_handlers::operation_do_turn( player_activity *act, Character *you 
             for( const bodypart_id &bp : bps ) {
                 if( calendar::once_every( message_freq ) && u_see && autodoc ) {
                     you->add_msg_player_or_npc( m_info,
-                                                _( "The Autodoc is stitching your %s back up." ),
-                                                _( "The Autodoc is stitching <npcname>'s %s back up." ),
+                                                _( "The Autodoc is stitching your {} back up." ),
+                                                _( "The Autodoc is stitching <npcname>'s {} back up." ),
                                                 body_part_name_accusative( bp ) );
                 }
             }
@@ -3012,7 +3012,7 @@ void activity_handlers::plant_seed_finish( player_activity *act, Character *you 
         } else {
             here.set( examp, t_dirt, f_plant_seed );
         }
-        you->add_msg_player_or_npc( _( "You plant some %s." ), _( "<npcname> plants some %s." ),
+        you->add_msg_player_or_npc( _( "You plant some {}." ), _( "<npcname> plants some {}." ),
                                     item::nname( seed_id ) );
     }
     // Go back to what we were doing before
@@ -3034,7 +3034,7 @@ void activity_handlers::build_do_turn( player_activity *act, Character *you )
         } else {
             you->cancel_activity();
         }
-        add_msg( m_info, _( "%s did not find an unfinished construction at the activity spot." ),
+        add_msg( m_info, _( "{} did not find an unfinished construction at the activity spot." ),
                  you->disp_name() );
         return;
     }
@@ -3042,7 +3042,7 @@ void activity_handlers::build_do_turn( player_activity *act, Character *you )
     // if you ( or NPC ) are finishing someone else's started construction...
     const construction &built = pc->id.obj();
     if( !you->has_trait( trait_DEBUG_HS ) && !you->meets_skill_requirements( built ) ) {
-        add_msg( m_info, _( "%s can't work on this construction anymore." ), you->disp_name() );
+        add_msg( m_info, _( "{} can't work on this construction anymore." ), you->disp_name() );
         you->cancel_activity();
         if( you->is_npc() ) {
             you->activity = player_activity();
@@ -3298,7 +3298,7 @@ void activity_handlers::fertilize_plot_do_turn( player_activity *act, Character 
             // TODO: fix point types
             iexamine::fertilize_plant( you, tile.raw(), fertilizer );
             if( !have_fertilizer() ) {
-                add_msg( m_info, _( "You have run out of %s." ), item::nname( fertilizer ) );
+                add_msg( m_info, _( "You have run out of {}." ), item::nname( fertilizer ) );
             }
         }
     };
@@ -3351,7 +3351,7 @@ void activity_handlers::robot_control_finish( player_activity *act, Character *y
         return;
     }
 
-    you->add_msg_if_player( _( "You unleash your override attack on the %s." ), z->name() );
+    you->add_msg_if_player( _( "You unleash your override attack on the {}." ), z->name() );
 
     /** @EFFECT_INT increases chance of successful robot reprogramming, vs difficulty */
     /** @EFFECT_COMPUTER increases chance of successful robot reprogramming, vs difficulty */
@@ -3363,7 +3363,7 @@ void activity_handlers::robot_control_finish( player_activity *act, Character *y
     }
     // rideable mechs are not hostile, they have no AI, they do not resist control as much.
     if( success >= 0 ) {
-        you->add_msg_if_player( _( "You successfully override the %s's IFF protocols!" ),
+        you->add_msg_if_player( _( "You successfully override the {}'s IFF protocols!" ),
                                 z->name() );
         z->friendly = -1;
         if( z->has_flag( MF_RIDEABLE_MECH ) ) {
@@ -3371,7 +3371,7 @@ void activity_handlers::robot_control_finish( player_activity *act, Character *y
         }
     } else if( success >= -2 ) {
         //A near success
-        you->add_msg_if_player( _( "The %s short circuits as you attempt to reprogram it!" ), z->name() );
+        you->add_msg_if_player( _( "The {} short circuits as you attempt to reprogram it!" ), z->name() );
         //damage it a little
         z->apply_damage( you, bodypart_id( "torso" ), rng( 1, 10 ) );
         if( z->is_dead() ) {
@@ -3443,7 +3443,7 @@ void activity_handlers::tree_communion_do_turn( player_activity *act, Character 
                 you->add_morale( MORALE_TREE_COMMUNION, 1, 15, 2_hours, 1_hours );
             }
             if( one_in( 128 ) ) {
-                you->add_msg_if_player( "%s", SNIPPET.random_from_category( "tree_communion" ).value_or(
+                you->add_msg_if_player( "{}", SNIPPET.random_from_category( "tree_communion" ).value_or(
                                             translation() ) );
             }
             return;
@@ -3518,7 +3518,7 @@ void activity_handlers::spellcasting_finish( player_activity *act, Character *yo
                 if( !spell_being_cast.is_max_level() && level_override == -1 ) {
                     // still get some experience for trying
                     spell_being_cast.gain_exp( exp_gained / 5 );
-                    you->add_msg_if_player( m_good, _( "You gain %i experience.  New total %i." ), exp_gained / 5,
+                    you->add_msg_if_player( m_good, _( "You gain {} experience.  New total {}." ), exp_gained / 5,
                                             spell_being_cast.xp() );
                 }
                 return;
@@ -3570,13 +3570,13 @@ void activity_handlers::spellcasting_finish( player_activity *act, Character *yo
                                                 _( "Something about how this spell works just clicked!  You gained a level!" ) );
                     } else {
                         spell_being_cast.gain_exp( exp_gained );
-                        you->add_msg_if_player( m_good, _( "You gain %i experience.  New total %i." ), exp_gained,
+                        you->add_msg_if_player( m_good, _( "You gain {} experience.  New total {}." ), exp_gained,
                                                 spell_being_cast.xp() );
                     }
                     if( spell_being_cast.get_level() != old_level ) {
                         // Level 0-1 message is printed above - notify player when leveling up further
                         if( old_level > 0 ) {
-                            you->add_msg_if_player( m_good, _( "You gained a level in %s!" ), spell_being_cast.name() );
+                            you->add_msg_if_player( m_good, _( "You gained a level in {}!" ), spell_being_cast.name() );
                         }
                     }
                 }
@@ -3616,7 +3616,7 @@ void activity_handlers::study_spell_do_turn( player_activity *act, Character *yo
         }
         // Notify player if the spell leveled up
         if( studying.get_level() > old_level ) {
-            you->add_msg_if_player( m_good, _( "You gained a level in %s!" ), studying.name() );
+            you->add_msg_if_player( m_good, _( "You gained a level in {}!" ), studying.name() );
         }
     }
 }
@@ -3627,7 +3627,7 @@ void activity_handlers::study_spell_finish( player_activity *act, Character *you
     const int total_exp_gained = act->get_value( 0 );
 
     if( act->get_str_value( 1 ) == "study" ) {
-        you->add_msg_if_player( m_good, _( "You gained %i experience from your study session." ),
+        you->add_msg_if_player( m_good, _( "You gained {} experience from your study session." ),
                                 total_exp_gained );
     } else if( act->get_str_value( 1 ) == "learn" && act->values[2] == 0 ) {
         you->magic->learn_spell( act->name, *you );

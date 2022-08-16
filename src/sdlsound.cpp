@@ -589,7 +589,7 @@ void sfx::play_variant_sound( const std::string &id, const std::string &variant,
         return;
     }
 
-    add_msg_debug( debugmode::DF_SOUND, "sound id: %s, variant: %s, volume: %d ", id, variant, volume );
+    add_msg_debug( debugmode::DF_SOUND, "sound id: {}, variant: {}, volume: {} ", id, variant, volume );
 
     if( !check_sound( volume ) ) {
         return;
@@ -622,7 +622,7 @@ void sfx::play_variant_sound( const std::string &id, const std::string &variant,
         return;
     }
 
-    add_msg_debug( debugmode::DF_SOUND, "sound id: %s, variant: %s, volume: %d ", id, variant, volume );
+    add_msg_debug( debugmode::DF_SOUND, "sound id: {}, variant: {}, volume: {} ", id, variant, volume );
 
     if( !check_sound( volume ) ) {
         return;

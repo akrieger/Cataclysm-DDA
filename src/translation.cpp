@@ -160,7 +160,7 @@ void translation::deserialize( JsonIn &jsin )
                                 "'str' and 'str_pl', or 'str_sp' if the singular "
                                 "and plural forms are the same." );
                 } catch( const JsonError &e ) {
-                    debugmsg( "(json-error)\n%s", e.what() );
+                    debugmsg( "(json-error)\n{}", e.what() );
                 }
             }
 #endif
@@ -198,7 +198,7 @@ void translation::deserialize( JsonIn &jsin )
                                 "automatically generated." );
                         }
                     } catch( const JsonError &e ) {
-                        debugmsg( "(json-error)\n%s", e.what() );
+                        debugmsg( "(json-error)\n{}", e.what() );
                     }
                 }
 #endif
@@ -206,7 +206,7 @@ void translation::deserialize( JsonIn &jsin )
                 try {
                     jsobj.throw_error_at( "str_sp", "str_sp not supported here" );
                 } catch( const JsonError &e ) {
-                    debugmsg( "(json-error)\n%s", e.what() );
+                    debugmsg( "(json-error)\n{}", e.what() );
                 }
             }
         } else {
@@ -238,7 +238,7 @@ void translation::deserialize( JsonIn &jsin )
                                     "for text with identical singular and plural forms" );
                             }
                         } catch( const JsonError &e ) {
-                            debugmsg( "(json-error)\n%s", e.what() );
+                            debugmsg( "(json-error)\n{}", e.what() );
                         }
                     }
 #endif
@@ -254,7 +254,7 @@ void translation::deserialize( JsonIn &jsin )
                                 "form explicitly using 'str' and 'str_pl', or 'str_sp' if the "
                                 "singular and plural forms are the same." );
                         } catch( const JsonError &e ) {
-                            debugmsg( "(json-error)\n%s", e.what() );
+                            debugmsg( "(json-error)\n{}", e.what() );
                         }
                     }
 #endif
@@ -263,7 +263,7 @@ void translation::deserialize( JsonIn &jsin )
                 try {
                     jsobj.throw_error_at( "str_pl", "str_pl not supported here" );
                 } catch( const JsonError &e ) {
-                    debugmsg( "(json-error)\n%s", e.what() );
+                    debugmsg( "(json-error)\n{}", e.what() );
                 }
             }
         }

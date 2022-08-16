@@ -113,7 +113,7 @@ void trait_group::debug_spawn()
         menu2.text = _( "Result of 100 spawns:" );
         for( const auto &e : traitnames2 ) {
             menu2.entries.emplace_back( static_cast<int>( menu2.entries.size() ), true, -2,
-                                        string_format( _( "%d x %s" ), e.first, e.second ) );
+                                        string_format( _( "{} x {}" ), e.first, e.second ) );
         }
         menu2.query();
     }
@@ -145,7 +145,7 @@ Trait_list Single_trait_creator::create( RecursionList & /* rec */ ) const
 void Single_trait_creator::check_consistency() const
 {
     if( !id.is_valid() ) {
-        debugmsg( "trait id %s is unknown", id.c_str() );
+        debugmsg( "trait id {} is unknown", id.c_str() );
     }
 }
 
@@ -171,13 +171,13 @@ Trait_list Trait_group_creator::create( RecursionList &rec ) const
 
     Trait_list result;
     if( std::find( rec.begin(), rec.end(), id ) != rec.end() ) {
-        debugmsg( "recursion in trait creation list %s", id.c_str() );
+        debugmsg( "recursion in trait creation list {}", id.c_str() );
         return result;
     }
     rec.push_back( id );
 
     if( !id.is_valid() ) {
-        debugmsg( "unknown trait creation list %s", id.c_str() );
+        debugmsg( "unknown trait creation list {}", id.c_str() );
         return result;
     }
     const auto tcd = mutation_branch::get_group( id );
@@ -192,7 +192,7 @@ Trait_list Trait_group_creator::create( RecursionList &rec ) const
 void Trait_group_creator::check_consistency() const
 {
     if( id.is_valid() ) {
-        debugmsg( "trait group id %s is unknown", id.c_str() );
+        debugmsg( "trait group id {} is unknown", id.c_str() );
     }
 }
 
@@ -250,7 +250,7 @@ Trait_group_collection::Trait_group_collection( int probability )
     : Trait_group( probability )
 {
     if( probability <= 0 || probability > 100 ) {
-        debugmsg( "Probability %d out of range", probability );
+        debugmsg( "Probability {} out of range", probability );
     }
 }
 

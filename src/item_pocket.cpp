@@ -68,29 +68,29 @@ std::string pocket_data::check_definition() const
     }
     for( const itype_id &it : item_id_restriction ) {
         if( !it.is_valid() ) {
-            return string_format( "item_id %s used in restriction invalid\n", it.str() );
+            return string_format( "item_id {} used in restriction invalid\n", it.str() );
         }
         if( it->phase == phase_id::LIQUID && !watertight ) {
-            return string_format( "restricted to liquid item %s but not watertight\n",
+            return string_format( "restricted to liquid item {} but not watertight\n",
                                   it->get_id().str() );
         }
         if( it->phase == phase_id::GAS && !airtight ) {
-            return string_format( "restricted to gas item %s but not airtight\n",
+            return string_format( "restricted to gas item {} but not airtight\n",
                                   it->get_id().str() );
         }
     }
     for( const std::pair<const ammotype, int> &ammo_res : ammo_restriction ) {
         const ammotype &at = ammo_res.first;
         if( !at.is_valid() ) {
-            return string_format( "invalid ammotype %s", at.str() );
+            return string_format( "invalid ammotype {}", at.str() );
         }
         const itype_id &it = at->default_ammotype();
         if( it->phase == phase_id::LIQUID && !watertight ) {
-            return string_format( "restricted to liquid item %s but not watertight\n",
+            return string_format( "restricted to liquid item {} but not watertight\n",
                                   it->get_id().str() );
         }
         if( it->phase == phase_id::GAS && !airtight ) {
-            return string_format( "restricted to gas item %s but not airtight\n",
+            return string_format( "restricted to gas item {} but not airtight\n",
                                   it->get_id().str() );
         }
     }
@@ -102,7 +102,7 @@ std::string pocket_data::check_definition() const
     }
     if( magazine_well >= max_contains_volume() ) {
         return string_format(
-                   "magazine well (%s) larger than pocket volume (%s); "
+                   "magazine well ({}) larger than pocket volume ({}); "
                    "consider using rigid instead.\n",
                    quantity_to_string( magazine_well ),
                    quantity_to_string( max_contains_volume() ) );
@@ -931,23 +931,23 @@ void item_pocket::general_info( std::vector<iteminfo> &info, int pocket_number,
                                 bool disp_pocket_number ) const
 {
     if( disp_pocket_number ) {
-        const std::string pocket_num = string_format( _( "Pocket %d:" ), pocket_number );
+        const std::string pocket_num = string_format( _( "Pocket {}:" ), pocket_number );
         info.emplace_back( "DESCRIPTION", pocket_num );
     }
 
     if( !get_description().empty() ) {
-        info.emplace_back( "DESCRIPTION", string_format( "<info>%s</info>",
+        info.emplace_back( "DESCRIPTION", string_format( "<info>{}</info>",
                            get_description().translated() ) );
     } else if( name_as_description ) {
         // fallback to the original items name as a description
-        info.emplace_back( "DESCRIPTION", string_format( "<info>%s</info>",
+        info.emplace_back( "DESCRIPTION", string_format( "<info>{}</info>",
                            get_name().translated() ) );
     }
 
     // NOLINTNEXTLINE(cata-translate-string-literal)
-    const std::string cont_type_str = string_format( "{%d}CONTAINER", pocket_number );
+    const std::string cont_type_str = string_format( "{{}}CONTAINER", pocket_number );
     // NOLINTNEXTLINE(cata-translate-string-literal)
-    const std::string base_type_str = string_format( "{%d}BASE", pocket_number );
+    const std::string base_type_str = string_format( "{{}}BASE", pocket_number );
 
     // Show volume/weight for normal containers, or ammo capacity if ammo_restriction is defined if its an ablative pocket don't display any info
     if( is_ablative() ) {
@@ -964,15 +964,15 @@ void item_pocket::general_info( std::vector<iteminfo> &info, int pocket_number,
         std::vector<std::pair<std::string, int>> fmts;
         for( const ammotype &at : ammo_types() ) {
             int capacity = ammo_capacity( at );
-            fmts.emplace_back( string_format( n_gettext( "<num> round of %s",
-                                              "<num> rounds of %s", capacity ),
+            fmts.emplace_back( string_format( n_gettext( "<num> round of {}",
+                                              "<num> rounds of {}", capacity ),
                                               at->name() ),
                                capacity );
         }
         std::sort( fmts.begin(), fmts.end(), localized_compare );
         for( const std::pair<std::string, int> &fmt : fmts ) {
             // NOLINTNEXTLINE(cata-translate-string-literal)
-            info.emplace_back( string_format( "{%d}MAGAZINE", pocket_number ), _( "Holds: " ), fmt.first,
+            info.emplace_back( string_format( "{{}}MAGAZINE", pocket_number ), _( "Holds: " ), fmt.first,
                                iteminfo::no_flags,
                                fmt.second );
         }
@@ -983,36 +983,36 @@ void item_pocket::general_info( std::vector<iteminfo> &info, int pocket_number,
         // if the item has no minimum length then keep it in the same units as max
         if( data->min_item_length == 0_mm ) {
             info.emplace_back( base_type_str, _( "Item length: " ),
-                               string_format( "<num> %s", length_units( data->max_item_length ) ),
+                               string_format( "<num> {}", length_units( data->max_item_length ) ),
                                iteminfo::no_newline,
                                0 );
         } else {
             info.emplace_back( base_type_str, _( "Item length: " ),
-                               string_format( "<num> %s", length_units( data->min_item_length ) ),
+                               string_format( "<num> {}", length_units( data->min_item_length ) ),
                                iteminfo::no_newline,
                                convert_length( data->min_item_length ), data->min_item_length.value() );
         }
         info.emplace_back( base_type_str, _( " to " ),
-                           string_format( "<num> %s", length_units( data->max_item_length ) ),
+                           string_format( "<num> {}", length_units( data->max_item_length ) ),
                            iteminfo::no_flags,
                            convert_length( data->max_item_length ), data->max_item_length.value() );
     } else if( data->min_item_length > 0_mm && !is_ablative() ) {
         info.back().bNewLine = true;
         info.emplace_back( base_type_str, _( "Minimum item length: " ),
-                           string_format( "<num> %s", length_units( data->min_item_length ) ),
+                           string_format( "<num> {}", length_units( data->min_item_length ) ),
                            iteminfo::no_flags,
                            convert_length( data->min_item_length ), data->min_item_length.value() );
     }
 
     if( data->min_item_volume > 0_ml ) {
-        std::string fmt = string_format( "<num> %s", volume_units_abbr() );
+        std::string fmt = string_format( "<num> {}", volume_units_abbr() );
         info.emplace_back( base_type_str, _( "Minimum item volume: " ), fmt,
                            iteminfo::lower_is_better | iteminfo::is_three_decimal,
                            convert_volume( data->min_item_volume.value(), nullptr ), data->min_item_volume.value() );
     }
 
     if( data->max_item_volume ) {
-        std::string fmt = string_format( "<num> %s", volume_units_abbr() );
+        std::string fmt = string_format( "<num> {}", volume_units_abbr() );
         info.emplace_back( base_type_str, _( "Maximum item volume: " ), fmt,
                            iteminfo::is_three_decimal, convert_volume( data->max_item_volume.value().value(), nullptr ),
                            data->max_item_volume.value().value() );
@@ -1031,7 +1031,7 @@ void item_pocket::general_info( std::vector<iteminfo> &info, int pocket_number,
 
     if( data->extra_encumbrance > 0 ) {
         info.emplace_back( "DESCRIPTION",
-                           string_format( _( "Causes %d <bad>additional encumbrance</bad> while in use." ),
+                           string_format( _( "Causes {} <bad>additional encumbrance</bad> while in use." ),
                                           data->extra_encumbrance ) ) ;
     }
 
@@ -1090,10 +1090,10 @@ void item_pocket::general_info( std::vector<iteminfo> &info, int pocket_number,
             const json_flag &f = *e;
             if( !f.restriction().empty() ) {
                 if( first ) {
-                    info.emplace_back( "DESCRIPTION", string_format( "* %s", f.restriction() ) );
+                    info.emplace_back( "DESCRIPTION", string_format( "* {}", f.restriction() ) );
                     first = false;
                 } else {
-                    info.emplace_back( "DESCRIPTION", string_format( _( "* <bold>or</bold> %s" ), f.restriction() ) );
+                    info.emplace_back( "DESCRIPTION", string_format( _( "* <bold>or</bold> {}" ), f.restriction() ) );
                 }
             }
         }
@@ -1108,14 +1108,14 @@ void item_pocket::contents_info( std::vector<iteminfo> &info, int pocket_number,
     insert_separation_line( info );
     if( disp_pocket_number ) {
         if( sealable() ) {
-            info.emplace_back( "DESCRIPTION", string_format( _( "<bold>%s pocket %d</bold>" ),
+            info.emplace_back( "DESCRIPTION", string_format( _( "<bold>{} pocket {}</bold>" ),
                                translated_sealed_prefix(),
                                pocket_number ) );
         } else if( is_ablative() && !contents.empty() ) {
-            info.emplace_back( "DESCRIPTION", string_format( _( "<bold>Pocket %d</bold>: %s" ),
+            info.emplace_back( "DESCRIPTION", string_format( _( "<bold>Pocket {}</bold>: {}" ),
                                pocket_number, contents.front().display_name() ) );
         } else {
-            info.emplace_back( "DESCRIPTION", string_format( _( "<bold>Pocket %d</bold>" ),
+            info.emplace_back( "DESCRIPTION", string_format( _( "<bold>Pocket {}</bold>" ),
                                pocket_number ) );
         }
     }
@@ -1128,27 +1128,27 @@ void item_pocket::contents_info( std::vector<iteminfo> &info, int pocket_number,
     }
 
     // NOLINTNEXTLINE(cata-translate-string-literal)
-    const std::string cont_type_str = string_format( "{%d}CONTAINER", pocket_number );
+    const std::string cont_type_str = string_format( "{{}}CONTAINER", pocket_number );
     // NOLINTNEXTLINE(cata-translate-string-literal)
-    const std::string arm_type_str = string_format( "{%d}ARMOR", pocket_number );
+    const std::string arm_type_str = string_format( "{{}}ARMOR", pocket_number );
 
     if( is_ablative() ) {
         // if we have contents for an ablative pocket display the armor data
         if( !contents.empty() ) {
             const item &ablative_armor = contents.front();
-            info.emplace_back( arm_type_str, string_format( "%s%s", _( "Coverage:" ), space ), "",
+            info.emplace_back( arm_type_str, string_format( "{}{}", _( "Coverage:" ), space ), "",
                                iteminfo::no_newline,
                                ablative_armor.get_avg_coverage() );
             //~ (M)elee coverage
-            info.emplace_back( arm_type_str, string_format( "%s%s%s", space, _( "(M):" ), space ), "",
+            info.emplace_back( arm_type_str, string_format( "{}{}{}", space, _( "(M):" ), space ), "",
                                iteminfo::no_newline,
                                ablative_armor.get_avg_coverage( item::cover_type::COVER_MELEE ) );
             //~ (R)anged coverage
-            info.emplace_back( arm_type_str, string_format( "%s%s%s", space, _( "(R):" ), space ), "",
+            info.emplace_back( arm_type_str, string_format( "{}{}{}", space, _( "(R):" ), space ), "",
                                iteminfo::no_newline,
                                ablative_armor.get_avg_coverage( item::cover_type::COVER_RANGED ) );
             //~ (V)itals coverage
-            info.emplace_back( arm_type_str, string_format( "%s%s%s", space, _( "(V):" ), space ), "",
+            info.emplace_back( arm_type_str, string_format( "{}{}{}", space, _( "(V):" ), space ), "",
                                iteminfo::no_flags,
                                ablative_armor.get_avg_coverage( item::cover_type::COVER_VITALS ) );
 
@@ -1567,7 +1567,7 @@ void item_pocket::overflow( const tripoint &pos )
             ( !ret_contain.success() &&
               ret_contain.value() != contain_code::ERR_NO_SPACE &&
               ret_contain.value() != contain_code::ERR_CANNOT_SUPPORT ) ) {
-            add_msg( m_bad, _( "Your %s falls to the ground." ), ( *iter ).tname() );
+            add_msg( m_bad, _( "Your {} falls to the ground." ), ( *iter ).tname() );
             here.add_item_or_charges( pos, *iter );
             iter = contents.erase( iter );
         } else {
@@ -2244,19 +2244,19 @@ void item_pocket::favorite_settings::info( std::vector<iteminfo> &info ) const
         info.emplace_back( "BASE", string_format(
                                _( "Items in this pocket <bad>won't be unloaded</bad> unless you manually drop them." ) ) );
     }
-    info.emplace_back( "BASE", string_format( "%s %d", _( "Priority:" ), priority_rating ) );
-    info.emplace_back( "BASE", string_format( _( "Item Whitelist: %s" ),
+    info.emplace_back( "BASE", string_format( "{} {}", _( "Priority:" ), priority_rating ) );
+    info.emplace_back( "BASE", string_format( _( "Item Whitelist: {}" ),
                        item_whitelist.empty() ? _( "(empty)" ) :
     enumerate_as_string( item_whitelist.begin(), item_whitelist.end(), []( const itype_id & id ) {
         return id->nname( 1 );
     } ) ) );
-    info.emplace_back( "BASE", string_format( _( "Item Blacklist: %s" ),
+    info.emplace_back( "BASE", string_format( _( "Item Blacklist: {}" ),
                        item_blacklist.empty() ? _( "(empty)" ) :
     enumerate_as_string( item_blacklist.begin(), item_blacklist.end(), []( const itype_id & id ) {
         return id->nname( 1 );
     } ) ) );
-    info.emplace_back( "BASE", string_format( _( "Category Whitelist: %s" ),
+    info.emplace_back( "BASE", string_format( _( "Category Whitelist: {}" ),
                        category_whitelist.empty() ? _( "(empty)" ) : enumerate( category_whitelist ) ) );
-    info.emplace_back( "BASE", string_format( _( "Category Blacklist: %s" ),
+    info.emplace_back( "BASE", string_format( _( "Category Blacklist: {}" ),
                        category_blacklist.empty() ? _( "(empty)" ) : enumerate( category_blacklist ) ) );
 }

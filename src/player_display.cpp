@@ -183,10 +183,10 @@ void Character::print_encumbrance( ui_adaptor &ui, const catacurses::window &win
         if( highlight_line ) {
             ui.set_cursor( win, point( 1, y_pos ) );
         }
-        mvwprintz( win, point( 1, y_pos ), limb_color, "%s", out );
+        mvwprintz( win, point( 1, y_pos ), limb_color, "{}", out );
         // accumulated encumbrance from clothing, plus extra encumbrance from layering
         int column = std::max( 10, ( width / 2 ) - 3 ); //Ideally the encumbrance data is centred
-        mvwprintz( win, point( column, y_pos ), display::encumb_color( e.encumbrance ), "%3d",
+        mvwprintz( win, point( column, y_pos ), display::encumb_color( e.encumbrance ), "{}",
                    e.encumbrance - e.layer_penalty );
         // separator in low toned color
         column += 3; //Prepared for 3-digit encumbrance
@@ -229,7 +229,7 @@ static std::string get_score_text( const std::string &sc_name, float cur_score, 
     std::string sc_txt = colorize( string_format( "%.2f (%.f%%)", cur_score,
                                    cur_score * 100.f / bp_score ), score_c );
     //~ 1$ = name of the limb score (ex: Balance), 2$ = current score value (colored)
-    return string_format( _( "%1$s score: %2$s" ), sc_name, sc_txt );
+    return string_format( _( "{1} score: {2}" ), sc_name, sc_txt );
 }
 
 static std::vector<std::string> get_encumbrance_description( const Character &you,
@@ -238,14 +238,14 @@ static std::vector<std::string> get_encumbrance_description( const Character &yo
     std::vector<std::string> s;
     const bodypart *part = you.get_part( bp );
     if( !bp->encumb_text.empty() ) {
-        s.emplace_back( colorize( string_format( _( "Encumbrance effects: %s" ), bp->encumb_text ),
+        s.emplace_back( colorize( string_format( _( "Encumbrance effects: {}" ), bp->encumb_text ),
                                   c_magenta ) );
     }
     if( bp->encumb_impacts_dodge && you.is_avatar() ) {
         int dodge = get_avatar().limb_dodge_encumbrance();
         nc_color dodge_c = dodge > 10 ? c_light_red : dodge > 5 ? c_yellow : c_white;
-        std::string dodge_str = colorize( string_format( "-%d", dodge ), dodge_c );
-        s.emplace_back( string_format( _( "Encumbrance dodge modifier: %s" ), dodge_str ) );
+        std::string dodge_str = colorize( string_format( "-{}", dodge ), dodge_c );
+        s.emplace_back( string_format( _( "Encumbrance dodge modifier: {}" ), dodge_str ) );
     }
     for( const limb_score &sc : limb_score::get_all() ) {
         if( !bp->has_limb_score( sc.getId() ) ) {
@@ -264,7 +264,7 @@ static std::vector<std::string> get_encumbrance_description( const Character &yo
             std::string valstr = colorize( string_format( "%.2f", mod.modifier( you ) ),
                                            limb_score_current_color( part->get_limb_score( sc.first ) * sc.second,
                                                    bp->get_limb_score( sc.first ) * sc.second ) );
-            s.emplace_back( string_format( "%s: %s%s", desc, mod.mod_type_str(), valstr ) );
+            s.emplace_back( string_format( "{}: {}{}", desc, mod.mod_type_str(), valstr ) );
         }
     }
     return s;
@@ -326,7 +326,7 @@ static void draw_proficiencies_tab( ui_adaptor &ui, const catacurses::window &wi
     if( focused ) {
         ui.set_cursor( win, point_zero );
     }
-    center_print( win, 0, title_color, string_format( "[<color_yellow>%s</color>] %s",
+    center_print( win, 0, title_color, string_format( "[<color_yellow>{}</color>] {}",
                   ctxt.get_desc( "VIEW_PROFICIENCIES" ), _( title_PROFICIENCIES ) ) );
 
     const int height = getmaxy( win ) - 1;
@@ -339,7 +339,7 @@ static void draw_proficiencies_tab( ui_adaptor &ui, const catacurses::window &wi
         std::string name;
         const display_proficiency &cur = profs[i];
         if( !cur.known && cur.id->can_learn() ) {
-            name = string_format( "%s %2.0f%%",
+            name = string_format( "{} {}.0f%%",
                                   left_justify( trim_by_length( cur.id->name(), width - 4 ), width - 4 ),
                                   std::floor( cur.practice * 100 ) );
         } else {
@@ -371,10 +371,10 @@ static void draw_proficiencies_info( const catacurses::window &w_info, const uns
         if( cur.known ) {
             progress = _( "You know this proficiency." );
         } else {
-            progress = string_format( _( "You are %2.1f%% of the way towards learning this proficiency." ),
+            progress = string_format( _( "You are {}.1f%% of the way towards learning this proficiency." ),
                                       cur.practice * 100 );
             if( debug_mode ) {
-                progress += string_format( "\nYou have spent %s practicing this proficiency.",
+                progress += string_format( "\nYou have spent {} practicing this proficiency.",
                                            to_string( cur.spent ) );
             }
         }
@@ -396,7 +396,7 @@ static void draw_stats_tab( ui_adaptor &ui, const catacurses::window &w_stats, c
         ui.set_cursor( w_stats, point_zero );
     }
     center_print( w_stats, 0, title_col,
-                  string_format( "[<color_yellow>%s</color>] %s",
+                  string_format( "[<color_yellow>{}</color>] {}",
                                  ctxt.get_desc( "VIEW_BODYSTAT" ), _( title_STATS ) ) );
 
     const auto highlight_line = [is_current_tab, line]( const unsigned line_to_draw ) {
@@ -438,8 +438,8 @@ static void draw_stats_tab( ui_adaptor &ui, const catacurses::window &w_stats, c
 
         set_highlight_cursor( line_to_draw );
         mvwprintz( w_stats, point( 1, line_to_draw + 1 ), line_color( line_to_draw ), name );
-        mvwprintz( w_stats, point( 18, line_to_draw + 1 ), cstatus, "%2d", cur );
-        mvwprintz( w_stats, point( 21, line_to_draw + 1 ), c_light_gray, "(%2d)", max );
+        mvwprintz( w_stats, point( 18, line_to_draw + 1 ), cstatus, "{}", cur );
+        mvwprintz( w_stats, point( 21, line_to_draw + 1 ), c_light_gray, "({})", max );
     };
 
     display_stat( _( "Strength:" ), you.get_str(), you.get_str_base(), 0 );
@@ -487,10 +487,10 @@ static void draw_stats_info( const catacurses::window &w_info, const Character &
                         _( "Strength affects your melee damage, the amount of weight you can carry, your total HP, "
                            "your resistance to many diseases, and the effectiveness of actions which require brute force." ) );
         print_colored_text( w_info, point( 1, 3 ), col_temp, c_light_gray,
-                            string_format( _( "Base HP: <color_white>%d</color>" ),
+                            string_format( _( "Base HP: <color_white>{}</color>" ),
                                            you.get_part_hp_max( you.get_root_body_part() ) ) );
         print_colored_text( w_info, point( 1, 4 ), col_temp, c_light_gray,
-                            string_format( _( "Carry weight (%s): <color_white>%.1f</color>" ), weight_units(),
+                            string_format( _( "Carry weight ({}): <color_white>%.1f</color>" ), weight_units(),
                                            convert_weight( you.weight_capacity() ) ) );
         print_colored_text( w_info, point( 1, 5 ), col_temp, c_light_gray,
                             string_format( _( "Bash damage: <color_white>%.1f</color>" ), you.bonus_damage( false ) ) );
@@ -513,16 +513,16 @@ static void draw_stats_info( const catacurses::window &w_info, const Character &
                         _( "Intelligence is less important in most situations, but it is vital for more complex tasks like "
                            "electronics crafting.  It also affects how much skill you can pick up from reading a book." ) );
         print_colored_text( w_info, point( 1, 4 ), col_temp, c_light_gray,
-                            string_format( _( "Read times: <color_white>%d%%</color>" ), you.read_speed() ) );
+                            string_format( _( "Read times: <color_white>{}%%</color>" ), you.read_speed() ) );
         print_colored_text( w_info, point( 1, 5 ), col_temp, c_light_gray,
-                            string_format( _( "Crafting bonus: <color_white>%d%%</color>" ), you.get_int() ) );
+                            string_format( _( "Crafting bonus: <color_white>{}%%</color>" ), you.get_int() ) );
     } else if( line == 3 ) {
         // NOLINTNEXTLINE(cata-use-named-point-constants)
         fold_and_print( w_info, point( 1, 0 ), FULL_SCREEN_WIDTH - 2, c_magenta,
                         _( "Perception is the most important stat for ranged combat.  It's also used for "
                            "detecting traps and other things of interest." ) );
         print_colored_text( w_info, point( 1, 4 ), col_temp, c_light_gray,
-                            string_format( _( "Trap detection level: <color_white>%d</color>" ), you.get_per() ) );
+                            string_format( _( "Trap detection level: <color_white>{}</color>" ), you.get_per() ) );
         if( you.ranged_per_mod() > 0 ) {
             print_colored_text( w_info, point( 1, 5 ), col_temp, c_light_gray,
                                 string_format( _( "Aiming penalty: <color_white>%+d</color>" ), -you.ranged_per_mod() ) );
@@ -556,9 +556,9 @@ static void draw_stats_info( const catacurses::window &w_info, const Character &
         const int lines = fold_and_print( w_info, point( 1, 0 ), FULL_SCREEN_WIDTH - 2, c_magenta,
                                           _( "This is your blood type and Rh factor." ) );
         fold_and_print( w_info, point( 1, 1 + lines ), FULL_SCREEN_WIDTH - 2, c_light_gray,
-                        string_format( _( "Blood type: %s" ), io::enum_to_string( you.my_blood_type ) ) );
+                        string_format( _( "Blood type: {}" ), io::enum_to_string( you.my_blood_type ) ) );
         fold_and_print( w_info, point( 1, 2 + lines ), FULL_SCREEN_WIDTH - 2, c_light_gray,
-                        string_format( _( "Rh factor: %s" ),
+                        string_format( _( "Rh factor: {}" ),
                                        you.blood_rh_factor ? _( "positive (+)" ) : _( "negative (-)" ) ) );
     }
     wnoutrefresh( w_info );
@@ -649,7 +649,7 @@ static void draw_traits_info( const catacurses::window &w_info, const unsigned l
     if( line < traitslist.size() ) {
         const trait_and_var &cur = traitslist[line];
         // NOLINTNEXTLINE(cata-use-named-point-constants)
-        fold_and_print( w_info, point( 1, 0 ), FULL_SCREEN_WIDTH - 2, c_light_gray, string_format( "%s: %s",
+        fold_and_print( w_info, point( 1, 0 ), FULL_SCREEN_WIDTH - 2, c_light_gray, string_format( "{}: {}",
                         colorize( cur.name(), cur.trait->get_display_color() ), cur.desc() ) );
     }
     wnoutrefresh( w_info );
@@ -682,8 +682,8 @@ static void draw_bionics_tab( ui_adaptor &ui, const catacurses::window &w_bionic
         ui.set_cursor( w_bionics, pow_pos );
     }
     trim_and_print( w_bionics, pow_pos, getmaxx( w_bionics ) - 1, c_white,
-                    string_format( _( "Power: <color_light_blue>%1$d %2$s</color>"
-                                      " / <color_light_blue>%3$d kJ</color>" ),
+                    string_format( _( "Power: <color_light_blue>{1} {2}</color>"
+                                      " / <color_light_blue>{3} kJ</color>" ),
                                    power_amount, power_unit, units::to_kilojoule( you.get_max_power_level() ) ) );
     const int height = getmaxy( w_bionics ) - 2;  // -2 for headline and power_level
     const bool do_draw_scrollbar = height < static_cast<int>( bionicslist.size() );
@@ -698,7 +698,7 @@ static void draw_bionics_tab( ui_adaptor &ui, const catacurses::window &w_bionic
             ui.set_cursor( w_bionics, pos );
         }
         trim_and_print( w_bionics, pos, width,
-                        highlight_line ? hilite( c_white ) : c_white, "%s", bionicslist[i].info().name );
+                        highlight_line ? hilite( c_white ) : c_white, "{}", bionicslist[i].info().name );
     }
     if( do_draw_scrollbar ) {
         draw_scrollbar( w_bionics, range.first, height, bionicslist.size(), point( width + 1, 2 ), c_white,
@@ -713,7 +713,7 @@ static void draw_bionics_info( const catacurses::window &w_info, const unsigned 
     werase( w_info );
     if( line < bionicslist.size() ) {
         // NOLINTNEXTLINE(cata-use-named-point-constants)
-        fold_and_print( w_info, point( 1, 0 ), FULL_SCREEN_WIDTH - 2, c_light_gray, "%s",
+        fold_and_print( w_info, point( 1, 0 ), FULL_SCREEN_WIDTH - 2, c_light_gray, "{}",
                         bionicslist[line].info().description );
     }
     wnoutrefresh( w_info );
@@ -854,14 +854,14 @@ static void draw_skills_tab( ui_adaptor &ui, const catacurses::window &w_skills,
                 }
                 mvwprintz( w_skills, point( 1, y_pos ), c_light_gray, std::string( col_width, ' ' ) );
             }
-            mvwprintz( w_skills, point( 1, y_pos ), cstatus, "%s:", aSkill->name() );
+            mvwprintz( w_skills, point( 1, y_pos ), cstatus, "{}:", aSkill->name() );
             if( aSkill->ident() == skill_dodge ) {
-                mvwprintz( w_skills, point( 14, y_pos ), cstatus, "%4.1f/%-2d(%2d%%)",
+                mvwprintz( w_skills, point( 14, y_pos ), cstatus, "{}.1f/%-2d({}%%)",
                            you.get_dodge(),
                            level_num,
                            ( exercise < 0 ? 0 : exercise ) );
             } else {
-                mvwprintz( w_skills, point( 19, y_pos ), cstatus, "%-2d(%2d%%)",
+                mvwprintz( w_skills, point( 19, y_pos ), cstatus, "%-2d({}%%)",
                            level_num,
                            ( exercise < 0 ? 0 : exercise ) );
             }
@@ -895,7 +895,7 @@ static void draw_skills_info( const catacurses::window &w_info, const Character 
         const SkillLevel &level = you.get_skill_level_object( selectedSkill->ident() );
         std::string info_text = selectedSkill->description();
         if( level.isRusty() ) {
-            info_text = string_format( _( "%s\n\nKnowledge level: %d (%d%%)" ), info_text,
+            info_text = string_format( _( "{}\n\nKnowledge level: {} ({}%%)" ), info_text,
                                        level.knowledgeLevel(), level.knowledgeExperience() );
         }
         // NOLINTNEXTLINE(cata-use-named-point-constants)
@@ -920,34 +920,34 @@ static void draw_speed_tab( const catacurses::window &w_speed,
     if( you.weight_carried() > you.weight_capacity() ) {
         pen = 25 * ( you.weight_carried() - you.weight_capacity() ) / you.weight_capacity();
         mvwprintz( w_speed, point( 1, line ), c_red,
-                   pgettext( "speed penalty", "Overburdened        -%2d%%" ), pen );
+                   pgettext( "speed penalty", "Overburdened        -{}%%" ), pen );
         ++line;
     }
     pen = you.get_pain_penalty().speed;
     if( pen >= 1 ) {
         mvwprintz( w_speed, point( 1, line ), c_red,
-                   pgettext( "speed penalty", "Pain                -%2d%%" ), pen );
+                   pgettext( "speed penalty", "Pain                -{}%%" ), pen );
         ++line;
     }
     if( you.get_thirst() > 40 ) {
         pen = std::abs( Character::thirst_speed_penalty( you.get_thirst() ) );
         mvwprintz( w_speed, point( 1, line ), c_red,
-                   pgettext( "speed penalty", "Thirst              -%2d%%" ), pen );
+                   pgettext( "speed penalty", "Thirst              -{}%%" ), pen );
         ++line;
     }
     if( you.kcal_speed_penalty() < 0 ) {
         pen = std::abs( you.kcal_speed_penalty() );
         const std::string inanition = you.get_bmi() < character_weight_category::underweight ?
                                       _( "Starving" ) : _( "Underfed" );
-        //~ %s: Starving/Underfed (already left-justified), %2d: speed penalty
-        mvwprintz( w_speed, point( 1, line ), c_red, pgettext( "speed penalty", "%s-%2d%%" ),
+        //~ {}: Starving/Underfed (already left-justified), {}: speed penalty
+        mvwprintz( w_speed, point( 1, line ), c_red, pgettext( "speed penalty", "{}-{}%%" ),
                    left_justify( inanition, 20 ), pen );
         ++line;
     }
     if( you.has_trait( trait_SUNLIGHT_DEPENDENT ) && !g->is_in_sunlight( you.pos() ) ) {
         pen = ( g->light_level( you.posz() ) >= 12 ? 5 : 10 );
         mvwprintz( w_speed, point( 1, line ), c_red,
-                   pgettext( "speed penalty", "Out of Sunlight     -%2d%%" ), pen );
+                   pgettext( "speed penalty", "Out of Sunlight     -{}%%" ), pen );
         ++line;
     }
 
@@ -966,8 +966,8 @@ static void draw_speed_tab( const catacurses::window &w_speed,
         if( !pen_sign.empty() ) {
             pen = ( player_local_temp - 65 ) * temperature_speed_modifier;
             mvwprintz( w_speed, point( 1, line ), pen_color,
-                       //~ %s: sign of bonus/penalty, %2d: speed bonus/penalty
-                       pgettext( "speed modifier", "Cold-Blooded        %s%2d%%" ), pen_sign, std::abs( pen ) );
+                       //~ {}: sign of bonus/penalty, {}: speed bonus/penalty
+                       pgettext( "speed modifier", "Cold-Blooded        {}{}%%" ), pen_sign, std::abs( pen ) );
             ++line;
         }
     }
@@ -976,15 +976,15 @@ static void draw_speed_tab( const catacurses::window &w_speed,
 
     if( speed_modifier != 0 ) {
         mvwprintz( w_speed, point( 1, line ), c_green,
-                   pgettext( "speed bonus", "Bio/Mut/Effects     +%2d" ), speed_modifier );
+                   pgettext( "speed bonus", "Bio/Mut/Effects     +{}" ), speed_modifier );
         ++line;
     }
 
     for( const std::pair<const std::string, int> &speed_effect : speed_effects ) {
         nc_color col = ( speed_effect.second > 0 ? c_green : c_red );
-        mvwprintz( w_speed, point( 1, line ), col, "%s", speed_effect.first );
+        mvwprintz( w_speed, point( 1, line ), col, "{}", speed_effect.first );
         mvwprintz( w_speed, point( 21, line ), col, ( speed_effect.second > 0 ? "+" : "-" ) );
-        mvwprintz( w_speed, point( std::abs( speed_effect.second ) >= 10 ? 22 : 23, line ), col, "%d%%",
+        mvwprintz( w_speed, point( std::abs( speed_effect.second ) >= 10 ? 22 : 23, line ), col, "{}%%",
                    std::abs( speed_effect.second ) );
         ++line;
     }
@@ -992,10 +992,10 @@ static void draw_speed_tab( const catacurses::window &w_speed,
     int runcost = you.run_cost( 100 );
     nc_color col = ( runcost <= 100 ? c_green : c_red );
     mvwprintz( w_speed, point( 21 + ( runcost >= 100 ? 0 : ( runcost < 10 ? 2 : 1 ) ), 1 ), col,
-               "%d", runcost );
+               "{}", runcost );
     col = ( newmoves >= 100 ? c_green : c_red );
     mvwprintz( w_speed, point( 21 + ( newmoves >= 100 ? 0 : ( newmoves < 10 ? 2 : 1 ) ), 2 ), col,
-               "%d", newmoves );
+               "{}", newmoves );
     wnoutrefresh( w_speed );
 }
 
@@ -1042,34 +1042,34 @@ static void draw_tip( const catacurses::window &w_tip, const Character &you,
     if( you.custom_profession.empty() ) {
         if( you.crossed_threshold() ) {
             //~ player info window: 1s - name, 2s - gender, 3s - Prof or Mutation name
-            mvwprintz( w_tip, point_zero, c_white, _( " %1$s | %2$s | %3$s" ), you.get_name(),
+            mvwprintz( w_tip, point_zero, c_white, _( " {1} | {2} | {3}" ), you.get_name(),
                        you.male ? _( "Male" ) : _( "Female" ), race );
         } else if( you.prof == nullptr || you.prof == profession::generic() ) {
             // Regular person. Nothing interesting.
             //~ player info window: 1s - name, 2s - gender '|' - field separator.
-            mvwprintz( w_tip, point_zero, c_white, _( " %1$s | %2$s" ), you.get_name(),
+            mvwprintz( w_tip, point_zero, c_white, _( " {1} | {2}" ), you.get_name(),
                        you.male ? _( "Male" ) : _( "Female" ) );
         } else {
-            mvwprintz( w_tip, point_zero, c_white, _( " %1$s | %2$s | %3$s" ), you.get_name(),
+            mvwprintz( w_tip, point_zero, c_white, _( " {1} | {2} | {3}" ), you.get_name(),
                        you.male ? _( "Male" ) : _( "Female" ),
                        you.prof->gender_appropriate_name( you.male ) );
         }
     } else {
-        mvwprintz( w_tip, point_zero, c_white, _( " %1$s | %2$s | %3$s" ), you.get_name(),
+        mvwprintz( w_tip, point_zero, c_white, _( " {1} | {2} | {3}" ), you.get_name(),
                    you.male ? _( "Male" ) : _( "Female" ), you.custom_profession );
     }
 
     if( customize_character ) {
         right_print( w_tip, 0, 8, c_light_gray, string_format(
-                         _( "[<color_yellow>%s</color>] Customize character" ),
+                         _( "[<color_yellow>{}</color>] Customize character" ),
                          ctxt.get_desc( "SWITCH_GENDER" ) ) );
     }
 
     right_print( w_tip, 0, 1, c_light_gray, string_format(
-                     _( "[<color_yellow>%s</color>]" ),
+                     _( "[<color_yellow>{}</color>]" ),
                      ctxt.get_desc( "HELP_KEYBINDINGS" ) ) );
 
-    right_print( w_tip, 0, 0, c_light_gray, string_format( "%s", LINE_XOXO_S ) );
+    right_print( w_tip, 0, 0, c_light_gray, string_format( "{}", LINE_XOXO_S ) );
 
     wnoutrefresh( w_tip );
 }
@@ -1239,7 +1239,7 @@ static bool handle_player_display_action( Character &you, unsigned int &line,
         cmenu.query();
         if( cmenu.ret == 1 ) {
             you.male = !you.male;
-            popup( _( "Gender set to %s." ), you.male ? _( "Male" ) : _( "Female" ) );
+            popup( _( "Gender set to {}." ), you.male ? _( "Male" ) : _( "Female" ) );
         } else if( cmenu.ret == 2 ) {
             std::string filterstring = you.play_name.value_or( std::string() );
             string_input_popup popup;
@@ -1312,18 +1312,18 @@ void Character::disp_info( bool customize_character )
         const stat_mod ppen = get_pain_penalty();
         std::pair<std::string, nc_color> pain_desc = display::pain_text_color( *this );
         std::string pain_text;
-        pain_desc.first = string_format( _( "You are in %s\n" ), pain_desc.first );
+        pain_desc.first = string_format( _( "You are in {}\n" ), pain_desc.first );
         pain_text += colorize( pain_desc.first, pain_desc.second );
         const auto add_if = [&]( const int amount, const char *const name ) {
             if( amount > 0 ) {
                 pain_text += string_format( name, amount ) + "   ";
             }
         };
-        add_if( ppen.strength, _( "Strength -%d" ) );
-        add_if( ppen.dexterity, _( "Dexterity -%d" ) );
-        add_if( ppen.intelligence, _( "Intelligence -%d" ) );
-        add_if( ppen.perception, _( "Perception -%d" ) );
-        add_if( ppen.speed, _( "Speed -%d %%" ) );
+        add_if( ppen.strength, _( "Strength -{}" ) );
+        add_if( ppen.dexterity, _( "Dexterity -{}" ) );
+        add_if( ppen.intelligence, _( "Intelligence -{}" ) );
+        add_if( ppen.perception, _( "Perception -{}" ) );
+        add_if( ppen.speed, _( "Speed -{} %%" ) );
         effect_name_and_text.emplace_back( _( "Pain" ), pain_text );
     }
 
@@ -1345,11 +1345,11 @@ void Character::disp_info( bool customize_character )
 
         if( bmi < character_weight_category::underweight ) {
             const float str_penalty = 1.0f - ( ( bmi - 13.0f ) / 3.0f );
-            starvation_text += std::string( _( "Strength" ) ) + " -" + string_format( "%2.0f%%\n",
+            starvation_text += std::string( _( "Strength" ) ) + " -" + string_format( "{}.0f%%\n",
                                str_penalty * 100.0f );
-            starvation_text += std::string( _( "Dexterity" ) ) + " -" + string_format( "%2.0f%%\n",
+            starvation_text += std::string( _( "Dexterity" ) ) + " -" + string_format( "{}.0f%%\n",
                                str_penalty * 50.0f );
-            starvation_text += std::string( _( "Intelligence" ) ) + " -" + string_format( "%2.0f%%",
+            starvation_text += std::string( _( "Intelligence" ) ) + " -" + string_format( "{}.0f%%",
                                str_penalty * 50.0f );
         }
 

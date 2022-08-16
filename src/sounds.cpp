@@ -314,12 +314,12 @@ void sounds::sound( const tripoint &p, int vol, sound_t category, const std::str
 {
     if( vol < 0 ) {
         // Bail out if no volume.
-        debugmsg( "negative sound volume %d", vol );
+        debugmsg( "negative sound volume {}", vol );
         return;
     }
     // Description is not an optional parameter
     if( description.empty() ) {
-        debugmsg( "Sound at %d:%d has no description!", p.x, p.y );
+        debugmsg( "Sound at {}:{} has no description!", p.x, p.y );
     }
     const season_type seas = season_of_year( calendar::turn );
     const std::string seas_str = season_str( seas );
@@ -442,7 +442,7 @@ static int get_signal_for_hordes( const centroid &centr )
         sig_power = std::max( sig_power, min_sig_cap );
         //Capping extremely high signal to hordes
         sig_power = std::min( sig_power, max_sig_cap );
-        add_msg_debug( debugmode::DF_SOUND, "vol %d  vol_hordes %d sig_power %d ", vol, vol_hordes,
+        add_msg_debug( debugmode::DF_SOUND, "vol {}  vol_hordes {} sig_power {} ", vol, vol_hordes,
                        sig_power );
         return sig_power;
     }
@@ -635,7 +635,7 @@ void sounds::process_sound_markers( Character *you )
             if( uistate.distraction_noise &&
                 !you->activity.is_distraction_ignored( distraction_type::noise ) &&
                 !get_safemode().is_sound_safe( sound.description, distance_to_sound, you->controlling_vehicle ) ) {
-                const std::string query = string_format( _( "Heard %s!" ),
+                const std::string query = string_format( _( "Heard {}!" ),
                                           trim_trailing_punctuations( description ) );
                 g->cancel_activity_or_ignore_query( distraction_type::noise, query );
             }
@@ -651,12 +651,12 @@ void sounds::process_sound_markers( Character *you )
             }
             // if we can see it, don't print a direction
             if( pos == you->pos() ) {
-                add_msg( severity, _( "From your position you hear %1$s" ), description );
+                add_msg( severity, _( "From your position you hear {1}" ), description );
             } else if( you->sees( pos ) ) {
-                add_msg( severity, _( "You hear %1$s" ), description );
+                add_msg( severity, _( "You hear {1}" ), description );
             } else {
                 std::string direction = direction_name( direction_from( you->pos(), pos ) );
-                add_msg( severity, _( "From the %1$s you hear %2$s" ), direction, description );
+                add_msg( severity, _( "From the {1} you hear {2}" ), direction, description );
             }
         }
 
@@ -899,7 +899,7 @@ void sfx::do_vehicle_engine_sfx()
         play_ambient_variant_sound( id_and_variant.first, id_and_variant.second,
                                     seas_str, indoors, night,
                                     sfx::get_heard_volume( player_character.pos() ), ch, 1000 );
-        add_msg_debug( debugmode::DF_SOUND, "START %s %s", id_and_variant.first, id_and_variant.second );
+        add_msg_debug( debugmode::DF_SOUND, "START {} {}", id_and_variant.first, id_and_variant.second );
     } else {
         add_msg_debug( debugmode::DF_SOUND, "PLAYING" );
     }
@@ -958,11 +958,11 @@ void sfx::do_vehicle_engine_sfx()
 
     if( current_speed != previous_speed ) {
         Mix_HaltChannel( static_cast<int>( ch ) );
-        add_msg_debug( debugmode::DF_SOUND, "STOP speed %d =/= %d", current_speed, previous_speed );
+        add_msg_debug( debugmode::DF_SOUND, "STOP speed {} =/= {}", current_speed, previous_speed );
         play_ambient_variant_sound( id_and_variant.first, id_and_variant.second,
                                     seas_str, indoors, night,
                                     sfx::get_heard_volume( player_character.pos() ), ch, 1000, pitch );
-        add_msg_debug( debugmode::DF_SOUND, "PITCH %f", pitch );
+        add_msg_debug( debugmode::DF_SOUND, "PITCH {}", pitch );
     }
     previous_speed = current_speed;
     previous_gear = current_gear;
@@ -1042,7 +1042,7 @@ void sfx::do_vehicle_exterior_engine_sfx()
         if( engine_external_id_and_variant == id_and_variant ) {
             Mix_SetPosition( ch_int, to_degrees( get_heard_angle( veh->global_pos3() ) ), 0 );
             set_channel_volume( ch, vol );
-            add_msg_debug( debugmode::DF_SOUND, "PLAYING exterior_engine_sound, vol: ex:%d true:%d", vol,
+            add_msg_debug( debugmode::DF_SOUND, "PLAYING exterior_engine_sound, vol: ex:{} true:{}", vol,
                            Mix_Volume( ch_int, -1 ) );
         } else {
             engine_external_id_and_variant = id_and_variant;
@@ -1052,7 +1052,7 @@ void sfx::do_vehicle_exterior_engine_sfx()
                                         seas_str, indoors, night, 128, ch, 0 );
             Mix_SetPosition( ch_int, to_degrees( get_heard_angle( veh->global_pos3() ) ), 0 );
             set_channel_volume( ch, vol );
-            add_msg_debug( debugmode::DF_SOUND, "START exterior_engine_sound %s %s vol: %d",
+            add_msg_debug( debugmode::DF_SOUND, "START exterior_engine_sound {} {} vol: {}",
                            id_and_variant.first,
                            id_and_variant.second,
                            Mix_Volume( ch_int, -1 ) );
@@ -1060,11 +1060,11 @@ void sfx::do_vehicle_exterior_engine_sfx()
     } else {
         play_ambient_variant_sound( id_and_variant.first, id_and_variant.second,
                                     seas_str, indoors, night, 128, ch, 0 );
-        add_msg_debug( debugmode::DF_SOUND, "Vol: %d %d", vol, Mix_Volume( ch_int, -1 ) );
+        add_msg_debug( debugmode::DF_SOUND, "Vol: {} {}", vol, Mix_Volume( ch_int, -1 ) );
         Mix_SetPosition( ch_int, to_degrees( get_heard_angle( veh->global_pos3() ) ), 0 );
-        add_msg_debug( debugmode::DF_SOUND, "Vol: %d %d", vol, Mix_Volume( ch_int, -1 ) );
+        add_msg_debug( debugmode::DF_SOUND, "Vol: {} {}", vol, Mix_Volume( ch_int, -1 ) );
         set_channel_volume( ch, vol );
-        add_msg_debug( debugmode::DF_SOUND, "START exterior_engine_sound NEW %s %s vol: ex:%d true:%d",
+        add_msg_debug( debugmode::DF_SOUND, "START exterior_engine_sound NEW {} {} vol: ex:{} true:{}",
                        id_and_variant.first,
                        id_and_variant.second, vol, Mix_Volume( ch_int, -1 ) );
     }
@@ -1989,7 +1989,7 @@ int sfx::get_heard_volume( const tripoint &source )
 units::angle sfx::get_heard_angle( const tripoint &source )
 {
     units::angle angle = coord_to_angle( get_player_character().pos(), source ) + 90_degrees;
-    //add_msg(m_warning, "angle: %i", angle);
+    //add_msg(m_warning, "angle: {}", angle);
     return angle;
 }
 /*@}*/

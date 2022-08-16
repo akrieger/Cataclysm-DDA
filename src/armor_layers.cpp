@@ -142,10 +142,10 @@ mid_pane_status draw_mid_pane( const catacurses::window &w_sort_middle,
             body_part_names( penalties.body_parts_with_stacking_penalty );
         std::string message =
             string_format(
-                n_gettext( "Wearing multiple items %s on your "
-                           "<color_light_red>%s</color> is adding encumbrance there.",
-                           "Wearing multiple items %s on your "
-                           "<color_light_red>%s</color> is adding encumbrance there.",
+                n_gettext( "Wearing multiple items {} on your "
+                           "<color_light_red>{}</color> is adding encumbrance there.",
+                           "Wearing multiple items {} on your "
+                           "<color_light_red>{}</color> is adding encumbrance there.",
                            penalties.body_parts_with_stacking_penalty.size() ),
                 layer_description, body_parts
             );
@@ -161,19 +161,19 @@ mid_pane_status draw_mid_pane( const catacurses::window &w_sort_middle,
         if( penalties.bad_items_within.empty() ) {
             message = string_format(
                           n_gettext( "Wearing this outside items it would normally be beneath "
-                                     "is adding encumbrance to your <color_light_red>%s</color>.",
+                                     "is adding encumbrance to your <color_light_red>{}</color>.",
                                      "Wearing this outside items it would normally be beneath "
-                                     "is adding encumbrance to your <color_light_red>%s</color>.",
+                                     "is adding encumbrance to your <color_light_red>{}</color>.",
                                      penalties.body_parts_with_out_of_order_penalty.size() ),
                           body_parts
                       );
         } else {
             std::string bad_item_name = *penalties.bad_items_within.begin();
             message = string_format(
-                          n_gettext( "Wearing this outside your <color_light_blue>%s</color> "
-                                     "is adding encumbrance to your <color_light_red>%s</color>.",
-                                     "Wearing this outside your <color_light_blue>%s</color> "
-                                     "is adding encumbrance to your <color_light_red>%s</color>.",
+                          n_gettext( "Wearing this outside your <color_light_blue>{}</color> "
+                                     "is adding encumbrance to your <color_light_red>{}</color>.",
+                                     "Wearing this outside your <color_light_blue>{}</color> "
+                                     "is adding encumbrance to your <color_light_red>{}</color>.",
                                      penalties.body_parts_with_out_of_order_penalty.size() ),
                           bad_item_name, body_parts
                       );
@@ -232,33 +232,33 @@ std::vector<std::string> clothing_properties(
     std::vector<std::string> props;
     props.reserve( 5 );
 
-    props.push_back( string_format( "<color_c_green>[%s]</color>", _( "Properties" ) ) );
+    props.push_back( string_format( "<color_c_green>[{}]</color>", _( "Properties" ) ) );
 
     int coverage = bp == bodypart_id( "bp_null" ) ? worn_item.get_avg_coverage() :
                    worn_item.get_coverage( bp );
-    add_folded_name_and_value( props, _( "Coverage:" ), string_format( "%3d", coverage ),
+    add_folded_name_and_value( props, _( "Coverage:" ), string_format( "{}", coverage ),
                                width );
     coverage = bp == bodypart_id( "bp_null" ) ? worn_item.get_avg_coverage(
                    item::cover_type::COVER_MELEE ) :
                worn_item.get_coverage( bp, item::cover_type::COVER_MELEE );
-    add_folded_name_and_value( props, _( "Coverage (Melee):" ), string_format( "%3d",
+    add_folded_name_and_value( props, _( "Coverage (Melee):" ), string_format( "{}",
                                coverage ), width );
     coverage = bp == bodypart_id( "bp_null" ) ? worn_item.get_avg_coverage(
                    item::cover_type::COVER_RANGED ) :
                worn_item.get_coverage( bp, item::cover_type::COVER_RANGED );
-    add_folded_name_and_value( props, _( "Coverage (Ranged):" ), string_format( "%3d",
+    add_folded_name_and_value( props, _( "Coverage (Ranged):" ), string_format( "{}",
                                coverage ), width );
     coverage = bp == bodypart_id( "bp_null" ) ? worn_item.get_avg_coverage(
                    item::cover_type::COVER_VITALS ) :
                worn_item.get_coverage( bp, item::cover_type::COVER_VITALS );
-    add_folded_name_and_value( props, _( "Coverage (Vitals):" ), string_format( "%3d",
+    add_folded_name_and_value( props, _( "Coverage (Vitals):" ), string_format( "{}",
                                coverage ), width );
 
     const int encumbrance = bp == bodypart_id( "bp_null" ) ? worn_item.get_avg_encumber(
                                 c ) : worn_item.get_encumber( c, bp );
-    add_folded_name_and_value( props, _( "Encumbrance:" ), string_format( "%3d", encumbrance ),
+    add_folded_name_and_value( props, _( "Encumbrance:" ), string_format( "{}", encumbrance ),
                                width );
-    add_folded_name_and_value( props, _( "Warmth:" ), string_format( "%3d",
+    add_folded_name_and_value( props, _( "Warmth:" ), string_format( "{}",
                                worn_item.get_warmth() ), width );
     return props;
 }
@@ -334,7 +334,7 @@ std::vector<std::string> clothing_protection( const item &worn_item, const int w
 
     bool display_median = percent_best < 50 && percent_worst < 50;
 
-    prot.push_back( string_format( "<color_c_green>[%s]</color>", _( "Protection" ) ) );
+    prot.push_back( string_format( "<color_c_green>[{}]</color>", _( "Protection" ) ) );
     // bash ballistic and cut can have more involved info based on armor complexity
     if( percent_worst > 0 ) {
         std::vector<std::pair<std::string, std::string>> bash_subvalues = collect_protection_subvalues(
@@ -360,9 +360,9 @@ std::vector<std::string> clothing_protection( const item &worn_item, const int w
     add_folded_name_and_value( prot, _( "Fire:" ),
                                string_format( "%.2f", best_res.type_resist( damage_type::HEAT ) ), width );
     add_folded_name_and_value( prot, _( "Environmental:" ),
-                               string_format( "%3d", static_cast<int>( worn_item.get_env_resist() ) ), width );
+                               string_format( "{}", static_cast<int>( worn_item.get_env_resist() ) ), width );
     add_folded_name_and_value( prot, _( "Breathability:" ),
-                               string_format( "%3d", static_cast<int>( worn_item.breathability( bp ) ) ), width );
+                               string_format( "{}", static_cast<int>( worn_item.breathability( bp ) ) ), width );
     return prot;
 }
 
@@ -695,12 +695,12 @@ void outfit::sort_armor( Character &guy )
         // top bar
         wprintz( w_sort_cat, c_white, _( "Sort Armor" ) );
         std::string temp = bp != bodypart_id( "bp_null" ) ? body_part_name_as_heading( bp, 1 ) : _( "All" );
-        wprintz( w_sort_cat, c_yellow, "  << %s >>", temp );
+        wprintz( w_sort_cat, c_yellow, "  << {} >>", temp );
         right_print( w_sort_cat, 0, 0, c_white, string_format(
-                         _( "[<color_yellow>%s</color>] Hide sprite.  "
-                            "[<color_yellow>%s</color>] Change side.  "
-                            "Press [<color_yellow>%s</color>] for help.  "
-                            "Press [<color_yellow>%s</color>] to change keybindings." ),
+                         _( "[<color_yellow>{}</color>] Hide sprite.  "
+                            "[<color_yellow>{}</color>] Change side.  "
+                            "Press [<color_yellow>{}</color>] for help.  "
+                            "Press [<color_yellow>{}</color>] to change keybindings." ),
                          ctxt.get_desc( "TOGGLE_CLOTH" ),
                          ctxt.get_desc( "CHANGE_SIDE" ),
                          ctxt.get_desc( "USAGE_HELP" ),
@@ -719,7 +719,7 @@ void outfit::sort_armor( Character &guy )
         }
 
         // Left header
-        std:: string storage_header = string_format( _( "Storage (%s)" ), volume_units_abbr() );
+        std:: string storage_header = string_format( _( "Storage ({})" ), volume_units_abbr() );
         trim_and_print( w_sort_left, point_zero, left_w - utf8_width( storage_header ) - 1, c_light_gray,
                         _( "(Innermost)" ) );
         right_print( w_sort_left, 0, 0, c_light_gray, storage_header );
@@ -838,7 +838,7 @@ void outfit::sort_armor( Character &guy )
             }
             if( curr >= rightListOffset && pos <= rightListLines ) {
                 mvwprintz( w_sort_right, point( 1, pos ), ( cover == bp ? c_yellow : c_white ),
-                           "%s:", body_part_name_as_heading( cover, combine_bp( cover ) ? 2 : 1 ) );
+                           "{}:", body_part_name_as_heading( cover, combine_bp( cover ) ? 2 : 1 ) );
                 pos++;
             }
             curr++;
@@ -846,7 +846,7 @@ void outfit::sort_armor( Character &guy )
                 if( curr >= rightListOffset && pos <= rightListLines ) {
                     nc_color color = elem.penalties.color_for_stacking_badness();
                     char plus = elem.penalties.badness() > 0 ? '+' : ' ';
-                    std::string encumbrance_string = string_format( "%d%c", elem.encumber, plus );
+                    std::string encumbrance_string = string_format( "{}{}", elem.encumber, plus );
                     if( utf8_width( encumbrance_string ) + 1 > encumbrance_char_allowance ) {
                         encumbrance_char_allowance = utf8_width( encumbrance_string ) + 1;
                     }
@@ -890,11 +890,11 @@ void outfit::sort_armor( Character &guy )
         } else {
             // Player is sorting NPC's armor here
             if( rl_dist( player_character.pos(), guy.pos() ) > 1 ) {
-                guy.add_msg_if_npc( m_bad, _( "%s is too far to sort armor." ), guy.get_name() );
+                guy.add_msg_if_npc( m_bad, _( "{} is too far to sort armor." ), guy.get_name() );
                 return;
             }
             if( guy.attitude_to( player_character ) != Creature::Attitude::FRIENDLY ) {
-                guy.add_msg_if_npc( m_bad, _( "%s is not friendly!" ), guy.get_name() );
+                guy.add_msg_if_npc( m_bad, _( "{} is not friendly!" ), guy.get_name() );
                 return;
             }
         }
@@ -994,7 +994,7 @@ void outfit::sort_armor( Character &guy )
         } else if( action == "CHANGE_SIDE" ) {
             mid_pane.offset = 0;
             if( leftListIndex < leftListSize && tmp_worn[leftListIndex]->is_sided() ) {
-                if( player_character.query_yn( _( "Swap side for %s?" ),
+                if( player_character.query_yn( _( "Swap side for {}?" ),
                                                colorize( tmp_worn[leftListIndex]->tname(),
                                                        tmp_worn[leftListIndex]->color_in_inventory() ) ) ) {
                     guy.change_side( *tmp_worn[leftListIndex] );
@@ -1055,7 +1055,7 @@ void outfit::sort_armor( Character &guy )
                         popup( _( "Can't put this on!" ) );
                     }
                 } else {
-                    guy.add_msg_if_player( _( "You chose not to wear the %s." ), item_name );
+                    guy.add_msg_if_player( _( "You chose not to wear the {}." ), item_name );
                 }
             }
         } else if( action == "EQUIP_ARMOR_HERE" ) {
@@ -1087,7 +1087,7 @@ void outfit::sort_armor( Character &guy )
                         popup( _( "Can't put this on!" ) );
                     }
                 } else {
-                    guy.add_msg_if_player( _( "You chose not to wear the %s." ), item_name );
+                    guy.add_msg_if_player( _( "You chose not to wear the {}." ), item_name );
                 }
             }
         } else if( action == "REMOVE_ARMOR" ) {
@@ -1144,29 +1144,29 @@ void outfit::sort_armor( Character &guy )
             }
         } else if( action == "USAGE_HELP" ) {
             const std::vector<std::string> help_strings = {
-                string_format( _( "[<color_yellow>%s</color>]/[<color_yellow>%s</color>] to scroll the left pane (list of items).\n" ),
+                string_format( _( "[<color_yellow>{}</color>]/[<color_yellow>{}</color>] to scroll the left pane (list of items).\n" ),
                                ctxt.get_desc( "UP" ), ctxt.get_desc( "DOWN" ) ),
-                string_format( _( "[<color_yellow>%s</color>]/[<color_yellow>%s</color>] to scroll the middle pane (item information).\n" ),
+                string_format( _( "[<color_yellow>{}</color>]/[<color_yellow>{}</color>] to scroll the middle pane (item information).\n" ),
                                ctxt.get_desc( "SCROLL_ITEM_INFO_UP" ), ctxt.get_desc( "SCROLL_ITEM_INFO_DOWN" ) ),
-                string_format( _( "[<color_yellow>%s</color>]/[<color_yellow>%s</color>] to scroll the right pane (items grouped by body part).\n" ),
+                string_format( _( "[<color_yellow>{}</color>]/[<color_yellow>{}</color>] to scroll the right pane (items grouped by body part).\n" ),
                                ctxt.get_desc( "PREV_TAB" ), ctxt.get_desc( "NEXT_TAB" ) ),
-                string_format( _( "[<color_yellow>%s</color>]/[<color_yellow>%s</color>] to limit the left pane to a particular body part.\n" ),
+                string_format( _( "[<color_yellow>{}</color>]/[<color_yellow>{}</color>] to limit the left pane to a particular body part.\n" ),
                                ctxt.get_desc( "LEFT" ), ctxt.get_desc( "RIGHT" ) ),
-                string_format( _( "[<color_yellow>%s</color>] to select an item for reordering.\n" ),
+                string_format( _( "[<color_yellow>{}</color>] to select an item for reordering.\n" ),
                                ctxt.get_desc( "MOVE_ARMOR" ) ),
-                string_format( _( "[<color_yellow>%s</color>] to assign special inventory letters to clothing.\n" ),
+                string_format( _( "[<color_yellow>{}</color>] to assign special inventory letters to clothing.\n" ),
                                ctxt.get_desc( "ASSIGN_INVLETS" ) ),
-                string_format( _( "[<color_yellow>%s</color>] to change the side on which item is worn.\n" ),
+                string_format( _( "[<color_yellow>{}</color>] to change the side on which item is worn.\n" ),
                                ctxt.get_desc( "CHANGE_SIDE" ) ),
-                string_format( _( "[<color_yellow>%s</color>] to toggle item visibility on character sprite.\n" ),
+                string_format( _( "[<color_yellow>{}</color>] to toggle item visibility on character sprite.\n" ),
                                ctxt.get_desc( "TOGGLE_CLOTH" ) ),
-                string_format( _( "[<color_yellow>%s</color>] to sort worn items into natural layer order.\n" ),
+                string_format( _( "[<color_yellow>{}</color>] to sort worn items into natural layer order.\n" ),
                                ctxt.get_desc( "SORT_ARMOR" ) ),
-                string_format( _( "[<color_yellow>%s</color>] to equip a new item.\n" ),
+                string_format( _( "[<color_yellow>{}</color>] to equip a new item.\n" ),
                                ctxt.get_desc( "EQUIP_ARMOR" ) ),
-                string_format( _( "[<color_yellow>%s</color>] to equip a new item at the currently selected position.\n" ),
+                string_format( _( "[<color_yellow>{}</color>] to equip a new item at the currently selected position.\n" ),
                                ctxt.get_desc( "EQUIP_ARMOR_HERE" ) ),
-                string_format( _( "[<color_yellow>%s</color>] to remove selected item.\n" ),
+                string_format( _( "[<color_yellow>{}</color>] to remove selected item.\n" ),
                                ctxt.get_desc( "REMOVE_ARMOR" ) ),
                 "\n",
                 _( "Encumbrance explanation:\n" ),

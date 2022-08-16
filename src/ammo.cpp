@@ -50,7 +50,7 @@ const ammunition_type &string_id<ammunition_type>::obj() const
         return it->second;
     }
 
-    debugmsg( "Tried to get invalid ammunition: %s", c_str() );
+    debugmsg( "Tried to get invalid ammunition: {}", c_str() );
     static const ammunition_type null_ammunition;
     return null_ammunition;
 }
@@ -72,7 +72,7 @@ void ammunition_type::check_consistency()
         }
 
         if( !at.is_empty() && !item::type_is_defined( at ) ) {
-            debugmsg( "ammo type %s has invalid default ammo %s", id.c_str(), at.c_str() );
+            debugmsg( "ammo type {} has invalid default ammo {}", id.c_str(), at.c_str() );
         }
     }
 }

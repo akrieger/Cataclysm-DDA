@@ -56,28 +56,28 @@ struct StringMaker<talk_response> {
 template<typename T>
 struct StringMaker<string_id<T>> {
     static std::string convert( const string_id<T> &i ) {
-        return string_format( "string_id( \"%s\" )", i.str() );
+        return string_format( "string_id( \"{}\" )", i.str() );
     }
 };
 
 template<typename T>
 struct StringMaker<int_id<T>> {
     static std::string convert( const int_id<T> &i ) {
-        return string_format( "int_id( \"%s\" )", i.id().str() );
+        return string_format( "int_id( \"{}\" )", i.id().str() );
     }
 };
 
 template<typename Point>
 struct StringMaker<rectangle<Point>> {
     static std::string convert( const rectangle<Point> &r ) {
-        return string_format( "[%s-%s]", r.p_min.to_string(), r.p_max.to_string() );
+        return string_format( "[{}-{}]", r.p_min.to_string(), r.p_max.to_string() );
     }
 };
 
 template<typename Tripoint>
 struct StringMaker<cuboid<Tripoint>> {
     static std::string convert( const cuboid<Tripoint> &b ) {
-        return string_format( "[%s-%s]", b.p_min.to_string(), b.p_max.to_string() );
+        return string_format( "[{}-{}]", b.p_min.to_string(), b.p_max.to_string() );
     }
 };
 

@@ -226,7 +226,7 @@ std::string enum_to_string<debug_menu::debug_menu_index>( debug_menu::debug_menu
         case debug_menu::debug_menu_index::last:
             break;
     }
-    debugmsg( "unknown debug_menu::debug_menu_index %d", static_cast<int>( v ) );
+    debugmsg( "unknown debug_menu::debug_menu_index {}", static_cast<int>( v ) );
     return "";
 }
 
@@ -497,14 +497,14 @@ static void spell_description(
     nc_color light_green = c_light_green;
 
     // # spell_id
-    description << colorize( string_format( "# %s", spl.id().str() ), c_cyan ) << '\n';
+    description << colorize( string_format( "# {}", spl.id().str() ), c_cyan ) << '\n';
 
     // Name: spell name
-    description << string_format( _( "Name: %1$s" ), colorize( spl.name(), c_white ) ) << '\n';
+    description << string_format( _( "Name: {1}" ), colorize( spl.name(), c_white ) ) << '\n';
 
 
     // Class: Spell Class
-    description << string_format( _( "Class: %1$s" ), colorize( spl.spell_class() == trait_NONE ?
+    description << string_format( _( "Class: {1}" ), colorize( spl.spell_class() == trait_NONE ?
                                   _( "Classless" ) : chrc.mutation_name( spl.spell_class() ),
                                   yellow ) ) << "\n";
 
@@ -516,16 +516,16 @@ static void spell_description(
 
     // Spell Level: 0 / 0 (MAX)
     description << string_format(
-                    //~ %1$s - spell current level, %2$s - spell max level, %3$s - is max level
-                    _( "Spell Level: %1$s / %2$d %3$s" ),
+                    //~ {1} - spell current level, {2} - spell max level, {3} - is max level
+                    _( "Spell Level: {1} / {2} {3}" ),
                     spl_level == -1 ? _( "Unlearned" ) : std::to_string( spl_level ),
                     spl.get_max_level(),
                     spl_level == spl.get_max_level() ? _( "(MAX)" ) : "" ) << '\n';
 
     // Difficulty: 0 ( 0.0 % Failure Chance)
     description << string_format(
-                    //~ %1$d - difficulty, %2$s - failure chance
-                    _( "Difficulty: %1$d (%2$s)" ),
+                    //~ {1} - difficulty, {2} - failure chance
+                    _( "Difficulty: {1} ({2})" ),
                     spl.get_difficulty(), spl.colorized_fail_percent( chrc ) ) << '\n';
 
 
@@ -533,16 +533,16 @@ static void spell_description(
 
     // Casting Cost: 0 (impeded) ( 0 current )
     description << string_format(
-                    //~ %1$s - energy cost, %2$s - is casting impeded, %3$s - current character energy
-                    _( "Casting Cost: %1$s %2$s (%3$s current) " ),
+                    //~ {1} - energy cost, {2} - is casting impeded, {3} - current character energy
+                    _( "Casting Cost: {1} {2} ({3} current) " ),
                     spl.energy_cost_string( chrc ),
                     spell_desc::energy_cost_encumbered( spl, chrc ) ?  impeded : "",
                     spl.energy_cur_string( chrc ) ) << '\n';
 
     // Casting Time: 0 (impeded)
     description << string_format(
-                    //~ %1$s - cast time, %2$s - is casting impeded, %3$s - casting base time
-                    _( "Casting Time: %1$s %2$s (%3$s base time) " ),
+                    //~ {1} - cast time, {2} - is casting impeded, {3} - casting base time
+                    _( "Casting Time: {1} {2} ({3} base time) " ),
                     to_string( time_duration::from_moves( spl.casting_time( chrc ) ) ),
                     spell_desc::casting_time_encumbered( spl, chrc ) ? impeded : "",
                     to_string( time_duration::from_moves( std::get<0>( spl_data ).base_casting_time ) ) ) << '\n';
@@ -553,11 +553,11 @@ static void spell_description(
     } else {
         targets = spl.enumerate_targets();
     }
-    description << string_format( _( "Valid Targets: %1$s" ), targets ) << '\n';
+    description << string_format( _( "Valid Targets: {1}" ), targets ) << '\n';
 
     std::string target_ids = spl.list_targeted_monster_names();
     if( !target_ids.empty() ) {
-        description << string_format( _( "Only affects the monsters: %1$s" ), target_ids ) << '\n';
+        description << string_format( _( "Only affects the monsters: {1}" ), target_ids ) << '\n';
     }
 
     const int damage = spl.damage();
@@ -571,13 +571,13 @@ static void spell_description(
             std::string dot_string;
             if( spl.damage_dot() ) {
                 //~ amount of damage per second, abbreviated
-                dot_string = string_format( _( ", %1$d/sec" ), spl.damage_dot() );
+                dot_string = string_format( _( ", {1}/sec" ), spl.damage_dot() );
             }
-            damage_string = string_format( _( "Damage: %1$s %2$s%3$s" ), spl.damage_string(),
+            damage_string = string_format( _( "Damage: {1} {2}{3}" ), spl.damage_string(),
                                            spl.damage_type_string(), dot_string );
             damage_string = colorize( damage_string, spl.damage_type_color() );
         } else if( damage < 0 ) {
-            damage_string = string_format( _( "Healing: %1$s" ), colorize( spl.damage_string(),
+            damage_string = string_format( _( "Healing: {1}" ), colorize( spl.damage_string(),
                                            light_green ) );
         }
 
@@ -590,16 +590,16 @@ static void spell_description(
             } else if( spl.shape() == spell_shape::line ) {
                 aoe_string_temp = _( "Line Width" );
             }
-            aoe_string = string_format( _( "%1$s: %2$d %3$s" ), aoe_string_temp, spl.aoe(), degree_string );
+            aoe_string = string_format( _( "{1}: {2} {3}" ), aoe_string_temp, spl.aoe(), degree_string );
         }
 
     } else if( spl_eff == "teleport_random" ) {
         if( spl.aoe() > 0 ) {
-            aoe_string = string_format( _( "Variance: %1$d" ), spl.aoe() );
+            aoe_string = string_format( _( "Variance: {1}" ), spl.aoe() );
         }
 
     } else if( spl_eff == "spawn_item" ) {
-        damage_string = string_format( _( "Spawn %1$d %2$s" ), spl.damage(),
+        damage_string = string_format( _( "Spawn {1} {2}" ), spl.damage(),
                                        item::nname( itype_id( spl.effect_data() ), spl.damage() ) );
 
     } else if( spl_eff == "summon" ) {
@@ -607,15 +607,15 @@ static void spell_description(
         if( spl.has_flag( spell_flag::SPAWN_GROUP ) ) {
             // TODO: Get a more user-friendly group name
             if( MonsterGroupManager::isValidMonsterGroup( mongroup_id( spl.effect_data() ) ) ) {
-                monster_name = string_format( _( "from %1$s" ), spl.effect_data() );
+                monster_name = string_format( _( "from {1}" ), spl.effect_data() );
             } else {
-                debugmsg( "Unknown monster group: %s", spl.effect_data() );
+                debugmsg( "Unknown monster group: {}", spl.effect_data() );
             }
         } else {
             monster_name = monster( mtype_id( spl.effect_data() ) ).get_name();
         }
-        damage_string = string_format( _( "Summon: %1$d %2$s" ), spl.damage(), monster_name );
-        aoe_string = string_format( _( "Spell Radius: %1$d" ), spl.aoe() );
+        damage_string = string_format( _( "Summon: {1} {2}" ), spl.damage(), monster_name );
+        aoe_string = string_format( _( "Spell Radius: {1}" ), spl.aoe() );
 
     } else if( spl_eff == "targeted_polymorph" ) {
         std::string monster_name = spl.effect_data();
@@ -624,29 +624,29 @@ static void spell_description(
             if( MonsterGroupManager::isValidMonsterGroup( mongroup_id( spl.effect_data() ) ) ) {
                 monster_name = _( "random creature" );
             } else {
-                debugmsg( "Unknown monster group: %s", spl.effect_data() );
+                debugmsg( "Unknown monster group: {}", spl.effect_data() );
             }
         } else if( monster_name.empty() ) {
             monster_name = _( "random creature" );
         } else {
             monster_name = mtype_id( spl.effect_data() )->nname();
         }
-        damage_string = string_format( _( "Targets under: %1$dhp become a %2$s" ), spl.damage(),
+        damage_string = string_format( _( "Targets under: {1} become a {2}" ), spl.damage(),
                                        monster_name );
 
     } else if( spl_eff == "ter_transform" ) {
-        aoe_string = string_format( "Spell Radius: %1$s", spl.aoe_string() );
+        aoe_string = string_format( "Spell Radius: {1}", spl.aoe_string() );
 
     } else if( spl_eff == "banishment" ) {
-        damage_string = string_format( _( "Damage: %1$s %2$s" ), spl.damage_string(),
+        damage_string = string_format( _( "Damage: {1} {2}" ), spl.damage_string(),
                                        spl.damage_type_string() );
         if( spl.aoe() > 0 ) {
-            aoe_string = string_format( _( "Spell Radius: %1$d" ), spl.aoe() );
+            aoe_string = string_format( _( "Spell Radius: {1}" ), spl.aoe() );
         }
     }
 
     // Range / AOE in two columns
-    description << string_format( _( "Range: %1$s" ),
+    description << string_format( _( "Range: {1}" ),
                                   spl.range() <= 0 ? _( "self" ) : std::to_string( spl.range() ) ) << '\n';
 
 
@@ -659,7 +659,7 @@ static void spell_description(
 
     // Show duration for spells that endure
     if( spl.duration() > 0 || spl.has_flag( spell_flag::PERMANENT ) ) {
-        description << string_format( _( "Duration: %1$s" ), spl.duration_string() ) << '\n';
+        description << string_format( _( "Duration: {1}" ), spl.duration_string() ) << '\n';
     }
 
     // helper function for printing tool and item component requirement lists
@@ -831,7 +831,7 @@ static void change_spells( Character &character )
 
         nc_color magenta = c_magenta;
         const std::string help_keybindings = string_format(
-                _( "<<color_white>[<color_yellow>%1$s</color>] Keybindings</color>>" ),
+                _( "<<color_white>[<color_yellow>{1}</color>] Keybindings</color>>" ),
                 ctxt.get_desc( "HELP_KEYBINDINGS" ) );
         print_colored_text( w_descborder.window,
                             point( w_descborder.width - help_keybindings.length() + 42, TERMY - 1 ),
@@ -839,10 +839,10 @@ static void change_spells( Character &character )
 
         std::string help_filter;
         if( filterstring.empty() ) {
-            help_filter = string_format( _( "<<color_white>[<color_yellow>%1$s</color>] Filter</color>>" ),
+            help_filter = string_format( _( "<<color_white>[<color_yellow>{1}</color>] Filter</color>>" ),
                                          ctxt.get_desc( "FILTER" ) );
         } else {
-            help_filter = string_format( "<<color_white>%s</color>>", filterstring );
+            help_filter = string_format( "<<color_white>{}</color>>", filterstring );
         }
 
         print_colored_text( w_name.window, point( 1, TERMY - 1 ),
@@ -870,7 +870,7 @@ static void change_spells( Character &character )
             mvwprintz( w_name.window, point( 2, line_number ),
                        spell_color, splt.name.translated() );
             mvwprintz( w_level.window, point( 2, line_number++ ), spell_color,
-                       _( "%1$-3d/%2$3d" ), spell_level, splt.max_level );
+                       _( "{}$-3d/{2}" ), spell_level, splt.max_level );
         }
 
         nc_color gray = c_light_gray;
@@ -1019,7 +1019,7 @@ static void change_spells( Character &character )
 
         } else if( action == "CONFIRM" ) {
             int &spell_level = std::get<1>( *spells_relative[spell_selected] );
-            query_int( spell_level, _( "Set spell level to?  Currently: %1$d" ), spell_level );
+            query_int( spell_level, _( "Set spell level to?  Currently: {1}" ), spell_level );
             spell_level = clamp( spell_level, -1, std::get<0>( *spells_relative[spell_selected] ).max_level );
             set_spell( std::get<0>( *spells_relative[spell_selected] ), spell_level );
             force_update_description = true;
@@ -1109,7 +1109,7 @@ static void teleport_short()
     }
     g->place_player( *where );
     const tripoint new_pos( player_character.pos() );
-    add_msg( _( "You teleport to point %s." ), new_pos.to_string() );
+    add_msg( _( "You teleport to point {}." ), new_pos.to_string() );
 }
 
 static void teleport_long()
@@ -1119,7 +1119,7 @@ static void teleport_long()
         return;
     }
     g->place_player_overmap( where );
-    add_msg( _( "You teleport to submap %s." ), where.to_string() );
+    add_msg( _( "You teleport to submap {}." ), where.to_string() );
 }
 
 static void teleport_overmap( bool specific_coordinates = false )
@@ -1137,7 +1137,7 @@ static void teleport_overmap( bool specific_coordinates = false )
         const std::vector<std::string> coord_strings = string_split( text, ',' );
         if( coord_strings.size() < 2 || coord_strings.size() > 3 ) {
             popup( _( "Error interpreting teleport target: "
-                      "expected two or three comma-separated values; got %zu" ),
+                      "expected two or three comma-separated values; got {}" ),
                    coord_strings.size() );
             return;
         }
@@ -1145,7 +1145,7 @@ static void teleport_overmap( bool specific_coordinates = false )
         for( const std::string &coord_string : coord_strings ) {
             ret_val<int> parsed_coord = try_parse_integer<int>( coord_string, true );
             if( !parsed_coord.success() ) {
-                popup( _( "Error interpreting teleport target: %s" ), parsed_coord.str() );
+                popup( _( "Error interpreting teleport target: {}" ), parsed_coord.str() );
                 return;
             }
             coord_ints.push_back( parsed_coord.value() );
@@ -1168,7 +1168,7 @@ static void teleport_overmap( bool specific_coordinates = false )
 
     const tripoint_abs_om new_pos =
         project_to<coords::om>( player_character.global_omt_location() );
-    add_msg( _( "You teleport to overmap %s." ), new_pos.to_string() );
+    add_msg( _( "You teleport to overmap {}." ), new_pos.to_string() );
 }
 
 static void teleport_city()
@@ -1232,10 +1232,10 @@ static void control_npc_menu()
 static void character_edit_stats_menu( Character &you )
 {
     uilist smenu;
-    smenu.addentry( 0, true, 'S', "%s: %d", _( "Maximum strength" ), you.str_max );
-    smenu.addentry( 1, true, 'D', "%s: %d", _( "Maximum dexterity" ), you.dex_max );
-    smenu.addentry( 2, true, 'I', "%s: %d", _( "Maximum intelligence" ), you.int_max );
-    smenu.addentry( 3, true, 'P', "%s: %d", _( "Maximum perception" ), you.per_max );
+    smenu.addentry( 0, true, 'S', "{}: {}", _( "Maximum strength" ), you.str_max );
+    smenu.addentry( 1, true, 'D', "{}: {}", _( "Maximum dexterity" ), you.dex_max );
+    smenu.addentry( 2, true, 'I', "{}: {}", _( "Maximum intelligence" ), you.int_max );
+    smenu.addentry( 3, true, 'P', "{}: {}", _( "Maximum perception" ), you.per_max );
     smenu.query();
     int *bp_ptr = nullptr;
     switch( smenu.ret ) {
@@ -1257,7 +1257,7 @@ static void character_edit_stats_menu( Character &you )
 
     if( bp_ptr != nullptr ) {
         int value;
-        if( query_int( value, _( "Set the stat to?  Currently: %d" ), *bp_ptr ) && value >= 0 ) {
+        if( query_int( value, _( "Set the stat to?  Currently: {}" ), *bp_ptr ) && value >= 0 ) {
             *bp_ptr = value;
             you.reset_stats();
         }
@@ -1272,13 +1272,13 @@ static void character_edit_needs_menu( Character &you )
     std::pair<std::string, nc_color> weariness_pair = display::weariness_text_color( you );
 
     std::stringstream data;
-    data << string_format( _( "Hunger: %d  %s" ), you.get_hunger(), colorize( hunger_pair.first,
+    data << string_format( _( "Hunger: {}  {}" ), you.get_hunger(), colorize( hunger_pair.first,
                            hunger_pair.second ) ) << std::endl;
-    data << string_format( _( "Thirst: %d  %s" ), you.get_thirst(), colorize( thirst_pair.first,
+    data << string_format( _( "Thirst: {}  {}" ), you.get_thirst(), colorize( thirst_pair.first,
                            thirst_pair.second ) ) << std::endl;
-    data << string_format( _( "Fatigue: %d  %s" ), you.get_fatigue(), colorize( fatigue_pair.first,
+    data << string_format( _( "Fatigue: {}  {}" ), you.get_fatigue(), colorize( fatigue_pair.first,
                            fatigue_pair.second ) ) << std::endl;
-    data << string_format( _( "Weariness: %d  %s" ), you.weariness(), colorize( weariness_pair.first,
+    data << string_format( _( "Weariness: {}  {}" ), you.weariness(), colorize( weariness_pair.first,
                            weariness_pair.second ) ) << std::endl;
     data << std::endl;
     data << _( "Stored kCal: " ) << you.get_stored_kcal() << std::endl;
@@ -1288,29 +1288,29 @@ static void character_edit_needs_menu( Character &you )
     data << _( "Stomach contents" ) << std::endl;
     data << _( "  Total volume: " ) << vol_to_string( you.stomach.contains() ) << std::endl;
     data << _( "  Water volume: " ) << vol_to_string( you.stomach.get_water() ) << std::endl;
-    data << string_format( _( "  kCal: %d" ), you.stomach.get_calories() ) << std::endl;
+    data << string_format( _( "  kCal: {}" ), you.stomach.get_calories() ) << std::endl;
     data << std::endl;
     data << _( "Gut contents" ) << std::endl;
     data << _( "  Total volume: " ) << vol_to_string( you.guts.contains() ) << std::endl;
     data << _( "  Water volume: " ) << vol_to_string( you.guts.get_water() ) << std::endl;
-    data << string_format( _( "  kCal: %d" ), you.guts.get_calories() ) << std::endl;
+    data << string_format( _( "  kCal: {}" ), you.guts.get_calories() ) << std::endl;
 
     uilist smenu;
     smenu.text = data.str();
-    smenu.addentry( 0, true, 'h', "%s: %d", _( "Hunger" ), you.get_hunger() );
-    smenu.addentry( 1, true, 's', "%s: %d", _( "Stored kCal" ), you.get_stored_kcal() );
-    smenu.addentry( 2, true, 'S', "%s: %d", _( "Stomach kCal" ), you.stomach.get_calories() );
-    smenu.addentry( 3, true, 'G', "%s: %d", _( "Gut kCal" ), you.guts.get_calories() );
-    smenu.addentry( 4, true, 't', "%s: %d", _( "Thirst" ), you.get_thirst() );
-    smenu.addentry( 5, true, 'f', "%s: %d", _( "Fatigue" ), you.get_fatigue() );
-    smenu.addentry( 6, true, 'd', "%s: %d", _( "Sleep Deprivation" ), you.get_sleep_deprivation() );
-    smenu.addentry( 7, true, 'w', "%s: %d", _( "Weariness" ), you.weariness() );
+    smenu.addentry( 0, true, 'h', "{}: {}", _( "Hunger" ), you.get_hunger() );
+    smenu.addentry( 1, true, 's', "{}: {}", _( "Stored kCal" ), you.get_stored_kcal() );
+    smenu.addentry( 2, true, 'S', "{}: {}", _( "Stomach kCal" ), you.stomach.get_calories() );
+    smenu.addentry( 3, true, 'G', "{}: {}", _( "Gut kCal" ), you.guts.get_calories() );
+    smenu.addentry( 4, true, 't', "{}: {}", _( "Thirst" ), you.get_thirst() );
+    smenu.addentry( 5, true, 'f', "{}: {}", _( "Fatigue" ), you.get_fatigue() );
+    smenu.addentry( 6, true, 'd', "{}: {}", _( "Sleep Deprivation" ), you.get_sleep_deprivation() );
+    smenu.addentry( 7, true, 'w', "{}: {}", _( "Weariness" ), you.weariness() );
     smenu.addentry( 8, true, 'a', _( "Reset all basic needs" ) );
     smenu.addentry( 9, true, 'e', _( "Empty stomach and guts" ) );
 
     const auto &vits = vitamin::all();
     for( const auto &v : vits ) {
-        smenu.addentry( -1, true, 0, _( "%s: daily %d, overall %d" ), v.second.name(),
+        smenu.addentry( -1, true, 0, _( "{}: daily {}, overall {}" ), v.second.name(),
                         you.get_daily_vitamin( v.first ), you.vitamin_get( v.first ) );
     }
 
@@ -1318,50 +1318,50 @@ static void character_edit_needs_menu( Character &you )
     int value;
     switch( smenu.ret ) {
         case 0:
-            if( query_int( value, _( "Set hunger to?  Currently: %d" ), you.get_hunger() ) ) {
+            if( query_int( value, _( "Set hunger to?  Currently: {}" ), you.get_hunger() ) ) {
                 you.set_hunger( value );
             }
             break;
 
         case 1:
-            if( query_int( value, _( "Set stored kCal to?  Currently: %d" ), you.get_stored_kcal() ) ) {
+            if( query_int( value, _( "Set stored kCal to?  Currently: {}" ), you.get_stored_kcal() ) ) {
                 you.set_stored_kcal( value );
             }
             break;
 
         case 2:
-            if( query_int( value, _( "Set stomach kCal to?  Currently: %d" ), you.stomach.get_calories() ) ) {
+            if( query_int( value, _( "Set stomach kCal to?  Currently: {}" ), you.stomach.get_calories() ) ) {
                 you.stomach.mod_calories( value - you.stomach.get_calories() );
             }
             break;
 
         case 3:
-            if( query_int( value, _( "Set gut kCal to?  Currently: %d" ), you.guts.get_calories() ) ) {
+            if( query_int( value, _( "Set gut kCal to?  Currently: {}" ), you.guts.get_calories() ) ) {
                 you.guts.mod_calories( value - you.guts.get_calories() );
             }
             break;
 
         case 4:
-            if( query_int( value, _( "Set thirst to?  Currently: %d" ), you.get_thirst() ) ) {
+            if( query_int( value, _( "Set thirst to?  Currently: {}" ), you.get_thirst() ) ) {
                 you.set_thirst( value );
             }
             break;
 
         case 5:
-            if( query_int( value, _( "Set fatigue to?  Currently: %d" ), you.get_fatigue() ) ) {
+            if( query_int( value, _( "Set fatigue to?  Currently: {}" ), you.get_fatigue() ) ) {
                 you.set_fatigue( value );
             }
             break;
 
         case 6:
-            if( query_int( value, _( "Set sleep deprivation to?  Currently: %d" ),
+            if( query_int( value, _( "Set sleep deprivation to?  Currently: {}" ),
                            you.get_sleep_deprivation() ) ) {
                 you.set_sleep_deprivation( value );
             }
             break;
 
         case 7:
-            if( query_yn( _( "Reset weariness?  Currently: %d" ),
+            if( query_yn( _( "Reset weariness?  Currently: {}" ),
                           you.weariness() ) ) {
                 you.activity_history.weary_clear();
             }
@@ -1382,7 +1382,7 @@ static void character_edit_needs_menu( Character &you )
         default:
             if( smenu.ret >= 10 && smenu.ret < static_cast<int>( vits.size() + 10 ) ) {
                 auto iter = std::next( vits.begin(), smenu.ret - 10 );
-                if( query_int( value, _( "Set %s to?  Currently: %d" ),
+                if( query_int( value, _( "Set {} to?  Currently: {}" ),
                                iter->second.name(), you.vitamin_get( iter->first ) ) ) {
                     you.vitamin_set( iter->first, value );
                 }
@@ -1399,13 +1399,13 @@ static void character_edit_hp_menu( Character &you )
     const int leg_l_hp = you.get_part_hp_cur( bodypart_id( "leg_l" ) );
     const int leg_r_hp = you.get_part_hp_cur( bodypart_id( "leg_r" ) );
     uilist smenu;
-    smenu.addentry( 0, true, 'q', "%s: %d", _( "Torso" ), torso_hp );
-    smenu.addentry( 1, true, 'w', "%s: %d", _( "Head" ), head_hp );
-    smenu.addentry( 2, true, 'a', "%s: %d", _( "Left arm" ), arm_l_hp );
-    smenu.addentry( 3, true, 's', "%s: %d", _( "Right arm" ), arm_r_hp );
-    smenu.addentry( 4, true, 'z', "%s: %d", _( "Left leg" ), leg_l_hp );
-    smenu.addentry( 5, true, 'x', "%s: %d", _( "Right leg" ), leg_r_hp );
-    smenu.addentry( 6, true, 'e', "%s: %d", _( "All" ), you.get_lowest_hp() );
+    smenu.addentry( 0, true, 'q', "{}: {}", _( "Torso" ), torso_hp );
+    smenu.addentry( 1, true, 'w', "{}: {}", _( "Head" ), head_hp );
+    smenu.addentry( 2, true, 'a', "{}: {}", _( "Left arm" ), arm_l_hp );
+    smenu.addentry( 3, true, 's', "{}: {}", _( "Right arm" ), arm_r_hp );
+    smenu.addentry( 4, true, 'z', "{}: {}", _( "Left leg" ), leg_l_hp );
+    smenu.addentry( 5, true, 'x', "{}: {}", _( "Right leg" ), leg_r_hp );
+    smenu.addentry( 6, true, 'e', "{}: {}", _( "All" ), you.get_lowest_hp() );
     smenu.query();
     bodypart_str_id bp = body_part_no_a_real_part;
     int bp_ptr = -1;
@@ -1445,13 +1445,13 @@ static void character_edit_hp_menu( Character &you )
 
     if( bp.is_valid() ) {
         int value;
-        if( query_int( value, _( "Set the hitpoints to?  Currently: %d" ), bp_ptr ) && value >= 0 ) {
+        if( query_int( value, _( "Set the hitpoints to?  Currently: {}" ), bp_ptr ) && value >= 0 ) {
             you.set_part_hp_cur( bp.id(), value );
             you.reset_stats();
         }
     } else if( all_select ) {
         int value;
-        if( query_int( value, _( "Set the hitpoints to?  Currently: %d" ), you.get_lowest_hp() ) &&
+        if( query_int( value, _( "Set the hitpoints to?  Currently: {}" ), you.get_lowest_hp() ) &&
             value >= 0 ) {
             for( bodypart_id part_id : you.get_all_body_parts( get_body_part_flags::only_main ) ) {
                 you.set_part_hp_cur( part_id, value );
@@ -1464,46 +1464,46 @@ static void character_edit_hp_menu( Character &you )
 static void character_edit_opinion_menu( npc *np )
 {
     uilist smenu;
-    smenu.addentry( 0, true, 'h', "%s: %d", _( "trust" ), np->op_of_u.trust );
-    smenu.addentry( 1, true, 's', "%s: %d", _( "fear" ), np->op_of_u.fear );
-    smenu.addentry( 2, true, 't', "%s: %d", _( "value" ), np->op_of_u.value );
-    smenu.addentry( 3, true, 'f', "%s: %d", _( "anger" ), np->op_of_u.anger );
-    smenu.addentry( 4, true, 'd', "%s: %d", _( "owed" ), np->op_of_u.owed );
-    smenu.addentry( 5, true, 'd', "%s: %d", _( "sold" ), np->op_of_u.sold );
+    smenu.addentry( 0, true, 'h', "{}: {}", _( "trust" ), np->op_of_u.trust );
+    smenu.addentry( 1, true, 's', "{}: {}", _( "fear" ), np->op_of_u.fear );
+    smenu.addentry( 2, true, 't', "{}: {}", _( "value" ), np->op_of_u.value );
+    smenu.addentry( 3, true, 'f', "{}: {}", _( "anger" ), np->op_of_u.anger );
+    smenu.addentry( 4, true, 'd', "{}: {}", _( "owed" ), np->op_of_u.owed );
+    smenu.addentry( 5, true, 'd', "{}: {}", _( "sold" ), np->op_of_u.sold );
 
     smenu.query();
     int value;
     switch( smenu.ret ) {
         case 0:
-            if( query_int( value, _( "Set trust to?  Currently: %d" ),
+            if( query_int( value, _( "Set trust to?  Currently: {}" ),
                            np->op_of_u.trust ) ) {
                 np->op_of_u.trust = value;
             }
             break;
         case 1:
-            if( query_int( value, _( "Set fear to?  Currently: %d" ), np->op_of_u.fear ) ) {
+            if( query_int( value, _( "Set fear to?  Currently: {}" ), np->op_of_u.fear ) ) {
                 np->op_of_u.fear = value;
             }
             break;
         case 2:
-            if( query_int( value, _( "Set value to?  Currently: %d" ),
+            if( query_int( value, _( "Set value to?  Currently: {}" ),
                            np->op_of_u.value ) ) {
                 np->op_of_u.value = value;
             }
             break;
         case 3:
-            if( query_int( value, _( "Set anger to?  Currently: %d" ),
+            if( query_int( value, _( "Set anger to?  Currently: {}" ),
                            np->op_of_u.anger ) ) {
                 np->op_of_u.anger = value;
             }
             break;
         case 4:
-            if( query_int( value, _( "Set owed to?  Currently: %d" ), np->op_of_u.owed ) ) {
+            if( query_int( value, _( "Set owed to?  Currently: {}" ), np->op_of_u.owed ) ) {
                 np->op_of_u.owed = value;
             }
             break;
         case 5:
-            if( query_int( value, _( "Set sold to?  Currently: %d" ), np->op_of_u.sold ) ) {
+            if( query_int( value, _( "Set sold to?  Currently: {}" ), np->op_of_u.sold ) ) {
                 np->op_of_u.sold = value;
             }
             break;
@@ -1517,12 +1517,12 @@ static void character_edit_desc_menu( Character &you )
                                  "-" );
     smenu.text = _( "Select a value and press enter to change it." );
     if( you.is_avatar() ) {
-        smenu.addentry( 0, true, 's', "%s: %s", _( "Current save file name" ), get_avatar().get_save_id() );
+        smenu.addentry( 0, true, 's', "{}: {}", _( "Current save file name" ), get_avatar().get_save_id() );
     }
-    smenu.addentry( 1, true, 'n', "%s: %s", _( "Current pre-Cataclysm name" ), you.name );
-    smenu.addentry( 2, true, 'a', "%s: %d", _( "Current age" ), you.base_age() );
-    smenu.addentry( 3, true, 'h', "%s: %d", _( "Current height in cm" ), you.base_height() );
-    smenu.addentry( 4, true, 'b', "%s: %s", _( "Current blood type" ), current_bloodt );
+    smenu.addentry( 1, true, 'n', "{}: {}", _( "Current pre-Cataclysm name" ), you.name );
+    smenu.addentry( 2, true, 'a', "{}: {}", _( "Current age" ), you.base_age() );
+    smenu.addentry( 3, true, 'h', "{}: {}", _( "Current height in cm" ), you.base_height() );
+    smenu.addentry( 4, true, 'b', "{}: {}", _( "Current blood type" ), current_bloodt );
     smenu.query();
     switch( smenu.ret ) {
         case 0: {
@@ -1552,7 +1552,7 @@ static void character_edit_desc_menu( Character &you )
         case 2: {
             string_input_popup popup;
             popup.title( _( "Enter age in years.  Minimum 16, maximum 55" ) )
-            .text( string_format( "%d", you.base_age() ) )
+            .text( string_format( "{}", you.base_age() ) )
             .only_digits( true );
             const int result = popup.query_int();
             if( result != 0 ) {
@@ -1562,10 +1562,10 @@ static void character_edit_desc_menu( Character &you )
         break;
         case 3: {
             string_input_popup popup;
-            popup.title( string_format( _( "Enter height in centimeters.  Minimum %d, maximum %d" ),
+            popup.title( string_format( _( "Enter height in centimeters.  Minimum {}, maximum {}" ),
                                         Character::min_height(),
                                         Character::max_height() ) )
-            .text( string_format( "%d", you.base_height() ) )
+            .text( string_format( "{}", you.base_height() ) )
             .only_digits( true );
             const int result = popup.query_int();
             if( result != 0 ) {
@@ -1605,7 +1605,7 @@ static void character_edit_menu()
     uilist charmenu;
     int charnum = 0;
     avatar &player_character = get_avatar();
-    charmenu.addentry( charnum++, true, MENU_AUTOASSIGN, "%s", _( "You" ) );
+    charmenu.addentry( charnum++, true, MENU_AUTOASSIGN, "{}", _( "You" ) );
     locations.emplace_back( player_character.pos() );
     for( const npc &guy : g->all_npcs() ) {
         charmenu.addentry( charnum++, true, MENU_AUTOASSIGN, guy.get_name() );
@@ -1630,35 +1630,35 @@ static void character_edit_menu()
         data << np->get_name() << " - " << ( np->male ? _( "Male" ) : _( "Female" ) ) << " " <<
              np->myclass->get_name() << std::endl;
         if( !np->get_unique_id().empty() ) {
-            data << string_format( _( "Unique Id: %s" ), np->get_unique_id() ) << std::endl;
+            data << string_format( _( "Unique Id: {}" ), np->get_unique_id() ) << std::endl;
         }
-        data << string_format( _( "Faction: %s (api v%d)" ), np->get_faction()->id.str(),
+        data << string_format( _( "Faction: {} (api v{})" ), np->get_faction()->id.str(),
                                np->get_faction_ver() ) << "; "
-             << string_format( _( "Attitude: %s" ), npc_attitude_name( np->get_attitude() ) ) << std::endl;
+             << string_format( _( "Attitude: {}" ), npc_attitude_name( np->get_attitude() ) ) << std::endl;
         if( np->has_destination() ) {
             data << string_format(
-                     _( "Destination: %s %s" ), np->goal.to_string(),
+                     _( "Destination: {} {}" ), np->goal.to_string(),
                      overmap_buffer.ter( np->goal )->get_name() ) << std::endl;
         }
-        data << string_format( _( "Trust: %d" ), np->op_of_u.trust ) << " "
-             << string_format( _( "Fear: %d" ), np->op_of_u.fear ) << " "
-             << string_format( _( "Value: %d" ), np->op_of_u.value ) << " "
-             << string_format( _( "Anger: %d" ), np->op_of_u.anger ) << std::endl;
-        data << string_format( _( "Owed: %d" ), np->op_of_u.owed ) << " "
-             << string_format( _( "Sold: %d" ), np->op_of_u.sold ) << std::endl;
+        data << string_format( _( "Trust: {}" ), np->op_of_u.trust ) << " "
+             << string_format( _( "Fear: {}" ), np->op_of_u.fear ) << " "
+             << string_format( _( "Value: {}" ), np->op_of_u.value ) << " "
+             << string_format( _( "Anger: {}" ), np->op_of_u.anger ) << std::endl;
+        data << string_format( _( "Owed: {}" ), np->op_of_u.owed ) << " "
+             << string_format( _( "Sold: {}" ), np->op_of_u.sold ) << std::endl;
 
-        data << string_format( _( "Aggression: %d" ),
+        data << string_format( _( "Aggression: {}" ),
                                static_cast<int>( np->personality.aggression ) ) << " "
-             << string_format( _( "Bravery: %d" ), static_cast<int>( np->personality.bravery ) ) << " "
-             << string_format( _( "Collector: %d" ), static_cast<int>( np->personality.collector ) ) << " "
-             << string_format( _( "Altruism: %d" ), static_cast<int>( np->personality.altruism ) ) << std::endl;
+             << string_format( _( "Bravery: {}" ), static_cast<int>( np->personality.bravery ) ) << " "
+             << string_format( _( "Collector: {}" ), static_cast<int>( np->personality.collector ) ) << " "
+             << string_format( _( "Altruism: {}" ), static_cast<int>( np->personality.altruism ) ) << std::endl;
 
         data << _( "Needs:" );
         for( const npc_need &need : np->needs ) {
             data << " " << npc::get_need_str_id( need );
         }
         data << std::endl;
-        data << string_format( _( "Total morale: %d" ), np->get_morale_level() ) << std::endl;
+        data << string_format( _( "Total morale: {}" ), np->get_morale_level() ) << std::endl;
 
         nmenu.text = data.str();
     } else {
@@ -1671,44 +1671,44 @@ static void character_edit_menu()
         D_TELE, D_MUTATE, D_CLASS, D_ATTITUDE, D_OPINION, D_ADD_EFFECT, D_ASTHMA, D_PRINT_VARS,
         D_WRITE_EOCS, D_KILL_XP, D_CHECK_TEMP, D_EDIT_VARS
     };
-    nmenu.addentry( D_DESC, true, 'D', "%s",
+    nmenu.addentry( D_DESC, true, 'D', "{}",
                     _( "Edit description - name, age, height or blood type" ) );
-    nmenu.addentry( D_SKILLS, true, 's', "%s", _( "Edit skills" ) );
-    nmenu.addentry( D_THEORY, true, 'T', "%s", _( "Edit theoretical skill knowledge" ) );
-    nmenu.addentry( D_PROF, true, 'P', "%s", _( "Edit proficiencies" ) );
-    nmenu.addentry( D_STATS, true, 't', "%s", _( "Edit stats" ) );
-    nmenu.addentry( D_SPELLS, true, 'l', "%s", _( "Edit spells" ) );
-    nmenu.addentry( D_ITEMS, true, 'i', "%s", _( "Grant items" ) );
-    nmenu.addentry( D_DELETE_ITEMS, true, 'd', "%s", _( "Delete (all) items" ) );
-    nmenu.addentry( D_ITEM_WORN, true, 'w', "%s", _( "Wear/wield an item from player's inventory" ) );
-    nmenu.addentry( D_HP, true, 'h', "%s", _( "Set hit points" ) );
-    nmenu.addentry( D_STAMINA, true, 'S', "%s", _( "Set stamina" ) );
-    nmenu.addentry( D_MORALE, true, 'o', "%s", _( "Set morale" ) );
-    nmenu.addentry( D_PAIN, true, 'p', "%s", _( "Cause pain" ) );
-    nmenu.addentry( D_HEALTHY, true, 'a', "%s", _( "Set health" ) );
-    nmenu.addentry( D_NEEDS, true, 'n', "%s", _( "Set needs" ) );
+    nmenu.addentry( D_SKILLS, true, 's', "{}", _( "Edit skills" ) );
+    nmenu.addentry( D_THEORY, true, 'T', "{}", _( "Edit theoretical skill knowledge" ) );
+    nmenu.addentry( D_PROF, true, 'P', "{}", _( "Edit proficiencies" ) );
+    nmenu.addentry( D_STATS, true, 't', "{}", _( "Edit stats" ) );
+    nmenu.addentry( D_SPELLS, true, 'l', "{}", _( "Edit spells" ) );
+    nmenu.addentry( D_ITEMS, true, 'i', "{}", _( "Grant items" ) );
+    nmenu.addentry( D_DELETE_ITEMS, true, 'd', "{}", _( "Delete (all) items" ) );
+    nmenu.addentry( D_ITEM_WORN, true, 'w', "{}", _( "Wear/wield an item from player's inventory" ) );
+    nmenu.addentry( D_HP, true, 'h', "{}", _( "Set hit points" ) );
+    nmenu.addentry( D_STAMINA, true, 'S', "{}", _( "Set stamina" ) );
+    nmenu.addentry( D_MORALE, true, 'o', "{}", _( "Set morale" ) );
+    nmenu.addentry( D_PAIN, true, 'p', "{}", _( "Cause pain" ) );
+    nmenu.addentry( D_HEALTHY, true, 'a', "{}", _( "Set health" ) );
+    nmenu.addentry( D_NEEDS, true, 'n', "{}", _( "Set needs" ) );
     if( get_option<bool>( "STATS_THROUGH_KILLS" ) ) {
-        nmenu.addentry( D_KILL_XP, true, 'X', "%s", _( "Set kill XP" ) );
+        nmenu.addentry( D_KILL_XP, true, 'X', "{}", _( "Set kill XP" ) );
     }
-    nmenu.addentry( D_MUTATE, true, 'u', "%s", _( "Mutate" ) );
+    nmenu.addentry( D_MUTATE, true, 'u', "{}", _( "Mutate" ) );
     nmenu.addentry( D_STATUS, true,
                     hotkey_for_action( ACTION_PL_INFO, /*maximum_modifier_count=*/1 ),
-                    "%s", _( "Status window" ) );
-    nmenu.addentry( D_TELE, true, 'e', "%s", _( "Teleport" ) );
-    nmenu.addentry( D_ADD_EFFECT, true, 'E', "%s", _( "Add an effect" ) );
-    nmenu.addentry( D_CHECK_TEMP, true, 'U', "%s", _( "Print temperature" ) );
-    nmenu.addentry( D_ASTHMA, true, 'k', "%s", _( "Cause asthma attack" ) );
-    nmenu.addentry( D_MISSION_EDIT, true, 'M', "%s", _( "Edit missions (WARNING: Unstable!)" ) );
-    nmenu.addentry( D_PRINT_VARS, true, 'V', "%s", _( "Print vars to file" ) );
-    nmenu.addentry( D_WRITE_EOCS, true, 'W', "%s",
+                    "{}", _( "Status window" ) );
+    nmenu.addentry( D_TELE, true, 'e', "{}", _( "Teleport" ) );
+    nmenu.addentry( D_ADD_EFFECT, true, 'E', "{}", _( "Add an effect" ) );
+    nmenu.addentry( D_CHECK_TEMP, true, 'U', "{}", _( "Print temperature" ) );
+    nmenu.addentry( D_ASTHMA, true, 'k', "{}", _( "Cause asthma attack" ) );
+    nmenu.addentry( D_MISSION_EDIT, true, 'M', "{}", _( "Edit missions (WARNING: Unstable!)" ) );
+    nmenu.addentry( D_PRINT_VARS, true, 'V', "{}", _( "Print vars to file" ) );
+    nmenu.addentry( D_WRITE_EOCS, true, 'W', "{}",
                     _( "Write effect_on_condition(s) to eocs.output" ) );
-    nmenu.addentry( D_EDIT_VARS, true, 'v', "%s", _( "Edit vars" ) );
+    nmenu.addentry( D_EDIT_VARS, true, 'v', "{}", _( "Edit vars" ) );
 
     if( you.is_npc() ) {
-        nmenu.addentry( D_MISSION_ADD, true, 'm', "%s", _( "Add mission" ) );
-        nmenu.addentry( D_CLASS, true, 'c', "%s", _( "Randomize with class" ) );
-        nmenu.addentry( D_ATTITUDE, true, 'A', "%s", _( "Set attitude" ) );
-        nmenu.addentry( D_OPINION, true, 'O', "%s", _( "Set opinion" ) );
+        nmenu.addentry( D_MISSION_ADD, true, 'm', "{}", _( "Add mission" ) );
+        nmenu.addentry( D_CLASS, true, 'c', "{}", _( "Randomize with class" ) );
+        nmenu.addentry( D_ATTITUDE, true, 'A', "{}", _( "Set attitude" ) );
+        nmenu.addentry( D_OPINION, true, 'O', "{}", _( "Set opinion" ) );
     }
     nmenu.query();
     switch( nmenu.ret ) {
@@ -1760,7 +1760,7 @@ static void character_edit_menu()
             break;
         case D_STAMINA:
             int value;
-            if( query_int( value, _( "Set stamina to?  Current: %d. Max: %d." ), you.get_stamina(),
+            if( query_int( value, _( "Set stamina to?  Current: {}. Max: {}." ), you.get_stamina(),
                            you.get_stamina_max() ) ) {
                 if( value >= 0 && value <= you.get_stamina_max() ) {
                     you.set_stamina( value );
@@ -1771,7 +1771,7 @@ static void character_edit_menu()
             break;
         case D_MORALE: {
             int value;
-            if( query_int( value, _( "Set the morale to?  Currently: %d" ), you.get_morale_level() ) ) {
+            if( query_int( value, _( "Set the morale to?  Currently: {}" ), you.get_morale_level() ) ) {
                 you.rem_morale( MORALE_PERM_DEBUG );
                 int morale_level_delta = value - you.get_morale_level();
                 you.add_morale( MORALE_PERM_DEBUG, morale_level_delta );
@@ -1781,7 +1781,7 @@ static void character_edit_menu()
         break;
         case D_KILL_XP: {
             int value;
-            if( query_int( value, _( "Set kill XP to?  Currently: %d" ), you.kill_xp ) ) {
+            if( query_int( value, _( "Set kill XP to?  Currently: {}" ), you.kill_xp ) ) {
                 you.kill_xp = value;
             }
         }
@@ -1794,7 +1794,7 @@ static void character_edit_menu()
             break;
         case D_PAIN: {
             int value;
-            if( query_int( value, _( "Cause how much pain?  pain: %d" ), you.get_pain() ) ) {
+            if( query_int( value, _( "Cause how much pain?  pain: {}" ), you.get_pain() ) ) {
                 you.mod_pain( value );
             }
         }
@@ -1845,24 +1845,24 @@ static void character_edit_menu()
         }
         case D_HEALTHY: {
             uilist smenu;
-            smenu.addentry( 0, true, 'h', "%s: %d", _( "Health" ), you.get_lifestyle() );
-            smenu.addentry( 1, true, 'm', "%s: %d", _( "Health modifier" ), you.get_daily_health() );
-            smenu.addentry( 2, true, 'r', "%s: %d", _( "Radiation" ), you.get_rad() );
+            smenu.addentry( 0, true, 'h', "{}: {}", _( "Health" ), you.get_lifestyle() );
+            smenu.addentry( 1, true, 'm', "{}: {}", _( "Health modifier" ), you.get_daily_health() );
+            smenu.addentry( 2, true, 'r', "{}: {}", _( "Radiation" ), you.get_rad() );
             smenu.query();
             int value;
             switch( smenu.ret ) {
                 case 0:
-                    if( query_int( value, _( "Set the value to?  Currently: %d" ), you.get_lifestyle() ) ) {
+                    if( query_int( value, _( "Set the value to?  Currently: {}" ), you.get_lifestyle() ) ) {
                         you.set_lifestyle( value );
                     }
                     break;
                 case 1:
-                    if( query_int( value, _( "Set the value to?  Currently: %d" ), you.get_daily_health() ) ) {
+                    if( query_int( value, _( "Set the value to?  Currently: {}" ), you.get_daily_health() ) ) {
                         you.set_daily_health( value );
                     }
                     break;
                 case 2:
-                    if( query_int( value, _( "Set the value to?  Currently: %d" ), you.get_rad() ) ) {
+                    if( query_int( value, _( "Set the value to?  Currently: {}" ), you.get_rad() ) ) {
                         you.set_rad( value );
                     }
                     break;
@@ -1949,7 +1949,7 @@ static void character_edit_menu()
         }
         case D_CHECK_TEMP: {
             for( const bodypart_id &bp : you.get_all_body_parts() ) {
-                add_msg( string_format( "%s: temperature: %d, temperature conv: %d, wetness: %d", bp->name,
+                add_msg( string_format( "{}: temperature: {}, temperature conv: {}, wetness: {}", bp->name,
                                         you.get_part_temp_cur( bp ), you.get_part_temp_conv( bp ), you.get_part_wetness( bp ) ) );
             }
             break;
@@ -2057,13 +2057,13 @@ void mission_debug::edit_npc( npc &who )
 
     add_header( mmenu, _( "Currently assigned missions:" ) );
     for( mission *m : bin.missions_assigned ) {
-        mmenu.addentry( all_missions.size(), true, MENU_AUTOASSIGN, "%s", m->type->id.c_str() );
+        mmenu.addentry( all_missions.size(), true, MENU_AUTOASSIGN, "{}", m->type->id.c_str() );
         all_missions.emplace_back( m );
     }
 
     add_header( mmenu, _( "Not assigned missions:" ) );
     for( mission *m : bin.missions ) {
-        mmenu.addentry( all_missions.size(), true, MENU_AUTOASSIGN, "%s", m->type->id.c_str() );
+        mmenu.addentry( all_missions.size(), true, MENU_AUTOASSIGN, "{}", m->type->id.c_str() );
         all_missions.emplace_back( m );
     }
 
@@ -2085,19 +2085,19 @@ void mission_debug::edit_player()
     avatar &player_character = get_avatar();
     add_header( mmenu, _( "Active missions:" ) );
     for( mission *m : player_character.active_missions ) {
-        mmenu.addentry( all_missions.size(), true, MENU_AUTOASSIGN, "%s", m->type->id.c_str() );
+        mmenu.addentry( all_missions.size(), true, MENU_AUTOASSIGN, "{}", m->type->id.c_str() );
         all_missions.emplace_back( m );
     }
 
     add_header( mmenu, _( "Completed missions:" ) );
     for( mission *m : player_character.completed_missions ) {
-        mmenu.addentry( all_missions.size(), true, MENU_AUTOASSIGN, "%s", m->type->id.c_str() );
+        mmenu.addentry( all_missions.size(), true, MENU_AUTOASSIGN, "{}", m->type->id.c_str() );
         all_missions.emplace_back( m );
     }
 
     add_header( mmenu, _( "Failed missions:" ) );
     for( mission *m : player_character.failed_missions ) {
-        mmenu.addentry( all_missions.size(), true, MENU_AUTOASSIGN, "%s", m->type->id.c_str() );
+        mmenu.addentry( all_missions.size(), true, MENU_AUTOASSIGN, "{}", m->type->id.c_str() );
         all_missions.emplace_back( m );
     }
 
@@ -2138,10 +2138,10 @@ void mission_debug::remove_mission( mission &m )
     npc *giver = g->find_npc( m.npc_id );
     if( giver != nullptr ) {
         if( remove_from_vec( giver->chatbin.missions_assigned, &m ) ) {
-            add_msg( _( "Removing from %s missions_assigned" ), giver->get_name() );
+            add_msg( _( "Removing from {} missions_assigned" ), giver->get_name() );
         }
         if( remove_from_vec( giver->chatbin.missions, &m ) ) {
-            add_msg( _( "Removing from %s missions" ), giver->get_name() );
+            add_msg( _( "Removing from {} missions" ), giver->get_name() );
         }
     }
 }
@@ -2155,9 +2155,9 @@ void mission_debug::edit_mission( mission &m )
         M_FAIL, M_SUCCEED, M_REMOVE
     };
 
-    mmenu.addentry( M_FAIL, true, 'f', "%s", _( "Fail mission" ) );
-    mmenu.addentry( M_SUCCEED, true, 'c', "%s", _( "Mark as complete" ) );
-    mmenu.addentry( M_REMOVE, true, 'r', "%s", _( "Remove mission without proper cleanup" ) );
+    mmenu.addentry( M_FAIL, true, 'f', "{}", _( "Fail mission" ) );
+    mmenu.addentry( M_SUCCEED, true, 'c', "{}", _( "Mark as complete" ) );
+    mmenu.addentry( M_REMOVE, true, 'r', "{}", _( "Remove mission without proper cleanup" ) );
 
     mmenu.query();
     switch( mmenu.ret ) {
@@ -2182,7 +2182,7 @@ static void draw_benchmark( const int max_difference )
     int draw_counter = 0;
 
     static_popup popup;
-    popup.on_top( true ).message( "%s", _( "Benchmark in progress…" ) );
+    popup.on_top( true ).message( "{}", _( "Benchmark in progress…" ) );
 
     while( true ) {
         end_tick = std::chrono::steady_clock::now();
@@ -2210,7 +2210,7 @@ static void draw_benchmark( const int max_difference )
                                get_option<bool>( "USE_COLOR_MODULATED_TEXTURES" ) << " | " <<
                                static_cast<int>( 1000.0 * draw_counter / static_cast<double>( difference ) ) << " |\n";
 
-    add_msg( m_info, _( "Drew %d times in %.3f seconds.  (%.3f fps average)" ), draw_counter,
+    add_msg( m_info, _( "Drew {} times in %.3f seconds.  (%.3f fps average)" ), draw_counter,
              difference / 1000.0, 1000.0 * draw_counter / static_cast<double>( difference ) );
 }
 
@@ -2231,7 +2231,7 @@ static void debug_menu_game_state()
     } );
     popup( player_character.total_daily_calories_string() );
     for( auto &m_flag_stat : sorted ) {
-        mfus += string_format( "%s;%d\n", io::enum_to_string<m_flag>( m_flag_stat.first ),
+        mfus += string_format( "{};{}\n", io::enum_to_string<m_flag>( m_flag_stat.first ),
                                m_flag_stat.second );
     }
     DebugLog( D_INFO, DC_ALL ) << "Monster flag usage statistics:\nFLAG;COUNT\n" << mfus;
@@ -2239,9 +2239,9 @@ static void debug_menu_game_state()
                MonsterGenerator::generator().m_flag_usage_stats.end(), 0 );
     popup_top( "Monster flag usage statistics were dumped to debug.log and cleared." );
 
-    std::string s = _( "Location %d:%d in %d:%d, %s\n" );
-    s += _( "Current turn: %d.\n" );
-    s += n_gettext( "%d creature exists.\n", "%d creatures exist.\n", g->num_creatures() );
+    std::string s = _( "Location {}:{} in {}:{}, {}\n" );
+    s += _( "Current turn: {}.\n" );
+    s += n_gettext( "{} creature exists.\n", "{} creatures exist.\n", g->num_creatures() );
 
     std::unordered_map<std::string, int> creature_counts;
     for( Creature &critter : g->all_creatures() ) {
@@ -2262,7 +2262,7 @@ static void debug_menu_game_state()
 
         s += _( "\nSpecific creature type list:\n" );
         for( const std::pair<std::string, int> &crit_name : creature_names_sorted ) {
-            s += string_format( "%i %s\n", crit_name.second, crit_name.first );
+            s += string_format( "{} {}\n", crit_name.second, crit_name.first );
         }
     }
 
@@ -2274,26 +2274,26 @@ static void debug_menu_game_state()
         g->num_creatures() );
     for( const npc &guy : g->all_npcs() ) {
         tripoint_abs_sm t = guy.global_sm_location();
-        add_msg( m_info, _( "%s: map ( %d:%d ) pos ( %d:%d )" ), guy.get_name(), t.x(),
+        add_msg( m_info, _( "{}: map ( {}:{} ) pos ( {}:{} )" ), guy.get_name(), t.x(),
                  t.y(), guy.posx(), guy.posy() );
     }
 
-    add_msg( m_info, _( "(you: %d:%d)" ), player_character.posx(), player_character.posy() );
+    add_msg( m_info, _( "(you: {}:{})" ), player_character.posx(), player_character.posy() );
     std::string stom =
-        _( "Stomach Contents: %d ml / %d ml kCal: %d, Water: %d ml" );
+        _( "Stomach Contents: {} ml / {} ml kCal: {}, Water: {} ml" );
     add_msg( m_info, stom.c_str(), units::to_milliliter( player_character.stomach.contains() ),
              units::to_milliliter( player_character.stomach.capacity( player_character ) ),
              player_character.stomach.get_calories(),
              units::to_milliliter( player_character.stomach.get_water() ), player_character.get_hunger() );
-    stom = _( "Guts Contents: %d ml / %d ml kCal: %d, Water: %d ml\nHunger: %d, Thirst: %d, kCal: %d / %d" );
+    stom = _( "Guts Contents: {} ml / {} ml kCal: {}, Water: {} ml\nHunger: {}, Thirst: {}, kCal: {} / {}" );
     add_msg( m_info, stom.c_str(), units::to_milliliter( player_character.guts.contains() ),
              units::to_milliliter( player_character.guts.capacity( player_character ) ),
              player_character.guts.get_calories(), units::to_milliliter( player_character.guts.get_water() ),
              player_character.get_hunger(), player_character.get_thirst(), player_character.get_stored_kcal(),
              player_character.get_healthy_kcal() );
-    add_msg( m_info, _( "Body Mass Index: %.0f\nBasal Metabolic Rate: %i" ), player_character.get_bmi(),
+    add_msg( m_info, _( "Body Mass Index: %.0f\nBasal Metabolic Rate: {}" ), player_character.get_bmi(),
              player_character.get_bmr() );
-    add_msg( m_info, _( "Player activity level: %s" ), player_character.activity_level_str() );
+    add_msg( m_info, _( "Player activity level: {}" ), player_character.activity_level_str() );
     g->invalidate_main_ui_adaptor();
     g->disp_NPCs();
 }
@@ -2320,7 +2320,7 @@ static void debug_menu_spawn_vehicle()
         int menu_ind = 0;
         for( auto &elem : veh_strings ) {
             //~ Menu entry in vehicle wish menu: 1st string: displayed name, 2nd string: internal name of vehicle
-            veh_menu.addentry( menu_ind, true, MENU_AUTOASSIGN, _( "%1$s (%2$s)" ),
+            veh_menu.addentry( menu_ind, true, MENU_AUTOASSIGN, _( "{1} ({2})" ),
                                elem.first, elem.second.c_str() );
             ++menu_ind;
         }
@@ -2375,13 +2375,13 @@ static void debug_menu_change_time()
     do {
         const int iSel = smenu.ret;
         smenu.reset();
-        smenu.addentry( 0, true, 'y', "%s: %d", _( "year" ), years( calendar::turn ) );
-        smenu.addentry( 1, !calendar::eternal_season(), 's', "%s: %d",
+        smenu.addentry( 0, true, 'y', "{}: {}", _( "year" ), years( calendar::turn ) );
+        smenu.addentry( 1, !calendar::eternal_season(), 's', "{}: {}",
                         _( "season" ), static_cast<int>( season_of_year( calendar::turn ) ) );
-        smenu.addentry( 2, true, 'd', "%s: %d", _( "day" ), day_of_season<int>( calendar::turn ) );
-        smenu.addentry( 3, true, 'h', "%s: %d", _( "hour" ), hour_of_day<int>( calendar::turn ) );
-        smenu.addentry( 4, true, 'm', "%s: %d", _( "minute" ), minute_of_hour<int>( calendar::turn ) );
-        smenu.addentry( 5, true, 't', "%s: %d", _( "turn" ),
+        smenu.addentry( 2, true, 'd', "{}: {}", _( "day" ), day_of_season<int>( calendar::turn ) );
+        smenu.addentry( 3, true, 'h', "{}: {}", _( "hour" ), hour_of_day<int>( calendar::turn ) );
+        smenu.addentry( 4, true, 'm', "{}: {}", _( "minute" ), minute_of_hour<int>( calendar::turn ) );
+        smenu.addentry( 5, true, 't', "{}: {}", _( "turn" ),
                         to_turns<int>( calendar::turn - calendar::turn_zero ) );
         smenu.selected = iSel;
         smenu.query();
@@ -2405,7 +2405,7 @@ static void debug_menu_change_time()
                 break;
             case 5:
                 set_turn( to_turns<int>( calendar::turn - calendar::turn_zero ), 1_turns,
-                          string_format( _( "Set turn to?  (One day is %i turns)" ), to_turns<int>( 1_days ) ).c_str() );
+                          string_format( _( "Set turn to?  (One day is {} turns)" ), to_turns<int>( 1_days ) ).c_str() );
                 break;
             default:
                 break;
@@ -2508,7 +2508,7 @@ void debug()
         case debug_menu_index::KILL_AREA: {
             static_popup popup;
             popup.on_top( true );
-            popup.message( "%s", _( "Select first point." ) );
+            popup.message( "{}", _( "Select first point." ) );
 
             tripoint initial_pos = player_character.pos();
             const look_around_result first = g->look_around( false, initial_pos, initial_pos,
@@ -2518,7 +2518,7 @@ void debug()
                 break;
             }
 
-            popup.message( "%s", _( "Select second point." ) );
+            popup.message( "{}", _( "Select second point." ) );
             const look_around_result second = g->look_around( false, initial_pos, *first.position,
                                               true, true, false );
 
@@ -2544,7 +2544,7 @@ void debug()
 
         case debug_menu_index::KILL_NPCS:
             for( npc &guy : g->all_npcs() ) {
-                add_msg( _( "%s's head implodes!" ), guy.get_name() );
+                add_msg( _( "{}'s head implodes!" ), guy.get_name() );
                 guy.set_part_hp_cur( bodypart_id( "head" ), 0 );
             }
             break;
@@ -2691,7 +2691,7 @@ void debug()
                 return;
             }
 
-            sounds::sound( *where, volume, sounds::sound_t::order, string_format( _( "DEBUG SOUND ( %d )" ),
+            sounds::sound( *where, volume, sounds::sound_t::order, string_format( _( "DEBUG SOUND ( {} )" ),
                            volume ) );
         }
         break;
@@ -2722,7 +2722,7 @@ void debug()
             uilist smenu;
             int i = 0;
             for( const bodypart_id &part : parts ) {
-                smenu.addentry( i, true, ' ', "%s: %d",
+                smenu.addentry( i, true, ' ', "{}: {}",
                                 part->name.translated(), player_character.get_part_hp_cur( part ) );
                 i++;
             }
@@ -2732,7 +2732,7 @@ void debug()
             if( smenu.ret >= 0 && static_cast<std::size_t>( smenu.ret ) <= parts.size() ) {
                 part = parts.at( smenu.ret );
             }
-            if( query_int( dbg_damage, _( "Damage self for how much?  hp: %s" ), part.id().c_str() ) ) {
+            if( query_int( dbg_damage, _( "Damage self for how much?  hp: {}" ), part.id().c_str() ) ) {
                 player_character.apply_damage( nullptr, part, dbg_damage );
                 if( player_character.is_dead_state() ) {
                     player_character.die( nullptr );
@@ -2867,7 +2867,7 @@ void debug()
         break;
         case debug_menu_index::SHOW_MUT_CAT:
             for( const auto &elem : player_character.mutation_category_level ) {
-                add_msg( "%s: %d", elem.first.c_str(), elem.second );
+                add_msg( "{}: {}", elem.first.c_str(), elem.second );
             }
             break;
 
@@ -3129,7 +3129,7 @@ void debug()
         case debug_menu_index::EDIT_CAMP_LARDER: {
             faction *your_faction = get_player_character().get_faction();
             int larder;
-            if( query_int( larder, _( "Set camp larder kCals to?  Currently: %d" ),
+            if( query_int( larder, _( "Set camp larder kCals to?  Currently: {}" ),
                            your_faction->food_supply ) ) {
                 your_faction->food_supply = larder;
             }

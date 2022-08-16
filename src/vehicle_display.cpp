@@ -31,7 +31,7 @@ static const itype_id itype_battery( "battery" );
 
 std::string vehicle::disp_name() const
 {
-    return string_format( _( "the %s" ), name );
+    return string_format( _( "the {}" ), name );
 }
 
 char vehicle::part_sym( const int p, const bool exact, const bool include_fake ) const
@@ -188,23 +188,23 @@ int vehicle::print_part_list( const catacurses::window &win, int y1, const int m
         if( vp.is_fuel_store() && !vp.ammo_current().is_null() ) {
             if( detail ) {
                 if( vp.ammo_current() == itype_battery ) {
-                    partname += string_format( _( " (%s/%s charge)" ), vp.ammo_remaining(),
+                    partname += string_format( _( " ({}/{} charge)" ), vp.ammo_remaining(),
                                                vp.ammo_capacity( ammo_battery ) );
                 } else {
                     const itype *pt_ammo_cur = item::find_type( vp.ammo_current() );
                     auto stack = units::legacy_volume_factor / pt_ammo_cur->stack_size;
-                    partname += string_format( _( " (%.1fL %s)" ),
+                    partname += string_format( _( " (%.1fL {})" ),
                                                round_up( units::to_liter( vp.ammo_remaining() * stack ),
                                                          1 ), item::nname( vp.ammo_current() ) );
                 }
             } else {
-                partname += string_format( " (%s)", item::nname( vp.ammo_current() ) );
+                partname += string_format( " ({})", item::nname( vp.ammo_current() ) );
             }
         }
 
         if( part_flag( pl[i], "CARGO" ) ) {
             //~ used/total volume of a cargo vehicle part
-            partname += string_format( _( " (vol: %s/%s %s)" ),
+            partname += string_format( _( " (vol: {}/{} {})" ),
                                        format_volume( stored_volume( pl[i] ) ),
                                        format_volume( max_volume( pl[i] ) ),
                                        volume_units_abbr() );
@@ -245,7 +245,7 @@ int vehicle::print_part_list( const catacurses::window &win, int y1, const int m
     const cata::optional<std::string> label = vpart_position( const_cast<vehicle &>( *this ),
             p ).get_label();
     if( label && y <= max_y ) {
-        mvwprintz( win, point( 1, y++ ), c_light_red, _( "Label: %s" ), label->c_str() );
+        mvwprintz( win, point( 1, y++ ), c_light_red, _( "Label: {}" ), label->c_str() );
     }
 
     return y;
@@ -305,7 +305,7 @@ void vehicle::print_vparts_descs( const catacurses::window &win, int max_y, int 
             new_lines += 1;
         }
         if( vp.has_flag( vehicle_part::carried_flag ) ) {
-            possible_msg += string_format( _( "  Part of a %s carried on a rack.\n" ),
+            possible_msg += string_format( _( "  Part of a {} carried on a rack.\n" ),
                                            vp.carried_name() );
             new_lines += 1;
         }
@@ -431,17 +431,17 @@ void vehicle::print_fuel_indicator( const catacurses::window &win, const point &
     mvwprintz( win, p, col_indf1, "E...F" );
     int amnt = cap > 0 ? f_left * 99 / cap : 0;
     int indf = ( amnt / 20 ) % 5;
-    mvwprintz( win, p + point( indf, 0 ), f_color, "%c", fsyms[indf] );
+    mvwprintz( win, p + point( indf, 0 ), f_color, "{}", fsyms[indf] );
     if( verbose ) {
         if( debug_mode ) {
-            mvwprintz( win, p + point( 6, 0 ), f_color, "%d/%d", f_left, cap );
+            mvwprintz( win, p + point( 6, 0 ), f_color, "{}/{}", f_left, cap );
         } else {
-            mvwprintz( win, p + point( 6, 0 ), f_color, "%d", f_left * 100 / cap );
-            wprintz( win, c_light_gray, "%c", 045 );
+            mvwprintz( win, p + point( 6, 0 ), f_color, "{}", f_left * 100 / cap );
+            wprintz( win, c_light_gray, "{}", 045 );
         }
     }
     if( desc ) {
-        wprintz( win, c_light_gray, " - %s", item::nname( fuel_type ) );
+        wprintz( win, c_light_gray, " - {}", item::nname( fuel_type ) );
     }
     if( verbose ) {
         auto fuel_data = fuel_usages.find( fuel_type );
@@ -479,10 +479,10 @@ void vehicle::print_fuel_indicator( const catacurses::window &win, const point &
             time_duration estimate = time_duration::from_turns( turns * tank_use / std::abs( rate ) );
 
             if( debug_mode ) {
-                wprintz( win, tank_color, _( ", %d %s(%4.2f%%)/hour, %s until %s" ),
+                wprintz( win, tank_color, _( ", {} {}({}.2f%%)/hour, {} until {}" ),
                          rate, units, 100.0 * rate / cap, to_string_clipped( estimate ), tank_goal );
             } else {
-                wprintz( win, tank_color, _( ", %3.1f%% / hour, %s until %s" ),
+                wprintz( win, tank_color, _( ", {}.1f%% / hour, {} until {}" ),
                          100.0 * rate  / cap, to_string_clipped( estimate ), tank_goal );
             }
         }
@@ -517,10 +517,10 @@ void vehicle::print_speed_gauge( const catacurses::window &win, const point &p, 
     int c_offset = ndigits( c_speed );
 
     // Target cruising velocity in green
-    mvwprintz( win, p, c_light_green, "%d", t_speed );
+    mvwprintz( win, p, c_light_green, "{}", t_speed );
     mvwprintz( win, p + point( t_offset + spacing, 0 ), c_light_gray, "<" );
     // Current velocity in color indicating engine strain
-    mvwprintz( win, p + point( t_offset + 1 + 2 * spacing, 0 ), col_vel, "%d", c_speed );
+    mvwprintz( win, p + point( t_offset + 1 + 2 * spacing, 0 ), col_vel, "{}", c_speed );
     // Units of speed (mph, km/h, t/t)
     mvwprintz( win, p + point( t_offset  + c_offset + 1 + 3 * spacing, 0 ), c_light_gray, type );
 }

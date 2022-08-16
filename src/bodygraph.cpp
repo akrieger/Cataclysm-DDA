@@ -115,12 +115,12 @@ void bodygraph::load( const JsonObject &jo, const std::string & )
 void bodygraph::finalize()
 {
     if( rows.size() > BPGRAPH_MAXROWS ) {
-        debugmsg( "body_graph \"%s\" defines more rows than the maximum (%d).", id.c_str(),
+        debugmsg( "body_graph \"{}\" defines more rows than the maximum ({}).", id.c_str(),
                   BPGRAPH_MAXROWS );
     }
 
     if( !fill_rows.empty() &&  fill_rows.size() != rows.size() ) {
-        debugmsg( "body_graph \"%s\" defines a different number of fill_rows than rows (%d vs. %d).",
+        debugmsg( "body_graph \"{}\" defines a different number of fill_rows than rows ({} vs. {}).",
                   id.c_str(),
                   fill_rows.size(), rows.size() );
     }
@@ -133,10 +133,10 @@ void bodygraph::finalize()
         if( width == -1 ) {
             width = w;
         } else if( !w_warned && width != w ) {
-            debugmsg( "body_graph \"%s\" defines rows with different widths.", id.c_str() );
+            debugmsg( "body_graph \"{}\" defines rows with different widths.", id.c_str() );
             w_warned = true;
         } else if( !w_warned && w > BPGRAPH_MAXCOLS ) {
-            debugmsg( "body_graph \"%s\" defines rows with more columns than the maximum (%d).", id.c_str(),
+            debugmsg( "body_graph \"{}\" defines rows with more columns than the maximum ({}).", id.c_str(),
                       BPGRAPH_MAXCOLS );
             w_warned = true;
         }
@@ -147,7 +147,7 @@ void bodygraph::finalize()
         if( ! fill_rows.empty() ) {
             std::vector<std::string> &fr = fill_rows[i];
             if( fr.size() != r.size() ) {
-                debugmsg( "body_graph \"%s\" defines a different number of columns in fill_rows than in rows (%d vs. %d).",
+                debugmsg( "body_graph \"{}\" defines a different number of columns in fill_rows than in rows ({} vs. {}).",
                           id.c_str(),
                           fr.size(), w );
             }
@@ -179,14 +179,14 @@ void bodygraph::finalize()
 void bodygraph::check() const
 {
     if( parts.empty() ) {
-        debugmsg( "body_graph \"%s\" defined without parts.", id.c_str() );
+        debugmsg( "body_graph \"{}\" defined without parts.", id.c_str() );
     }
     for( const auto &bgp : parts ) {
         if( utf8_width( bgp.first ) > 1 ) {
-            debugmsg( "part \"%s\" in body_graph \"%s\" is more than 1 character.", bgp.first, id.c_str() );
+            debugmsg( "part \"{}\" in body_graph \"{}\" is more than 1 character.", bgp.first, id.c_str() );
         }
         if( bgp.second.bodyparts.empty() && bgp.second.sub_bodyparts.empty() ) {
-            debugmsg( "part \"%s\" in body_graph \"%s\" contains no body_parts or sub_body_parts definitions.",
+            debugmsg( "part \"{}\" in body_graph \"{}\" contains no body_parts or sub_body_parts definitions.",
                       bgp.first, id.c_str() );
         }
     }
@@ -310,13 +310,13 @@ void bodygraph_display::draw_borders()
     };
 
     // window title
-    const std::string title_txt = string_format( "< %s >", colorize( _( "Body status" ), c_yellow ) );
+    const std::string title_txt = string_format( "< {} >", colorize( _( "Body status" ), c_yellow ) );
     trim_and_print( w_border, point( center_txt_start( title_txt ), 0 ),
                     BPGRAPH_MAXCOLS, c_white, title_txt );
 
     // body part subtitle
     if( id->parent_bp.has_value() ) {
-        const std::string bpname = string_format( "\\_ %s _/",
+        const std::string bpname = string_format( "\\_ {} _/",
                                    colorize( to_upper_case( id->parent_bp.value()->name.translated() ), c_yellow ) );
         trim_and_print( w_border, point( center_txt_start( bpname ), 1 ),
                         BPGRAPH_MAXCOLS, c_white, bpname );
@@ -474,88 +474,88 @@ void bodygraph_display::prepare_infotext( bool reset_pos )
     top_info = reset_pos ? 0 : top_info;
     if( info.specific_sublimb ) {
         // parent part
-        info_txt.emplace_back( string_format( "%s: %s", colorize( _( "Sub part of" ), c_magenta ),
+        info_txt.emplace_back( string_format( "{}: {}", colorize( _( "Sub part of" ), c_magenta ),
                                               info.parent_bp_name ) );
     }
     // part health
     std::pair<std::string, nc_color> hpbar = get_hp_bar( info.part_hp_cur, info.part_hp_max );
-    info_txt.emplace_back( string_format( "%s: %s", colorize( _( "Health" ), c_magenta ),
+    info_txt.emplace_back( string_format( "{}: {}", colorize( _( "Health" ), c_magenta ),
                                           colorize( hpbar.first, hpbar.second ) ) );
     // part wetness
-    info_txt.emplace_back( string_format( "%s: %.2f%%", colorize( _( "Wetness" ), c_magenta ),
+    info_txt.emplace_back( string_format( "{}: %.2f%%", colorize( _( "Wetness" ), c_magenta ),
                                           info.wetness ) );
     // part temperature
     const bool temp_precise = u->has_item_with_flag( STATIC( flag_id( "THERMOMETER" ) ) ) ||
                               u->has_flag( STATIC( json_character_flag( "THERMOMETER" ) ) );
     const int temp = info.temperature.first / 100.0 * 2; // farenheit
-    info_txt.emplace_back( string_format( "%s: %s", colorize( _( "Body temp" ), c_magenta ),
+    info_txt.emplace_back( string_format( "{}: {}", colorize( _( "Body temp" ), c_magenta ),
                                           temp_precise ? colorize( print_temperature( temp ),
                                                   info.temperature.second ) : info.temp_approx ) );
     info_txt.emplace_back( "--" );
     // part effects
-    info_txt.emplace_back( string_format( "%s:", colorize( _( "Effects" ), c_magenta ) ) );
+    info_txt.emplace_back( string_format( "{}:", colorize( _( "Effects" ), c_magenta ) ) );
     for( const effect &eff : info.effects ) {
         if( eff.get_id()->is_show_in_info() ) {
             effect_rating rt = eff.get_id()->get_rating();
-            info_txt.emplace_back( string_format( "  %s", colorize( eff.disp_name(),
+            info_txt.emplace_back( string_format( "  {}", colorize( eff.disp_name(),
                                                   rt == e_good ? c_green : rt == e_bad ? c_red : c_yellow ) ) );
         }
     }
     info_txt.emplace_back( "--" );
     // worn armor
-    info_txt.emplace_back( string_format( "%s:", colorize( _( "Worn" ), c_magenta ) ) );
+    info_txt.emplace_back( string_format( "{}:", colorize( _( "Worn" ), c_magenta ) ) );
     for( const std::string &worn : info.worn_names ) {
-        info_txt.emplace_back( string_format( "  %s", worn ) );
+        info_txt.emplace_back( string_format( "  {}", worn ) );
     }
     info_txt.emplace_back( "--" );
     // coverage
-    info_txt.emplace_back( string_format( "%s: %d%%",
+    info_txt.emplace_back( string_format( "{}: {}%%",
                                           colorize( info.specific_sublimb ? _( "Coverage" ) : _( "Coverage (Avg.)" ), c_magenta ),
                                           info.avg_coverage ) );
     info_txt.emplace_back( "--" );
     // encumbrance
-    info_txt.emplace_back( string_format( "%s: %d", colorize( _( "Encumbrance" ), c_magenta ),
+    info_txt.emplace_back( string_format( "{}: {}", colorize( _( "Encumbrance" ), c_magenta ),
                                           info.total_encumbrance ) );
     info_txt.emplace_back( "--" );
     // protection
-    info_txt.emplace_back( string_format( "%s:",
+    info_txt.emplace_back( string_format( "{}:",
                                           colorize( info.specific_sublimb ? _( "Protection" ) : _( "Protection (Avg.)" ), c_magenta ) ) );
-    std::string prot_legend = string_format( "%s %s %s", colorize( _( "worst" ), c_red ),
+    std::string prot_legend = string_format( "{} {} {}", colorize( _( "worst" ), c_red ),
                               colorize( _( "median" ), c_yellow ), colorize( _( "best" ), c_light_green ) );
     int wavail = clamp( ( info_width - 2 ) - utf8_width( prot_legend, true ), 0, info_width - 2 );
     prot_legend.insert( prot_legend.begin(), wavail > 4 ? 4 : wavail, ' ' );
     info_txt.emplace_back( prot_legend );
     auto get_res_str = [&]( damage_type dt ) -> std::string {
-        const std::string wval = string_format( info_width <= 18 ? "%4.1f" : "%5.2f", info.worst_case.type_resist( dt ) );
-        const std::string mval = string_format( info_width <= 18 ? "%4.1f" : "%5.2f", info.median_case.type_resist( dt ) );
-        const std::string bval = string_format( info_width <= 18 ? "%4.1f" : "%5.2f", info.best_case.type_resist( dt ) );
-        std::string txt = string_format( "%s %s %s", colorize( wval, c_red ), colorize( mval, c_yellow ), colorize( bval, c_light_green ) );
+        const std::string wval = string_format( info_width <= 18 ? "{}.1f" : "{}.2f", info.worst_case.type_resist( dt ) );
+        const std::string mval = string_format( info_width <= 18 ? "{}.1f" : "{}.2f", info.median_case.type_resist( dt ) );
+        const std::string bval = string_format( info_width <= 18 ? "{}.1f" : "{}.2f", info.best_case.type_resist( dt ) );
+        std::string txt = string_format( "{} {} {}", colorize( wval, c_red ), colorize( mval, c_yellow ), colorize( bval, c_light_green ) );
         int res_avail = clamp( ( info_width - 2 ) - utf8_width( txt, true ), 0, info_width - 2 );
         txt.insert( txt.begin(), res_avail > 4 ? 4 : res_avail, ' ' );
         return txt;
     };
-    info_txt.emplace_back( string_format( "  %s:", _( "Bash" ) ) );
+    info_txt.emplace_back( string_format( "  {}:", _( "Bash" ) ) );
     info_txt.emplace_back( get_res_str( damage_type::BASH ) );
-    info_txt.emplace_back( string_format( "  %s:", _( "Cut" ) ) );
+    info_txt.emplace_back( string_format( "  {}:", _( "Cut" ) ) );
     info_txt.emplace_back( get_res_str( damage_type::CUT ) );
-    info_txt.emplace_back( string_format( "  %s:", _( "Pierce" ) ) );
+    info_txt.emplace_back( string_format( "  {}:", _( "Pierce" ) ) );
     info_txt.emplace_back( get_res_str( damage_type::STAB ) );
-    info_txt.emplace_back( string_format( "  %s:", _( "Ballistic" ) ) );
+    info_txt.emplace_back( string_format( "  {}:", _( "Ballistic" ) ) );
     info_txt.emplace_back( get_res_str( damage_type::BULLET ) );
-    info_txt.emplace_back( string_format( "  %s:", _( "Acid" ) ) );
+    info_txt.emplace_back( string_format( "  {}:", _( "Acid" ) ) );
     info_txt.emplace_back( get_res_str( damage_type::ACID ) );
-    info_txt.emplace_back( string_format( "  %s:", _( "Fire" ) ) );
+    info_txt.emplace_back( string_format( "  {}:", _( "Fire" ) ) );
     info_txt.emplace_back( get_res_str( damage_type::HEAT ) );
     if( info.best_case.type_resist( damage_type::COLD ) > 1 ) {
-        info_txt.emplace_back( string_format( "  %s:", _( "Endothermic" ) ) );
+        info_txt.emplace_back( string_format( "  {}:", _( "Endothermic" ) ) );
         info_txt.emplace_back( get_res_str( damage_type::COLD ) );
     }
     if( info.best_case.type_resist( damage_type::ELECTRIC ) > 1 ) {
-        info_txt.emplace_back( string_format( "  %s:", _( "Electrical" ) ) );
+        info_txt.emplace_back( string_format( "  {}:", _( "Electrical" ) ) );
         info_txt.emplace_back( get_res_str( damage_type::ELECTRIC ) );
     }
     if( info.best_case.type_resist( damage_type::BIOLOGICAL ) > 1 ) {
-        info_txt.emplace_back( string_format( "  %s:", _( "Biological" ) ) );
+        info_txt.emplace_back( string_format( "  {}:", _( "Biological" ) ) );
         info_txt.emplace_back( get_res_str( damage_type::BIOLOGICAL ) );
     }
 }
@@ -652,9 +652,9 @@ std::vector<std::string> get_bodygraph_lines( const Character &u,
     if( !!id->parent_bp && !u.has_part( *id->parent_bp ) ) {
         std::string txt = string_format( u.is_avatar() ?
                                          //~ 1$ = 2nd person pronoun (You), 2$ = body part (left arm)
-                                         _( "%1$s do not have a %2$s." ) :
+                                         _( "{1} do not have a {2}." ) :
                                          //~ 1$ = name of character, 2$ = body part (left arm)
-                                         _( "%1$s does not have a %2$s." ), u.disp_name( false, true ),
+                                         _( "{1} does not have a {2}." ), u.disp_name( false, true ),
                                          id->parent_bp->obj().name.translated() );
         for( int y = 0; y < height; y++ ) {
             if( y == height / 2 ) {

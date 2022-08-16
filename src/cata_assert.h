@@ -30,7 +30,7 @@
         if( expression ) { \
             break; \
         } \
-        fprintf( stderr, "%s at %s:%d: Assertion `%s` failed.\n", __func__, __FILE__, __LINE__, #expression ); \
+        fprintf( stderr, "{} at {}:{}: Assertion `{}` failed.\n", __func__, __FILE__, __LINE__, #expression ); \
         std::abort(); \
     } while( false )
 #else

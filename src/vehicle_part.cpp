@@ -51,7 +51,7 @@ vehicle_part::vehicle_part( const vpart_id &vp, const std::string &variant_id, c
     base.set_flag( flag_VEHICLE );
 
     if( base.typeId() != vp->base_item ) {
-        debugmsg( "incorrect vehicle part item, expected: %s, received: %s",
+        debugmsg( "incorrect vehicle part item, expected: {}, received: {}",
                   vp->base_item.c_str(), base.typeId().c_str() );
     }
 }
@@ -104,10 +104,10 @@ std::string vehicle_part::name( bool with_prefix ) const
     auto res = info().name();
 
     if( base.engine_displacement() > 0 ) {
-        res.insert( 0, string_format( _( "%2.1fL " ), base.engine_displacement() / 100.0 ) );
+        res.insert( 0, string_format( _( "{}.1fL " ), base.engine_displacement() / 100.0 ) );
 
     } else if( wheel_diameter() > 0 ) {
-        res.insert( 0, string_format( _( "%d\" " ), wheel_diameter() ) );
+        res.insert( 0, string_format( _( "{}\" " ), wheel_diameter() ) );
     }
 
     if( base.is_faulty() ) {
@@ -115,7 +115,7 @@ std::string vehicle_part::name( bool with_prefix ) const
     }
 
     if( base.has_var( "contained_name" ) ) {
-        res += string_format( _( " holding %s" ), base.get_var( "contained_name" ) );
+        res += string_format( _( " holding {}" ), base.get_var( "contained_name" ) );
     }
 
     if( is_leaking() ) {
@@ -683,7 +683,7 @@ bool vehicle::can_enable( const vehicle_part &pt, bool alert ) const
 
     if( pt.info().epower < 0 && fuel_left( fuel_type_battery, true ) <= 0 ) {
         if( alert ) {
-            add_msg( m_bad, _( "Insufficient power to enable %s" ), pt.name() );
+            add_msg( m_bad, _( "Insufficient power to enable {}" ), pt.name() );
         }
         return false;
     }

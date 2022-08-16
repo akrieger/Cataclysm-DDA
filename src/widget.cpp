@@ -1193,7 +1193,7 @@ std::string widget::color_text_function_string( const avatar &ava, unsigned int 
             apply_color = false; // Already colorized
             break;
         default:
-            debugmsg( "Unexpected widget_var %s - no text_color function defined",
+            debugmsg( "Unexpected widget_var {} - no text_color function defined",
                       io::enum_to_string<widget_var>( _var ) );
             return _( "???" );
     }
@@ -1311,7 +1311,7 @@ nc_color widget::value_color( int value )
 
 std::string widget::number( int value, bool from_condition ) const
 {
-    return from_condition ? number_cond() : string_format( "%d", value );
+    return from_condition ? number_cond() : string_format( "{}", value );
 }
 
 std::string widget::text( bool from_condition, int width )
@@ -1348,13 +1348,13 @@ std::string widget::number_cond( enumeration_conjunction join_type ) const
     std::vector<const widget_clause *> wplist = get_clauses();
     if( wplist.empty() ) {
         // All clauses returned false conditions, use default
-        std::string txt = string_format( "%d", _default_clause.value );
+        std::string txt = string_format( "{}", _default_clause.value );
         return _default_clause.value == INT_MIN ? "" :
                _default_clause.color == c_unset ? txt : colorize( txt, _default_clause.color );
     }
     // Get values as a comma-separated list
     return enumerate_as_string( wplist.begin(), wplist.end(), []( const widget_clause * wp ) {
-        std::string txt = string_format( "%d", wp->value );
+        std::string txt = string_format( "{}", wp->value );
         return wp->color == c_unset ? txt : colorize( txt, wp->color );
     }, join_type );
 }
@@ -1420,7 +1420,7 @@ std::string widget::sym_text_cond( bool no_join, int width )
     strings.reserve( wplist.size() );
     for( const widget_clause *wp : wplist ) {
         std::string s = wp->color == c_unset ? wp->sym : colorize( wp->sym, wp->color );
-        std::string txt = string_format( "%s %s", s, wp->text.translated() );
+        std::string txt = string_format( "{} {}", s, wp->text.translated() );
         strings.emplace_back( txt );
     }
     int h = 0;
@@ -1529,7 +1529,7 @@ std::string widget::graph( int value ) const
             ret += std::wstring( _width, syms[quot] );
         }
     } else {
-        debugmsg( "Unknown widget fill type %s", _fill );
+        debugmsg( "Unknown widget fill type {}", _fill );
         return "";
     }
     return wstr_to_utf8( ret );
@@ -1714,13 +1714,13 @@ std::string widget::layout( const avatar &ava, unsigned int max_width, int label
                 }
 
                 // for debug keep track of each and width
-                debug_widths.append( string_format( "%s: %d,", wid.str(), cur_width ) );
+                debug_widths.append( string_format( "{}: {},", wid.str(), cur_width ) );
 
                 if( cur_width > 0 ) {
                     total_width += cur_width;
                 }
                 if( total_width > max_width ) {
-                    debugmsg( string_format( "widget layout is wider (%d) than sidebar allows (%d) for %s.",
+                    debugmsg( string_format( "widget layout is wider ({}) than sidebar allows ({}) for {}.",
                                              total_width, max_width, debug_widths ) );
                 }
                 const bool skip_pad_this = skip_pad || wid->has_flag( json_flag_W_NO_PADDING );

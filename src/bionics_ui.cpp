@@ -254,7 +254,7 @@ static void draw_bionics_titlebar( const catacurses::window &window, avatar *p,
     }
 
     const int pwr_str_pos = right_print( window, 1, 1, c_white,
-                                         string_format( _( "Bionic Power: <color_light_blue>%s</color>/<color_light_blue>%ikJ</color>" ),
+                                         string_format( _( "Bionic Power: <color_light_blue>{}</color>/<color_light_blue>{}</color>" ),
                                                  power_string, units::to_kilojoule( p->get_max_power_level() ) ) );
 
     mvwputch( window, point( pwr_str_pos - 1, 1 ), BORDER_COLOR, LINE_XOXO ); // |
@@ -269,13 +269,13 @@ static void draw_bionics_titlebar( const catacurses::window &window, avatar *p,
     center_print( window, 0, c_light_red, _( "Bionics" ) );
 
     std::string desc_append = string_format(
-                                  _( "[<color_yellow>%s</color>] Reassign, [<color_yellow>%s</color>] Switch tabs, "
-                                     "[<color_yellow>%s</color>] Toggle fuel saving mode, "
-                                     "[<color_yellow>%s</color>] Toggle auto start mode, "
-                                     "[<color_yellow>%s</color>] Open refueling menu." ),
+                                  _( "[<color_yellow>{}</color>] Reassign, [<color_yellow>{}</color>] Switch tabs, "
+                                     "[<color_yellow>{}</color>] Toggle fuel saving mode, "
+                                     "[<color_yellow>{}</color>] Toggle auto start mode, "
+                                     "[<color_yellow>{}</color>] Open refueling menu." ),
                                   ctxt.get_desc( "REASSIGN" ), ctxt.get_desc( "NEXT_TAB" ), ctxt.get_desc( "TOGGLE_SAFE_FUEL" ),
                                   ctxt.get_desc( "TOGGLE_AUTO_START" ), ctxt.get_desc( "REFUEL" ) );
-    desc_append += string_format( _( " [<color_yellow>%s</color>] Sort: %s" ), ctxt.get_desc( "SORT" ),
+    desc_append += string_format( _( " [<color_yellow>{}</color>] Sort: {}" ), ctxt.get_desc( "SORT" ),
                                   sort_mode_str( uistate.bionic_sort_mode ) );
     std::string desc;
     if( mode == REASSIGNING ) {
@@ -283,11 +283,11 @@ static void draw_bionics_titlebar( const catacurses::window &window, avatar *p,
         fuel_string.clear();
     } else if( mode == ACTIVATING ) {
         desc = string_format( _( "<color_green>Activating</color>  "
-                                 "[<color_yellow>%s</color>] Examine, %s" ),
+                                 "[<color_yellow>{}</color>] Examine, {}" ),
                               ctxt.get_desc( "TOGGLE_EXAMINE" ), desc_append );
     } else if( mode == EXAMINING ) {
         desc = string_format( _( "<color_light_blue>Examining</color>  "
-                                 "[<color_yellow>%s</color>] Activate, %s" ),
+                                 "[<color_yellow>{}</color>] Activate, {}" ),
                               ctxt.get_desc( "TOGGLE_EXAMINE" ), desc_append );
     }
 
@@ -304,21 +304,21 @@ static std::string build_bionic_poweronly_string( const bionic &bio )
     std::vector<std::string> properties;
 
     if( bio_data.power_activate > 0_kJ ) {
-        properties.push_back( string_format( _( "%s act" ),
+        properties.push_back( string_format( _( "{} act" ),
                                              units::display( bio_data.power_activate ) ) );
     }
     if( bio_data.power_deactivate > 0_kJ ) {
-        properties.push_back( string_format( _( "%s deact" ),
+        properties.push_back( string_format( _( "{} deact" ),
                                              units::display( bio_data.power_deactivate ) ) );
     }
     if( bio_data.power_trigger > 0_kJ ) {
-        properties.push_back( string_format( _( "%s trigger" ),
+        properties.push_back( string_format( _( "{} trigger" ),
                                              units::display( bio_data.power_trigger ) ) );
     }
     if( bio_data.charge_time > 0_turns && bio_data.power_over_time > 0_kJ ) {
         properties.push_back( bio_data.charge_time == 1_turns
-                              ? string_format( _( "%s/turn" ), units::display( bio_data.power_over_time ) )
-                              : string_format( _( "%s/%d turns" ), units::display( bio_data.power_over_time ),
+                              ? string_format( _( "{}/turn" ), units::display( bio_data.power_over_time ) )
+                              : string_format( _( "{}/{} turns" ), units::display( bio_data.power_over_time ),
                                                to_turns<int>( bio_data.charge_time ) ) );
     }
     if( bio_data.has_flag( STATIC( json_character_flag( "BIONIC_TOGGLED" ) ) ) ) {
@@ -330,12 +330,12 @@ static std::string build_bionic_poweronly_string( const bionic &bio )
     if( bio.get_safe_fuel_thresh() > 0 && ( !bio.info().fuel_opts.empty() ||
                                             bio.info().is_remote_fueled ) ) {
         //properties.push_back( _( "(fuel saving ON)" ) );
-        const std::string label = string_format( _( "(fuel saving ON > %d %%)" ),
+        const std::string label = string_format( _( "(fuel saving ON > {} %%)" ),
                                   static_cast<int>( bio.get_safe_fuel_thresh() * 100 ) );
         properties.push_back( label );
     }
     if( bio.is_auto_start_on() && ( !bio.info().fuel_opts.empty() || bio.info().is_remote_fueled ) ) {
-        const std::string label = string_format( _( "(auto start < %d %%)" ),
+        const std::string label = string_format( _( "(auto start < {} %%)" ),
                                   static_cast<int>( bio.get_auto_start_thresh() * 100 ) );
         properties.push_back( label );
     }
@@ -361,8 +361,8 @@ static void draw_bionics_tabs( const catacurses::window &win, const size_t activ
     werase( win );
 
     const std::vector<std::pair<bionic_tab_mode, std::string>> tabs = {
-        { bionic_tab_mode::TAB_ACTIVE, string_format( _( "ACTIVE (%i)" ), active_num ) },
-        { bionic_tab_mode::TAB_PASSIVE, string_format( _( "PASSIVE (%i)" ), passive_num ) },
+        { bionic_tab_mode::TAB_ACTIVE, string_format( _( "ACTIVE ({})" ), active_num ) },
+        { bionic_tab_mode::TAB_PASSIVE, string_format( _( "PASSIVE ({})" ), passive_num ) },
     };
     draw_tabs( win, tabs, current_mode );
 
@@ -389,12 +389,12 @@ static void draw_description( const catacurses::window &win, const bionic &bio,
     werase( win );
     const int width = getmaxx( win );
     const std::string poweronly_string = build_bionic_poweronly_string( bio );
-    int ypos = fold_and_print( win, point_zero, width, c_white, "%s", bio.id->name );
+    int ypos = fold_and_print( win, point_zero, width, c_white, "{}", bio.id->name );
     if( !poweronly_string.empty() ) {
         ypos += fold_and_print( win, point( 0, ypos ), width, c_light_gray,
-                                _( "Power usage: %s" ), poweronly_string );
+                                _( "Power usage: {}" ), poweronly_string );
     }
-    ypos += 1 + fold_and_print( win, point( 0, ypos ), width, c_light_blue, "%s", bio.id->description );
+    ypos += 1 + fold_and_print( win, point( 0, ypos ), width, c_light_blue, "{}", bio.id->description );
 
     // TODO: Unhide when enforcing limits
     if( get_option < bool >( "CBM_SLOTS_ENABLED" ) ) {
@@ -405,7 +405,7 @@ static void draw_description( const catacurses::window &win, const bionic &bio,
 
     if( bio.has_weapon() ) {
         fold_and_print( win, point( 0, ypos ), width, c_light_gray,
-                        _( "Installed weapon: %s" ), bio.get_weapon().tname() );
+                        _( "Installed weapon: {}" ), bio.get_weapon().tname() );
     }
     wnoutrefresh( win );
 }
@@ -471,7 +471,7 @@ static void draw_connectors( const catacurses::window &win, const point &start,
         mvwputch( win, point( last_x, y ), BORDER_COLOR, '<' );
 
         // draw amount of consumed slots by this CBM
-        const std::string fmt_num = string_format( "(%d)", elem.second );
+        const std::string fmt_num = string_format( "({})", elem.second );
         mvwprintz( win, point( turn_x + std::max( 1, ( last_x - turn_x - utf8_width( fmt_num ) ) / 2 ), y ),
                    c_yellow, fmt_num );
     }
@@ -665,7 +665,7 @@ void avatar::power_bionics()
         std::map<bodypart_str_id, size_t> bp_to_pos;
         for( const bodypart_id &bp : get_all_body_parts() ) {
             const int total = get_total_bionics_slots( bp );
-            const std::string s = string_format( "%s: %d/%d",
+            const std::string s = string_format( "{}: {}/{}",
                                                  body_part_name_as_heading( bp, 1 ),
                                                  total - get_free_bionics_slots( bp ), total );
             bps.push_back( s );
@@ -698,7 +698,7 @@ void avatar::power_bionics()
                 const bool is_highlighted = cursor == static_cast<int>( i );
                 const nc_color col = get_bionic_text_color( *( *current_bionic_list )[i],
                                      is_highlighted );
-                const std::string desc = string_format( "%c %s", ( *current_bionic_list )[i]->invlet,
+                const std::string desc = string_format( "{} {}", ( *current_bionic_list )[i]->invlet,
                                                         build_bionic_powerdesc_string(
                                                                 *( *current_bionic_list )[i] ).c_str() );
                 trim_and_print( wBio, point( 2, list_start_y + i - scroll_position ), WIDTH - 3, col,
@@ -792,7 +792,7 @@ void avatar::power_bionics()
                 // Selected an non-existing bionic (or Escape, or ...)
                 continue;
             }
-            const int newch = popup_getkey( _( "%s; enter new letter.  Space to clear.  Esc to cancel." ),
+            const int newch = popup_getkey( _( "{}; enter new letter.  Space to clear.  Esc to cancel." ),
                                             tmp->id->name );
             if( newch == ch || newch == KEY_ESCAPE ) {
                 continue;
@@ -802,7 +802,7 @@ void avatar::power_bionics()
                 continue;
             }
             if( !bionic_chars.valid( newch ) ) {
-                popup( _( "Invalid bionic letter.  Only those characters are valid:\n\n%s" ),
+                popup( _( "Invalid bionic letter.  Only those characters are valid:\n\n{}" ),
                        bionic_chars.get_allowed_chars() );
                 continue;
             }
@@ -957,7 +957,7 @@ void avatar::power_bionics()
                                                 item_location loc( *this, &new_weapon );
                                                 loc.remove_item();
                                             } else {
-                                                popup( _( "Unable to install %s" ), new_weapon.tname() );
+                                                popup( _( "Unable to install {}" ), new_weapon.tname() );
                                             }
                                         }
                                     }
@@ -991,8 +991,8 @@ void avatar::power_bionics()
                     }
                     continue;
                 } else {
-                    popup( _( "You can not activate %s!\n"
-                              "To read a description of %s, press '%s', then '%c'." ), bio_data.name,
+                    popup( _( "You can not activate {}!\n"
+                              "To read a description of {}, press '{}', then '{}'." ), bio_data.name,
                            bio_data.name, ctxt.get_desc( "TOGGLE_EXAMINE" ), tmp->invlet );
                 }
             } else if( menu_mode == EXAMINING ) {

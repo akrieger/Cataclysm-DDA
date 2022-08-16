@@ -23,7 +23,7 @@ namespace views
  * You can even transform elements into a different type:
  *     std::vector<intr> vec{ 1, 2, 3, 4, 5 };
  *     auto stringify = []( const int &x ) -> std::string {
- *         return string_format( _( "Square of %d is %d." ), x, x * x );
+ *         return string_format( _( "Square of {} is {}." ), x, x * x );
  *     };
  *     for( auto s : cata::views::transform<std::vector<int>, std::string>( vec, stringify ) ) {
  *         you.add_msg_if_player( s );

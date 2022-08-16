@@ -228,7 +228,7 @@ void safemode::show( const std::string &custom_name_in, bool is_safemode_in )
 
                 nc_color line_color = ( rule.active ) ? c_white : c_light_gray;
 
-                mvwprintz( w, point( 1, i - start_pos ), line_color, "%d", i + 1 );
+                mvwprintz( w, point( 1, i - start_pos ), line_color, "{}", i + 1 );
                 mvwprintz( w, point( 5, i - start_pos ), c_yellow, ( line == i ) ? ">> " : "   " );
 
                 auto draw_column = [&]( Columns column_in, const std::string & text_in ) {
@@ -569,8 +569,8 @@ void safemode::test_pattern( const int tab_in, const int row_in )
     ui.on_screen_resize( init_windows );
 
     int nmatch = creature_list.size();
-    const std::string buf = string_format( n_gettext( "%1$d monster matches: %2$s",
-                                           "%1$d monsters match: %2$s",
+    const std::string buf = string_format( n_gettext( "{1} monster matches: {2}",
+                                           "{1} monsters match: {2}",
                                            nmatch ), nmatch, temp_rules[row_in].rule.c_str() );
 
     int line = 0;
@@ -604,7 +604,7 @@ void safemode::test_pattern( const int tab_in, const int row_in )
                 i < start_pos + std::min( content_height, static_cast<int>( creature_list.size() ) ) ) {
                 nc_color line_color = c_white;
 
-                mvwprintz( w_test_rule_content, point( 0, i - start_pos ), line_color, "%d", i + 1 );
+                mvwprintz( w_test_rule_content, point( 0, i - start_pos ), line_color, "{}", i + 1 );
                 mvwprintz( w_test_rule_content, point( 4, i - start_pos ), line_color, "" );
 
                 wprintz( w_test_rule_content, c_yellow, ( line == i ) ? ">> " : "   " );
@@ -884,7 +884,7 @@ void safemode::load( const bool is_character_in )
             JsonIn jsin( fin );
             deserialize( jsin );
         } catch( const JsonError &e ) {
-            debugmsg( "Error while loading safemode settings: %s", e.what() );
+            debugmsg( "Error while loading safemode settings: {}", e.what() );
         }
     }
 

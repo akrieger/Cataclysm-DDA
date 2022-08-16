@@ -86,12 +86,12 @@ int camp_reference::get_distance_from_bounds() const
 
 std::string overmapbuffer::terrain_filename( const point_abs_om &p )
 {
-    return string_format( "%s/o.%d.%d", PATH_INFO::world_base_save_path(), p.x(), p.y() );
+    return string_format( "{}/o.{}.{}", PATH_INFO::world_base_save_path(), p.x(), p.y() );
 }
 
 std::string overmapbuffer::player_filename( const point_abs_om &p )
 {
-    return string_format( "%s.seen.%d.%d", PATH_INFO::player_base_save_path(), p.x(), p.y() );
+    return string_format( "{}.seen.{}.{}", PATH_INFO::player_base_save_path(), p.x(), p.y() );
 }
 
 overmap &overmapbuffer::get( const point_abs_om &p )
@@ -222,7 +222,7 @@ void overmapbuffer::fix_npcs( overmap &new_overmap )
             // This can't really happen without save editing
             // Just move the NPC back into the bounds of new_overmap, as close
             // as possible to where they were supposed to be.
-            debugmsg( "NPC %s is out of bounds at %s, on non-generated overmap %s",
+            debugmsg( "NPC {} is out of bounds at {}, on non-generated overmap {}",
                       np.get_name(), npc_omt_pos.to_string(), loc.to_string() );
             // bounding box for new_overmap in omt coords
             const half_open_rectangle<point_abs_omt> om_bounds( project_to<coords::omt>( loc ),
@@ -728,7 +728,7 @@ void overmapbuffer::remove_vehicle( const vehicle *veh )
     const tripoint_abs_omt omt = veh->global_omt_location();
     const overmap_with_local_coords om_loc = get_existing_om_global( omt );
     if( !om_loc.om ) {
-        debugmsg( "Can't find overmap for vehicle at %s", omt.to_string_writable() );
+        debugmsg( "Can't find overmap for vehicle at {}", omt.to_string_writable() );
         return;
     }
     om_loc.om->vehicles.erase( veh->om_id );
@@ -739,7 +739,7 @@ void overmapbuffer::add_vehicle( vehicle *veh )
     const tripoint_abs_omt omt = veh->global_omt_location();
     const overmap_with_local_coords om_loc = get_existing_om_global( omt );
     if( !om_loc.om ) {
-        debugmsg( "Can't find overmap for vehicle at %s", omt.to_string_writable() );
+        debugmsg( "Can't find overmap for vehicle at {}", omt.to_string_writable() );
         return;
     }
     int id = om_loc.om->vehicles.size() + 1;
@@ -1086,7 +1086,7 @@ bool overmapbuffer::check_overmap_special_type( const overmap_special_id &id,
 void overmapbuffer::add_unique_special( const overmap_special_id &id )
 {
     if( contains_unique_special( id ) ) {
-        debugmsg( "Unique overmap special placed more than once: %s", id.str() );
+        debugmsg( "Unique overmap special placed more than once: {}", id.str() );
     }
     placed_unique_specials.emplace( id );
 }
@@ -1313,7 +1313,7 @@ shared_ptr_fast<npc> overmapbuffer::remove_npc( const character_id &id )
             return p;
         }
     }
-    debugmsg( "overmapbuffer::remove_npc: NPC (%d) not found.", id.get_value() );
+    debugmsg( "overmapbuffer::remove_npc: NPC ({}) not found.", id.get_value() );
     return nullptr;
 }
 
@@ -1552,29 +1552,29 @@ std::string overmapbuffer::get_description_at( const tripoint_abs_sm &where )
     const int sm_dist = closest_cref.distance;
 
     //~ First parameter is a terrain name, second parameter is a direction, and third parameter is a city name.
-    std::string format_string = pgettext( "terrain description", "%1$s %2$s from %3$s" );
+    std::string format_string = pgettext( "terrain description", "{1} {2} from {3}" );
     if( sm_dist <= 3 * sm_size / 4 ) {
         if( sm_size >= 16 ) {
             // The city is big enough to be split in districts.
             if( sm_dist <= sm_size / 4 ) {
                 //~ First parameter is a terrain name, second parameter is a direction, and third parameter is a city name.
-                format_string = pgettext( "terrain description", "%1$s in central %3$s" );
+                format_string = pgettext( "terrain description", "{1} in central {3}" );
             } else {
                 //~ First parameter is a terrain name, second parameter is a direction, and third parameter is a city name.
-                format_string = pgettext( "terrain description", "%1$s in %2$s %3$s" );
+                format_string = pgettext( "terrain description", "{1} in {2} {3}" );
             }
         } else {
             //~ First parameter is a terrain name, second parameter is a direction, and third parameter is a city name.
-            format_string = pgettext( "terrain description", "%1$s in %3$s" );
+            format_string = pgettext( "terrain description", "{1} in {3}" );
         }
     } else if( sm_dist <= sm_size ) {
         if( sm_size >= 8 ) {
             // The city is big enough to have outskirts.
             //~ First parameter is a terrain name, second parameter is a direction, and third parameter is a city name.
-            format_string = pgettext( "terrain description", "%1$s on the %2$s outskirts of %3$s" );
+            format_string = pgettext( "terrain description", "{1} on the {2} outskirts of {3}" );
         } else {
             //~ First parameter is a terrain name, second parameter is a direction, and third parameter is a city name.
-            format_string = pgettext( "terrain description", "%1$s in %3$s" );
+            format_string = pgettext( "terrain description", "{1} in {3}" );
         }
     }
 

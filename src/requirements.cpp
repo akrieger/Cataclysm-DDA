@@ -76,7 +76,7 @@ const requirement_data &string_id<requirement_data>::obj() const
 {
     const auto found = requirements_all.find( *this );
     if( found == requirements_all.end() ) {
-        debugmsg( "Tried to get invalid requirements: %s", c_str() );
+        debugmsg( "Tried to get invalid requirements: {}", c_str() );
         static const requirement_data null_requirement{};
         return null_requirement;
     }
@@ -136,17 +136,17 @@ bool string_id<quality>::is_valid() const
 
 std::string quality_requirement::to_string( const int, const int ) const
 {
-    //~ %1$d: tool count, %2$s: quality requirement name, %3$d: quality level requirement
-    return string_format( n_gettext( "%1$d tool with %2$s of %3$d or more.",
-                                     "%1$d tools with %2$s of %3$d or more.", count ),
+    //~ {1}: tool count, {2}: quality requirement name, {3}: quality level requirement
+    return string_format( n_gettext( "{1} tool with {2} of {3} or more.",
+                                     "{1} tools with {2} of {3} or more.", count ),
                           count, type.obj().name, level );
 }
 
 std::string quality_requirement::to_colored_string() const
 {
-    //~ %1$d: tool count, %2$s: quality requirement name, %3$d: quality level requirement
-    return string_format( n_gettext( "%1$d tool with <info>%2$s of %3$d</info> or more",
-                                     "%1$d tools with <info>%2$s of %3$d</info> or more", count ),
+    //~ {1}: tool count, {2}: quality requirement name, {3}: quality level requirement
+    return string_format( n_gettext( "{1} tool with <info>{2} of {3}</info> or more",
+                                     "{1} tools with <info>{2} of {3}</info> or more", count ),
                           count, type.obj().name, level );
 }
 
@@ -159,8 +159,8 @@ std::string tool_comp::to_string( const int batch, const int ) const
 {
     if( by_charges() ) {
         int charge_total = count * batch;
-        //~ %1$s: tool name, %2$d: charge requirement
-        return string_format( npgettext( "requirement", "%1$s (%2$d charge)", "%1$s (%2$d charges)",
+        //~ {1}: tool name, {2}: charge requirement
+        return string_format( npgettext( "requirement", "{1} ({2} charge)", "{1} ({2} charges)",
                                          charge_total ),
                               item::nname( type ), charge_total );
     } else {
@@ -176,36 +176,36 @@ std::string item_comp::to_string( const int batch, const int avail ) const
         // Count-by-charge
 
         if( avail == item::INFINITE_CHARGES ) {
-            //~ %1$s: item name, %2$d: charge requirement
-            return string_format( npgettext( "requirement", "%2$d %1$s (have infinite)",
-                                             "%2$d %1$s (have infinite)",
+            //~ {1}: item name, {2}: charge requirement
+            return string_format( npgettext( "requirement", "{2} {1} (have infinite)",
+                                             "{2} {1} (have infinite)",
                                              c ),
                                   type_ptr->nname( 1 ), c );
         } else if( avail > 0 ) {
-            //~ %1$s: item name, %2$d: charge requirement, %3%d: available charges
-            return string_format( npgettext( "requirement", "%2$d %1$s (have %3$d)",
-                                             "%2$d %1$s (have %3$d)", c ),
+            //~ {1}: item name, {2}: charge requirement, {}{}: available charges
+            return string_format( npgettext( "requirement", "{2} {1} (have {3})",
+                                             "{2} {1} (have {3})", c ),
                                   type_ptr->nname( 1 ), c, avail );
         } else {
-            //~ %1$s: item name, %2$d: charge requirement
-            return string_format( npgettext( "requirement", "%2$d %1$s", "%2$d %1$s", c ),
+            //~ {1}: item name, {2}: charge requirement
+            return string_format( npgettext( "requirement", "{2} {1}", "{2} {1}", c ),
                                   type_ptr->nname( 1 ), c );
         }
     } else {
         if( avail == item::INFINITE_CHARGES ) {
-            //~ %1$s: item name, %2$d: required count
-            return string_format( npgettext( "requirement", "%2$d %1$s (have infinite)",
-                                             "%2$d %1$s (have infinite)",
+            //~ {1}: item name, {2}: required count
+            return string_format( npgettext( "requirement", "{2} {1} (have infinite)",
+                                             "{2} {1} (have infinite)",
                                              c ),
                                   type_ptr->nname( c ), c );
         } else if( avail > 0 ) {
-            //~ %1$s: item name, %2$d: required count, %3%d: available count
-            return string_format( npgettext( "requirement", "%2$d %1$s (have %3$d)",
-                                             "%2$d %1$s (have %3$d)", c ),
+            //~ {1}: item name, {2}: required count, {}{}: available count
+            return string_format( npgettext( "requirement", "{2} {1} (have {3})",
+                                             "{2} {1} (have {3})", c ),
                                   type_ptr->nname( c ), c, avail );
         } else {
-            //~ %1$s: item name, %2$d: required count
-            return string_format( npgettext( "requirement", "%2$d %1$s", "%2$d %1$s", c ),
+            //~ {1}: item name, {2}: required count
+            return string_format( npgettext( "requirement", "{2} {1}", "{2} {1}", c ),
                                   type_ptr->nname( c ), c );
         }
     }
@@ -587,14 +587,14 @@ std::string requirement_data::list_missing() const
 void quality_requirement::check_consistency( const std::string &display_name ) const
 {
     if( !type.is_valid() ) {
-        debugmsg( "Unknown quality %s in %s", type.c_str(), display_name );
+        debugmsg( "Unknown quality {} in {}", type.c_str(), display_name );
     }
 }
 
 void component::check_consistency( const std::string &display_name ) const
 {
     if( !item::type_is_defined( type ) ) {
-        debugmsg( "%s in %s is not a valid item template", type.c_str(), display_name );
+        debugmsg( "{} in {} is not a valid item template", type.c_str(), display_name );
     }
 }
 
@@ -605,7 +605,7 @@ void requirement_data::check_consistency( const std::vector< std::vector<T> > &v
     for( const auto &list : vec ) {
         for( const auto &comp : list ) {
             if( comp.requirement ) {
-                debugmsg( "Finalization failed to inline %s in %s", comp.type.c_str(), display_name );
+                debugmsg( "Finalization failed to inline {} in {}", comp.type.c_str(), display_name );
             }
 
             comp.check_consistency( display_name );
@@ -661,14 +661,14 @@ void inline_requirements( std::vector<std::vector<T>> &list,
             // otherwise expand component as requirement
             const requirement_id r( comp.type.str() );
             if( !r.is_valid() ) {
-                debugmsg( "Tried to inline unknown requirement %s", r.c_str() );
+                debugmsg( "Tried to inline unknown requirement {}", r.c_str() );
                 return;
             }
             // stack just holds the current path of inlining for debug purposes
             stack.push_back( r );
             if( already_nested.count( r ) ) {
                 // print debug msg and skip just this one requirement
-                debugmsg( "Tried to inline requirement %s which forms a cycle: %s",
+                debugmsg( "Tried to inline requirement {} which forms a cycle: {}",
                 r.c_str(),  debug_menu::iterable_to_string( stack, " -> ", []( const requirement_id & r ) {
                     return r.str();
                 } ) );
@@ -887,7 +887,7 @@ bool requirement_data::has_comps( const read_only_visitable &crafting_inv,
                 // Trying to track down why the crafting tests are failing?
                 // Uncomment the below to see the group of requirements that are lacking satisfaction
                 // Add a printf("\n") to the loop above this to separate different groups onto a separate line
-                // printf( "T: %s ", tool.type.str().c_str() );
+                // printf( "T: {} ", tool.type.str().c_str() );
                 tool.available = available_status::a_false;
             }
             has_tool_in_set = has_tool_in_set || tool.available == available_status::a_true;
@@ -1654,7 +1654,7 @@ deduped_requirement_data::deduped_requirement_data( const requirement_data &in,
         static constexpr size_t max_alternatives = 100;
         if( alternatives_.size() + pending.size() > max_alternatives ) {
             debugmsg( "Construction of deduped_requirement_data generated too many alternatives.  "
-                      "The recipe %s should be simplified.  See the Recipe section in "
+                      "The recipe {} should be simplified.  See the Recipe section in "
                       "doc/JSON_INFO.md for more details.", context.str() );
             is_too_complex_ = true;
             alternatives_ = { in };

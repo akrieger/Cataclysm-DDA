@@ -10,7 +10,7 @@ void reset_floating_point_mode()
 {
     const std::uint16_t cw = 0x27f;
     __asm__ __volatile__( "fninit" );
-    __asm__ __volatile__( "fldcw %0" : : "m"( cw ) );
+    __asm__ __volatile__( "fldcw {}" : : "m"( cw ) );
 #if defined(__SSE__)
     const std::uint32_t csr = 0x1f80;
     _mm_setcsr( csr );

@@ -88,20 +88,20 @@ std::string kill_tracker::get_kills_text() const
         const std::string &mname = std::get<0>( entry.first );
         const std::string &symbol = std::get<1>( entry.first );
         const nc_color color = std::get<2>( entry.first );
-        data.push_back( string_format( "%4d ", num_kills ) + colorize( symbol,
+        data.push_back( string_format( "{} ", num_kills ) + colorize( symbol,
                         color ) + " " + colorize( mname, c_light_gray ) );
     }
     for( const auto &npc_name : npc_kills ) {
         totalkills += 1;
-        data.push_back( string_format( "%4d ", 1 ) + colorize( "@ " + npc_name, c_magenta ) );
+        data.push_back( string_format( "{} ", 1 ) + colorize( "@ " + npc_name, c_magenta ) );
     }
     std::string buffer;
     if( data.empty() ) {
         buffer = _( "You haven't killed any monsters yet!" );
     } else {
-        buffer = string_format( _( "KILL COUNT: %d" ), totalkills );
+        buffer = string_format( _( "KILL COUNT: {}" ), totalkills );
         if( get_option<bool>( "STATS_THROUGH_KILLS" ) ) {
-            buffer += string_format( _( "\nExperience: %d (%d points available)" ), get_avatar().kill_xp,
+            buffer += string_format( _( "\nExperience: {} ({} points available)" ), get_avatar().kill_xp,
                                      get_avatar().free_upgrade_points() );
         }
         buffer += "\n";

@@ -129,7 +129,7 @@ basecamp::basecamp( const std::string &name_, const tripoint &bb_pos_,
 std::string basecamp::board_name() const
 {
     //~ Name of a basecamp
-    return string_format( _( "%s Board" ), name );
+    return string_format( _( "{} Board" ), name );
 }
 
 void basecamp::set_by_radio( bool access_by_radio )
@@ -223,11 +223,11 @@ std::string basecamp::om_upgrade_description( const std::string &bldg, bool trun
     for( auto &elem : component_print_buffer ) {
         str_append( comp, elem, "\n" );
     }
-    comp = string_format( _( "Notes:\n%s\n\nSkills used: %s\n%s\n" ),
+    comp = string_format( _( "Notes:\n{}\n\nSkills used: {}\n{}\n" ),
                           making.description, making.required_all_skills_string(), comp );
     if( !trunc ) {
         time_duration base_time = making.batch_duration( get_player_character() );
-        comp += string_format( _( "Risk: None\nTime: %s\n" ),
+        comp += string_format( _( "Risk: None\nTime: {}\n" ),
                                to_string( base_camps::to_workdays( base_time ) ) );
     }
     return comp;

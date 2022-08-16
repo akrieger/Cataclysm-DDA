@@ -572,19 +572,19 @@ TEST_CASE( "widgets showing avatar stamina", "[widget][avatar][stamina]" )
     CHECK( stamina_graph_w.layout( ava ) == "STAMINA: ----------" );
 
     ava.set_stamina( stamina_25 );
-    CHECK( stamina_num_w.layout( ava ) == string_format( "STAMINA: %d", stamina_25 ) );
+    CHECK( stamina_num_w.layout( ava ) == string_format( "STAMINA: {}", stamina_25 ) );
     CHECK( stamina_graph_w.layout( ava ) == "STAMINA: =====-----" );
 
     ava.set_stamina( stamina_50 );
-    CHECK( stamina_num_w.layout( ava ) == string_format( "STAMINA: %d", stamina_50 ) );
+    CHECK( stamina_num_w.layout( ava ) == string_format( "STAMINA: {}", stamina_50 ) );
     CHECK( stamina_graph_w.layout( ava ) == "STAMINA: ==========" );
 
     ava.set_stamina( stamina_75 );
-    CHECK( stamina_num_w.layout( ava ) == string_format( "STAMINA: %d", stamina_75 ) );
+    CHECK( stamina_num_w.layout( ava ) == string_format( "STAMINA: {}", stamina_75 ) );
     CHECK( stamina_graph_w.layout( ava ) == "STAMINA: #####=====" );
 
     ava.set_stamina( stamina_max );
-    CHECK( stamina_num_w.layout( ava ) == string_format( "STAMINA: %d", stamina_max ) );
+    CHECK( stamina_num_w.layout( ava ) == string_format( "STAMINA: {}", stamina_max ) );
     CHECK( stamina_graph_w.layout( ava ) == "STAMINA: ##########" );
 }
 

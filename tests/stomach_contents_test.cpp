@@ -79,9 +79,9 @@ static void print_stomach_contents( Character &p, const bool print )
     if( !print ) {
         return;
     }
-    printf( "stomach: %d guts: %d player: %d/%d hunger: %d\n", p.stomach.get_calories(),
+    printf( "stomach: {} guts: {} player: {}/{} hunger: {}\n", p.stomach.get_calories(),
             p.guts.get_calories(), p.get_stored_kcal(), p.get_healthy_kcal(), p.get_hunger() );
-    printf( "stomach: %d mL/ %d mL guts %d mL/ %d mL\n",
+    printf( "stomach: {} mL/ {} mL guts {} mL/ {} mL\n",
             units::to_milliliter<int>( p.stomach.contains() ),
             units::to_milliliter<int>( p.stomach.capacity( p ) ),
             units::to_milliliter<int>( p.guts.contains() ),
@@ -130,7 +130,7 @@ TEST_CASE( "starve_test", "[starve][slow]" )
     std::vector<std::string> results;
 
     do {
-        results.push_back( string_format( "\nday %d: %d", day, dummy.get_stored_kcal() ) );
+        results.push_back( string_format( "\nday {}: {}", day, dummy.get_stored_kcal() ) );
         pass_time( dummy, 1_days );
         dummy.set_thirst( 0 );
         dummy.set_fatigue( 0 );
@@ -309,7 +309,7 @@ TEST_CASE( "starve_test_hunger3", "[starve][slow]" )
     unsigned int day = 0;
 
     do {
-        results.push_back( string_format( "\nday %d: %d", day, dummy.get_stored_kcal() ) );
+        results.push_back( string_format( "\nday {}: {}", day, dummy.get_stored_kcal() ) );
         pass_time( dummy, 1_days );
         dummy.set_thirst( 0 );
         dummy.set_fatigue( 0 );
@@ -337,7 +337,7 @@ TEST_CASE( "all_nutrition_starve_test", "[starve][slow]" )
 
     for( unsigned int day = 0; day <= 20; day++ ) {
         if( print_tests ) {
-            printf( "day %u: %d\n", day, dummy.get_stored_kcal() );
+            printf( "day {}: {}\n", day, dummy.get_stored_kcal() );
         }
         pass_time( dummy, 1_days );
         dummy.set_thirst( 0 );
@@ -346,7 +346,7 @@ TEST_CASE( "all_nutrition_starve_test", "[starve][slow]" )
         print_stomach_contents( dummy, print_tests );
     }
     if( print_tests ) {
-        printf( "vitamins: vitC %d calcium %d iron %d\n",
+        printf( "vitamins: vitC {} calcium {} iron {}\n",
                 dummy.vitamin_get( vitamin_vitC ), dummy.vitamin_get( vitamin_calcium ),
                 dummy.vitamin_get( vitamin_iron ) );
         printf( "\n" );
@@ -398,7 +398,7 @@ TEST_CASE( "hunger" )
     print_stomach_contents( dummy, print_tests );
     int hunger_time = to_minutes<int>( time_until_hungry( dummy ) );
     if( print_tests ) {
-        printf( "%d minutes til hunger sets in\n", hunger_time );
+        printf( "{} minutes til hunger sets in\n", hunger_time );
         print_stomach_contents( dummy, print_tests );
         printf( "eat 2 cooked meat\n" );
     }
@@ -413,7 +413,7 @@ TEST_CASE( "hunger" )
     print_stomach_contents( dummy, print_tests );
     hunger_time = to_minutes<int>( time_until_hungry( dummy ) );
     if( print_tests ) {
-        printf( "%d minutes til hunger sets in\n", hunger_time );
+        printf( "{} minutes til hunger sets in\n", hunger_time );
         print_stomach_contents( dummy, print_tests );
         printf( "eat 2 beansnrice\n" );
     }
@@ -427,7 +427,7 @@ TEST_CASE( "hunger" )
     print_stomach_contents( dummy, print_tests );
     hunger_time = to_minutes<int>( time_until_hungry( dummy ) );
     if( print_tests ) {
-        printf( "%d minutes til hunger sets in\n", hunger_time );
+        printf( "{} minutes til hunger sets in\n", hunger_time );
     }
     CHECK( hunger_time <= 285 );
     CHECK( hunger_time >= 240 );
@@ -443,7 +443,7 @@ TEST_CASE( "hunger" )
     print_stomach_contents( dummy, print_tests );
     hunger_time = to_minutes<int>( time_until_hungry( dummy ) );
     if( print_tests ) {
-        printf( "%d minutes til hunger sets in\n", hunger_time );
+        printf( "{} minutes til hunger sets in\n", hunger_time );
         print_stomach_contents( dummy, print_tests );
     }
     CHECK( hunger_time <= 390 );
@@ -462,7 +462,7 @@ TEST_CASE( "hunger" )
     print_stomach_contents( dummy, print_tests );
     hunger_time = to_minutes<int>( time_until_hungry( dummy ) );
     if( print_tests ) {
-        printf( "%d minutes til hunger sets in\n", hunger_time );
+        printf( "{} minutes til hunger sets in\n", hunger_time );
         print_stomach_contents( dummy, print_tests );
     }
     CHECK( hunger_time <= 240 );

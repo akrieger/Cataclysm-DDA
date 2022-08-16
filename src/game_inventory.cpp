@@ -92,9 +92,9 @@ namespace
 std::string good_bad_none( int value )
 {
     if( value > 0 ) {
-        return string_format( "<good>+%d</good>", value );
+        return string_format( "<good>+{}</good>", value );
     } else if( value < 0 ) {
-        return string_format( "<bad>%d</bad>", value );
+        return string_format( "<bad>{}</bad>", value );
     }
     return std::string();
 }
@@ -102,11 +102,11 @@ std::string good_bad_none( int value )
 std::string highlight_good_bad_none( int value )
 {
     if( value > 0 ) {
-        return string_format( "<color_yellow_green>+%d</color>", value );
+        return string_format( "<color_yellow_green>+{}</color>", value );
     } else if( value < 0 ) {
-        return string_format( "<color_yellow_red>%d</color>", value );
+        return string_format( "<color_yellow_red>{}</color>", value );
     }
-    return string_format( "<color_yellow>%d</color>", value );
+    return string_format( "<color_yellow>{}</color>", value );
 }
 
 } // namespace
@@ -205,7 +205,7 @@ void game_menus::inv::common( avatar &you )
 
     inv_s.set_title( _( "Inventory" ) );
     inv_s.set_hint( string_format(
-                        _( "Item hotkeys assigned: <color_light_gray>%d</color>/<color_light_gray>%d</color>" ),
+                        _( "Item hotkeys assigned: <color_light_gray>{}</color>/<color_light_gray>{}</color>" ),
                         you.allocated_invlets().count(), inv_chars.size() ) );
 
     int res = 0;
@@ -239,9 +239,9 @@ void game_menus::inv::common( item_location &loc, avatar &you )
 
     inventory_pick_selector inv_s( you );
 
-    inv_s.set_title( string_format( _( "Inventory of %s" ), loc->tname() ) );
+    inv_s.set_title( string_format( _( "Inventory of {}" ), loc->tname() ) );
     inv_s.set_hint( string_format(
-                        _( "Item hotkeys assigned: <color_light_gray>%d</color>/<color_light_gray>%d</color>" ),
+                        _( "Item hotkeys assigned: <color_light_gray>{}</color>/<color_light_gray>{}</color>" ),
                         you.allocated_invlets().count(), inv_chars.size() ) );
 
     int res = 0;
@@ -298,7 +298,7 @@ class armor_inventory_preset: public inventory_selector_preset
             }, _( "AVG ENCUMBRANCE" ) );
 
             append_cell( [ this ]( const item_location & loc ) {
-                return string_format( "<%s>%d%%</color>", color, loc->get_avg_coverage() );
+                return string_format( "<{}>{}%%</color>", color, loc->get_avg_coverage() );
             }, _( "AVG COVERAGE" ) );
 
             append_cell( [ this ]( const item_location & loc ) {
@@ -333,17 +333,17 @@ class armor_inventory_preset: public inventory_selector_preset
             append_cell( [ this ]( const item_location & loc ) {
                 const int storage_ml = to_milliliter( loc->get_total_capacity() );
                 return get_decimal_string( round_up( convert_volume( storage_ml ), 2 ) );
-            }, string_format( _( "STORAGE (%s)" ), volume_units_abbr() ) );
+            }, string_format( _( "STORAGE ({})" ), volume_units_abbr() ) );
         }
 
     protected:
         Character &you;
     private:
         std::string get_number_string( int number ) const {
-            return number ? string_format( "<%s>%d</color>", color, number ) : std::string();
+            return number ? string_format( "<{}>{}</color>", color, number ) : std::string();
         }
         std::string get_decimal_string( double number ) const {
-            return number ? string_format( "<%s>%.2f</color>", color, number ) : std::string();
+            return number ? string_format( "<{}>%.2f</color>", color, number ) : std::string();
         }
 
         const std::string color;
@@ -434,7 +434,7 @@ class liquid_inventory_selector_preset : public inventory_selector_preset
 
             append_cell( []( const item_location & loc ) {
                 if( loc.get_item() ) {
-                    return string_format( "%s %s", format_volume( loc.get_item()->max_containable_volume() ),
+                    return string_format( "{} {}", format_volume( loc.get_item()->max_containable_volume() ),
                                           volume_units_abbr() );
                 }
                 return std::string( "" );
@@ -466,9 +466,9 @@ item_location game_menus::inv::container_for( Character &you, const item &liquid
         const item *const avoid )
 {
     return inv_internal( you, liquid_inventory_selector_preset( liquid, avoid ),
-                         string_format( _( "Container for %s | %s %s" ), liquid.display_name( liquid.charges ),
+                         string_format( _( "Container for {} | {} {}" ), liquid.display_name( liquid.charges ),
                                         format_volume( liquid.volume() ), volume_units_abbr() ), radius,
-                         string_format( _( "You don't have a suitable container for carrying %s." ),
+                         string_format( _( "You don't have a suitable container for carrying {}." ),
                                         liquid.tname() ) );
 }
 
@@ -604,7 +604,7 @@ class comestible_inventory_preset : public inventory_selector_preset
                 } else if( max_joy == joy ) {
                     return joy_str + std::string( joy > 0 ? "<good>/  =</good>" : "<bad>/  =</bad>" );
                 } else {
-                    return string_format( max_joy > 0 ? "%s/<good>%+3d</good>" : "%s/<bad>%3d</bad>",
+                    return string_format( max_joy > 0 ? "{}/<good>%+3d</good>" : "{}/<bad>{}</bad>",
                                           joy_str, max_joy );
                 }
             }, _( "JOY/MAX" ) );
@@ -633,7 +633,7 @@ class comestible_inventory_preset : public inventory_selector_preset
                                                 &converted_volume_scale ), 2 );
 
                 //~ Eat menu Volume: <num><unit>
-                return string_format( _( "%.2f%s" ), converted_volume, volume_units_abbr() );
+                return string_format( _( "%.2f{}" ), converted_volume, volume_units_abbr() );
             }, _( "VOLUME" ) );
 
             append_cell( [&you]( const item_location & loc ) {
@@ -651,7 +651,7 @@ class comestible_inventory_preset : public inventory_selector_preset
                 bio_digestion, selfaware, high cooking skill etc*/
                 constexpr bool ARBITRARY_PREREQUISITES_TO_BE_DETERMINED_IN_THE_FUTURE = false;
                 if( ARBITRARY_PREREQUISITES_TO_BE_DETERMINED_IN_THE_FUTURE ) {
-                    return string_format( "%d", calories_per_effective_volume );
+                    return string_format( "{}", calories_per_effective_volume );
                 }
                 return satiety_bar( calories_per_effective_volume );
             }, _( "SATIETY" ) );
@@ -659,7 +659,7 @@ class comestible_inventory_preset : public inventory_selector_preset
             Character &player_character = get_player_character();
             append_cell( [&player_character]( const item_location & loc ) {
                 time_duration time = player_character.get_consume_time( *loc );
-                return string_format( "%s", to_string( time, true ) );
+                return string_format( "{}", to_string( time, true ) );
             }, _( "CONSUME TIME" ) );
 
             append_cell( [this, &player_character]( const item_location & loc ) {
@@ -837,13 +837,13 @@ class fuel_inventory_preset : public inventory_selector_preset
                                                 &converted_volume_scale ), 2 );
 
                 //~ Eat menu Volume: <num><unit>
-                return string_format( _( "%.2f%s" ), converted_volume, volume_units_abbr() );
+                return string_format( _( "%.2f{}" ), converted_volume, volume_units_abbr() );
             }, _( "VOLUME" ) );
 
             Character &player_character = get_player_character();
             append_cell( [&player_character]( const item_location & loc ) {
                 time_duration time = player_character.get_consume_time( *loc );
-                return string_format( "%s", to_string( time, true ) );
+                return string_format( "{}", to_string( time, true ) );
             }, _( "CONSUME TIME" ) );
 
             append_cell( [this, &player_character]( const item_location & loc ) {
@@ -882,7 +882,7 @@ class fuel_inventory_preset : public inventory_selector_preset
                 }
 
                 if( !cbm_name.empty() ) {
-                    return string_format( "<color_cyan>%s</color>", cbm_name );
+                    return string_format( "<color_cyan>{}</color>", cbm_name );
                 }
 
                 return std::string();
@@ -995,20 +995,20 @@ static std::string get_consume_needs_hint( Character &you )
 {
     auto hint = std::string();
     auto desc = display::hunger_text_color( you );
-    hint.append( string_format( "%s %s", _( "Food:" ), colorize( desc.first, desc.second ) ) );
-    hint.append( string_format( " %s ", LINE_XOXO_S ) );
+    hint.append( string_format( "{} {}", _( "Food:" ), colorize( desc.first, desc.second ) ) );
+    hint.append( string_format( " {} ", LINE_XOXO_S ) );
     desc = display::thirst_text_color( you );
-    hint.append( string_format( "%s %s", pgettext( "inventory", "Drink:" ),
+    hint.append( string_format( "{} {}", pgettext( "inventory", "Drink:" ),
                                 colorize( desc.first, desc.second ) ) );
-    hint.append( string_format( " %s ", LINE_XOXO_S ) );
+    hint.append( string_format( " {} ", LINE_XOXO_S ) );
     desc = display::pain_text_color( you );
-    hint.append( string_format( "%s %s", _( "Pain:" ), colorize( desc.first, desc.second ) ) );
-    hint.append( string_format( " %s ", LINE_XOXO_S ) );
+    hint.append( string_format( "{} {}", _( "Pain:" ), colorize( desc.first, desc.second ) ) );
+    hint.append( string_format( " {} ", LINE_XOXO_S ) );
     desc = display::fatigue_text_color( you );
-    hint.append( string_format( "%s %s", _( "Rest:" ), colorize( desc.first, desc.second ) ) );
-    hint.append( string_format( " %s ", LINE_XOXO_S ) );
-    hint.append( string_format( "%s %s", _( "Weight:" ), display::weight_string( you ) ) );
-    hint.append( string_format( " %s ", LINE_XOXO_S ) );
+    hint.append( string_format( "{} {}", _( "Rest:" ), colorize( desc.first, desc.second ) ) );
+    hint.append( string_format( " {} ", LINE_XOXO_S ) );
+    hint.append( string_format( "{} {}", _( "Weight:" ), display::weight_string( you ) ) );
+    hint.append( string_format( " {} ", LINE_XOXO_S ) );
 
     int kcal_ingested_today = you.as_avatar()->get_daily_ingested_kcal( false );
     int kcal_ingested_yesterday = you.as_avatar()->get_daily_ingested_kcal( true );
@@ -1044,21 +1044,21 @@ static std::string get_consume_needs_hint( Character &you )
     hint.append( "\n" );
     if( has_tracker ) {
         hint.append( _( "Consumed: " ) );
-        desc = std::make_pair( string_format( _( "%d kcal " ), kcal_ingested_today ), c_white );
-        hint.append( string_format( "%s %s", _( "Today:" ), colorize( desc.first, desc.second ) ) );
-        desc = std::make_pair( string_format( _( "%d kcal " ), kcal_ingested_yesterday ), c_white );
-        hint.append( string_format( "%s %s", _( "Yesterday:" ), colorize( desc.first, desc.second ) ) );
+        desc = std::make_pair( string_format( _( "{} kcal " ), kcal_ingested_today ), c_white );
+        hint.append( string_format( "{} {}", _( "Today:" ), colorize( desc.first, desc.second ) ) );
+        desc = std::make_pair( string_format( _( "{} kcal " ), kcal_ingested_yesterday ), c_white );
+        hint.append( string_format( "{} {}", _( "Yesterday:" ), colorize( desc.first, desc.second ) ) );
     } else {
         hint.append( _( "Consumed today (kcal): " ) );
         hint.append( colorize( kcal_estimated_intake, c_white ) );
     }
     if( has_fitness_band ) {
-        hint.append( string_format( " %s ", LINE_XOXO_S ) );
+        hint.append( string_format( " {} ", LINE_XOXO_S ) );
         hint.append( _( "Spent: " ) );
-        desc = std::make_pair( string_format( _( "%d kcal " ), kcal_spent_today ), c_white );
-        hint.append( string_format( "%s %s", _( "Today:" ), colorize( desc.first, desc.second ) ) );
-        desc = std::make_pair( string_format( _( "%d kcal " ), kcal_spent_yesterday ), c_white );
-        hint.append( string_format( "%s %s", _( "Yesterday:" ), colorize( desc.first, desc.second ) ) );
+        desc = std::make_pair( string_format( _( "{} kcal " ), kcal_spent_today ), c_white );
+        hint.append( string_format( "{} {}", _( "Today:" ), colorize( desc.first, desc.second ) ) );
+        desc = std::make_pair( string_format( _( "{} kcal " ), kcal_spent_yesterday ), c_white );
+        hint.append( string_format( "{} {}", _( "Yesterday:" ), colorize( desc.first, desc.second ) ) );
     }
 
     // add info about vitamins as well
@@ -1074,16 +1074,16 @@ static std::string get_consume_needs_hint( Character &you )
         const int &vit_percent = you.vitamin_RDA( v.first, guessed_daily_vit_quantity );
 
         if( has_tracker ) {
-            desc = std::make_pair( string_format( _( "%s: %d%%.  " ), v.second.name(), vit_percent ), c_white );
+            desc = std::make_pair( string_format( _( "{}: {}%%.  " ), v.second.name(), vit_percent ), c_white );
         } else {
             if( vit_percent >= 90 ) {
-                desc = std::make_pair( string_format( _( "%s: %s.  " ), v.second.name(), _( "plenty" ) ), c_white );
+                desc = std::make_pair( string_format( _( "{}: {}.  " ), v.second.name(), _( "plenty" ) ), c_white );
             } else if( vit_percent >= 50 ) {
-                desc = std::make_pair( string_format( _( "%s: %s.  " ), v.second.name(), _( "some" ) ), c_white );
+                desc = std::make_pair( string_format( _( "{}: {}.  " ), v.second.name(), _( "some" ) ), c_white );
             } else if( vit_percent > 0 ) {
-                desc = std::make_pair( string_format( _( "%s: %s.  " ), v.second.name(), _( "little" ) ), c_white );
+                desc = std::make_pair( string_format( _( "{}: {}.  " ), v.second.name(), _( "little" ) ), c_white );
             } else {
-                desc = std::make_pair( string_format( _( "%s: %s.  " ), v.second.name(), _( "none" ) ), c_white );
+                desc = std::make_pair( string_format( _( "{}: {}.  " ), v.second.name(), _( "none" ) ), c_white );
             }
         }
         hint.append( colorize( desc.first, desc.second ) );
@@ -1188,7 +1188,7 @@ class activatable_inventory_preset : public pickup_inventory_preset
             you( you ) {
             if( get_option<bool>( "INV_USE_ACTION_NAMES" ) ) {
                 append_cell( [ this ]( const item_location & loc ) {
-                    return string_format( "<color_light_green>%s</color>", get_action_name( *loc ) );
+                    return string_format( "<color_light_green>{}</color>", get_action_name( *loc ) );
                 }, _( "ACTION" ) );
             }
         }
@@ -1207,7 +1207,7 @@ class activatable_inventory_preset : public pickup_inventory_preset
                                  ? you.has_charges( comest->tool, 1 )
                                  : you.has_amount( comest->tool, 1 );
                 if( !has ) {
-                    return string_format( _( "You need a %s to consume that!" ), item::nname( comest->tool ) );
+                    return string_format( _( "You need a {} to consume that!" ), item::nname( comest->tool ) );
                 }
             }
             const use_function *consume_drug = it.type->get_use( "consume_drug" );
@@ -1219,7 +1219,7 @@ class activatable_inventory_preset : public pickup_inventory_preset
                                      ? you.has_charges( tool.first, ( tool.second == -1 ) ? 1 : tool.second )
                                      : you.has_amount( tool.first, 1 );
                     if( !has ) {
-                        return string_format( _( "You need a %s to consume that!" ), item::nname( tool.first ) );
+                        return string_format( _( "You need a {} to consume that!" ), item::nname( tool.first ) );
                     }
                 }
             }
@@ -1244,15 +1244,15 @@ class activatable_inventory_preset : public pickup_inventory_preset
             }
 
             if( it.is_broken() ) {
-                return string_format( _( "Your %s was broken and won't turn on." ), it.tname() );
+                return string_format( _( "Your {} was broken and won't turn on." ), it.tname() );
             }
 
 
             if( uses.size() == 1 &&
                 !it.ammo_sufficient( &you, uses.begin()->first ) ) {
                 return string_format(
-                           n_gettext( "Needs at least %d charge",
-                                      "Needs at least %d charges", loc->ammo_required() ),
+                           n_gettext( "Needs at least {} charge",
+                                      "Needs at least {} charges", loc->ammo_required() ),
                            loc->ammo_required() );
             }
 
@@ -1299,10 +1299,10 @@ class gunmod_inventory_preset : public inventory_selector_preset
                 const auto odds = get_odds( loc );
 
                 if( odds.first >= 100 ) {
-                    return string_format( "<color_light_green>%s</color>", _( "always" ) );
+                    return string_format( "<color_light_green>{}</color>", _( "always" ) );
                 }
 
-                return string_format( "<color_light_green>%d%%</color>", odds.first );
+                return string_format( "<color_light_green>{}%%</color>", odds.first );
             }, _( "SUCCESS CHANCE" ) );
 
             append_cell( [ this ]( const item_location & loc ) {
@@ -1322,7 +1322,7 @@ class gunmod_inventory_preset : public inventory_selector_preset
             }
 
             if( !you.meets_requirements( gunmod, *loc ) ) {
-                return string_format( _( "requires at least %s" ),
+                return string_format( _( "requires at least {}" ),
                                       you.enumerate_unmet_requirements( gunmod, *loc ) );
             }
 
@@ -1380,8 +1380,8 @@ class read_inventory_preset: public pickup_inventory_preset
                 if( book.skill ) {
                     const SkillLevel &skill = you.get_skill_level_object( book.skill );
                     if( skill.can_train() ) {
-                        //~ %1$s: book skill name, %2$d: book skill level, %3$d: player skill level
-                        return string_format( pgettext( "skill", "%1$s to %2$d (%3$d)" ), book.skill->name(), book.level,
+                        //~ {1}: book skill name, {2}: book skill level, {3}: player skill level
+                        return string_format( pgettext( "skill", "{1} to {2} ({3})" ), book.skill->name(), book.level,
                                               skill.knowledgeLevel() );
                     }
                 }
@@ -1421,7 +1421,7 @@ class read_inventory_preset: public pickup_inventory_preset
                 std::string duration = to_string_approx( time_duration::from_turns( actual_turns ), false );
 
                 if( actual_turns > normal_turns ) { // Longer - complicated stuff.
-                    return string_format( "<color_light_red>%s</color>", duration );
+                    return string_format( "<color_light_red>{}</color>", duration );
                 }
 
                 return duration; // Normal speed.
@@ -1539,7 +1539,7 @@ class ebookread_inventory_preset : public read_inventory_preset
 item_location game_menus::inv::read( Character &you )
 {
     const std::string msg = you.is_avatar() ? _( "You have nothing to read." ) :
-                            string_format( _( "%s has nothing to read." ), you.disp_name() );
+                            string_format( _( "{} has nothing to read." ), you.disp_name() );
     return inv_internal( you, read_inventory_preset( you ), _( "Read" ), 1, msg );
 }
 
@@ -1547,8 +1547,8 @@ item_location game_menus::inv::ebookread( Character &you, item_location &ereader
 {
     const std::string none_message =
         you.is_avatar() ?
-        string_format( _( "%1$s have nothing to read." ), you.disp_name( false, true ) ) :
-        string_format( _( "%1$s has nothing to read." ), you.disp_name( false, true ) );
+        string_format( _( "{1} have nothing to read." ), you.disp_name( false, true ) ) :
+        string_format( _( "{1} has nothing to read." ), you.disp_name( false, true ) );
 
     const ebookread_inventory_preset preset( you );
     inventory_pick_selector inv_s( you, preset );
@@ -1586,8 +1586,8 @@ class steal_inventory_preset : public pickup_inventory_preset
 item_location game_menus::inv::steal( avatar &you, Character &victim )
 {
     return inv_internal( victim, steal_inventory_preset( you, victim ),
-                         string_format( _( "Steal from %s" ), victim.get_name() ), -1,
-                         string_format( _( "%s's inventory is empty." ), victim.get_name() ) );
+                         string_format( _( "Steal from {}" ), victim.get_name() ), -1,
+                         string_format( _( "{}'s inventory is empty." ), victim.get_name() ) );
 }
 
 class weapon_inventory_preset: public inventory_selector_preset
@@ -1607,7 +1607,7 @@ class weapon_inventory_preset: public inventory_selector_preset
                     if( !damage.empty() ) {
                         const float ammo_mult = damage.damage_units.front().unconditional_damage_mult;
                         if( ammo_mult != 1.0f ) {
-                            return string_format( "%s<color_light_gray>*</color>%s <color_light_gray>=</color> %s",
+                            return string_format( "{}<color_light_gray>*</color>{} <color_light_gray>=</color> {}",
                                                   get_damage_string( basic_damage, true ),
                                                   get_damage_string( ammo_mult, true ),
                                                   get_damage_string( total_damage, true )
@@ -1616,7 +1616,7 @@ class weapon_inventory_preset: public inventory_selector_preset
                     }
                     const int ammo_damage = damage.total_damage();
 
-                    return string_format( "%s<color_light_gray>+</color>%s <color_light_gray>=</color> %s",
+                    return string_format( "{}<color_light_gray>+</color>{} <color_light_gray>=</color> {}",
                                           get_damage_string( basic_damage, true ),
                                           get_damage_string( ammo_damage, true ),
                                           get_damage_string( total_damage, true )
@@ -1647,13 +1647,13 @@ class weapon_inventory_preset: public inventory_selector_preset
 
             append_cell( [ this ]( const item_location & loc ) {
                 if( deals_melee_damage( *loc ) ) {
-                    return string_format( "<color_yellow>%d</color>", this->you.attack_speed( *loc ) );
+                    return string_format( "<color_yellow>{}</color>", this->you.attack_speed( *loc ) );
                 }
                 return std::string();
             }, _( "MOVES" ) );
 
             append_cell( [this]( const item_location & loc ) {
-                return string_format( "<color_yellow>%d</color>",
+                return string_format( "<color_yellow>{}</color>",
                                       loc.obtain_cost( this->you ) + ( this->you.is_wielding( *loc.get_item() ) ? 0 :
                                               ( *loc.get_item() ).on_wield_cost( this->you ) ) );
             }, _( "WIELD COST" ) );
@@ -1681,7 +1681,7 @@ class weapon_inventory_preset: public inventory_selector_preset
 
         std::string get_damage_string( float damage, bool display_zeroes = false ) const {
             return ( damage || display_zeroes ) ?
-                   string_format( "<color_yellow>%g</color>", damage ) : std::string();
+                   string_format( "<color_yellow>{}</color>", damage ) : std::string();
         }
 
         const Character &you;
@@ -1717,9 +1717,9 @@ drop_locations game_menus::inv::holster( avatar &you, const item_location &holst
                                  ( use->get_actor_ptr() );
 
     const std::string title = ( actor ? actor->holster_prompt.empty() : true )
-                              ? string_format( _( "Put item into %s" ), holster->tname() )
+                              ? string_format( _( "Put item into {}" ), holster->tname() )
                               : actor->holster_prompt.translated();
-    const std::string hint = string_format( _( "Choose an item to put into your %s" ),
+    const std::string hint = string_format( _( "Choose an item to put into your {}" ),
                                             holster_name );
 
     inventory_holster_preset holster_preset( holster );
@@ -1742,7 +1742,7 @@ void game_menus::inv::insert_items( avatar &you, item_location &holster )
         && holster.where() != item_location::type::map
         && !you.is_wielding( *holster ) ) {
 
-        you.add_msg_if_player( m_info, _( "The %s would spill unless it's on the ground or wielded." ),
+        you.add_msg_if_player( m_info, _( "The {} would spill unless it's on the ground or wielded." ),
                                holster->type_name() );
         return;
     }
@@ -1935,7 +1935,7 @@ item_location game_menus::inv::repair( Character &you, const repair_item_actor *
 {
     return inv_internal( you, repair_inventory_preset( actor, main_tool ),
                          _( "Repair what?" ), 1,
-                         string_format( _( "You have no items that could be repaired with a %s." ),
+                         string_format( _( "You have no items that could be repaired with a {}." ),
                                         main_tool->type_name( 1 ) ) );
 }
 
@@ -1952,7 +1952,7 @@ item_location game_menus::inv::saw_barrel( Character &you, item &tool )
     return inv_internal( you, saw_barrel_inventory_preset( you, tool, *actor ),
                          _( "Saw barrel" ), 1,
                          _( "You don't have any guns." ),
-                         string_format( _( "Choose a weapon to use your %s on" ),
+                         string_format( _( "Choose a weapon to use your {} on" ),
                                         tool.tname( 1, false )
                                       )
                        );
@@ -1971,7 +1971,7 @@ item_location game_menus::inv::saw_stock( Character &you, item &tool )
     return inv_internal( you, saw_stock_inventory_preset( you, tool, *actor ),
                          _( "Saw stock" ), 1,
                          _( "You don't have any guns." ),
-                         string_format( _( "Choose a weapon to use your %s on" ),
+                         string_format( _( "Choose a weapon to use your {} on" ),
                                         tool.tname( 1, false )
                                       )
                        );
@@ -1992,11 +1992,11 @@ item_location game_menus::inv::molle_attach( Character &you, item &tool )
     return inv_internal( you, attach_molle_inventory_preset( actor, &tool ),
                          _( "Attach an item to the vest" ), 1,
                          _( "You don't have any MOLLE compatible items." ),
-                         string_format( "%s\n%s",
-                                        string_format( _( "Choose an accessory to attach to your %s" ),
+                         string_format( "{}\n{}",
+                                        string_format( _( "Choose an accessory to attach to your {}" ),
                                                 tool.tname( 1, false ) ),
-                                        string_format( n_gettext( "There is space for %d small item",
-                                                "There is space for %d small items",
+                                        string_format( n_gettext( "There is space for {} small item",
+                                                "There is space for {} small items",
                                                 vacancies ), vacancies )
                                       )
                        );
@@ -2071,7 +2071,7 @@ drop_locations game_menus::inv::smoke_food( Character &you, units::volume total_
         for( std::pair<item_location, int> loc : locs ) {
             added_volume += loc.first->volume() * loc.second / loc.first->charges;
         }
-        std::string volume_caption = string_format( _( "Volume (%s):" ), volume_units_abbr() );
+        std::string volume_caption = string_format( _( "Volume ({}):" ), volume_units_abbr() );
         return inventory_selector::stats{
             {
                 display_stat( volume_caption,
@@ -2310,7 +2310,7 @@ static item_location autodoc_internal( Character &you, Character &patient,
                     drug_count += anesthesia_item->ammo_remaining();
                 }
             }
-            hint = string_format( _( "<color_yellow>Available anesthetic: %i mL</color>" ), drug_count );
+            hint = string_format( _( "<color_yellow>Available anesthetic: {} mL</color>" ), drug_count );
         }
     }
 
@@ -2322,7 +2322,7 @@ static item_location autodoc_internal( Character &you, Character &patient,
                     _( "\n<color_light_green>Found bionic installation data.  Affected CBMs are marked with an asterisk.</color>" ) );
     }
 
-    inv_s.set_title( string_format( _( "Bionic installation patient: %s" ), patient.get_name() ) );
+    inv_s.set_title( string_format( _( "Bionic installation patient: {}" ), patient.get_name() ) );
 
     inv_s.set_hint( hint );
     inv_s.set_display_stats( false );
@@ -2380,7 +2380,7 @@ class bionic_install_preset: public inventory_selector_preset
                 const int duration = loc.get_item()->type->bionic->difficulty * 2;
                 const requirement_data req_anesth = *requirement_data_anesthetic *
                                                     duration * weight;
-                return string_format( _( "%i mL" ), req_anesth.get_tools().front().front().count );
+                return string_format( _( "{} mL" ), req_anesth.get_tools().front().front().count );
             } else if( !installable.success() ) {
                 return installable.str();
             }
@@ -2419,7 +2419,7 @@ class bionic_install_preset: public inventory_selector_preset
                                     installer );
             }
 
-            return string_format( has_install_program ? _( "<color_white>*</color> %i%%" ) : _( "%i%%" ),
+            return string_format( has_install_program ? _( "<color_white>*</color> {}%%" ) : _( "{}%%" ),
                                   chance_of_failure );
         }
 
@@ -2433,7 +2433,7 @@ class bionic_install_preset: public inventory_selector_preset
             if( !req_anesth.get_tools().empty() && !req_anesth.get_tools().front().empty() ) {
                 count = req_anesth.get_tools().front().front().count;
             }
-            return string_format( _( "%i mL" ), count );
+            return string_format( _( "{} mL" ), count );
         }
 };
 
@@ -2498,7 +2498,7 @@ class bionic_install_surgeon_preset : public inventory_selector_preset
                 chance_of_failure = 100 - bionic_success_chance( true, 20, difficulty, installer );
             }
 
-            return string_format( _( "%i%%" ), chance_of_failure );
+            return string_format( _( "{}%%" ), chance_of_failure );
         }
 
         std::string get_money_amount( const item_location &loc ) {

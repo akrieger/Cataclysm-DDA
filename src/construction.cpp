@@ -454,7 +454,7 @@ construction_id construction_menu( const bool blueprint )
                 // in their title what their result is.
                 if( !current_con->post_terrain.empty() && options.size() > 1 ) {
                     //also print out stage number when multiple stages are available
-                    std::string current_line = string_format( _( "Stage/Variant #%d: " ), stage_counter );
+                    std::string current_line = string_format( _( "Stage/Variant #{}: " ), stage_counter );
 
                     // print name of the result of each stage
                     std::string result_string;
@@ -515,7 +515,7 @@ construction_id construction_menu( const bool blueprint )
                             col = c_green;
                         }
 
-                        return colorize( string_format( "%s (%d)", skill.first.obj().name(), skill.second ), col );
+                        return colorize( string_format( "{} ({})", skill.first.obj().name(), skill.second ), col );
                     }, enumeration_conjunction::none );
                     add_line( current_line );
                 }
@@ -608,7 +608,7 @@ construction_id construction_menu( const bool blueprint )
         werase( w_list );
         // Print new tab listing
         // NOLINTNEXTLINE(cata-use-named-point-constants)
-        mvwprintz( w_con, point( 1, 1 ), c_yellow, "<< %s >>", construct_cat[tabindex].name() );
+        mvwprintz( w_con, point( 1, 1 ), c_yellow, "<< {} >>", construct_cat[tabindex].name() );
         // Determine where in the master list to start printing
         calcStartPos( offset, select, w_list_height, constructs.size() );
         // Print the constructions between offset and max (or how many will fit)
@@ -648,7 +648,7 @@ construction_id construction_menu( const bool blueprint )
             if( current_construct_breakpoint > 0 ) {
                 // Print previous stage indicator if breakpoint is past the beginning
                 trim_and_print( w_con, point( pos_x, 2 ), available_window_width, c_white,
-                                _( "Press [<color_yellow>%s</color>] to show previous stage(s)." ),
+                                _( "Press [<color_yellow>{}</color>] to show previous stage(s)." ),
                                 ctxt.get_desc( "SCROLL_STAGE_UP" ) );
             }
             if( static_cast<size_t>( construct_buffer_breakpoints[current_construct_breakpoint] ) +
@@ -656,7 +656,7 @@ construction_id construction_menu( const bool blueprint )
                 // Print next stage indicator if more breakpoints are remaining after screen height
                 trim_and_print( w_con, point( pos_x, w_height - 2 - static_cast<int>( notes.size() ) ),
                                 available_window_width, c_white,
-                                _( "Press [<color_yellow>%s</color>] to show next stage(s)." ),
+                                _( "Press [<color_yellow>{}</color>] to show next stage(s)." ),
                                 ctxt.get_desc( "SCROLL_STAGE_DOWN" ) );
             }
             // Leave room for above/below indicators
@@ -722,25 +722,25 @@ construction_id construction_menu( const bool blueprint )
 
             notes.clear();
             if( tabindex == tabcount - 1 && !filter.empty() ) {
-                notes.push_back( string_format( _( "Press [<color_red>%s</color>] to clear filter." ),
+                notes.push_back( string_format( _( "Press [<color_red>{}</color>] to clear filter." ),
                                                 ctxt.get_desc( "RESET_FILTER" ) ) );
             }
-            notes.push_back( string_format( _( "Press [<color_yellow>%s or %s</color>] to tab." ),
+            notes.push_back( string_format( _( "Press [<color_yellow>{} or {}</color>] to tab." ),
                                             ctxt.get_desc( "LEFT" ),
                                             ctxt.get_desc( "RIGHT" ) ) );
-            notes.push_back( string_format( _( "Press [<color_yellow>%s</color>] to search." ),
+            notes.push_back( string_format( _( "Press [<color_yellow>{}</color>] to search." ),
                                             ctxt.get_desc( "FILTER" ) ) );
             if( !hide_unconstructable ) {
                 notes.push_back( string_format(
-                                     _( "Press [<color_yellow>%s</color>] to hide unavailable constructions." ),
+                                     _( "Press [<color_yellow>{}</color>] to hide unavailable constructions." ),
                                      ctxt.get_desc( "TOGGLE_UNAVAILABLE_CONSTRUCTIONS" ) ) );
             } else {
                 notes.push_back( string_format(
-                                     _( "Press [<color_red>%s</color>] to show unavailable constructions." ),
+                                     _( "Press [<color_red>{}</color>] to show unavailable constructions." ),
                                      ctxt.get_desc( "TOGGLE_UNAVAILABLE_CONSTRUCTIONS" ) ) );
             }
             notes.push_back( string_format(
-                                 _( "Press [<color_yellow>%s</color>] to view and edit keybindings." ),
+                                 _( "Press [<color_yellow>{}</color>] to view and edit keybindings." ),
                                  ctxt.get_desc( "HELP_KEYBINDINGS" ) ) );
 
             recalc_buffer();
@@ -1107,10 +1107,10 @@ void complete_construction( Character *you )
     if( you->is_avatar() ) {
         for( npc *&elem : get_avatar().get_crafting_helpers() ) {
             if( elem->meets_skill_requirements( built ) ) {
-                add_msg( m_info, _( "%s assists you with the work…" ), elem->get_name() );
+                add_msg( m_info, _( "{} assists you with the work…" ), elem->get_name() );
             } else {
                 //NPC near you isn't skilled enough to help
-                add_msg( m_info, _( "%s watches you work…" ), elem->get_name() );
+                add_msg( m_info, _( "{} watches you work…" ), elem->get_name() );
             }
 
             award_xp( *elem );
@@ -1171,7 +1171,7 @@ void complete_construction( Character *you )
                           calendar::turn ) );
     }
 
-    add_msg( m_info, _( "%s finished construction: %s." ), you->disp_name( false, true ),
+    add_msg( m_info, _( "{} finished construction: {}." ), you->disp_name( false, true ),
              built.group->name() );
     // clear the activity
     you->activity.set_to_null();
@@ -1346,11 +1346,11 @@ void construct::done_grave( const tripoint_bub_ms &p, Character &player_characte
                 if( player_character.has_trait( trait_SPIRITUAL ) ) {
                     player_character.add_morale( MORALE_FUNERAL, 50, 75, 1_days, 1_hours );
                     add_msg( m_good,
-                             _( "You feel sadness, but also relief after providing last rites for %s, whose name you will keep in your memory." ),
+                             _( "You feel sadness, but also relief after providing last rites for {}, whose name you will keep in your memory." ),
                              it.get_corpse_name() );
                 } else {
                     add_msg( m_neutral,
-                             _( "You bury remains of %s, who joined uncounted masses perished in the Cataclysm." ),
+                             _( "You bury remains of {}, who joined uncounted masses perished in the Cataclysm." ),
                              it.get_corpse_name() );
                 }
             }
@@ -1387,7 +1387,7 @@ static vpart_id vpart_from_item( const itype_id &item_id )
             return vp.get_id();
         }
     }
-    debugmsg( "item %s used by construction is not base item of any vehicle part!", item_id.c_str() );
+    debugmsg( "item {} used by construction is not base item of any vehicle part!", item_id.c_str() );
     return vpart_frame_vertical_2;
 }
 
@@ -1515,7 +1515,7 @@ void construct::done_deconstruct( const tripoint_bub_ms &p, Character &player_ch
     if( here.has_furn( p ) ) {
         const furn_t &f = here.furn( p ).obj();
         if( !f.deconstruct.can_do ) {
-            add_msg( m_info, _( "That %s can not be disassembled!" ), f.name() );
+            add_msg( m_info, _( "That {} can not be disassembled!" ), f.name() );
             return;
         }
         if( f.id.id() == furn_f_console_broken )  {
@@ -1538,7 +1538,7 @@ void construct::done_deconstruct( const tripoint_bub_ms &p, Character &player_ch
         } else {
             here.furn_set( p, f.deconstruct.furn_set );
         }
-        add_msg( _( "The %s is disassembled." ), f.name() );
+        add_msg( _( "The {} is disassembled." ), f.name() );
         here.spawn_items( p, item_group::items_from( f.deconstruct.drop_group, calendar::turn ) );
         // HACK: Hack alert.
         // Signs have cosmetics associated with them on the submap since
@@ -1549,13 +1549,13 @@ void construct::done_deconstruct( const tripoint_bub_ms &p, Character &player_ch
     } else {
         const ter_t &t = here.ter( p ).obj();
         if( !t.deconstruct.can_do ) {
-            add_msg( _( "That %s can not be disassembled!" ), t.name() );
+            add_msg( _( "That {} can not be disassembled!" ), t.name() );
             return;
         }
         if( t.deconstruct.deconstruct_above ) {
             const tripoint_bub_ms top = p + tripoint_above;
             if( here.has_furn( top ) ) {
-                add_msg( _( "That %s can not be disassembled, since there is furniture above it." ), t.name() );
+                add_msg( _( "That {} can not be disassembled, since there is furniture above it." ), t.name() );
                 return;
             }
             done_deconstruct( top, player_character );
@@ -1572,7 +1572,7 @@ void construct::done_deconstruct( const tripoint_bub_ms &p, Character &player_ch
             }
         }
         here.ter_set( p, t.deconstruct.ter_set );
-        add_msg( _( "The %s is disassembled." ), t.name() );
+        add_msg( _( "The {} is disassembled." ), t.name() );
         here.spawn_items( p, item_group::items_from( t.deconstruct.drop_group, calendar::turn ) );
     }
 }
@@ -1848,7 +1848,7 @@ void assign_or_debugmsg( T &dest, const std::string &fun_id,
         []( const std::pair<std::string, T> &pr ) {
             return pr.first;
         } );
-        debugmsg( "Unknown function: %s, available values are %s", fun_id.c_str(), list_available );
+        debugmsg( "Unknown function: {}, available values are {}", fun_id.c_str(), list_available );
     }
 }
 
@@ -1914,7 +1914,7 @@ void load_construction( const JsonObject &jo )
     if( activity_it != activity_levels_map.end() ) {
         con.activity_level = activity_it->second;
     } else {
-        jo.throw_error( string_format( "Invalid activity level %s in construction %s", activity_level,
+        jo.throw_error( string_format( "Invalid activity level {} in construction {}", activity_level,
                                        con.str_id.str() ) );
     }
 
@@ -2029,42 +2029,42 @@ void check_constructions()
         const std::string display_name = "construction " + c.str_id.str();
         for( const auto &pr : c.required_skills ) {
             if( !pr.first.is_valid() ) {
-                debugmsg( "Unknown skill %s in %s", pr.first.c_str(), display_name );
+                debugmsg( "Unknown skill {} in {}", pr.first.c_str(), display_name );
             }
         }
 
         if( !c.requirements.is_valid() ) {
-            debugmsg( "%s has missing requirement data %s",
+            debugmsg( "{} has missing requirement data {}",
                       display_name, c.requirements.c_str() );
         }
 
         if( !c.pre_terrain.empty() ) {
             if( c.pre_is_furniture ) {
                 if( !furn_str_id( c.pre_terrain ).is_valid() ) {
-                    debugmsg( "Unknown pre_terrain (furniture) %s in %s", c.pre_terrain, display_name );
+                    debugmsg( "Unknown pre_terrain (furniture) {} in {}", c.pre_terrain, display_name );
                 }
             } else if( !ter_str_id( c.pre_terrain ).is_valid() ) {
-                debugmsg( "Unknown pre_terrain (terrain) %s in %s", c.pre_terrain, display_name );
+                debugmsg( "Unknown pre_terrain (terrain) {} in {}", c.pre_terrain, display_name );
             }
         }
         if( !c.post_terrain.empty() ) {
             if( c.post_is_furniture ) {
                 if( !furn_str_id( c.post_terrain ).is_valid() ) {
-                    debugmsg( "Unknown post_terrain (furniture) %s in %s", c.post_terrain, display_name );
+                    debugmsg( "Unknown post_terrain (furniture) {} in {}", c.post_terrain, display_name );
                 }
             } else if( !ter_str_id( c.post_terrain ).is_valid() ) {
-                debugmsg( "Unknown post_terrain (terrain) %s in %s", c.post_terrain, display_name );
+                debugmsg( "Unknown post_terrain (terrain) {} in {}", c.post_terrain, display_name );
             }
         }
         if( c.id != construction_id( i ) ) {
-            debugmsg( "%s has id %u, but should have %u",
+            debugmsg( "{} has id {}, but should have {}",
                       display_name, c.id.to_i(), i );
         }
         if( construction_id_map.find( c.str_id ) == construction_id_map.end() ) {
-            debugmsg( "%s is an invalid string id",
+            debugmsg( "{} is an invalid string id",
                       display_name );
         } else if( construction_id_map[c.str_id] != construction_id( i ) ) {
-            debugmsg( "%s points to int id %u, but should point to %u",
+            debugmsg( "{} points to int id {}, but should point to {}",
                       display_name, construction_id_map[c.str_id].to_i(), i );
         }
     }
@@ -2139,7 +2139,7 @@ void finalize_constructions()
 
     for( construction &con : constructions ) {
         if( !con.group.is_valid() ) {
-            debugmsg( "Invalid construction group (%s) defined for construction (%s)",
+            debugmsg( "Invalid construction group ({}) defined for construction ({})",
                       con.group.str(), con.str_id.str() );
         }
         if( con.vehicle_start ) {
@@ -2153,7 +2153,7 @@ void finalize_constructions()
             }
         }
         if( !is_valid_construction_category ) {
-            debugmsg( "Invalid construction category (%s) defined for construction (%s)", con.category.str(),
+            debugmsg( "Invalid construction category ({}) defined for construction ({})", con.category.str(),
                       con.str_id.str() );
         }
         requirement_data requirements_ = std::accumulate(
@@ -2282,7 +2282,7 @@ const construction_str_id &construction_id::id() const
         return constructions[to_i()].str_id;
     } else {
         if( to_i() != -1 ) {
-            debugmsg( "Invalid construction id %d", to_i() );
+            debugmsg( "Invalid construction id {}", to_i() );
         }
         return construction_str_id::NULL_ID();
     }
@@ -2297,7 +2297,7 @@ const construction &construction_id::obj() const
     } else if( is_valid() ) {
         return constructions[to_i()];
     } else {
-        debugmsg( "Invalid construction id %d", to_i() );
+        debugmsg( "Invalid construction id {}", to_i() );
         return null_construction;
     }
 }
@@ -2324,7 +2324,7 @@ construction_id construction_str_id::id() const
         return it->second;
     } else {
         if( !is_null() ) {
-            debugmsg( "Invalid construction str id %s", str() );
+            debugmsg( "Invalid construction str id {}", str() );
         }
         return construction_id( -1 );
     }
@@ -2341,7 +2341,7 @@ const construction &construction_str_id::obj() const
     if( it != construction_id_map.end() ) {
         return it->second.obj();
     } else {
-        debugmsg( "Invalid construction str id %s", str() );
+        debugmsg( "Invalid construction str id {}", str() );
         return null_construction;
     }
 }

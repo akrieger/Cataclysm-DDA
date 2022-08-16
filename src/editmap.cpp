@@ -127,7 +127,7 @@ void edit_json( SAVEOBJ &it )
                 it = std::move( tmp );
             } catch( const std::exception &err ) {
                 // NOLINTNEXTLINE(cata-translate-string-literal)
-                popup( "Error on deserialization: %s", err.what() );
+                popup( "Error on deserialization: {}", err.what() );
             }
             std::string save2 = serialize( it );
             std::vector<std::string> fs2 = fld_string( save2, TERMX - 10 );
@@ -392,7 +392,7 @@ cata::optional<tripoint> editmap::edit()
 
         // \u00A0 is the non-breaking space
         info_txt_curr = string_format( pgettext( "keybinding descriptions",
-                                       "%s, %s, [%s,%s,%s,%s]\u00A0fast scroll, %s, %s, %s, %s, %s, %s" ),
+                                       "{}, {}, [{},{},{},{}]\u00A0fast scroll, {}, {}, {}, {}, {}, {}" ),
                                        ctxt.describe_key_and_name( "EDIT_TRAPS" ),
                                        ctxt.describe_key_and_name( "EDIT_FIELDS" ),
                                        ctxt.get_desc( "LEFT_WIDE", 1 ), ctxt.get_desc( "RIGHT_WIDE", 1 ),
@@ -726,17 +726,17 @@ void editmap::update_view_with_help( const std::string &txt, const std::string &
     int off = 1;
     draw_border( w_info );
 
-    mvwprintz( w_info, point( 2, 0 ), c_light_gray, "< %d,%d,%d >", target.x, target.y, target.z );
+    mvwprintz( w_info, point( 2, 0 ), c_light_gray, "< {},{},{} >", target.x, target.y, target.z );
 
     mvwputch( w_info, point( 2, off ), terrain_type.color(), terrain_type.symbol() );
-    mvwprintw( w_info, point( 4, off ), _( "%d: %s; move cost %d" ), here.ter( target ).to_i(),
+    mvwprintw( w_info, point( 4, off ), _( "{}: {}; move cost {}" ), here.ter( target ).to_i(),
                terrain_type.name(),
                terrain_type.movecost
              );
     off++; // 2
     if( here.furn( target ).to_i() > 0 ) {
         mvwputch( w_info, point( 2, off ), furniture_type.color(), furniture_type.symbol() );
-        mvwprintw( w_info, point( 4, off ), _( "%d: %s; move cost %d movestr %d" ),
+        mvwprintw( w_info, point( 4, off ), _( "{}: {}; move cost {} movestr {}" ),
                    here.furn( target ).to_i(),
                    furniture_type.name(),
                    furniture_type.movecost,
@@ -748,9 +748,9 @@ void editmap::update_view_with_help( const std::string &txt, const std::string &
 
     Character &player_character = get_player_character();
     const std::string u_see_msg = player_character.sees( target ) ? _( "yes" ) : _( "no" );
-    mvwprintw( w_info, point( 1, off++ ), _( "dist: %d u_see: %s veh: %s scent: %d" ),
+    mvwprintw( w_info, point( 1, off++ ), _( "dist: {} u_see: {} veh: {} scent: {}" ),
                rl_dist( player_character.pos(), target ), u_see_msg, veh_msg, get_scent().get( target ) );
-    mvwprintw( w_info, point( 1, off++ ), _( "sight_range: %d, noon_sight_range: %d," ),
+    mvwprintw( w_info, point( 1, off++ ), _( "sight_range: {}, noon_sight_range: {}," ),
                player_character.sight_range( g->light_level( player_character.posz() ) ),
                player_character.sight_range( sun_moon_light_at_noon_near( calendar::turn ) ) );
     mvwprintw( w_info, point( 1, off++ ), _( "cache{transp:%.4f seen:%.4f cam:%.4f}" ),
@@ -761,14 +761,14 @@ void editmap::update_view_with_help( const std::string &txt, const std::string &
     map::apparent_light_info al = map::apparent_light_helper( map_cache, target );
     int apparent_light = static_cast<int>(
                              here.apparent_light_at( target, here.get_visibility_variables_cache() ) );
-    mvwprintw( w_info, point( 1, off++ ), _( "outside: %d obstructed: %d floor: %d" ),
+    mvwprintw( w_info, point( 1, off++ ), _( "outside: {} obstructed: {} floor: {}" ),
                static_cast<int>( here.is_outside( target ) ),
                static_cast<int>( al.obstructed ),
                static_cast<int>( here.has_floor( target ) )
              );
-    mvwprintw( w_info, point( 1, off++ ), _( "light_at: %s" ),
+    mvwprintw( w_info, point( 1, off++ ), _( "light_at: {}" ),
                map_cache.lm[target.x][target.y].to_string() );
-    mvwprintw( w_info, point( 1, off++ ), _( "apparent light: %.5f (%d)" ),
+    mvwprintw( w_info, point( 1, off++ ), _( "apparent light: %.5f ({})" ),
                al.apparent_light, apparent_light );
     std::string extras;
     if( vp ) {
@@ -781,13 +781,13 @@ void editmap::update_view_with_help( const std::string &txt, const std::string &
         extras += _( " [roof]" );
     }
 
-    mvwprintw( w_info, point( 1, off ), "%s %s", here.features( target ), extras );
+    mvwprintw( w_info, point( 1, off ), "{} {}", here.features( target ), extras );
     // 9
     off++;
     for( auto &fld : here.get_field( target ) ) {
         const field_entry &cur = fld.second;
         mvwprintz( w_info, point( 1, off ), cur.color(),
-                   _( "field: %s L:%d[%s] A:%d" ),
+                   _( "field: {} L:{}[{}] A:{}" ),
                    cur.get_field_type().id().str(),
                    cur.get_field_intensity(),
                    cur.name(),
@@ -798,7 +798,7 @@ void editmap::update_view_with_help( const std::string &txt, const std::string &
 
     const trap &cur_trap = here.tr_at( target );
     if( !cur_trap.is_null() ) {
-        mvwprintz( w_info, point( 1, off ), cur_trap.color, _( "trap: %s (%d)" ), cur_trap.name(),
+        mvwprintz( w_info, point( 1, off ), cur_trap.color, _( "trap: {} ({})" ), cur_trap.name(),
                    cur_trap.loadid.to_i() );
         off++; // 11
     }
@@ -807,7 +807,7 @@ void editmap::update_view_with_help( const std::string &txt, const std::string &
     if( critter != nullptr ) {
         off = critter->print_info( w_info, off, 5, 1 );
     } else if( vp ) {
-        mvwprintw( w_info, point( 1, off ), _( "There is a %s there.  Parts:" ), vp->vehicle().name );
+        mvwprintw( w_info, point( 1, off ), _( "There is a {} there.  Parts:" ), vp->vehicle().name );
         off++;
         vp->vehicle().print_part_list( w_info, off, getmaxy( w_info ) - 1, width, vp->part_index() );
         off += 6;
@@ -816,12 +816,12 @@ void editmap::update_view_with_help( const std::string &txt, const std::string &
     const int target_stack_size = target_stack.size();
     if( !here.has_flag( ter_furn_flag::TFLAG_CONTAINER, target ) && target_stack_size > 0 ) {
         trim_and_print( w_info, point( 1, off ), getmaxx( w_info ), c_light_gray,
-                        _( "There is a %s there." ),
+                        _( "There is a {} there." ),
                         target_stack.begin()->tname() );
         off++;
         if( target_stack_size > 1 ) {
-            mvwprintw( w_info, point( 1, off ), n_gettext( "There is %d other item there as well.",
-                       "There are %d other items there as well.",
+            mvwprintw( w_info, point( 1, off ), n_gettext( "There is {} other item there as well.",
+                       "There are {} other items there as well.",
                        target_stack_size - 1 ),
                        target_stack_size - 1 );
             off++;
@@ -830,14 +830,14 @@ void editmap::update_view_with_help( const std::string &txt, const std::string &
 
     if( here.has_graffiti_at( target ) ) {
         mvwprintw( w_info, point( 1, off ),
-                   here.ter( target ) == t_grave_new ? _( "Graffiti: %s" ) : _( "Inscription: %s" ),
+                   here.ter( target ) == t_grave_new ? _( "Graffiti: {}" ) : _( "Inscription: {}" ),
                    here.graffiti_at( target ) );
     }
 
     // updating help
     int line = getmaxy( w_info ) - 1;
     if( !title.empty() ) {
-        const std::string str = string_format( "< <color_cyan>%s</color> >", title );
+        const std::string str = string_format( "< <color_cyan>{}</color> >", title );
         center_print( w_info, line, BORDER_COLOR, str );
     }
     --line;
@@ -963,7 +963,7 @@ static std::string describe( const T_t &t );
 template<>
 std::string describe( const ter_t &type )
 {
-    return string_format( _( "Move cost: %d\nIndoors: %s\nRoof: %s" ), type.movecost,
+    return string_format( _( "Move cost: {}\nIndoors: {}\nRoof: {}" ), type.movecost,
                           type.has_flag( ter_furn_flag::TFLAG_INDOORS ) ? _( "Yes" ) : _( "No" ),
                           type.has_flag( ter_furn_flag::TFLAG_SUPPORTS_ROOF ) ? _( "Yes" ) : _( "No" ) );
 }
@@ -971,7 +971,7 @@ std::string describe( const ter_t &type )
 template<>
 std::string describe( const furn_t &type )
 {
-    return string_format( _( "Move cost: %d\nIndoors: %s\nRoof: %s" ), type.movecost,
+    return string_format( _( "Move cost: {}\nIndoors: {}\nRoof: {}" ), type.movecost,
                           type.has_flag( ter_furn_flag::TFLAG_INDOORS ) ? _( "Yes" ) : _( "No" ),
                           type.has_flag( ter_furn_flag::TFLAG_SUPPORTS_ROOF ) ? _( "Yes" ) : _( "No" ) );
 }
@@ -1075,7 +1075,7 @@ template<typename T_t>
 void editmap::edit_feature()
 {
     if( T_t::count() == 0 ) {
-        debugmsg( "Empty %s list", demangle( typeid( T_t ).name() ) );
+        debugmsg( "Empty {} list", demangle( typeid( T_t ).name() ) );
         return;
     }
 
@@ -1103,9 +1103,9 @@ void editmap::edit_feature()
         const T_t &type = T_id( i ).obj();
         std::string name;
         if( type.name().empty() ) {
-            name = string_format( pgettext( "map feature id", "(%s)" ), type.id.str() );
+            name = string_format( pgettext( "map feature id", "({})" ), type.id.str() );
         } else {
-            name = string_format( pgettext( "map feature name and id", "%s (%s)" ), type.name(),
+            name = string_format( pgettext( "map feature name and id", "{} ({})" ), type.name(),
                                   type.id.str() );
         }
         uilist_entry ent( name );
@@ -1142,7 +1142,7 @@ void editmap::edit_feature()
         }
 
         input_context ctxt( emenu.input_category, keyboard_mode::keycode );
-        info_txt_curr = string_format( pgettext( "keybinding descriptions", "%s, %s, %s, %s, %s" ),
+        info_txt_curr = string_format( pgettext( "keybinding descriptions", "{}, {}, {}, {}, {}" ),
                                        ctxt.describe_key_and_name( "CONFIRM" ),
                                        ctxt.describe_key_and_name( "CONFIRM_QUIT" ),
                                        ctxt.describe_key_and_name( "EDITMAP_SHOW_ALL" ),
@@ -1197,7 +1197,7 @@ void editmap::update_fmenu_entry( uilist &fmenu, field &field, const field_type_
     if( fld != nullptr ) {
         fmenu.entries[idx.to_i()].txt += " " + std::string( field_intensity, '*' );
     }
-    fmenu.entries[idx.to_i()].txt += string_format( " (%s)", ftype.id.c_str() );
+    fmenu.entries[idx.to_i()].txt += string_format( " ({})", ftype.id.c_str() );
     fmenu.entries[idx.to_i()].text_color = fld != nullptr ? c_cyan : fmenu.text_color;
     fmenu.entries[idx.to_i()].extratxt.color = ftype.get_intensity_level( field_intensity - 1 ).color;
     fmenu.entries[idx.to_i()].extratxt.txt = ftype.get_symbol( field_intensity - 1 );
@@ -1262,7 +1262,7 @@ void editmap::edit_fld()
         input_context ctxt( fmenu.input_category, keyboard_mode::keycode );
         // \u00A0 is the non-breaking space
         info_txt_curr = string_format( pgettext( "keybinding descriptions",
-                                       "%s, %s, [%s,%s]\u00A0intensity, %s, %s, %s" ),
+                                       "{}, {}, [{},{}]\u00A0intensity, {}, {}, {}" ),
                                        ctxt.describe_key_and_name( "EDITMAP_TAB" ),
                                        ctxt.describe_key_and_name( "EDITMAP_MOVE" ),
                                        ctxt.get_desc( "LEFT", 1 ), ctxt.get_desc( "RIGHT", 1 ),
@@ -1302,7 +1302,7 @@ void editmap::edit_fld()
                 int i = 0;
                 for( const field_intensity_level &intensity_level : ftype.intensity_levels ) {
                     i++;
-                    femenu.addentry( string_format( _( "%d: %s" ), i, intensity_level.name.translated() ) );
+                    femenu.addentry( string_format( _( "{}: {}" ), i, intensity_level.name.translated() ) );
                 }
                 femenu.entries[field_intensity].text_color = c_cyan;
                 femenu.selected = sel_field_intensity > 0 ? sel_field_intensity : field_intensity;
@@ -1406,7 +1406,7 @@ void editmap::edit_itm()
     map_stack items = get_map().i_at( target );
     int i = 0;
     for( item &an_item : items ) {
-        ilmenu.addentry( i++, true, 0, "%s%s", an_item.tname(),
+        ilmenu.addentry( i++, true, 0, "{}{}", an_item.tname(),
                          an_item.is_emissive() ? " L" : "" );
     }
     ilmenu.addentry( items.size(), true, 'a', _( "Add item" ) );
@@ -1443,16 +1443,16 @@ void editmap::edit_itm()
                 return infoHeight + 1;
             };
             imenu.w_width_setup = width;
-            imenu.addentry( imenu_bday, true, -1, pgettext( "item manipulation debug menu entry", "bday: %d" ),
+            imenu.addentry( imenu_bday, true, -1, pgettext( "item manipulation debug menu entry", "bday: {}" ),
                             to_turn<int>( it.birthday() ) );
             imenu.addentry( imenu_damage, true, -1, pgettext( "item manipulation debug menu entry",
-                            "damage: %d" ), it.damage() );
+                            "damage: {}" ), it.damage() );
             imenu.addentry( imenu_degradation, true, -1, pgettext( "item manipulation debug menu entry",
-                            "degradation: %d" ), it.degradation() );
+                            "degradation: {}" ), it.degradation() );
             imenu.addentry( imenu_burnt, true, -1, pgettext( "item manipulation debug menu entry",
-                            "burnt: %d" ), static_cast<int>( it.burnt ) );
+                            "burnt: {}" ), static_cast<int>( it.burnt ) );
             imenu.addentry( imenu_tags, true, -1, pgettext( "item manipulation debug menu entry",
-                            "tags: %s" ), debug_menu::iterable_to_string( it.get_flags(), " ",
+                            "tags: {}" ), debug_menu::iterable_to_string( it.get_flags(), " ",
             []( const flag_id & f ) {
                 return f.str();
             } ) );
@@ -1513,26 +1513,26 @@ void editmap::edit_itm()
                             case imenu_bday:
                                 it.set_birthday( time_point::from_turn( retval ) );
                                 // NOLINTNEXTLINE(cata-translate-string-literal)
-                                imenu.entries[imenu_bday].txt = string_format( "bday: %d", to_turn<int>( it.birthday() ) );
+                                imenu.entries[imenu_bday].txt = string_format( "bday: {}", to_turn<int>( it.birthday() ) );
                                 break;
                             case imenu_damage:
                                 it.set_damage( retval );
                                 // NOLINTNEXTLINE(cata-translate-string-literal)
-                                imenu.entries[imenu_damage].txt = string_format( "damage: %d", it.damage() );
+                                imenu.entries[imenu_damage].txt = string_format( "damage: {}", it.damage() );
                                 // NOLINTNEXTLINE(cata-translate-string-literal)
-                                imenu.entries[imenu_degradation].txt = string_format( "degradation: %d", it.degradation() );
+                                imenu.entries[imenu_degradation].txt = string_format( "degradation: {}", it.degradation() );
                                 break;
                             case imenu_degradation:
                                 it.set_degradation( retval );
                                 // NOLINTNEXTLINE(cata-translate-string-literal)
-                                imenu.entries[imenu_degradation].txt = string_format( "degradation: %d", it.degradation() );
+                                imenu.entries[imenu_degradation].txt = string_format( "degradation: {}", it.degradation() );
                                 // NOLINTNEXTLINE(cata-translate-string-literal)
-                                imenu.entries[imenu_damage].txt = string_format( "damage: %d", it.damage() );
+                                imenu.entries[imenu_damage].txt = string_format( "damage: {}", it.damage() );
                                 break;
                             case imenu_burnt:
                                 it.burnt = retval;
                                 // NOLINTNEXTLINE(cata-translate-string-literal)
-                                imenu.entries[imenu_burnt].txt = string_format( "burnt: %d", it.burnt );
+                                imenu.entries[imenu_burnt].txt = string_format( "burnt: {}", it.burnt );
                                 break;
                             case imenu_tags:
                                 const auto tags = debug_menu::string_to_iterable<std::vector<std::string>>( strval, " " );
@@ -1556,7 +1556,7 @@ void editmap::edit_itm()
             ilmenu.entries.clear();
             i = 0;
             for( item &an_item : items ) {
-                ilmenu.addentry( i++, true, 0, "%s%s", an_item.tname(),
+                ilmenu.addentry( i++, true, 0, "{}{}", an_item.tname(),
                                  an_item.is_emissive() ? " L" : "" );
             }
             ilmenu.addentry( items.size(), true, 'a',
@@ -1721,7 +1721,7 @@ int editmap::select_shape( shapetype shape, int mode )
 
     do {
         if( moveall ) {
-            info_txt_curr = string_format( pgettext( "keybinding descriptions", "%s, %s, %s, %s, %s" ),
+            info_txt_curr = string_format( pgettext( "keybinding descriptions", "{}, {}, {}, {}, {}" ),
                                            ctxt.describe_key_and_name( "RESIZE" ),
                                            ctxt.describe_key_and_name( "SWAP" ),
                                            ctxt.describe_key_and_name( "CONFIRM" ),
@@ -1730,7 +1730,7 @@ int editmap::select_shape( shapetype shape, int mode )
             info_title_curr = _( "Moving selection" );
         } else {
             info_txt_curr = string_format( pgettext( "keybinding descriptions",
-                                           "%s, %s, %s, %s, %s, %s, %s" ),
+                                           "{}, {}, {}, {}, {}, {}, {}" ),
                                            ctxt.describe_key_and_name( "EDITMAP_MOVE" ),
                                            ctxt.describe_key_and_name( "RESIZE" ),
                                            ctxt.describe_key_and_name( "SWAP" ),
@@ -1909,12 +1909,12 @@ void editmap::mapgen_preview( const real_coords &tc, uilist &gmenu )
         input_context ctxt( gpmenu.input_category, keyboard_mode::keycode );
         // \u00A0 is the non-breaking space
         info_txt_curr = string_format( pgettext( "keybinding descriptions",
-                                       "[%s,%s]\u00A0prev/next oter type, [%s,%s]\u00A0select, %s, %s" ),
+                                       "[{},{}]\u00A0prev/next oter type, [{},{}]\u00A0select, {}, {}" ),
                                        ctxt.get_desc( "LEFT", 1 ), ctxt.get_desc( "RIGHT", 1 ),
                                        ctxt.get_desc( "UP", 1 ), ctxt.get_desc( "DOWN", 1 ),
                                        ctxt.describe_key_and_name( "CONFIRM" ),
                                        ctxt.describe_key_and_name( "QUIT" ) );
-        info_title_curr = string_format( pgettext( "map editor state", "Mapgen: %s" ),
+        info_title_curr = string_format( pgettext( "map editor state", "Mapgen: {}" ),
                                          oter_id( gmenu.selected ).id().str() );
         do_ui_invalidation();
 
@@ -1949,7 +1949,7 @@ void editmap::mapgen_preview( const real_coords &tc, uilist &gmenu )
                     submap *destsm = here.get_submap_at_grid( dest_pos );
                     submap *srcsm = tmpmap.get_submap_at_grid( src_pos );
                     if( srcsm == nullptr || destsm == nullptr ) {
-                        debugmsg( "Tried to apply previewed mapgen at (%d,%d,%d) but the submap is not loaded", src_pos.x,
+                        debugmsg( "Tried to apply previewed mapgen at ({},{},{}) but the submap is not loaded", src_pos.x,
                                   src_pos.y, src_pos.z );
                         continue;
                     }
@@ -1972,7 +1972,7 @@ void editmap::mapgen_preview( const real_coords &tc, uilist &gmenu )
                     const tripoint dest_pos = tripoint( x, y, target.z );
                     const submap *destsm = here.get_submap_at_grid( dest_pos );
                     if( destsm == nullptr ) {
-                        debugmsg( "Tried to update vehicle cache at (%d,%d,%d) but the submap is not loaded", dest_pos.x,
+                        debugmsg( "Tried to update vehicle cache at ({},{},{}) but the submap is not loaded", dest_pos.x,
                                   dest_pos.y, dest_pos.z );
                         continue;
                     }
@@ -1982,7 +1982,7 @@ void editmap::mapgen_preview( const real_coords &tc, uilist &gmenu )
 
             here.rebuild_vehicle_level_caches();
         } else if( gpmenu.ret == 3 ) {
-            popup( _( "Changed oter_id from '%s' (%s) to '%s' (%s)" ),
+            popup( _( "Changed oter_id from '{}' ({}) to '{}' ({})" ),
                    orig_oters->get_name(), orig_oters.id().str(),
                    omt_ref->get_name(), omt_ref.id().str() );
         } else if( gpmenu.ret == UILIST_ADDITIONAL ) {
@@ -2018,7 +2018,7 @@ vehicle *editmap::mapgen_veh_query( const tripoint_abs_omt &omt_tgt )
         for( int y = 0; y < 2; y++ ) {
             submap *destsm = target_bay.get_submap_at_grid( { x, y, target.z } );
             if( destsm == nullptr ) {
-                debugmsg( "Tried to get vehicles at (%d,%d,%d) but the submap is not loaded", x, y, target.z );
+                debugmsg( "Tried to get vehicles at ({},{},{}) but the submap is not loaded", x, y, target.z );
                 continue;
             }
             for( const auto &vehicle : destsm->vehicles ) {
@@ -2055,7 +2055,7 @@ bool editmap::mapgen_veh_destroy( const tripoint_abs_omt &omt_tgt, vehicle *car_
         for( int y = 0; y < 2; y++ ) {
             submap *destsm = target_bay.get_submap_at_grid( { x, y, target.z } );
             if( destsm == nullptr ) {
-                debugmsg( "Tried to destroy vehicle at (%d,%d,%d) but the submap is not loaded", x, y, target.z );
+                debugmsg( "Tried to destroy vehicle at ({},{},{}) but the submap is not loaded", x, y, target.z );
                 continue;
             }
             for( auto &z : destsm->vehicles ) {
@@ -2098,7 +2098,7 @@ void editmap::mapgen_retarget()
 
     blink = true;
     do {
-        info_txt_curr = string_format( pgettext( "keybinding descriptions", "%s, %s" ),
+        info_txt_curr = string_format( pgettext( "keybinding descriptions", "{}, {}" ),
                                        ctxt.describe_key_and_name( "CONFIRM" ),
                                        ctxt.describe_key_and_name( "QUIT" ) );
         info_title_curr = pgettext( "map generator", "Mapgen: Moving target" );
@@ -2154,7 +2154,7 @@ void editmap::edit_mapgen()
     for( size_t i = 0; i < overmap_terrains::get_all().size(); i++ ) {
         const oter_id id( i );
 
-        gmenu.addentry( -1, !id.id().is_null(), 0, "[%3d] %s", static_cast<int>( id ), id.id().str() );
+        gmenu.addentry( -1, !id.id().is_null(), 0, "[{}] {}", static_cast<int>( id ), id.id().str() );
         gmenu.entries[i].extratxt.left = 1;
         gmenu.entries[i].extratxt.color = id->get_color();
         gmenu.entries[i].extratxt.txt = id->get_symbol();
@@ -2192,7 +2192,7 @@ void editmap::edit_mapgen()
         blink = true;
 
         input_context ctxt( gmenu.input_category, keyboard_mode::keycode );
-        info_txt_curr = string_format( pgettext( "keybinding descriptions", "%s, %s, %s" ),
+        info_txt_curr = string_format( pgettext( "keybinding descriptions", "{}, {}, {}" ),
                                        ctxt.describe_key_and_name( "EDITMAP_MOVE" ),
                                        ctxt.describe_key_and_name( "CONFIRM" ),
                                        ctxt.describe_key_and_name( "QUIT" ) );

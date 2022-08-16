@@ -111,7 +111,7 @@ bool trapfunc::bubble( const tripoint &p, Creature *c, item * )
         c->add_msg_player_or_npc( m_warning, _( "You step on some bubble wrap!" ),
                                   _( "<npcname> steps on some bubble wrap!" ) );
         if( c->has_effect( effect_ridden ) ) {
-            add_msg( m_warning, _( "Your %s steps on some bubble wrap!" ), c->get_name() );
+            add_msg( m_warning, _( "Your {} steps on some bubble wrap!" ), c->get_name() );
         }
     }
     sounds::sound( p, 18, sounds::sound_t::alarm, _( "Pop!" ), false, "trap", "bubble_wrap" );
@@ -150,7 +150,7 @@ bool trapfunc::cot( const tripoint &, Creature *c, item * )
     monster *z = dynamic_cast<monster *>( c );
     if( z != nullptr ) {
         // Haha, only monsters stumble over a cot, humans are smart.
-        add_msg( m_good, _( "The %s stumbles over the cot!" ), z->name() );
+        add_msg( m_good, _( "The {} stumbles over the cot!" ), z->name() );
         c->moves -= 100;
         return true;
     }
@@ -174,7 +174,7 @@ bool trapfunc::beartrap( const tripoint &p, Creature *c, item * )
         c->add_msg_player_or_npc( m_bad, _( "A bear trap closes on your foot!" ),
                                   _( "A bear trap closes on <npcname>'s foot!" ) );
         if( c->has_effect( effect_ridden ) ) {
-            add_msg( m_warning, _( "Your %s is caught by a beartrap!" ), c->get_name() );
+            add_msg( m_warning, _( "Your {} is caught by a beartrap!" ), c->get_name() );
         }
         // Actual effects
         c->add_effect( effect_beartrap, 1_turns, hit, true );
@@ -212,7 +212,7 @@ bool trapfunc::board( const tripoint &, Creature *c, item * )
     Character *you = dynamic_cast<Character *>( c );
     if( z != nullptr ) {
         if( z->has_effect( effect_ridden ) ) {
-            add_msg( m_warning, _( "Your %s stepped on a spiked board!" ), c->get_name() );
+            add_msg( m_warning, _( "Your {} stepped on a spiked board!" ), c->get_name() );
             get_player_character().moves -= 80;
         } else {
             z->moves -= 80;
@@ -251,7 +251,7 @@ bool trapfunc::caltrops( const tripoint &, Creature *c, item * )
     monster *z = dynamic_cast<monster *>( c );
     if( z != nullptr ) {
         if( z->has_effect( effect_ridden ) ) {
-            add_msg( m_warning, _( "Your %s steps on a sharp metal caltrop!" ), c->get_name() );
+            add_msg( m_warning, _( "Your {} steps on a sharp metal caltrop!" ), c->get_name() );
             get_player_character().moves -= 80;
         } else {
             z->moves -= 80;
@@ -322,7 +322,7 @@ bool trapfunc::tripwire( const tripoint &p, Creature *c, item * )
     map &here = get_map();
     if( z != nullptr ) {
         if( z->has_effect( effect_ridden ) ) {
-            add_msg( m_bad, _( "Your %s trips over a tripwire!" ), z->get_name() );
+            add_msg( m_bad, _( "Your {} trips over a tripwire!" ), z->get_name() );
             std::vector<tripoint> valid;
             for( const tripoint &jk : here.points_in_radius( p, 1 ) ) {
                 if( g->is_empty( jk ) ) {
@@ -372,7 +372,7 @@ bool trapfunc::crossbow( const tripoint &p, Creature *c, item * )
     bool add_bolt = true;
     if( c != nullptr ) {
         if( c->has_effect( effect_ridden ) ) {
-            add_msg( m_neutral, _( "Your %s triggers a crossbow trap." ), c->get_name() );
+            add_msg( m_neutral, _( "Your {} triggers a crossbow trap." ), c->get_name() );
         }
         c->add_msg_player_or_npc( m_neutral, _( "You trigger a crossbow trap!" ),
                                   _( "<npcname> triggers a crossbow trap!" ) );
@@ -410,8 +410,8 @@ bool trapfunc::crossbow( const tripoint &p, Creature *c, item * )
                         hit = bodypart_id( "head" );
                         break;
                 }
-                //~ %s is bodypart
-                you->add_msg_if_player( m_bad, _( "Your %s is hit!" ), body_part_name( hit ) );
+                //~ {} is bodypart
+                you->add_msg_if_player( m_bad, _( "Your {} is hit!" ), body_part_name( hit ) );
                 c->deal_damage( nullptr, hit, damage_instance( damage_type::CUT, rng( 20, 30 ) ) );
                 add_bolt = !one_in( 10 );
             } else {
@@ -444,13 +444,13 @@ bool trapfunc::crossbow( const tripoint &p, Creature *c, item * )
             }
             if( one_in( chance ) ) {
                 if( seen ) {
-                    add_msg( m_bad, _( "A bolt shoots out and hits the %s!" ), z->name() );
+                    add_msg( m_bad, _( "A bolt shoots out and hits the {}!" ), z->name() );
                 }
                 z->deal_damage( nullptr, bodypart_id( "torso" ), damage_instance( damage_type::CUT, rng( 20,
                                 30 ) ) );
                 add_bolt = !one_in( 10 );
             } else if( seen ) {
-                add_msg( m_neutral, _( "A bolt shoots out, but misses the %s." ), z->name() );
+                add_msg( m_neutral, _( "A bolt shoots out, but misses the {}." ), z->name() );
             }
         }
         c->check_dead_state();
@@ -473,7 +473,7 @@ bool trapfunc::shotgun( const tripoint &p, Creature *c, item * )
     int shots = 1;
     if( c != nullptr ) {
         if( c->has_effect( effect_ridden ) ) {
-            add_msg( m_neutral, _( "Your %s triggers a shotgun trap!" ), c->get_name() );
+            add_msg( m_neutral, _( "Your {} triggers a shotgun trap!" ), c->get_name() );
         }
         c->add_msg_player_or_npc( m_neutral, _( "You trigger a shotgun trap!" ),
                                   _( "<npcname> triggers a shotgun trap!" ) );
@@ -516,8 +516,8 @@ bool trapfunc::shotgun( const tripoint &p, Creature *c, item * )
                         hit = bodypart_id( "head" );
                         break;
                 }
-                //~ %s is bodypart
-                you->add_msg_if_player( m_bad, _( "Your %s is hit!" ), body_part_name( hit ) );
+                //~ {} is bodypart
+                you->add_msg_if_player( m_bad, _( "Your {} is hit!" ), body_part_name( hit ) );
                 c->deal_damage( nullptr, hit, damage_instance( damage_type::BULLET, rng( 40 * shots,
                                 60 * shots ) ) );
             } else {
@@ -552,7 +552,7 @@ bool trapfunc::shotgun( const tripoint &p, Creature *c, item * )
                 shots = 1;
             }
             if( seen ) {
-                add_msg( m_bad, _( "A shotgun fires and hits the %s!" ), z->name() );
+                add_msg( m_bad, _( "A shotgun fires and hits the {}!" ), z->name() );
             }
             z->deal_damage( nullptr, bodypart_id( "torso" ), damage_instance( damage_type::BULLET,
                             rng( 40 * shots,
@@ -573,7 +573,7 @@ bool trapfunc::blade( const tripoint &, Creature *c, item * )
         return false;
     }
     if( c->has_effect( effect_ridden ) ) {
-        add_msg( m_bad, _( "A blade swings out and hacks your %s!" ), c->get_name() );
+        add_msg( m_bad, _( "A blade swings out and hacks your {}!" ), c->get_name() );
     }
     c->add_msg_player_or_npc( m_bad, _( "A blade swings out and hacks your torso!" ),
                               _( "A blade swings out and hacks <npcname>'s torso!" ) );
@@ -596,7 +596,7 @@ bool trapfunc::snare_light( const tripoint &p, Creature *c, item * )
     const bodypart_id hit = one_in( 2 ) ? bodypart_id( "leg_l" ) : bodypart_id( "leg_r" );
     // Messages
     if( c->has_effect( effect_ridden ) ) {
-        add_msg( m_bad, _( "A snare closes on your %s's leg!" ), c->get_name() );
+        add_msg( m_bad, _( "A snare closes on your {}'s leg!" ), c->get_name() );
     }
     c->add_msg_player_or_npc( m_bad, _( "A snare closes on your leg." ),
                               _( "A snare closes on <npcname>s leg." ) );
@@ -621,11 +621,11 @@ bool trapfunc::snare_heavy( const tripoint &p, Creature *c, item * )
     // Determine what got hit
     const bodypart_id hit = one_in( 2 ) ? bodypart_id( "leg_l" ) : bodypart_id( "leg_r" );
     if( c->has_effect( effect_ridden ) ) {
-        add_msg( m_bad, _( "A snare closes on your %s's leg!" ), c->get_name() );
+        add_msg( m_bad, _( "A snare closes on your {}'s leg!" ), c->get_name() );
     }
-    //~ %s is bodypart name in accusative.
-    c->add_msg_player_or_npc( m_bad, _( "A snare closes on your %s." ),
-                              _( "A snare closes on <npcname>s %s." ), body_part_name_accusative( hit ) );
+    //~ {} is bodypart name in accusative.
+    c->add_msg_player_or_npc( m_bad, _( "A snare closes on your {}." ),
+                              _( "A snare closes on <npcname>s {}." ), body_part_name_accusative( hit ) );
 
     // Actual effects
     c->add_effect( effect_heavysnare, 1_turns, hit, true );
@@ -690,7 +690,7 @@ bool trapfunc::telepad( const tripoint &p, Creature *c, item * )
     if( c->is_avatar() ) {
         c->add_msg_if_player( m_warning, _( "The air shimmers around you…" ) );
     } else {
-        add_msg_if_player_sees( p, _( "The air shimmers around %s…" ), c->disp_name() );
+        add_msg_if_player_sees( p, _( "The air shimmers around {}…" ), c->disp_name() );
     }
     teleport::teleport( *c );
     return false;
@@ -778,7 +778,7 @@ bool trapfunc::dissector( const tripoint &p, Creature *c, item * )
     //~ the sound of a dissector dissecting
     sounds::sound( p, 10, sounds::sound_t::combat, _( "BRZZZAP!" ), false, "trap", "dissector" );
     if( player_sees ) {
-        add_msg( m_bad, _( "Electrical beams emit from the floor and slice the %s!" ), c->get_name() );
+        add_msg( m_bad, _( "Electrical beams emit from the floor and slice the {}!" ), c->get_name() );
     }
     c->deal_damage( nullptr, bodypart_id( "head" ), damage_instance( damage_type::CUT, 15 ) );
     c->deal_damage( nullptr, bodypart_id( "torso" ), damage_instance( damage_type::CUT, 20 ) );
@@ -832,7 +832,7 @@ bool trapfunc::pit( const tripoint &p, Creature *c, item * )
         }
     } else if( z != nullptr ) {
         if( z->has_effect( effect_ridden ) ) {
-            add_msg( m_bad, _( "Your %s falls into a pit!" ), z->get_name() );
+            add_msg( m_bad, _( "Your {} falls into a pit!" ), z->get_name() );
             get_player_character().forced_dismount();
         }
         z->deal_damage( nullptr, bodypart_id( "leg_l" ), damage_instance( damage_type::BASH, eff * rng( 10,
@@ -895,7 +895,7 @@ bool trapfunc::pit_spikes( const tripoint &p, Creature *c, item * )
                     hit = bodypart_id( "torso" );
                     break;
             }
-            you->add_msg_if_player( m_bad, _( "The spikes impale your %s!" ),
+            you->add_msg_if_player( m_bad, _( "The spikes impale your {}!" ),
                                     body_part_name_accusative( hit ) );
             you->deal_damage( nullptr, hit, damage_instance( damage_type::CUT, damage ) );
             if( !you->has_trait( trait_INFIMMUNE ) ) {
@@ -907,7 +907,7 @@ bool trapfunc::pit_spikes( const tripoint &p, Creature *c, item * )
         }
     } else if( z != nullptr ) {
         if( z->has_effect( effect_ridden ) ) {
-            add_msg( m_bad, _( "Your %s falls into a pit!" ), z->get_name() );
+            add_msg( m_bad, _( "Your {} falls into a pit!" ), z->get_name() );
             player_character.forced_dismount();
         }
         z->deal_damage( nullptr, bodypart_id( "torso" ), damage_instance( damage_type::CUT, rng( 20,
@@ -983,7 +983,7 @@ bool trapfunc::pit_glass( const tripoint &p, Creature *c, item * )
                     hit = bodypart_id( "torso" );
                     break;
             }
-            you->add_msg_if_player( m_bad, _( "The glass shards slash your %s!" ),
+            you->add_msg_if_player( m_bad, _( "The glass shards slash your {}!" ),
                                     body_part_name_accusative( hit ) );
             you->deal_damage( nullptr, hit, damage_instance( damage_type::CUT, damage ) );
             if( !you->has_trait( trait_INFIMMUNE ) ) {
@@ -995,7 +995,7 @@ bool trapfunc::pit_glass( const tripoint &p, Creature *c, item * )
         }
     } else if( z != nullptr ) {
         if( z->has_effect( effect_ridden ) ) {
-            add_msg( m_bad, _( "Your %s falls into a pit!" ), z->get_name() );
+            add_msg( m_bad, _( "Your {} falls into a pit!" ), z->get_name() );
             player_character.forced_dismount();
         }
         z->deal_damage( nullptr, bodypart_id( "torso" ), damage_instance( damage_type::CUT, rng( 20,
@@ -1021,7 +1021,7 @@ bool trapfunc::lava( const tripoint &p, Creature *c, item * )
     if( c == nullptr ) {
         return false;
     }
-    c->add_msg_player_or_npc( m_bad, _( "The %s burns you horribly!" ), _( "The %s burns <npcname>!" ),
+    c->add_msg_player_or_npc( m_bad, _( "The {} burns you horribly!" ), _( "The {} burns <npcname>!" ),
                               get_map().tername( p ) );
     monster *z = dynamic_cast<monster *>( c );
     Character *you = dynamic_cast<Character *>( c );
@@ -1032,7 +1032,7 @@ bool trapfunc::lava( const tripoint &p, Creature *c, item * )
         you->deal_damage( nullptr, bodypart_id( "leg_r" ), damage_instance( damage_type::HEAT, 20 ) );
     } else if( z != nullptr ) {
         if( z->has_effect( effect_ridden ) ) {
-            add_msg( m_bad, _( "Your %s is burned by the lava!" ), z->get_name() );
+            add_msg( m_bad, _( "Your {} is burned by the lava!" ), z->get_name() );
         }
         // TODO: MATERIALS use fire resistance
         int dam = 30;
@@ -1128,7 +1128,7 @@ bool trapfunc::sinkhole( const tripoint &p, Creature *c, item *i )
     map &here = get_map();
     if( z != nullptr ) {
         if( z->has_effect( effect_ridden ) ) {
-            add_msg( m_bad, _( "Your %s falls into a sinkhole!" ), z->get_name() );
+            add_msg( m_bad, _( "Your {} falls into a sinkhole!" ), z->get_name() );
             get_player_character().forced_dismount();
         }
     } else if( you != nullptr ) {
@@ -1211,7 +1211,7 @@ bool trapfunc::ledge( const tripoint &p, Creature *c, item * )
 
         if( valid.empty() ) {
             critter->setpos( c->pos() );
-            add_msg( m_bad, _( "You fall down under %s!" ), critter->disp_name() );
+            add_msg( m_bad, _( "You fall down under {}!" ), critter->disp_name() );
         } else {
             critter->setpos( random_entry( valid ) );
         }
@@ -1240,7 +1240,7 @@ bool trapfunc::ledge( const tripoint &p, Creature *c, item * )
     }
 
     if( you->is_avatar() ) {
-        add_msg( m_bad, n_gettext( "You fall down %d story!", "You fall down %d stories!", height ),
+        add_msg( m_bad, n_gettext( "You fall down {} story!", "You fall down {} stories!", height ),
                  height );
         g->vertical_move( -height, true );
     } else {
@@ -1255,12 +1255,12 @@ bool trapfunc::ledge( const tripoint &p, Creature *c, item * )
                                 _( "You hit the ground hard, but your grav chute handles the impact admirably!" ) );
     } else if( !jetpack.is_null() ) {
         if( jetpack.ammo_sufficient( you ) ) {
-            you->add_msg_player_or_npc( _( "You ignite your %s and use it to break the fall." ),
-                                        _( "<npcname> uses their %s to break the fall." ), jetpack.tname() );
+            you->add_msg_player_or_npc( _( "You ignite your {} and use it to break the fall." ),
+                                        _( "<npcname> uses their {} to break the fall." ), jetpack.tname() );
             you->use_charges( jetpack.typeId(), jetpack.type->charges_to_use() );
         } else {
             you->add_msg_if_player( m_bad,
-                                    _( "You attempt to break the fall with your %s but it is out of fuel!" ), jetpack.tname() );
+                                    _( "You attempt to break the fall with your {} but it is out of fuel!" ), jetpack.tname() );
             you->impact( height * 30, where );
 
         }
@@ -1575,7 +1575,7 @@ const trap_function &trap_function_from_string( const std::string &function_name
         return iter->second;
     }
 
-    debugmsg( "Could not find a trapfunc function matching '%s'!", function_name );
+    debugmsg( "Could not find a trapfunc function matching '{}'!", function_name );
     static const trap_function null_fun = trapfunc::none;
     return null_fun;
 }

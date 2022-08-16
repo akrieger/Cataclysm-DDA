@@ -211,18 +211,18 @@ void multi_projectile_hit_message( Creature *critter, int hit_count, int damage_
             return desc.first >= hit_count;
         } )->second;
         std::string damage_description = ( damage_taken > 0 ) ?
-                                         string_format( _( "dealing %d damage" ), damage_taken ) :
+                                         string_format( _( "dealing {} damage" ), damage_taken ) :
                                          _( "but they deal no damage" );
         if( critter->is_avatar() ) {
             //~ Phrase describing getting hit by multiple projectiles, i.e. "You are hit by many bomb fragments, dealing 50 damage."
-            add_msg( _( "You are hit by %s %s, %s." ), impact_count, projectile_name, damage_description );
+            add_msg( _( "You are hit by {} {}, {}." ), impact_count, projectile_name, damage_description );
         } else if( critter->is_npc() ) {
             //~ Phrase describing getting hit by multiple projectiles, i.e. "Fred Johnson is hit by many bomb fragments, dealing 50 damage."
-            critter->add_msg_if_npc( _( "<npcname> is hit by %s %s, %s." ), impact_count, projectile_name,
+            critter->add_msg_if_npc( _( "<npcname> is hit by {} {}, {}." ), impact_count, projectile_name,
                                      damage_description );
         } else {
             //~ Phrase describing getting hit by multiple projectiles, i.e. "The zombie is hit by many bomb fragments, dealing 50 damage."
-            add_msg( _( "%s is hit by %s %s, %s." ), critter->disp_name( false, true ), impact_count,
+            add_msg( _( "{} is hit by {} {}, {}." ), critter->disp_name( false, true ), impact_count,
                      projectile_name, damage_description );
         }
     }

@@ -141,8 +141,8 @@ void vehicle::add_toggle_to_opts( std::vector<uilist_entry> &options,
     }
 
     auto msg = string_format( state ?
-                              _( "Turn on %s" ) :
-                              colorize( _( "Turn off %s" ), c_pink ),
+                              _( "Turn on {}" ) :
+                              colorize( _( "Turn off {}" ), c_pink ),
                               name );
     options.emplace_back( -1, allow, key, msg );
 
@@ -151,7 +151,7 @@ void vehicle::add_toggle_to_opts( std::vector<uilist_entry> &options,
         {
             vehicle_part &e = vp.part();
             if( e.enabled != state ) {
-                add_msg( state ? _( "Turned on %s." ) : _( "Turned off %s." ), e.name() );
+                add_msg( state ? _( "Turned on {}." ) : _( "Turned off {}." ), e.name() );
                 e.enabled = state;
             }
         }
@@ -171,7 +171,7 @@ void handbrake()
     veh->cruise_velocity = 0;
     if( veh->last_turn != 0_degrees && rng( 15, 60 ) * 100 < std::abs( veh->velocity ) ) {
         veh->skidding = true;
-        add_msg( m_warning, _( "You lose control of %s." ), veh->name );
+        add_msg( m_warning, _( "You lose control of {}." ), veh->name );
         veh->turn( veh->last_turn > 0_degrees ? 60_degrees : -60_degrees );
     } else {
         int braking_power = std::abs( veh->velocity ) / 2 + 10 * 100;
@@ -215,7 +215,7 @@ void vehicle::control_doors()
             doors_with_motors.push_back( door );
             locations.push_back( global_part_pos3( p ) );
             const char *actname = parts[door].open ? _( "Close" ) : _( "Open" );
-            pmenu.addentry( val, true, MENU_AUTOASSIGN, "%s %s", actname, parts[ door ].name() );
+            pmenu.addentry( val, true, MENU_AUTOASSIGN, "{} {}", actname, parts[ door ].name() );
         }
     }
 
@@ -462,9 +462,9 @@ void vehicle::control_engines()
     }
 
     if( engines_were_on && !engine_on ) {
-        add_msg( _( "You turn off the %s's engines to change their configurations." ), name );
+        add_msg( _( "You turn off the {}'s engines to change their configurations." ), name );
     } else if( !get_player_character().controlling_vehicle ) {
-        add_msg( _( "You change the %s's engine configuration." ), name );
+        add_msg( _( "You change the {}'s engine configuration." ), name );
     }
 
     if( engine_on ) {
@@ -484,7 +484,7 @@ int vehicle::select_engine()
             bool is_available = parts[ e ].is_available() &&
                                 ( is_perpetual_type( x ) || fuel_id == fuel_type_muscle ||
                                   fuel_left( fuel_id ) );
-            tmenu.addentry( i++, is_available, -1, "[%s] %s %s",
+            tmenu.addentry( i++, is_available, -1, "[{}] {} {}",
                             is_active ? "x" : " ", parts[ e ].name(),
                             item::nname( fuel_id ) );
         }
@@ -500,17 +500,17 @@ bool vehicle::interact_vehicle_locked()
     }
 
     Character &player_character = get_player_character();
-    add_msg( _( "You don't find any keys in the %s." ), name );
+    add_msg( _( "You don't find any keys in the {}." ), name );
     const inventory &inv = player_character.crafting_inventory();
     if( inv.has_quality( qual_SCREW ) ) {
-        if( query_yn( _( "You don't find any keys in the %s. Attempt to hotwire vehicle?" ), name ) ) {
+        if( query_yn( _( "You don't find any keys in the {}. Attempt to hotwire vehicle?" ), name ) ) {
             ///\EFFECT_MECHANICS speeds up vehicle hotwiring
             int skill = player_character.get_skill_level( skill_mechanics );
             const int moves = to_moves<int>( 6000_seconds / ( ( skill > 0 ) ? skill : 1 ) );
             tripoint target = global_square_location().raw() + coord_translate( parts[0].mount );
             player_character.assign_activity(
                 player_activity( hotwire_car_activity_actor( moves, target ) ) );
-        } else if( has_security_working() && query_yn( _( "Trigger the %s's Alarm?" ), name ) ) {
+        } else if( has_security_working() && query_yn( _( "Trigger the {}'s Alarm?" ), name ) ) {
             is_alarm_on = true;
         } else {
             add_msg( _( "You leave the controls alone." ) );
@@ -774,7 +774,7 @@ void vehicle::use_controls( const tripoint &pos )
     actions.emplace_back( [&] { toggle_tracking(); } );
 
     if( ( is_foldable() || tags.count( "convertible" ) ) && !remote ) {
-        options.emplace_back( string_format( _( "Fold %s" ), name ), keybind( "FOLD_VEHICLE" ) );
+        options.emplace_back( string_format( _( "Fold {}" ), name ), keybind( "FOLD_VEHICLE" ) );
         actions.emplace_back( [&] { fold_up(); } );
     }
 
@@ -921,28 +921,28 @@ bool vehicle::fold_up()
     const bool can_be_folded = is_foldable();
     const bool is_convertible = ( tags.count( "convertible" ) > 0 );
     if( !( can_be_folded || is_convertible ) ) {
-        debugmsg( _( "Tried to fold non-folding vehicle %s" ), name );
+        debugmsg( _( "Tried to fold non-folding vehicle {}" ), name );
         return false;
     }
 
     avatar &player_character = get_avatar();
     if( player_character.controlling_vehicle ) {
         add_msg( m_warning,
-                 _( "As the pitiless metal bars close on your nether regions, you reconsider trying to fold the %s while riding it." ),
+                 _( "As the pitiless metal bars close on your nether regions, you reconsider trying to fold the {} while riding it." ),
                  name );
         return false;
     }
 
     if( velocity > 0 ) {
-        add_msg( m_warning, _( "You can't fold the %s while it's in motion." ), name );
+        add_msg( m_warning, _( "You can't fold the {} while it's in motion." ), name );
         return false;
     }
 
-    add_msg( _( "You painstakingly pack the %s into a portable configuration." ), name );
+    add_msg( _( "You painstakingly pack the {} into a portable configuration." ), name );
 
     if( player_character.get_grab_type() != object_type::NONE ) {
         player_character.grab( object_type::NONE );
-        add_msg( _( "You let go of %s as you fold it." ), name );
+        add_msg( _( "You let go of {} as you fold it." ), name );
     }
 
     std::string itype_id = "folding_bicycle";
@@ -981,17 +981,17 @@ bool vehicle::fold_up()
         json.write( real_parts() );
         bicycle.set_var( "folding_bicycle_parts", veh_data.str() );
     } catch( const JsonError &e ) {
-        debugmsg( "Error storing vehicle: %s", e.c_str() );
+        debugmsg( "Error storing vehicle: {}", e.c_str() );
     }
 
     bicycle.set_var( "tracking", tracking_on ? 1 : 0 );
     if( can_be_folded ) {
         bicycle.set_var( "weight", to_milligram( total_mass() ) );
         bicycle.set_var( "volume", total_folded_volume() / units::legacy_volume_factor );
-        bicycle.set_var( "name", string_format( _( "folded %s" ), name ) );
+        bicycle.set_var( "name", string_format( _( "folded {}" ), name ) );
         bicycle.set_var( "vehicle_name", name );
         // TODO: a better description?
-        bicycle.set_var( "description", string_format( _( "A folded %s." ), name ) );
+        bicycle.set_var( "description", string_format( _( "A folded {}." ), name ) );
     }
 
     here.add_item_or_charges( global_part_pos3( 0 ), bicycle );
@@ -1073,14 +1073,14 @@ bool vehicle::start_engine( const int e )
         if( einfo.fuel_type == fuel_type_muscle ) {
             // Muscle engines cannot start with broken limbs
             if( einfo.has_flag( "MUSCLE_ARMS" ) && !player_character.has_two_arms_lifting() ) {
-                add_msg( _( "You cannot use %s with a broken arm." ), eng.name() );
+                add_msg( _( "You cannot use {} with a broken arm." ), eng.name() );
                 return false;
             } else if( einfo.has_flag( "MUSCLE_LEGS" ) && ( player_character.get_working_leg_count() < 2 ) ) {
-                add_msg( _( "You cannot use %s with a broken leg." ), eng.name() );
+                add_msg( _( "You cannot use {} with a broken leg." ), eng.name() );
                 return false;
             }
         } else {
-            add_msg( _( "Looks like the %1$s is out of %2$s." ), eng.name(),
+            add_msg( _( "Looks like the {1} is out of {2}." ), eng.name(),
                      item::nname( einfo.fuel_type ) );
             return false;
         }
@@ -1098,7 +1098,7 @@ bool vehicle::start_engine( const int e )
             backfire( e );
         } else {
             sounds::sound( pos, start_moves / 10, sounds::sound_t::movement,
-                           string_format( _( "the %s bang as it starts!" ), eng.name() ), true, "vehicle",
+                           string_format( _( "the {} bang as it starts!" ), eng.name() ), true, "vehicle",
                            "engine_bangs_start" );
         }
     }
@@ -1106,7 +1106,7 @@ bool vehicle::start_engine( const int e )
     // Immobilizers need removing before the vehicle can be started
     if( eng.has_fault_flag( "IMMOBILIZER" ) ) {
         sounds::sound( pos, 5, sounds::sound_t::alarm,
-                       string_format( _( "the %s making a long beep." ), eng.name() ), true, "vehicle",
+                       string_format( _( "the {} making a long beep." ), eng.name() ), true, "vehicle",
                        "fault_immobiliser_beep" );
         return false;
     }
@@ -1115,7 +1115,7 @@ bool vehicle::start_engine( const int e )
     if( eng.faults_potential().count( fault_engine_starter ) ) {
         if( eng.has_fault_flag( "BAD_STARTER" ) ) {
             sounds::sound( pos, eng.info().engine_noise_factor(), sounds::sound_t::alarm,
-                           string_format( _( "the %s clicking once." ), eng.name() ), true, "vehicle",
+                           string_format( _( "the {} clicking once." ), eng.name() ), true, "vehicle",
                            "engine_single_click_fail" );
             return false;
         }
@@ -1124,7 +1124,7 @@ bool vehicle::start_engine( const int e )
                                    ( 1.0 + dmg / 2 + cold_factor / 5 ) * 10, time_duration::from_moves( start_moves ) );
         if( discharge_battery( start_draw_bat, true ) != 0 ) {
             sounds::sound( pos, eng.info().engine_noise_factor(), sounds::sound_t::alarm,
-                           string_format( _( "the %s rapidly clicking." ), eng.name() ), true, "vehicle",
+                           string_format( _( "the {} rapidly clicking." ), eng.name() ), true, "vehicle",
                            "engine_multi_click_fail" );
             return false;
         }
@@ -1133,7 +1133,7 @@ bool vehicle::start_engine( const int e )
     // Engines always fail to start with faulty fuel pumps
     if( eng.has_fault_flag( "BAD_FUEL_PUMP" ) ) {
         sounds::sound( pos, eng.info().engine_noise_factor(), sounds::sound_t::movement,
-                       string_format( _( "the %s quickly stuttering out." ), eng.name() ), true, "vehicle",
+                       string_format( _( "the {} quickly stuttering out." ), eng.name() ), true, "vehicle",
                        "engine_stutter_fail" );
         return false;
     }
@@ -1142,12 +1142,12 @@ bool vehicle::start_engine( const int e )
     if( !is_engine_type( e, fuel_type_battery ) && einfo.fuel_type != fuel_type_muscle &&
         x_in_y( dmg * 100, 120 ) ) {
         sounds::sound( pos, eng.info().engine_noise_factor(), sounds::sound_t::movement,
-                       string_format( _( "the %s clanking and grinding." ), eng.name() ), true, "vehicle",
+                       string_format( _( "the {} clanking and grinding." ), eng.name() ), true, "vehicle",
                        "engine_clanking_fail" );
         return false;
     }
     sounds::sound( pos, eng.info().engine_noise_factor(), sounds::sound_t::movement,
-                   string_format( _( "the %s starting." ), eng.name() ) );
+                   string_format( _( "the {} starting." ), eng.name() ) );
 
     if( sfx::has_variant_sound( "engine_start", eng.info().get_id().str() ) ) {
         sfx::play_variant_sound( "engine_start", eng.info().get_id().str(),
@@ -1220,14 +1220,14 @@ void vehicle::start_engines( const bool take_control, const bool autodrive )
     }
 
     if( !has_engine ) {
-        add_msg( m_info, _( "The %s doesn't have an engine!" ), name );
+        add_msg( m_info, _( "The {} doesn't have an engine!" ), name );
         return;
     }
 
     Character &player_character = get_player_character();
     if( take_control && !player_character.controlling_vehicle ) {
         player_character.controlling_vehicle = true;
-        add_msg( _( "You take control of the %s." ), name );
+        add_msg( _( "You take control of the {}." ), name );
     }
     if( !autodrive ) {
         player_character.assign_activity( ACT_START_ENGINES, start_time );
@@ -1299,7 +1299,7 @@ void vehicle::reload_seeds( const tripoint &pos )
     if( seed_index > 0 && seed_index < static_cast<int>( seed_entries.size() ) ) {
         const int count = std::get<2>( seed_entries[seed_index] );
         int amount = 0;
-        const std::string popupmsg = string_format( _( "Move how many?  [Have %d] (0 to cancel)" ), count );
+        const std::string popupmsg = string_format( _( "Move how many?  [Have {}] (0 to cancel)" ), count );
 
         amount = string_input_popup()
                  .title( popupmsg )
@@ -1607,7 +1607,7 @@ void vehicle::alarm()
 void vehicle::open( int part_index )
 {
     if( !part_info( part_index ).has_flag( "OPENABLE" ) ) {
-        debugmsg( "Attempted to open non-openable part %d (%s) on a %s!", part_index,
+        debugmsg( "Attempted to open non-openable part {} ({}) on a {}!", part_index,
                   parts[ part_index ].name(), name );
     } else {
         open_or_close( part_index, true );
@@ -1622,7 +1622,7 @@ void vehicle::open( int part_index )
 void vehicle::close( int part_index )
 {
     if( !part_info( part_index ).has_flag( "OPENABLE" ) ) {
-        debugmsg( "Attempted to close non-closeable part %d (%s) on a %s!", part_index,
+        debugmsg( "Attempted to close non-closeable part {} ({}) on a {}!", part_index,
                   parts[ part_index ].name(), name );
     } else {
         open_or_close( part_index, false );
@@ -1654,9 +1654,9 @@ bool vehicle::can_close( int part_index, Character &who )
                         who.add_msg_if_player( m_info, _( "There's some buffoon in the way!" ) );
                     } else if( mon->is_monster() ) {
                         // TODO: Houseflies, mosquitoes, etc shouldn't count
-                        who.add_msg_if_player( m_info, _( "The %s is in the way!" ), mon->get_name() );
+                        who.add_msg_if_player( m_info, _( "The {} is in the way!" ), mon->get_name() );
                     } else {
-                        who.add_msg_if_player( m_info, _( "%s is in the way!" ), mon->disp_name() );
+                        who.add_msg_if_player( m_info, _( "{} is in the way!" ), mon->disp_name() );
                     }
                     return false;
                 }
@@ -1744,7 +1744,7 @@ void vehicle::use_autoclave( int p )
     } else if( items.empty() ) {
         add_msg( m_bad, _( "The autoclave is empty; there's no point in starting it." ) );
     } else if( fuel_left( itype_water ) < 8 && fuel_left( itype_water_clean ) < 8 ) {
-        add_msg( m_bad, _( "You need 8 charges of water in the tanks of the %s for the autoclave to run." ),
+        add_msg( m_bad, _( "You need 8 charges of water in the tanks of the {} for the autoclave to run." ),
                  name );
     } else if( filthy_items ) {
         add_msg( m_bad,
@@ -1797,7 +1797,7 @@ void vehicle::use_washing_machine( int p )
                  _( "The washing machine is empty; there's no point in starting it." ) );
     } else if( fuel_left( itype_water ) < 24 && fuel_left( itype_water_clean ) < 24 ) {
         add_msg( m_bad,
-                 _( "You need 24 charges of water in the tanks of the %s to fill the washing machine." ),
+                 _( "You need 24 charges of water in the tanks of the {} to fill the washing machine." ),
                  name );
     } else if( detergents.empty() ) {
         add_msg( m_bad, _( "You need 5 charges of a detergent for the washing machine." ) );
@@ -1883,7 +1883,7 @@ void vehicle::use_dishwasher( int p )
         add_msg( m_bad,
                  _( "The dishwasher is empty, there's no point in starting it." ) );
     } else if( fuel_left( itype_water ) < 24 && fuel_left( itype_water_clean ) < 24 ) {
-        add_msg( m_bad, _( "You need 24 charges of water in the tanks of the %s to fill the dishwasher." ),
+        add_msg( m_bad, _( "You need 24 charges of water in the tanks of the {} to fill the dishwasher." ),
                  name );
     } else if( !detergent_is_enough ) {
         add_msg( m_bad, _( "You need 5 charges of a detergent for the dishwasher." ) );
@@ -1977,10 +1977,10 @@ void vehicle::use_harness( int part, const tripoint &pos )
 
     m.add_effect( effect_harnessed, 1_turns, true );
     m.setpos( pos );
-    //~ %1$s: monster name, %2$s: vehicle name
-    add_msg( m_info, _( "You harness your %1$s to %2$s." ), m.get_name(), disp_name() );
+    //~ {1}: monster name, {2}: vehicle name
+    add_msg( m_info, _( "You harness your {1} to {2}." ), m.get_name(), disp_name() );
     if( m.has_effect( effect_tied ) ) {
-        add_msg( m_info, _( "You untie your %s." ), m.get_name() );
+        add_msg( m_info, _( "You untie your {}." ), m.get_name() );
         m.remove_effect( effect_tied );
         if( m.tied_item ) {
             get_player_character().i_add( *m.tied_item );
@@ -2067,7 +2067,7 @@ void vehicle::use_bike_rack( int part )
         }
         for( size_t i = 0; i < carried_vehicles.size(); i++ ) {
             rack_menu.addentry( i + 1, true, '1' + i,
-                                string_format( _( "Remove the %s from the rack" ),
+                                string_format( _( "Remove the {} from the rack" ),
                                                parts[ carried_vehicles[i].front() ].carried_name() ) );
         }
         rack_menu.query();
@@ -2261,10 +2261,10 @@ void vehicle::interact_with( const vpart_position &vp, bool with_pickup )
         selectmenu.addentry( FOLD_VEHICLE, true, 'f', _( "Fold vehicle" ) );
     }
     if( turret.can_unload() ) {
-        selectmenu.addentry( UNLOAD_TURRET, true, 'u', _( "Unload %s" ), turret.name() );
+        selectmenu.addentry( UNLOAD_TURRET, true, 'u', _( "Unload {}" ), turret.name() );
     }
     if( turret.can_reload() ) {
-        selectmenu.addentry( RELOAD_TURRET, true, 'r', _( "Reload %s" ), turret.name() );
+        selectmenu.addentry( RELOAD_TURRET, true, 'r', _( "Reload {}" ), turret.name() );
     }
     if( vp_curtain && !vp_curtain->part().open ) {
         selectmenu.addentry( PEEK_CURTAIN, true, 'p', _( "Peek through the closed curtains" ) );
@@ -2293,7 +2293,7 @@ void vehicle::interact_with( const vpart_position &vp, bool with_pickup )
     if( vp_workbench ) {
         selectmenu.addentry( WORKBENCH, true,
                              hotkey_for_action( ACTION_CRAFT, /*maximum_modifier_count=*/1 ),
-                             string_format( _( "Craft at the %s" ), vp_workbench->part().name() ) );
+                             string_format( _( "Craft at the {}" ), vp_workbench->part().name() ) );
     }
 
     int choice;
@@ -2398,18 +2398,18 @@ void vehicle::interact_with( const vpart_position &vp, bool with_pickup )
             auto sel = []( const vehicle_part & pt ) {
                 return pt.is_tank() && pt.ammo_current() == itype_water;
             };
-            std::string title = string_format( _( "Purify <color_%s>water</color> in tank" ),
+            std::string title = string_format( _( "Purify <color_{}>water</color> in tank" ),
                                                get_all_colors().get_name( item::find_type( itype_water )->color ) );
             vehicle_part &tank = veh_interact::select_part( *this, sel, title );
             if( tank ) {
                 int cost = item::find_type( itype_water_purifier )->charges_to_use();
                 if( fuel_left( itype_battery, true ) < tank.ammo_remaining() * cost ) {
                     //~ $1 - vehicle name, $2 - part name
-                    add_msg( m_bad, _( "Insufficient power to purify the contents of the %1$s's %2$s" ),
+                    add_msg( m_bad, _( "Insufficient power to purify the contents of the {1}'s {2}" ),
                              name, tank.name() );
                 } else {
                     //~ $1 - vehicle name, $2 - part name
-                    add_msg( m_good, _( "You purify the contents of the %1$s's %2$s" ), name, tank.name() );
+                    add_msg( m_good, _( "You purify the contents of the {1}'s {2}" ), name, tank.name() );
                     discharge_battery( tank.ammo_remaining() * cost );
                     tank.ammo_set( itype_water_clean, tank.ammo_remaining() );
                 }

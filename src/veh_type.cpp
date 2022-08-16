@@ -199,7 +199,7 @@ const vpart_info &string_id<vpart_info>::obj() const
         std::tie( base_id, variant ) = get_vpart_id_variant( *this );
         const auto var_found = vpart_info_all.find( base_id );
         if( var_found == vpart_info_all.end() ) {
-            debugmsg( "Tried to get invalid vehicle part: %s", c_str() );
+            debugmsg( "Tried to get invalid vehicle part: {}", c_str() );
             static const vpart_info null_part{};
             return null_part;
         }
@@ -245,7 +245,7 @@ static void parse_vp_reqs( const JsonObject &obj, const std::string &id, const s
         // Construct a requirement to capture "components", "qualities", and
         // "tools" that might be listed.
         // NOLINTNEXTLINE(cata-translate-string-literal)
-        const requirement_id req_id( string_format( "inline_%s_%s", key.c_str(), id.c_str() ) );
+        const requirement_id req_id( string_format( "inline_{}{}", key.c_str(), id.c_str() ) );
         requirement_data::load_requirement( src, req_id );
         reqs.emplace_back( req_id, 1 );
     }
@@ -507,7 +507,7 @@ void vpart_info::load( const JsonObject &jo, const std::string &src )
             const std::string hotkey_str = tooldef.has_string( "hotkey" ) ? tooldef.get_string( "hotkey" ) : "";
             const int hotkey = hotkey_str.empty() ? -1 : static_cast<int>( hotkey_str[0] );
             if( !def.pseudo_tools.insert( { tool_id, hotkey } ).second ) {
-                debugmsg( "Insert failed on %s to %s's tools, duplicate?", tool_id.str(), def.id.str() );
+                debugmsg( "Insert failed on {} to {}'s tools, duplicate?", tool_id.str(), def.id.str() );
             }
         }
     }
@@ -646,151 +646,151 @@ void vpart_info::check()
 
         for( auto &e : part.install_skills ) {
             if( !e.first.is_valid() ) {
-                debugmsg( "vehicle part %s has unknown install skill %s", part.id.c_str(), e.first.c_str() );
+                debugmsg( "vehicle part {} has unknown install skill {}", part.id.c_str(), e.first.c_str() );
             }
         }
 
         for( auto &e : part.removal_skills ) {
             if( !e.first.is_valid() ) {
-                debugmsg( "vehicle part %s has unknown removal skill %s", part.id.c_str(), e.first.c_str() );
+                debugmsg( "vehicle part {} has unknown removal skill {}", part.id.c_str(), e.first.c_str() );
             }
         }
 
         for( auto &e : part.repair_skills ) {
             if( !e.first.is_valid() ) {
-                debugmsg( "vehicle part %s has unknown repair skill %s", part.id.c_str(), e.first.c_str() );
+                debugmsg( "vehicle part {} has unknown repair skill {}", part.id.c_str(), e.first.c_str() );
             }
         }
 
         for( const auto &e : part.install_reqs ) {
             if( !e.first.is_valid() || e.second <= 0 ) {
-                debugmsg( "vehicle part %s has unknown or incorrectly specified install requirements %s",
+                debugmsg( "vehicle part {} has unknown or incorrectly specified install requirements {}",
                           part.id.c_str(), e.first.c_str() );
             }
         }
 
         for( const auto &e : part.install_reqs ) {
             if( !( e.first.is_null() || e.first.is_valid() ) || e.second < 0 ) {
-                debugmsg( "vehicle part %s has unknown or incorrectly specified removal requirements %s",
+                debugmsg( "vehicle part {} has unknown or incorrectly specified removal requirements {}",
                           part.id.c_str(), e.first.c_str() );
             }
         }
 
         for( const auto &e : part.repair_reqs ) {
             if( !( e.first.is_null() || e.first.is_valid() ) || e.second < 0 ) {
-                debugmsg( "vehicle part %s has unknown or incorrectly specified repair requirements %s",
+                debugmsg( "vehicle part {} has unknown or incorrectly specified repair requirements {}",
                           part.id.c_str(), e.first.c_str() );
             }
         }
 
         if( part.install_moves < 0 ) {
-            debugmsg( "vehicle part %s has negative installation time", part.id.c_str() );
+            debugmsg( "vehicle part {} has negative installation time", part.id.c_str() );
         }
 
         if( part.removal_moves < 0 ) {
-            debugmsg( "vehicle part %s has negative removal time", part.id.c_str() );
+            debugmsg( "vehicle part {} has negative removal time", part.id.c_str() );
         }
 
         if( !item_group::group_is_defined( part.breaks_into_group ) ) {
-            debugmsg( "Vehicle part %s breaks into non-existent item group %s.",
+            debugmsg( "Vehicle part {} breaks into non-existent item group {}.",
                       part.id.c_str(), part.breaks_into_group.c_str() );
         }
         for( const auto &f : part.get_flags() ) {
             if( !json_flag::get( f ) ) {
-                debugmsg( "vehicle part %s has unknown flag %s", part.id.c_str(), f.c_str() );
+                debugmsg( "vehicle part {} has unknown flag {}", part.id.c_str(), f.c_str() );
             }
         }
         // Default symbol is always needed in case an unknown variant is encountered
         if( part.sym == 0 ) {
-            debugmsg( "vehicle part %s does not define a symbol", part.id.c_str() );
+            debugmsg( "vehicle part {} does not define a symbol", part.id.c_str() );
         } else if( mk_wcwidth( part.sym ) != 1 ) {
-            debugmsg( "vehicle part %s defined a symbol that is not 1 console cell wide.",
+            debugmsg( "vehicle part {} defined a symbol that is not 1 console cell wide.",
                       part.id.str() );
         }
         if( part.sym_broken == 0 ) {
-            debugmsg( "vehicle part %s does not define a broken symbol", part.id.c_str() );
+            debugmsg( "vehicle part {} does not define a broken symbol", part.id.c_str() );
         } else if( mk_wcwidth( part.sym_broken ) != 1 ) {
-            debugmsg( "vehicle part %s defined a broken symbol that is not 1 console cell wide.",
+            debugmsg( "vehicle part {} defined a broken symbol that is not 1 console cell wide.",
                       part.id.str() );
         }
         for( const std::pair<const std::string, int> &sym : part.symbols ) {
             if( mk_wcwidth( sym.second ) != 1 ) {
-                debugmsg( "vehicle part %s defined a variant symbol that is not 1 console cell wide.",
+                debugmsg( "vehicle part {} defined a variant symbol that is not 1 console cell wide.",
                           part.id.str() );
             }
         }
         if( part.durability <= 0 ) {
-            debugmsg( "vehicle part %s has zero or negative durability", part.id.c_str() );
+            debugmsg( "vehicle part {} has zero or negative durability", part.id.c_str() );
         }
         if( part.dmg_mod < 0 ) {
-            debugmsg( "vehicle part %s has negative damage modifier", part.id.c_str() );
+            debugmsg( "vehicle part {} has negative damage modifier", part.id.c_str() );
         }
         if( part.folded_volume < 0_ml ) {
-            debugmsg( "vehicle part %s has negative folded volume", part.id.c_str() );
+            debugmsg( "vehicle part {} has negative folded volume", part.id.c_str() );
         }
         if( part.has_flag( "FOLDABLE" ) && part.folded_volume == 0_ml ) {
-            debugmsg( "vehicle part %s has folding part with zero folded volume", part.name() );
+            debugmsg( "vehicle part {} has folding part with zero folded volume", part.name() );
         }
         if( !item::type_is_defined( part.default_ammo ) ) {
-            debugmsg( "vehicle part %s has undefined default ammo %s", part.id.c_str(),
+            debugmsg( "vehicle part {} has undefined default ammo {}", part.id.c_str(),
                       part.base_item.c_str() );
         }
         if( part.size < 0_ml ) {
-            debugmsg( "vehicle part %s has negative size", part.id.c_str() );
+            debugmsg( "vehicle part {} has negative size", part.id.c_str() );
         }
         if( !item::type_is_defined( part.base_item ) ) {
-            debugmsg( "vehicle part %s uses undefined item %s", part.id.c_str(), part.base_item.c_str() );
+            debugmsg( "vehicle part {} uses undefined item {}", part.id.c_str(), part.base_item.c_str() );
         }
         const itype &base_item_type = *item::find_type( part.base_item );
         // Fuel type errors are serious and need fixing now
         if( !item::type_is_defined( part.fuel_type ) ) {
-            debugmsg( "vehicle part %s uses undefined fuel %s", part.id.c_str(), part.base_item.c_str() );
+            debugmsg( "vehicle part {} uses undefined fuel {}", part.id.c_str(), part.base_item.c_str() );
             part.fuel_type = itype_id::NULL_ID();
         } else if( !part.fuel_type.is_null() && !item( part.fuel_type ).is_fuel() &&
                    !type_can_contain( base_item_type, part.fuel_type ) ) {
             // HACK: Tanks are allowed to specify non-fuel "fuel",
             // because currently legacy blazemod uses it as a hack to restrict content types
-            debugmsg( "non-tank vehicle part %s uses non-fuel item %s as fuel, setting to null",
+            debugmsg( "non-tank vehicle part {} uses non-fuel item {} as fuel, setting to null",
                       part.id.c_str(), part.fuel_type.c_str() );
             part.fuel_type = itype_id::NULL_ID();
         }
         if( part.has_flag( "TURRET" ) && !base_item_type.gun ) {
-            debugmsg( "vehicle part %s has the TURRET flag, but is not made from a gun item", part.id.c_str() );
+            debugmsg( "vehicle part {} has the TURRET flag, but is not made from a gun item", part.id.c_str() );
         }
 
         for( const emit_id &e : part.emissions ) {
             if( !e.is_valid() ) {
-                debugmsg( "vehicle part %s has invalid emission %s was set",
+                debugmsg( "vehicle part {} has invalid emission {} was set",
                           part.id.c_str(), e.str().c_str() );
             }
         }
         for( const emit_id &e : part.exhaust ) {
             if( !e.is_valid() ) {
-                debugmsg( "vehicle part %s has invalid exhaust %s was set",
+                debugmsg( "vehicle part {} has invalid exhaust {} was set",
                           part.id.c_str(), e.str().c_str() );
             }
         }
 
         if( part.has_flag( "WHEEL" ) && !base_item_type.wheel ) {
-            debugmsg( "vehicle part %s has the WHEEL flag, but base item %s is not a wheel.  "
+            debugmsg( "vehicle part {} has the WHEEL flag, but base item {} is not a wheel.  "
                       "THIS WILL CRASH!", part.id.str(), part.base_item.str() );
         }
 
         if( part.has_flag( "WHEEL" ) && !part.has_flag( "UNSTABLE_WHEEL" ) && !part.has_flag( "STABLE" ) ) {
-            debugmsg( "Wheel '%s' lacks either 'UNSTABLE_WHEEL' or 'STABLE' flag.", vp.first.str() );
+            debugmsg( "Wheel '{}' lacks either 'UNSTABLE_WHEEL' or 'STABLE' flag.", vp.first.str() );
         }
 
         if( part.has_flag( "UNSTABLE_WHEEL" ) && part.has_flag( "STABLE" ) ) {
-            debugmsg( "Wheel '%s' cannot be both an 'UNSTABLE_WHEEL' and 'STABLE'.", vp.first.str() );
+            debugmsg( "Wheel '{}' cannot be both an 'UNSTABLE_WHEEL' and 'STABLE'.", vp.first.str() );
         }
 
         for( auto &q : part.qualities ) {
             if( !q.first.is_valid() ) {
-                debugmsg( "vehicle part %s has undefined tool quality %s", part.id.c_str(), q.first.c_str() );
+                debugmsg( "vehicle part {} has undefined tool quality {}", part.id.c_str(), q.first.c_str() );
             }
         }
         if( part.has_flag( VPFLAG_ENABLED_DRAINS_EPOWER ) && part.epower == 0 ) {
-            debugmsg( "%s is set to drain epower, but has epower == 0", part.id.c_str() );
+            debugmsg( "{} is set to drain epower, but has epower == 0", part.id.c_str() );
         }
         // Parts with non-zero epower must have a flag that affects epower usage
         static const std::vector<std::string> handled = {{
@@ -804,7 +804,7 @@ void vpart_info::check()
         return part.has_flag( flag );
         } ) ) {
             std::string warnings_are_good_docs = enumerate_as_string( handled );
-            debugmsg( "%s has non-zero epower, but lacks a flag that would make it affect epower (one of %s)",
+            debugmsg( "{} has non-zero epower, but lacks a flag that would make it affect epower (one of {})",
                       part.id.c_str(), warnings_are_good_docs.c_str() );
         }
         if( base_item_type.pockets.size() > 4 ) {
@@ -883,7 +883,7 @@ int vpart_info::format_description( std::string &msg, const nc_color &format_col
                 base.put_in( tmp_mag, item_pocket::pocket_type::MAGAZINE_WELL );
             }
         }
-        long_descrip += string_format( _( "\nRange: %1$5d     Damage: %2$5.0f" ),
+        long_descrip += string_format( _( "\nRange: {1}     Damage: {2}.0f" ),
                                        base.gun_range( true ),
                                        base.gun_damage().total_damage() );
     }
@@ -909,9 +909,9 @@ int vpart_info::format_description( std::string &msg, const nc_color &format_col
     // borrowed from item.cpp and adjusted
     for( const auto &qual : qualities ) {
         msg += string_format(
-                   _( "Has level <color_cyan>%1$d %2$s</color> quality" ), qual.second, qual.first.obj().name );
+                   _( "Has level <color_cyan>{1} {2}</color> quality" ), qual.second, qual.first.obj().name );
         if( qual.first == qual_JACK || qual.first == qual_LIFT ) {
-            msg += string_format( _( " and is rated at <color_cyan>%1$d %2$s</color>" ),
+            msg += string_format( _( " and is rated at <color_cyan>{1} {2}</color>" ),
                                   static_cast<int>( convert_weight( lifting_quality_to_mass( qual.second ) ) ),
                                   weight_units() );
         }
@@ -1074,7 +1074,7 @@ const vehicle_prototype &string_id<vehicle_prototype>::obj() const
 {
     const auto iter = vtypes.find( *this );
     if( iter == vtypes.end() ) {
-        debugmsg( "invalid vehicle prototype id %s", c_str() );
+        debugmsg( "invalid vehicle prototype id {}", c_str() );
         static const vehicle_prototype dummy;
         return dummy;
     }
@@ -1168,7 +1168,7 @@ void vehicle_prototype::load( const JsonObject &jo )
 
         next_spawn.chance = spawn_info.get_int( "chance" );
         if( next_spawn.chance <= 0 || next_spawn.chance > 100 ) {
-            debugmsg( "Invalid spawn chance in %s (%d, %d): %d%%",
+            debugmsg( "Invalid spawn chance in {} ({}, {}): {}%%",
                       vproto.name, next_spawn.pos.x, next_spawn.pos.y, next_spawn.chance );
         }
 
@@ -1246,12 +1246,12 @@ void vehicle_prototype::finalize()
             const itype *base = item::find_type( pt.part->base_item );
 
             if( !pt.part.is_valid() ) {
-                debugmsg( "unknown vehicle part %s in %s", pt.part.c_str(), id.c_str() );
+                debugmsg( "unknown vehicle part {} in {}", pt.part.c_str(), id.c_str() );
                 continue;
             }
 
             if( blueprint.install_part( pt.pos, pt.part, pt.variant ) < 0 ) {
-                debugmsg( "init_vehicles: '%s' part '%s'(%d) can't be installed to %d,%d",
+                debugmsg( "init_vehicles: '{}' part '{}'({}) can't be installed to {},{}",
                           blueprint.name, pt.part.c_str(),
                           blueprint.part_count(), pt.pos.x, pt.pos.y );
             }
@@ -1272,15 +1272,15 @@ void vehicle_prototype::finalize()
 
             if( !base->gun ) {
                 if( pt.with_ammo ) {
-                    debugmsg( "init_vehicles: non-turret %s with ammo in %s", pt.part.c_str(),
+                    debugmsg( "init_vehicles: non-turret {} with ammo in {}", pt.part.c_str(),
                               id.c_str() );
                 }
                 if( !pt.ammo_types.empty() ) {
-                    debugmsg( "init_vehicles: non-turret %s with ammo_types in %s",
+                    debugmsg( "init_vehicles: non-turret {} with ammo_types in {}",
                               pt.part.c_str(), id.c_str() );
                 }
                 if( pt.ammo_qty.first > 0 || pt.ammo_qty.second > 0 ) {
-                    debugmsg( "init_vehicles: non-turret %s with ammo_qty in %s",
+                    debugmsg( "init_vehicles: non-turret {} with ammo_qty in {}",
                               pt.part.c_str(), id.c_str() );
                 }
 
@@ -1288,7 +1288,7 @@ void vehicle_prototype::finalize()
                 for( const auto &e : pt.ammo_types ) {
                     const itype *ammo = item::find_type( e );
                     if( !ammo->ammo || !base->gun->ammo.count( ammo->ammo->type ) ) {
-                        debugmsg( "init_vehicles: turret %s has invalid ammo_type %s in %s",
+                        debugmsg( "init_vehicles: turret {} has invalid ammo_type {} in {}",
                                   pt.part.c_str(), e.c_str(), id.c_str() );
                     }
                 }
@@ -1299,12 +1299,12 @@ void vehicle_prototype::finalize()
 
             if( type_can_contain( *base, pt.fuel ) || base->magazine ) {
                 if( !item::type_is_defined( pt.fuel ) ) {
-                    debugmsg( "init_vehicles: tank %s specified invalid fuel in %s",
+                    debugmsg( "init_vehicles: tank {} specified invalid fuel in {}",
                               pt.part.c_str(), id.c_str() );
                 }
             } else {
                 if( !pt.fuel.is_null() ) {
-                    debugmsg( "init_vehicles: non-fuel store part %s with fuel in %s",
+                    debugmsg( "init_vehicles: non-fuel store part {} with fuel in {}",
                               pt.part.c_str(), id.c_str() );
                 }
             }
@@ -1317,17 +1317,17 @@ void vehicle_prototype::finalize()
 
         for( vehicle_item_spawn &i : proto.item_spawns ) {
             if( cargo_spots.count( i.pos ) == 0 ) {
-                debugmsg( "Invalid spawn location (no CARGO vpart) in %s (%d, %d): %d%%",
+                debugmsg( "Invalid spawn location (no CARGO vpart) in {} ({}, {}): {}%%",
                           proto.name, i.pos.x, i.pos.y, i.chance );
             }
             for( auto &j : i.item_ids ) {
                 if( !item::type_is_defined( j ) ) {
-                    debugmsg( "unknown item %s in spawn list of %s", j.c_str(), id.c_str() );
+                    debugmsg( "unknown item {} in spawn list of {}", j.c_str(), id.c_str() );
                 }
             }
             for( auto &j : i.item_groups ) {
                 if( !item_group::group_is_defined( j ) ) {
-                    debugmsg( "unknown item group %s in spawn list of %s", j.c_str(), id.c_str() );
+                    debugmsg( "unknown item group {} in spawn list of {}", j.c_str(), id.c_str() );
                 }
             }
         }

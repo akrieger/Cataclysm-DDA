@@ -512,7 +512,7 @@ void add_folded_name_and_value( std::vector<std::string> &current_vector, const 
     const int value_width = utf8_width( value );
     if( name_width + value_width + 1 >= field_width ) {
         if( value_width >= field_width ) {
-            debugmsg( "Unable to fit name (%s) and value (%s) in available space (%i)", name, value,
+            debugmsg( "Unable to fit name ({}) and value ({}) in available space ({})", name, value,
                       field_width );
         } else {
             std::vector<std::string> new_lines;
@@ -530,7 +530,7 @@ void add_folded_name_and_value( std::vector<std::string> &current_vector, const 
 void add_folded_name_and_value( std::vector<std::string> &current_vector, const std::string &name,
                                 const int value, const int field_width )
 {
-    add_folded_name_and_value( current_vector, name, string_format( "%d", value ), field_width );
+    add_folded_name_and_value( current_vector, name, string_format( "{}", value ), field_width );
 }
 
 // returns single string with left aligned name and right aligned value
@@ -551,7 +551,7 @@ std::string trimmed_name_and_value( const std::string &name, const std::string &
 std::string trimmed_name_and_value( const std::string &name, int const value,
                                     const int field_width )
 {
-    return trimmed_name_and_value( name, string_format( "%d", value ), field_width );
+    return trimmed_name_and_value( name, string_format( "{}", value ), field_width );
 }
 
 void center_print( const catacurses::window &w, const int y, const nc_color &FG,
@@ -836,8 +836,8 @@ bool query_yn( const std::string &text )
            .preferred_keyboard_mode( keyboard_mode::keycode )
            .context( "YESNO" )
            .message( force_uc && !is_keycode_mode_supported() ?
-                     pgettext( "query_yn", "%s (Case Sensitive)" ) :
-                     pgettext( "query_yn", "%s" ), text )
+                     pgettext( "query_yn", "{} (Case Sensitive)" ) :
+                     pgettext( "query_yn", "{}" ), text )
            .option( "YES", allow_key )
            .option( "NO", allow_key )
            .cursor( 1 )
@@ -902,7 +902,7 @@ int popup( const std::string &text, PopupFlags flags )
 #endif
     query_popup pop;
     pop.preferred_keyboard_mode( keyboard_mode::keychar );
-    pop.message( "%s", text );
+    pop.message( "{}", text );
     if( flags & PF_GET_KEY ) {
         pop.allow_anykey( true );
     } else {
@@ -1023,7 +1023,7 @@ void draw_item_filter_rules( const catacurses::window &win, const int starty, co
         mvwprintz( win, point( 1, starty + i ), c_black, std::string( len, ' ' ) );
     }
 
-    fold_and_print( win, point( 1, starty ), len, c_white, "%s", item_filter_rule_string( type ) );
+    fold_and_print( win, point( 1, starty ), len, c_white, "{}", item_filter_rule_string( type ) );
 
     wnoutrefresh( win );
 }
@@ -1051,7 +1051,7 @@ std::string format_item_info( const std::vector<iteminfo> &vItemDisplay,
             std::string sFmt = i.sFmt;
             std::string sPost;
 
-            //A bit tricky, find %d and split the string
+            //A bit tricky, find {} and split the string
             size_t pos = sFmt.find( "<num>" );
             if( pos != std::string::npos ) {
                 buffer += sFmt.substr( 0, pos );
@@ -1874,7 +1874,7 @@ void calcStartPos( int &iStartPos, const int iCurrentLine, const int iContentHei
 // This functions works around it in two ways:
 //
 // First if all positional arguments are in "natural" order
-// (i.e. like %1$d %2$d %3$d),
+// (i.e. like {1} {2} {3}),
 // then their positions is stripped away and string
 // formatted without positions.
 //
@@ -1964,7 +1964,7 @@ std::string rewrite_vsnprintf( const char *msg )
     }
 
     if( next_positional_arg > 0 ) {
-        // If all positioned arguments were in order (%1$d %2$d) then we simply
+        // If all positioned arguments were in order ({1} {2}) then we simply
         // strip arguments
         return rewritten_msg_optimised;
     }
@@ -1976,7 +1976,7 @@ std::string rewrite_vsnprintf( const char *msg )
 std::string cata::string_formatter::raw_string_format( const char *format, ... )
 {
 #if defined(_WIN32)
-    // For unknown reason, vsnprintf on Windows does not seem to support positional arguments (e.g. "%1$s")
+    // For unknown reason, vsnprintf on Windows does not seem to support positional arguments (e.g. "{1}")
     va_list args;
     va_start( args, format );
 
@@ -2072,7 +2072,7 @@ void replace_keybind_tag( std::string &input )
     while( pos != std::string::npos ) {
         size_t pos_end = input.find( keybind_tag_end, pos );
         if( pos_end == std::string::npos ) {
-            debugmsg( "Mismatched keybind tag in string: '%s'", input );
+            debugmsg( "Mismatched keybind tag in string: '{}'", input );
             break;
         }
         size_t pos_keybind = pos + keybind_length;
@@ -2094,14 +2094,14 @@ void replace_keybind_tag( std::string &input )
             keybind_desc = colorize( '<' + ctxt.get_desc( keybind ) + '>', c_red );
 
             if( !ctxt.is_registered_action( keybind ) ) {
-                debugmsg( "Invalid/Missing <keybind>: '%s'", keybind_full );
+                debugmsg( "Invalid/Missing <keybind>: '{}'", keybind_full );
             }
         } else {
             keybind_desc = enumerate_as_string( keys.begin(), keys.end(), []( const input_event & k ) {
                 return colorize( '\'' + k.long_description() + '\'', c_yellow );
             }, enumeration_conjunction::or_ );
         }
-        std::string to_replace = string_format( "%s%s%s", keybind_tag_start, keybind_full,
+        std::string to_replace = string_format( "{}{}{}", keybind_tag_start, keybind_full,
                                                 keybind_tag_end );
         replace_substring( input, to_replace, keybind_desc, true );
 
