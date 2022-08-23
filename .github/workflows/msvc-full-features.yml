@@ -44,6 +44,8 @@ env:
   # our dependencies, so we hack the triplet file to build only release versions
   # Have to use github.workspace because runner namespace isn't available yet.
   VCPKG_OVERLAY_TRIPLETS: ${{ github.workspace }}\.github\vcpkg_triplets
+  # Also conveniently disable ccache internal compression
+  CCACHE_HARDLINK: true
   ZSTD_CLEVEL: 17
 
 jobs:
@@ -78,6 +80,50 @@ jobs:
     - name: Integrate vcpkg
       run: |
         vcpkg integrate install
+
+    - name: Download ccache
+      uses: robinraju/release-downloader@v1.4
+      with:
+        repository: "ccache/ccache"
+        tag: "v4.6.1"
+        fileName: "ccache-4.6.1-windows-x86_64.zip"
+
+- name: Install ccache
+      id: install-ccache
+      run: |
+        unzip ccache-4.6.1-windows-x86_64.zip
+        ./ccache-4.6.1-windows-x86_64/ccache.exe -s -v
+        cp ./ccache-4.6.1-windows-x86_64/ccache.exe ./ccache-4.6.1-windows-x86_64/cl.exe
+        echo "::set-output name=ccache-install::$(cygpath -w `pwd`/ccache-4.6.1-windows-x86_64)"
+
+    - name: Get ccache vars
+      id: get-vars
+      if: ${{ env.SKIP == 'false' }}
+      run: |
+        echo "::set-output name=datetime::$(/bin/date -u "+%Y%m%d%H%M")"
+        echo "::set-output name=ccache-path::$(echo '~/ccache')"
+      shell: bash
+
+    - name: ccache cache files
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.get-vars.outputs.ccache-path }}
+        # double-dash after compiler is not a typo, it is to disambiguate between g++-<date> and g++-11-<date> for restore key prefix matching
+        key: ccache-${{ github.ref_name }}-${{ runner.os }}-msvc--${{ steps.get-vars.outputs.datetime }}
+        restore-keys: |
+          ccache-master-${{ runner.os }}-msvc--
+
+    - name: Configure ccache Visual Studio
+      run: |
+        cat > Directory.Build.props <<EOF
+        <Project>
+          <PropertyGroup>
+            <CDDA_USE_CCACHE>true</CDDA_USE_CCACHE>
+            <CDDA_CCACHE_PATH>${{ steps.install-ccache.outputs.ccache-install }}</CDDA_CCACHE_PATH>
+          </PropertyGroup>
+        </Project>
+        EOF
+        ./ccache-4.6.1-windows-x86_64/ccache.exe -M 10G
 
     - name: Build
       run: |
