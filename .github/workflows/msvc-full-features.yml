@@ -61,6 +61,11 @@ jobs:
       run: |
         compact.exe /c /s:${{ github.workspace }}
 
+    - name: List free space
+      run: |
+        df
+      shell: bash
+
     - name: checkout repository
       uses: actions/checkout@v2
       with:
@@ -134,6 +139,11 @@ jobs:
           cd msvc-full-features
           msbuild -m -p:Configuration=Release -p:Platform=x64 "-target:Cataclysm-vcpkg-static;Cataclysm-test-vcpkg-static;JsonFormatter-vcpkg-static" Cataclysm-vcpkg-static.sln
 
+    - name: NTFS compression stats
+      if: ${{ !failure() || failure() }}
+      run: |
+        compact.exe
+
     - name: Post-build ccache manipulation
       if: ${{ !failure() }}
       run: |
@@ -146,6 +156,15 @@ jobs:
       if: ${{ github.ref_name != 'master' }}
       run: |
         ${{ env.CDDA_CCACHE_PATH }}\ccache.exe -C
+
+    - name: Dump logs if build failed 2
+      if: failure()
+      run: |
+        df
+        du -sh *
+        du -sh msvc-full-features/*
+        du -sh tools/*
+      shell: bash
 
     - name: Dump logs if build failed
       if: failure()
