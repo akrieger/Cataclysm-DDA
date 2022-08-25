@@ -75,7 +75,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Restore artifacts, or run vcpkg, build and cache artifacts
-      uses: lukka/run-vcpkg@v10.2
+      uses: lukka/run-vcpkg@v10
       id: runvcpkg
       with:
         # run-vcpkg tries to hash vcpkg.json but complans if it finds more than one.
@@ -115,7 +115,7 @@ jobs:
       shell: bash
 
     - name: ccache cache files
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ steps.get-vars.outputs.ccache-path }}
         # double-dash after compiler is not a typo, it is to disambiguate between g++-<date> and g++-11-<date> for restore key prefix matching
