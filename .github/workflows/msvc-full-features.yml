@@ -143,6 +143,14 @@ jobs:
       run: |
         ${{ env.CDDA_CCACHE_PATH }}\ccache.exe -C
 
+    - name: Dump logs if build failed 2
+      if: failure()
+      run: |
+        df
+        du -sh *
+        du -sh msvc-full-features/*
+      shell: bash
+
     - name: Dump logs if build failed
       if: failure()
       run: |
