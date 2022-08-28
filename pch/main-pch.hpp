@@ -2,6 +2,7 @@
 // Error: attempt to self move assign.
 // when compiling with _GLIBCXX_DEBUG
 // see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85828
+#define FOOBARBAZ 1
 #if defined(_GLIBCXX_DEBUG) && defined(__GNUC__) && (__GNUC__ < 11)
 #include <debug/macros.h>
 #undef __glibcxx_check_self_move_assign

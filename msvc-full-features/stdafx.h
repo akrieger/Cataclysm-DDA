@@ -1,5 +1,7 @@
 #pragma once
 
+#define FOOBARBAZ 1
+
 #include <algorithm>
 #include <array>
 #include <bitset>
