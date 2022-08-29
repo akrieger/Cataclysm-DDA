@@ -98,6 +98,9 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release-NoTiles'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IntDir>$(ProjectDir)..\objwin\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>_CONSOLE;SDL_SOUND;SDL_BUILDING_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
