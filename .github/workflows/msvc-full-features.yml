@@ -159,6 +159,8 @@ jobs:
         echo =================================================
         Get-ChildItem "${{ runner.workspace }}/Cataclysm-DDA/msvc-full-features/vcpkg_installed" -Recurse
         echo =================================================
+        Get-ChildItem "${{ runner.workspace }}/Cataclysm-DDA/msvc-object_creator/vcpkg_installed" -Recurse
+        echo =================================================
         Get-ChildItem "${{ runner.workspace }}/b/vcpkg/buildtrees" |
         Foreach-Object {
             Get-ChildItem $_.FullName -Filter *.log |
@@ -194,6 +196,8 @@ jobs:
         du -sh *
         echo =================================================
         du -sh msvc-full-features/*
+        echo =================================================
+        du -sh msvc-object_creator/*
         echo =================================================
         du -sh tools/*
         echo =================================================
