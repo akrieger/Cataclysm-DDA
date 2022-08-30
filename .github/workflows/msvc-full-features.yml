@@ -69,9 +69,6 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
-
     - name: Use GNU tar to enable zstd for actions/cache
       run: |
         echo "Adding GNU tar to PATH"
@@ -140,8 +137,8 @@ jobs:
 
     - name: Build
       run: |
-          cd msvc-full-features
-          msbuild -m -p:Configuration=Release -p:Platform=x64 "-target:Cataclysm-vcpkg-static;Cataclysm-test-vcpkg-static;JsonFormatter-vcpkg-static" Cataclysm-vcpkg-static.sln
+          $devenvInstall = vswhere -property installationPath
+          & "$devenvInstall\Common7\IDE\devenv.com" msvc-full-features/Cataclysm-vcpkg-static.sln -build "Release|x64"
 
     - name: Post-build ccache manipulation
       if: ${{ !failure() }}
