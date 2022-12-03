@@ -219,6 +219,7 @@ jobs:
         NATIVE: ${{ matrix.native }}
         GOLD: ${{ matrix.gold }}
         LTO: ${{ matrix.lto }}
+        ARCH: "native"
         LIBBACKTRACE: ${{ matrix.libbacktrace }}
         RELEASE: ${{ matrix.release }}
         ARCHIVE_SUCCESS: ${{ matrix.archive-success }}

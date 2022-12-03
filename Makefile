@@ -70,6 +70,8 @@
 #  make MSYS2=1
 # Turn off all optimizations, even debug-friendly optimizations
 #  make NOOPT=1
+# Enable processor specific optimizations for the current machine.
+#  make ARCH=native
 # Astyle all source files.
 #  make astyle
 # Astyle all source files as fast as possible.
@@ -392,7 +394,6 @@ ifeq ($(RELEASE), 1)
   CXXFLAGS += $(LTOFLAGS)
 
   # OTHERS += -mmmx -m3dnow -msse -msse2 -msse3 -mfpmath=sse -mtune=native
-  # OTHERS += -march=native # Uncomment this to build an optimized binary for your machine only
 
   # Strip symbols, generates smaller executable.
   OTHERS += $(RELEASE_FLAGS)
@@ -427,6 +428,10 @@ else
     endif
   endif
   CXXFLAGS += $(OPTLEVEL)
+endif
+
+ifneq ($(ARCH),)
+  OTHERS += -march=$(ARCH)
 endif
 
 ifeq ($(shell sh -c 'uname -o 2>/dev/null || echo not'),Cygwin)
