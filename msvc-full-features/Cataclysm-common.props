@@ -15,7 +15,7 @@
     <_CDDA_STRIPPED_PDB Condition="'$(CDDA_STRIPPED_PDB)'!=''">true</_CDDA_STRIPPED_PDB>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
-    <VcpkgAdditionalInstallOptions>--clean-after-build</VcpkgAdditionalInstallOptions>
+    <VcpkgAdditionalInstallOptions>--clean-after-build --debug</VcpkgAdditionalInstallOptions>
   </PropertyGroup>
   <PropertyGroup Condition="$(_CDDA_USE_CCACHE)">
     <ClToolPath>$(CDDA_CCACHE_PATH)</ClToolPath>
