@@ -198,9 +198,6 @@ jobs:
         uses: lukka/run-vcpkg@v11
         id: runvcpkg
         with:
-          appendedCacheKey: ${{ hashFiles( 'msvc-full-features/vcpkg.json', '.github/vcpkg_triplets/**', '.github/vckg_ports/**' ) }}
-          # Rev this value to drop cache without changing vcpkg commit
-          prependedCacheKey: v1-${{ matrix.arch }}
           vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
           # Caching happens as a post-action which runs at the end of the whole workflow
           vcpkgGitCommitId: '5b1214315250939257ef5d62ecdcbca18cf4fb1c'
