@@ -190,6 +190,9 @@ jobs:
         run: |
           git clone --depth=1 --shallow-submodules --recurse-submodules https://github.com/Fris0uman/CDDA-Soundpacks '${{ github.workspace }}/CDDA-Soundpacks'
           mv '${{ github.workspace }}/CDDA-Soundpacks/sound/CC-Sounds' '${{ github.workspace }}/data/sound'
+      - name: Install dependencies (windows msvc) (0/3)
+        if: runner.os == 'Windows'
+        uses: lukka/get-cmake@latest
       - name: Install dependencies (windows msvc) (1/3)
         if: runner.os == 'Windows'
         uses: microsoft/setup-msbuild@v1.0.2
