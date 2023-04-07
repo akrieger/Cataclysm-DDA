@@ -11,6 +11,8 @@
   <PropertyGroup>
     <_CDDA_BACKTRACE>false</_CDDA_BACKTRACE>
     <_CDDA_BACKTRACE Condition="'$(BACKTRACE)'!=''">true</_CDDA_BACKTRACE>
+    <_CDDA_RELEASE_BUILD>false</_CDDA_RELEASE_BUILD>
+    <_CDDA_RELEASE_BUILD Condition="'$(CDDA_RELEASE_BUILD)'!=''">true</_CDDA_RELEASE_BUILD>
     <_CDDA_STRIPPED_PDB>false</_CDDA_STRIPPED_PDB>
     <_CDDA_STRIPPED_PDB Condition="'$(CDDA_STRIPPED_PDB)'!=''">true</_CDDA_STRIPPED_PDB>
   </PropertyGroup>
