@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - experimental/**
     paths:
       - '.github/workflows/release.yml'
       - 'android/**'
@@ -33,11 +34,16 @@ jobs:
         id: get-timestamp
         run: |
           echo "time=$(/bin/date -u "+%Y-%m-%d-%H%M")" >> $GITHUB_OUTPUT
+      - name: Get build name
+        id: get-build-name
+        run: |
+          build_name=$(if [[ $GITHUB_REF_NAME == master ]]; then echo experimental; else echo experimental feature ${GITHUB_REF_NAME#*/}; fi)
+          echo "build_name=$build_name" >> $GITHUB_OUTPUT
       - name: Generate environmental variables
         id: generate_env_vars
         run: |
           echo "tag_name=cdda-experimental-${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
-          echo "release_name=Cataclysm-DDA experimental build ${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
+          echo "release_name=Cataclysm-DDA ${{ steps.get-build-name.outputs.build_name }} ${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v3
       - run: |
           gh release create ${{ steps.generate_env_vars.outputs.tag_name }} --generate-notes --prerelease --title "${{ steps.generate_env_vars.outputs.release_name }}"

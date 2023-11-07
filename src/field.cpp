@@ -124,6 +124,7 @@ field_entry *field::find_field( const field_type_id &field_type_to_find, const b
     if( !_displayed_field_type ) {
         return nullptr;
     }
+    auto& _field_type_list = *_lazy_field_type_list;
     const auto it = _field_type_list.find( field_type_to_find );
     if( it != _field_type_list.end() && ( !alive_only || it->second.is_field_alive() ) ) {
         return &it->second;
@@ -137,6 +138,7 @@ const field_entry *field::find_field( const field_type_id &field_type_to_find,
     if( !_displayed_field_type ) {
         return nullptr;
     }
+    auto& _field_type_list = *_lazy_field_type_list;
     const auto it = _field_type_list.find( field_type_to_find );
     if( it != _field_type_list.end() && ( !alive_only || it->second.is_field_alive() ) ) {
         return &it->second;
@@ -159,6 +161,7 @@ bool field::add_field( const field_type_id &field_type_to_add, const int new_int
     if( !field_type_to_add ) {
         return false;
     }
+    auto& _field_type_list = *_lazy_field_type_list;
     auto it = _field_type_list.find( field_type_to_add );
     if( it != _field_type_list.end() ) {
         //Already exists, but lets update it. This is tentative.
@@ -180,6 +183,7 @@ bool field::add_field( const field_type_id &field_type_to_add, const int new_int
 
 bool field::remove_field( const field_type_id &field_to_remove )
 {
+    auto& _field_type_list = *_lazy_field_type_list;
     const auto it = _field_type_list.find( field_to_remove );
     if( it == _field_type_list.end() ) {
         return false;
@@ -190,6 +194,7 @@ bool field::remove_field( const field_type_id &field_to_remove )
 
 void field::remove_field( std::map<field_type_id, field_entry>::iterator const it )
 {
+    auto& _field_type_list = *_lazy_field_type_list;
     _field_type_list.erase( it );
     _displayed_field_type = fd_null;
     for( auto &fld : _field_type_list ) {
@@ -201,6 +206,7 @@ void field::remove_field( std::map<field_type_id, field_entry>::iterator const i
 
 void field::clear()
 {
+    auto& _field_type_list = *_lazy_field_type_list;
     _field_type_list.clear();
     _displayed_field_type = fd_null;
 }
@@ -211,26 +217,31 @@ Returns the number of fields existing on the current tile.
 */
 unsigned int field::field_count() const
 {
+    auto& _field_type_list = *_lazy_field_type_list;
     return _field_type_list.size();
 }
 
 std::map<field_type_id, field_entry>::iterator field::begin()
 {
+    auto& _field_type_list = *_lazy_field_type_list;
     return _field_type_list.begin();
 }
 
 std::map<field_type_id, field_entry>::const_iterator field::begin() const
 {
+    auto& _field_type_list = *_lazy_field_type_list;
     return _field_type_list.begin();
 }
 
 std::map<field_type_id, field_entry>::iterator field::end()
 {
+    auto& _field_type_list = *_lazy_field_type_list;
     return _field_type_list.end();
 }
 
 std::map<field_type_id, field_entry>::const_iterator field::end() const
 {
+    auto& _field_type_list = *_lazy_field_type_list;
     return _field_type_list.end();
 }
 
@@ -250,6 +261,7 @@ description_affix field::displayed_description_affix() const
 
 int field::displayed_intensity() const
 {
+    auto& _field_type_list = *_lazy_field_type_list;
     auto it = _field_type_list.find( _displayed_field_type );
     return it->second.get_field_intensity();
 }
@@ -257,6 +269,7 @@ int field::displayed_intensity() const
 int field::total_move_cost() const
 {
     int current_cost = 0;
+    auto& _field_type_list = *_lazy_field_type_list;
     for( const auto &fld : _field_type_list ) {
         current_cost += fld.second.get_intensity_level().move_cost;
     }
