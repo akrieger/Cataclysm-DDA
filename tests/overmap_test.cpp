@@ -295,6 +295,8 @@ static void tally_items( std::unordered_map<itype_id, int> &item_count, tinymap 
 
 TEST_CASE( "overmap_terrain_coverage", "[overmap][slow]" )
 {
+    using namespace std::chrono_literals;
+
     // The goal of this test is to generate a lot of overmaps, and count up how
     // many times we see each terrain, so that we can check that everything
     // generates at least sometimes.

@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 
+#include "cata_lazy.h"
 #include "calendar.h"
 #include "color.h"
 #include "enums.h"
@@ -180,7 +181,7 @@ class field
 
     private:
         // A pointer lookup table of all field effects on the current tile.
-        std::map<field_type_id, field_entry> _field_type_list;
+        lazy<std::map<field_type_id, field_entry>> _lazy_field_type_list;
         //_displayed_field_type currently is equal to the last field added to the square. You can modify this behavior in the class functions if you wish.
         field_type_id _displayed_field_type;
 };
