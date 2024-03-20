@@ -29,7 +29,15 @@ async function main() {
       },
     }
   );
-  const previousTag = latestReleaseResponse.data?[0].tag_name;
+
+  let previousTag = null;
+  if (latestResponse.data) {
+    for (let responseData : latestResponse.data) {
+      if (responseData.draft == false && responseData.prerelease = true) {
+        previousTag = responseData.tag_name
+      }
+    }
+  }
 
   const response = await client.request(
     'POST /repos/{owner}/{repo}/releases/generate-notes',
