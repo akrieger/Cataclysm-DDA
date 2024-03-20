@@ -33,7 +33,7 @@ async function main() {
   let previousTag = null;
   if (latestResponse.data) {
     for (const responseData of latestResponse.data) {
-      if (responseData.draft == false && responseData.prerelease = true) {
+      if (responseData.draft == false && responseData.prerelease == true) {
         previousTag = responseData.tag_name
       }
     }
