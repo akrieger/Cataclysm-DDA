@@ -32,7 +32,7 @@ async function main() {
 
   let previousTag = null;
   if (latestResponse.data) {
-    for (let responseData : latestResponse.data) {
+    for (const responseData of latestResponse.data) {
       if (responseData.draft == false && responseData.prerelease = true) {
         previousTag = responseData.tag_name
       }
