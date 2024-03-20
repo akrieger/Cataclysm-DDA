@@ -41,7 +41,6 @@ jobs:
           echo "release_name=Cataclysm-DDA experimental build ${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v4
       - name: Generate Release Notes
-        uses: actions/github
         id: generate-release-notes
         run: |
           npm install @actions/github
