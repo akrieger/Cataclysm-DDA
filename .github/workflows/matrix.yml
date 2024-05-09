@@ -344,3 +344,6 @@ jobs:
         path: tests/cata_test*
         if-no-files-found: ignore
         retention-days: 9
+  emscripten:
+    uses: ./.github/workflows/emscripten.yml
+    secrets: inherit
