@@ -18,11 +18,18 @@ static_assert( tripoint_abs_omt::dimension == 3 );
 
 // Out of bounds coords can be implicitly constructed from inbounds ones. This is used
 // to ensure a return type is NOT an inbounds one, before it can be converted.
-template <typename Point, coords::origin Origin, coords::scale Scale, bool InBounds>
-coords::coord_point<Point, Origin, Scale, InBounds> assert_not_ib( const
-        coords::coord_point<Point, Origin, Scale, InBounds> &p )
+template <typename Point, coords::origin Origin, coords::scale Scale>
+coords::coord_point<Point, Origin, Scale, true> assert_not_ib( const
+        coords::coord_point<Point, Origin, Scale> &p )
 {
-    static_assert( !InBounds );
+    static_assert( false, "Coordinate is not permitted to be inbounds" );
+    return p;
+}
+
+template <typename Point, coords::origin Origin, coords::scale Scale>
+coords::coord_point<Point, Origin, Scale, false> assert_not_ib( const
+        coords::coord_point_ob<Point, Origin, Scale> &p )
+{
     return p;
 }
 

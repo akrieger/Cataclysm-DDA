@@ -2,6 +2,8 @@
 #ifndef CATA_SRC_COORDS_FWD_H
 #define CATA_SRC_COORDS_FWD_H
 
+#include <type_traits>
+
 struct point;
 struct tripoint;
 
@@ -32,8 +34,15 @@ constexpr scale omt = scale::overmap_terrain;
 constexpr scale seg = scale::segment;
 constexpr scale om = scale::overmap;
 
+template<typename Point, origin Origin, scale Scale>
+class coord_point_ob;
+
+template<typename Point, origin Origin, scale Scale>
+class coord_point_ib;
+
 template<typename Point, origin Origin, scale Scale, bool InBounds = false>
-class coord_point;
+using coord_point =
+    std::conditional_t<InBounds, coord_point_ib<Point, Origin, Scale>, coord_point_ob<Point, Origin, Scale>>;
 
 } // namespace coords
 
@@ -76,7 +85,7 @@ using point_abs_om = coords::coord_point<point, coords::origin::abs, coords::om>
 using tripoint_rel_ms = coords::coord_point<tripoint, coords::origin::relative, coords::ms>;
 using tripoint_abs_ms = coords::coord_point<tripoint, coords::origin::abs, coords::ms>;
 using tripoint_sm_ms = coords::coord_point<tripoint, coords::origin::submap, coords::ms>;
-using tripoint_sm_ms_ib = coords::coord_point<tripoint, coords::origin::submap, coords::ms, true>;
+using tripoint_sm_ms_ib = coords::coord_point_ib<tripoint, coords::origin::submap, coords::ms>;
 using tripoint_omt_ms = coords::coord_point<tripoint, coords::origin::overmap_terrain, coords::ms>;
 using tripoint_bub_ms = coords::coord_point<tripoint, coords::origin::reality_bubble, coords::ms>;
 using tripoint_bub_ms_ib =
