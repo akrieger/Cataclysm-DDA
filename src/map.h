@@ -2402,7 +2402,7 @@ class map
         submap *unsafe_get_submap_at( const tripoint_bub_ms p, point_sm_ms_ib &offset_p ) {
             auto src_xy = p.xy();
 
-            point_bub_sm quotient = point_bub_sm( divide_xy_round_to_minus_infinity( src_xy.raw(), 12 ) );
+            point_bub_sm quotient = point_bub_sm(divide_xy_round_to_minus_infinity_non_negative( src_xy.raw(), 12 ) );
             offset_p = point_sm_ms_ib::make_unchecked( src_xy.raw() - quotient.raw() * 12 );
 
             coords::project_remain<coords::sm>( src_xy );
@@ -2420,7 +2420,7 @@ class map
 
             auto src_xy = p.xy();
 
-            point_bub_sm quotient = point_bub_sm( divide_xy_round_to_minus_infinity( src_xy.raw(), 12 ) );
+            point_bub_sm quotient = point_bub_sm(divide_xy_round_to_minus_infinity_non_negative( src_xy.raw(), 12 ) );
             offset_p = point_sm_ms_ib::make_unchecked( src_xy.raw() - quotient.raw() * 12 );
 
             coords::project_remain<coords::sm>( src_xy );
