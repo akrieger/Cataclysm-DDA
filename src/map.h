@@ -2399,9 +2399,14 @@ class map
             offset_p.y = p.y % SEEY;
             return unsafe_get_submap_at( p );
         }
-        submap *unsafe_get_submap_at( const tripoint_bub_ms p, point_sm_ms &offset_p ) {
-            tripoint_bub_sm sm;
-            std::tie( sm, offset_p ) = project_remain<coords::sm>( p );
+        submap *unsafe_get_submap_at( const tripoint_bub_ms p, point_sm_ms_ib &offset_p ) {
+            auto src_xy = p.xy();
+
+            point_bub_sm quotient = point_bub_sm( divide_xy_round_to_minus_infinity( src_xy.raw(), 12 ) );
+            offset_p = point_sm_ms_ib::make_unchecked( src_xy.raw() - quotient.raw() * 12 );
+
+            coords::project_remain<coords::sm>( src_xy );
+
             return unsafe_get_submap_at( p );
         }
         // TODO: fix point types (remove the first overload)
@@ -2411,11 +2416,18 @@ class map
             return unsafe_get_submap_at( p );
         }
         const submap *unsafe_get_submap_at(
-            const tripoint_bub_ms p, point_sm_ms &offset_p ) const {
-            tripoint_bub_sm sm;
-            std::tie( sm, offset_p ) = project_remain<coords::sm>( p );
+            const tripoint_bub_ms p, point_sm_ms_ib &offset_p ) const {
+
+            auto src_xy = p.xy();
+
+            point_bub_sm quotient = point_bub_sm( divide_xy_round_to_minus_infinity( src_xy.raw(), 12 ) );
+            offset_p = point_sm_ms_ib::make_unchecked( src_xy.raw() - quotient.raw() * 12 );
+
+            coords::project_remain<coords::sm>( src_xy );
+
             return unsafe_get_submap_at( p );
         }
+
         // TODO: Get rid of untyped overload
         submap *get_submap_at( const tripoint &p, point &offset_p ) {
             offset_p.x = p.x % SEEX;

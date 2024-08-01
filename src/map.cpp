@@ -448,7 +448,7 @@ const_maptile map::maptile_at_internal( const tripoint &p ) const
 
 const_maptile map::maptile_at_internal( const tripoint_bub_ms &p ) const
 {
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const sm = get_submap_at( p, l );
 
     return const_maptile( sm, l );
@@ -461,7 +461,7 @@ maptile map::maptile_at_internal( const tripoint &p )
 
 maptile map::maptile_at_internal( const tripoint_bub_ms &p )
 {
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const sm = get_submap_at( p, l );
 
     return maptile( sm, l );
@@ -1811,7 +1811,7 @@ furn_id map::furn( const tripoint_bub_ms p ) const
         return furn_str_id::NULL_ID();
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried process furniture at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -1840,7 +1840,7 @@ bool map::furn_set( const tripoint_bub_ms &p, const furn_id &new_furniture, cons
             return false;
         }
     }
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to set furniture at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -2006,7 +2006,7 @@ ter_id map::ter( const tripoint p ) const
         return ter_str_id::NULL_ID().id();
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( tripoint_bub_ms( p ), l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to process terrain at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -2027,7 +2027,7 @@ int map::get_map_damage( const tripoint_bub_ms &p ) const
         return 0;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Called get_map_damage for unloaded submap" );
@@ -2042,7 +2042,7 @@ void map::set_map_damage( const tripoint_bub_ms &p, int dmg )
         return;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Called set_map_damage for unloaded submap" );
@@ -2374,7 +2374,7 @@ bool map::ter_set( const tripoint &p, const ter_id &new_terrain, bool avoid_crea
         }
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( tripoint_bub_ms( p ), l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to set terrain at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -2575,7 +2575,7 @@ bool map::is_open_air( const tripoint_bub_ms &p ) const
     if( !inbounds( p ) ) {
         return false;
     }
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         return false;
@@ -2597,7 +2597,7 @@ int map::move_cost( const tripoint_bub_ms &p, const vehicle *ignored_vehicle ) c
     if( !inbounds( p ) ) {
         return 0;
     }
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         return 0;
@@ -2644,7 +2644,7 @@ int map::move_cost_ter_furn( const tripoint_bub_ms &p ) const
         return 0;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried process terrain at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -3324,7 +3324,7 @@ bool map::has_flag_ter_or_furn( const std::string &flag, const tripoint_bub_ms &
         return false;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to process terrain at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -3376,7 +3376,7 @@ bool map::has_flag_ter_or_furn( const ter_furn_flag flag, const tripoint_bub_ms 
         return false;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to process terrain at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5170,7 +5170,7 @@ std::string map::get_signage( const tripoint_bub_ms &p ) const
         return "";
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to get signage at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5191,7 +5191,7 @@ void map::set_signage( const tripoint_bub_ms &p, const std::string &message )
         return;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried set signage at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5207,7 +5207,7 @@ void map::delete_signage( const tripoint_bub_ms &p )
         return;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to delete signage at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5228,7 +5228,7 @@ int map::get_radiation( const tripoint_bub_ms &p ) const
         return 0;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to get radiation at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5249,7 +5249,7 @@ void map::set_radiation( const tripoint_bub_ms &p, const int value )
         return;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to set radiation at (%d,%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5265,7 +5265,7 @@ void map::adjust_radiation( const tripoint_bub_ms &p, const int delta )
         return;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to adjust radiation at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5326,7 +5326,7 @@ map_stack map::i_at( const tripoint_bub_ms &p )
         return map_stack{ &nulitems, p.raw(), this};
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to get items at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5345,7 +5345,7 @@ map_stack::iterator map::i_rem( const tripoint &p, const map_stack::const_iterat
 
 map_stack::iterator map::i_rem( const tripoint_bub_ms &p, const map_stack::const_iterator &it )
 {
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to remove items at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5379,7 +5379,7 @@ void map::i_clear( const tripoint &p )
 
 void map::i_clear( const tripoint_bub_ms &p )
 {
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to clear items at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5692,7 +5692,7 @@ item &map::add_item( const tripoint_bub_ms &p, item new_item, int copies )
         return null_item_reference();
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to add items at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5810,7 +5810,7 @@ void map::make_active( item_location &loc )
 {
     item *target = loc.get_item();
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = get_submap_at( loc.position(), l.raw() );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to make active at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -5843,7 +5843,7 @@ void map::update_lum( item_location &loc, bool add )
         return;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = get_submap_at( loc.pos_bub(), l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to update lum at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -6226,7 +6226,7 @@ bool map::has_items( const tripoint_bub_ms &p ) const
         return false;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to check items at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -6559,7 +6559,7 @@ const trap &map::tr_at( const tripoint_bub_ms &p ) const
         return tr_null.obj();
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to get trap at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -6579,7 +6579,7 @@ partial_con *map::partial_con_at( const tripoint_bub_ms &p )
     if( !inbounds( p ) ) {
         return nullptr;
     }
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to get construction at %s but the submap is not loaded", l.to_string() );
@@ -6597,7 +6597,7 @@ void map::partial_con_remove( const tripoint_bub_ms &p )
     if( !inbounds( p ) ) {
         return;
     }
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to remove construction at %s but the submap is not loaded", l.to_string() );
@@ -6616,7 +6616,7 @@ void map::partial_con_set( const tripoint_bub_ms &p, const partial_con &con )
     if( !inbounds( p ) ) {
         return;
     }
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to set construction at %s but the submap is not loaded", l.to_string() );
@@ -6638,7 +6638,7 @@ void map::trap_set( const tripoint_bub_ms &p, const trap_id &type )
         return;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to set trap at %s but the submap is not loaded", l.to_string() );
@@ -6679,7 +6679,7 @@ void map::remove_trap( const tripoint_bub_ms &p )
         return;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to remove trap at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -6721,7 +6721,7 @@ const field &map::field_at( const tripoint_bub_ms &p ) const
         return nulfield;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to get field at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -6747,7 +6747,7 @@ field &map::field_at( const tripoint_bub_ms &p )
         return nulfield;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to get field at (%d,%d,%d) but the submap is not loaded", p.x(), p.y(), p.z() );
@@ -6859,7 +6859,7 @@ cata::copy_const<Map, field_entry> *map::get_field_helper(
         return nullptr;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     auto *const current_submap = m.unsafe_get_submap_at( tripoint_bub_ms( p ), l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to get field at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -6953,7 +6953,7 @@ bool map::add_field( const tripoint_bub_ms &p, const field_type_id &type_id, int
         return false;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to add field at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -7019,7 +7019,7 @@ void map::clear_fields( const tripoint &p )
         return;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( tripoint_bub_ms( p ), l );
     current_submap->clear_fields( l );
 }
@@ -7115,7 +7115,7 @@ computer *map::computer_at( const tripoint_bub_ms &p )
         return nullptr;
     }
 
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const sm = unsafe_get_submap_at( p, l );
     if( sm == nullptr ) {
         debugmsg( "Tried to get computer at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -9695,7 +9695,7 @@ void map::set_graffiti( const tripoint &p, const std::string &contents )
     if( !inbounds( p ) ) {
         return;
     }
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( tripoint_bub_ms( p ), l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to set graffiti at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -9709,7 +9709,7 @@ void map::delete_graffiti( const tripoint &p )
     if( !inbounds( p ) ) {
         return;
     }
-    point_sm_ms l;
+    point_sm_ms_ib l;
     submap *const current_submap = unsafe_get_submap_at( tripoint_bub_ms( p ), l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to delete graffiti at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -9729,7 +9729,7 @@ const std::string &map::graffiti_at( const tripoint_bub_ms &p ) const
         static const std::string empty_string;
         return empty_string;
     }
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to get graffiti at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -9749,7 +9749,7 @@ bool map::has_graffiti_at( const tripoint_bub_ms &p ) const
     if( !inbounds( p ) ) {
         return false;
     }
-    point_sm_ms l;
+    point_sm_ms_ib l;
     const submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to get graffiti at (%d,%d) but the submap is not loaded", l.x(), l.y() );
@@ -10585,7 +10585,7 @@ void map::function_over( const tripoint &start, const tripoint &end, Functor fun
                 const point sm_max( smx < max_sm.x ? SEEX - 1 : max.x % SEEX,
                                     smy < max_sm.y ? SEEY - 1 : max.y % SEEY );
 
-                point_sm_ms lp;
+                point_sm_ms_ib lp;
                 int &sx = lp.x();
                 int &sy = lp.y();
                 for( sx = sm_min.x; sx <= sm_max.x; ++sx ) {

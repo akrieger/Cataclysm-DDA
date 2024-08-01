@@ -97,20 +97,21 @@ TEST_CASE( "map_bounds_checking" )
     // vehicles are stored in the global MAPBUFFER which all maps refer to.  To
     // work around the problem we clear the map of vehicles, but this is an
     // inelegant solution.
-    clear_map();
-    map m;
-    tripoint_abs_sm point_away_from_real_map( get_map().get_abs_sub() + point( MAPSIZE_X, 0 ) );
-    m.load( point_away_from_real_map, false );
-    for( int x = -1; x <= MAPSIZE_X; ++x ) {
-        for( int y = -1; y <= MAPSIZE_Y; ++y ) {
-            for( int z = -OVERMAP_DEPTH - 1; z <= OVERMAP_HEIGHT + 1; ++z ) {
-                INFO( "( " << x << ", " << y << ", " << z << " )" );
-                if( x < 0 || x >= MAPSIZE_X ||
-                    y < 0 || y >= MAPSIZE_Y ||
-                    z < -OVERMAP_DEPTH || z > OVERMAP_HEIGHT ) {
-                    CHECK( !m.ter( tripoint{ x, y, z } ) );
-                } else {
-                    CHECK( m.ter( tripoint{ x, y, z } ) );
+    for( int i = 0; i < 1000; ++i ) {
+        clear_map();
+        map m;
+        tripoint_abs_sm point_away_from_real_map( get_map().get_abs_sub() + point( MAPSIZE_X, 0 ) );
+        m.load( point_away_from_real_map, false );
+        for( int x = -1; x <= MAPSIZE_X; ++x ) {
+            for( int y = -1; y <= MAPSIZE_Y; ++y ) {
+                for( int z = -OVERMAP_DEPTH - 1; z <= OVERMAP_HEIGHT + 1; ++z ) {
+                    if( x < 0 || x >= MAPSIZE_X ||
+                        y < 0 || y >= MAPSIZE_Y ||
+                        z < -OVERMAP_DEPTH || z > OVERMAP_HEIGHT ) {
+                        CHECK( !m.ter( tripoint{ x, y, z } ) );
+                    } else {
+                        CHECK( m.ter( tripoint{ x, y, z } ) );
+                    }
                 }
             }
         }
