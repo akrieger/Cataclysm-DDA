@@ -144,3 +144,8 @@ std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
 #endif
     return mapped_file;
 }
+
+static std::shared_ptr<mmap_file> resize( size_t new_size )
+{
+
+}

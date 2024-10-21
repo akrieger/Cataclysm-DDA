@@ -9,12 +9,16 @@
 #include <utility>
 #include <vector>
 
+#include <zstd/zstd.h>
+#include <zstd/zdict.h>
+
 #include "cata_utility.h"
 #include "debug.h"
 #include "filesystem.h"
 #include "input.h"
 #include "json.h"
 #include "map.h"
+#include "mmap_file.h"
 #include "output.h"
 #include "overmapbuffer.h"
 #include "path_info.h"
@@ -188,6 +192,35 @@ void mapbuffer::save( bool delete_after_save )
     for( auto &elem : submaps_to_delete ) {
         remove_submap( elem );
     }
+}
+
+namespace
+{
+// Wraps the filesystem representation of a segment.
+// Data on disk may or may not be compressed.
+class segment_disk_manager
+{
+
+        JsonValue load_quad( const tripoint_abs_omt &om_addr ) {
+            const std::string quad_entry_name = string_format( "%d.%d.%d.map", om_addr.x(), om_addr.y(),
+                                                om_addr.z() );
+            JsonObject entries = data.get_object( "entries" );
+            JsonObject quad_entry = entries.get_object( quad_entry_name );
+            size_t offset = quad_entry.get_int( "offset" );
+            size_t length = quad_entry.get_int( "length" );
+            size_t size = quad_entry.get_int( "size" );
+
+            JsonObject dict = data.get_object( "dict" );
+            size_t dict_offset = dict.get_int( "offset" );
+            size_t length = dict.get_int( "length" );
+
+
+        }
+
+        JsonObject data;
+        cata_path path;
+        bool is_compressed;
+};
 }
 
 void mapbuffer::save_quad(

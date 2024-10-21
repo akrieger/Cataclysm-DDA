@@ -7,6 +7,8 @@
 
 #include <ghc/fs_std_fwd.hpp>
 
+// Consider https://github.com/decodeless/mappedfile instead of this.
+
 class mmap_file
 {
     public:
