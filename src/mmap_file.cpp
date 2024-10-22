@@ -31,6 +31,7 @@ mmap_file::~mmap_file()
     }
 #else
     if( base != nullptr ) {
+        msync( base, len, MS_SYNC );
         munmap( base, len );
     }
 #endif
@@ -75,8 +76,8 @@ std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
 #ifdef _WIN32
     HANDLE file_handle = CreateFileW(
                              file_path.native().c_str(),
-                             GENERIC_READ,
-                             FILE_SHARE_READ | FILE_SHARE_DELETE,
+                             GENERIC_READ | GENERIC_WRITE,
+                             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                              nullptr,
                              OPEN_EXISTING,
                              0,
@@ -94,7 +95,7 @@ std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
     HANDLE file_mapping_handle = CreateFileMappingW(
                                      file_handle,
                                      nullptr,
-                                     PAGE_READONLY,
+                                     PAGE_READWRITE,
                                      0,
                                      0,
                                      nullptr
@@ -104,7 +105,7 @@ std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
     }
     void *map_base = MapViewOfFile(
                          file_mapping_handle,
-                         FILE_MAP_READ,
+                         FILE_MAP_READ | FILE_MAP_WRITE,
                          0,
                          0,
                          file_size.QuadPart
@@ -127,12 +128,12 @@ std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
         return mapped_file;
     }
 
-    int fd = open( file_path_string.c_str(), O_RDONLY );
+    int fd = open( file_path_string.c_str(), O_RDWR );
     if( fd == -1 ) {
         return mapped_file;
     }
     on_out_of_scope close_file_guard( [&] { close( fd ); } );
-    void *map_base = mmap( nullptr, file_size, PROT_READ, MAP_PRIVATE, fd, 0 );
+    void *map_base = mmap( nullptr, file_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0 );
     if( !map_base ) {
         return mapped_file;
     }
@@ -143,9 +144,4 @@ std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
     mapped_file->len = file_size;
 #endif
     return mapped_file;
-}
-
-static std::shared_ptr<mmap_file> resize( size_t new_size )
-{
-
 }
