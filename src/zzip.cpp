@@ -88,14 +88,14 @@ struct dictionary_params {
     size_t len = 0;
 };
 
-std::optional<dictionary_params> get_dictionary_params( JsonObject meta )
+std::optional<dictionary_params> get_dictionary_params( JsonObject footer )
 {
-    if( !meta.has_object( "dict" ) ) {
+    if( !footer.has_object( "dict" ) ) {
         return std::nullopt;
     }
 
     dictionary_params params;
-    JsonObject dict = meta.get_object( "dict" );
+    JsonObject dict = footer.get_object( "dict" );
     params.offset = dict.get_int( "offset" );
     params.len = dict.get_int( "len" );
     return params;
@@ -106,10 +106,14 @@ struct file_params {
     size_t len = 0;
 };
 
-std::optional<file_params> get_file_params( const fs::path &path, JsonObject meta )
+std::optional<file_params> get_file_params( const fs::path &path, JsonObject footer )
 {
     std::string path_str = path.generic_u8string();
-    JsonObject entries = meta.get_object( "entries" );
+    if( !footer.has_object( "entries" ) ) {
+        return std::nullopt;
+    }
+
+    JsonObject entries = footer.get_object( "entries" );
     if( !entries.has_object( path_str ) ) {
         return std::nullopt;
     }
@@ -119,6 +123,26 @@ std::optional<file_params> get_file_params( const fs::path &path, JsonObject met
     fparams.offset = entry.get_int( "offset" );
     fparams.len = entry.get_int( "len" );
     return fparams;
+}
+
+struct zzip_meta {
+    size_t content_end = 0;
+};
+
+std::optional<zzip_meta> get_meta( JsonObject footer )
+{
+    if( !footer.has_object( "meta" ) ) {
+        return std::nullopt;
+    }
+
+    JsonObject meta = meta.get_object( "meta" );
+    if( !meta.has_int( "content_end" ) ) {
+        return std::nullopt;
+    }
+
+    zzip_meta zmeta;
+    zmeta.content_end = meta.get_int( "content_end" );
+    return zmeta;
 }
 
 }
@@ -182,7 +206,11 @@ std::vector<std::byte> zzip::get_file( const fs::path &zzip_relative_path )
 
 bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view content )
 {
-    size_t old_content_end = footer.get_object( "meta" ).get_int( "content_end" );
+    std::optional<zzip_meta> meta_opt = get_meta( footer );
+    size_t old_content_end = 0;
+    if( meta_opt.has_value() ) {
+        old_content_end = meta_opt->content_end;
+    }
 
     size_t footer_size = file->len - old_content_end;
     std::vector<std::byte> footer_buf;
@@ -230,16 +258,20 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
         std::string new_filename = zzip_relative_path.generic_u8string();
         JsonObject entries = footer_copy.get_object( "entries" );
         size_t entries_start = builder.StartMap( "entries" );
+        {
+            size_t new_entry_map = builder.StartMap( new_filename.c_str() );
+            builder.UInt( "offset", old_content_end );
+            builder.UInt( "len", actual_size );
+            builder.EndMap( new_entry_map );
+        }
         for( JsonMember entry : entries ) {
             std::string old_filename = entry.name();
-            builder.String( "filename", old_filename );
-            if( old_filename == new_filename ) {
-                builder.UInt( "offset", old_content_end );
-                builder.UInt( "len", actual_size );
-            } else {
+            if( old_filename != new_filename ) {
+                size_t entry_map = builder.StartMap( old_filename.c_str() );
                 JsonObject old_data = entry.get_object();
                 builder.UInt( "offset", old_data.get_int( "offset" ) );
                 builder.UInt( "len", old_data.get_int( "len" ) );
+                builder.EndMap( entry_map );
             }
         }
         builder.EndMap( entries_start );

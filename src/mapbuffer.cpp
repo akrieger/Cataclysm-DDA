@@ -27,6 +27,7 @@
 #include "submap.h"
 #include "translations.h"
 #include "ui_manager.h"
+#include "zzip.h"
 
 #define dbg(x) DebugLog((x),D_MAP) << __FILE__ << ":" << __LINE__ << ": "
 
@@ -242,7 +243,8 @@ void mapbuffer::save_quad(
     // Don't create the directory if it would be empty
     assure_dir_exist( dirname );
     write_to_file( filename, [&]( std::ostream & fout ) {
-        JsonOut jsout( fout );
+        std::stringstream stringout;
+        JsonOut jsout( stringout );
         jsout.start_array();
         for( auto &submap_addr : submap_addrs ) {
             if( submaps.count( submap_addr ) == 0 ) {
@@ -276,6 +278,13 @@ void mapbuffer::save_quad(
         }
 
         jsout.end_array();
+
+        std::string s = std::move( stringout ).str();
+        fout << s;
+        cata_path zzip_name = dirname;
+        zzip_name += ".zzip";
+        auto z = zzip::load( zzip_name.get_unrelative_path() );
+        z->add_file( filename.get_relative_path().filename(), s );
     } );
 
     if( all_uniform && reverted_to_uniform ) {

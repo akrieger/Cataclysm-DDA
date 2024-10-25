@@ -69,57 +69,120 @@ std::shared_ptr<mmap_file> mmap_file::map_file( const std::string &file_path )
     return map_file( fs::u8path( file_path ) );
 }
 
-std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
+namespace
 {
-    std::shared_ptr<mmap_file> mapped_file;
 
 #ifdef _WIN32
+struct mapping {
+    HANDLE file = INVALID_HANDLE_VALUE;
+    HANDLE file_mapping = INVALID_HANDLE_VALUE;
+    void *base = nullptr;
+    size_t len = 0;
+};
+
+mapping win32_map_file( const fs::path &file_path, DWORD create_flags )
+{
+    mapping m;
+
     HANDLE file_handle = CreateFileW(
                              file_path.native().c_str(),
-                             GENERIC_READ | GENERIC_WRITE,
+                             create_flags,
                              FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                              nullptr,
-                             OPEN_EXISTING,
+                             create_flags & GENERIC_WRITE ? OPEN_ALWAYS : OPEN_EXISTING,
                              0,
                              nullptr
                          );
     if( file_handle == INVALID_HANDLE_VALUE ) {
         // Failed to open file.
-        return mapped_file;
+        return m;
     }
     LARGE_INTEGER file_size{};
     if( !GetFileSizeEx( file_handle, &file_size ) ) {
         // Failed to get file size.
-        return mapped_file;
+        return m;
     }
     HANDLE file_mapping_handle = CreateFileMappingW(
                                      file_handle,
                                      nullptr,
-                                     PAGE_READWRITE,
+                                     create_flags & GENERIC_WRITE ? PAGE_READWRITE : PAGE_READONLY,
                                      0,
                                      0,
                                      nullptr
                                  );
     if( file_mapping_handle == nullptr ) {
-        return mapped_file;
+        return m;
     }
     void *map_base = MapViewOfFile(
                          file_mapping_handle,
-                         FILE_MAP_READ | FILE_MAP_WRITE,
+                         ( create_flags & GENERIC_WRITE ? FILE_MAP_WRITE : 0 ) | FILE_MAP_READ,
                          0,
                          0,
                          file_size.QuadPart
                      );
     if( map_base == nullptr ) {
         // Failed to mmap file.
+        return m;
+    }
+    m.file = file_handle;
+    m.file_mapping = file_mapping_handle;
+    m.base = map_base;
+    m.len = file_size.QuadPart;
+    return m;
+}
+#else
+struct mapping {
+    void *base = nullptr;
+    size_t len = 0;
+};
+
+void *posix_map_file( const fs::path &file_path, int flags )
+{
+    mapping m;
+
+    const std::string &file_path_string = file_path.native();
+    std::error_code ec;
+    size_t file_size = fs::file_size( file_path, ec );
+    if( ec ) {
+        return m;
+    }
+
+    int fd = open( file_path_string.c_str(), ( flags == O_RDWR ? O_CREAT : 0 ) | flags );
+    if( fd == -1 ) {
+        return m;
+    }
+    on_out_of_scope close_file_guard( [&] { close( fd ); } );
+    void *map_base = mmap( nullptr, file_size, ( flags == O_RDWR ? PROT_WRITE : 0 ) | PROT_READ,
+                           MAP_PRIVATE, fd, 0 );
+    if( !map_base ) {
+        return m;
+    }
+
+    m.base = map_base;
+    m.len = file_size;
+
+    return m;
+}
+#endif
+
+}
+
+std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
+{
+    std::shared_ptr<mmap_file> mapped_file;
+
+#ifdef _WIN32
+    mapping m = win32_map_file( file_path, GENERIC_READ );
+    if( m.file == INVALID_HANDLE_VALUE || m.file_mapping == INVALID_HANDLE_VALUE ||
+        m.base == nullptr ) {
         return mapped_file;
     }
     mapped_file = std::shared_ptr<mmap_file> { new mmap_file() };
     mapped_file->mmap_handle = std::make_shared<handle>();
-    mapped_file->mmap_handle->file = file_handle;
-    mapped_file->mmap_handle->file_mapping = file_mapping_handle;
-    mapped_file->base = static_cast<uint8_t *>( map_base );
-    mapped_file->len = file_size.QuadPart;
+    mapped_file->mmap_handle->file = m.file;
+    mapped_file->mmap_handle->file_mapping = m.file_mapping;
+    mapped_file->base = static_cast<uint8_t *>( m.base );
+    mapped_file->len = m.len;
 #else
     const std::string &file_path_string = file_path.native();
     std::error_code ec;
@@ -128,7 +191,7 @@ std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
         return mapped_file;
     }
 
-    int fd = open( file_path_string.c_str(), O_RDWR );
+    int fd = open( file_path_string.c_str(), O_RDWR | O_CREAT );
     if( fd == -1 ) {
         return mapped_file;
     }
