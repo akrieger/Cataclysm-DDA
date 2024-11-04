@@ -246,6 +246,11 @@ jobs:
         run: |
           HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install gettext ccache parallel dylibbundler
           pip3 install dmgbuild biplist
+      - name: install macports (mac)
+        if: runner.os == 'macOS'
+        uses: melusina-org/setup-macports@v1
+        with:
+          parameters: '.github/macports/macports.yml'
       - name: Create VERSION.TXT
         shell: bash
         run: |

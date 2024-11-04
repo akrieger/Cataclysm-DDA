@@ -1,0 +1,3 @@
+ports:
+  - name: freetype
+    select: [ universal ]

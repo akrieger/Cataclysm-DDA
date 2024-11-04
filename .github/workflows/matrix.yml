@@ -285,7 +285,12 @@ jobs:
     - name: install build dependencies (mac)
       if: ${{ env.SKIP == 'false' && runner.os == 'macOS' }}
       run: |
-          HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install gettext ccache parallel
+          HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install gettext ccache parallel freetype
+    - name: install macports (mac)
+      if: ${{ env.SKIP == 'false' && runner.os == 'macOS' }}
+      uses: melusina-org/setup-macports@v1
+      with:
+        parameters: '.github/macports/macports.yml'
     - name: prepare
       if: ${{ env.SKIP == 'false' }}
       run: bash ./build-scripts/requirements.sh
