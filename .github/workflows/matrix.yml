@@ -101,7 +101,7 @@ jobs:
             ccache_key: linux-llvm-10-break1
 
           - compiler: clang++
-            os: macos-12
+            os: macos-13
             cmake: 0
             native: osx
             pch: 0
