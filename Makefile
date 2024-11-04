@@ -749,6 +749,8 @@ ifeq ($(TILES), 1)
       ifeq ($(SOUND), 1)
         LDFLAGS += -lSDL2_mixer
       endif
+      CXXFLAGS += $(shell $(PKG_CONFIG) --cflags freetype2)
+      LDFLAGS += $(shell $(PKG_CONFIG) --libs freetype2)
     endif
   else ifneq ($(NATIVE),emscripten)
     CXXFLAGS += $(shell $(PKG_CONFIG) --cflags sdl2)
