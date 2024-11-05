@@ -245,7 +245,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install gettext ccache parallel dylibbundler
-          brew uninstall freetype2
+          brew uninstall freetype2 --ignore-dependencies
           pip3 install dmgbuild biplist
       - name: install macports (mac)
         if: runner.os == 'macOS'
