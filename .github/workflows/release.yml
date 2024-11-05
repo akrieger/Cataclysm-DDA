@@ -251,6 +251,11 @@ jobs:
         uses: melusina-org/setup-macports@v1
         with:
           parameters: '.github/macports/macports.yml'
+      - name: test macports
+        run: |
+          port list installed
+          pkg-config --cflags freetype2
+          pkg-config --libs freetype2
       - name: Create VERSION.TXT
         shell: bash
         run: |
