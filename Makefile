@@ -600,7 +600,6 @@ ifeq ($(NATIVE), osx)
     ifneq ($(TILES), 1)
       CXXFLAGS += -D_XOPEN_SOURCE_EXTENDED
       ifeq ($(MACPORTS), 1)
-      	print("whaaaaat")
         CXXFLAGS += -I$(shell ncursesw6-config --includedir)
         LDFLAGS += -L$(shell ncursesw6-config --libdir)
       endif
@@ -797,7 +796,7 @@ ifeq ($(TILES), 1)
     ODIR = $(ODIRTILES)
   endif
 else
-  NCURSES_PREFIX = nCoreFoundationcursesw
+  NCURSES_PREFIX = ncursesw
   # ONLY when not cross-compiling, check for pkg-config or ncurses5-config
   # When doing a cross-compile, we can't rely on the host machine's -configs
   ifeq ($(CROSS),)
