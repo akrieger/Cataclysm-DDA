@@ -1290,9 +1290,7 @@ endif  # ifeq ($(SOUND), 1)
 endif  # ifdef FRAMEWORK
 endif  # ifdef TILES
 
-ifndef FRAMEWORK
-	dylibbundler -of -b -x $(APPRESOURCESDIR)/$(APPTARGET) -d $(APPRESOURCESDIR)/ -p @executable_path/	
-endif  # ifndef FRAMEWORK
+dylibbundler -of -b -x $(APPRESOURCESDIR)/$(APPTARGET) -d $(APPRESOURCESDIR)/ -p @executable_path/	
 
 
 dmgdistclean:
