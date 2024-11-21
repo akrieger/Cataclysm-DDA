@@ -1,0 +1,7 @@
+ports:
+  - name: freetype
+    select: [ universal ]
+  - name: ncurses
+    select: [ universal ]
+  - name: pkgconfig
+    select: [ universal ]
