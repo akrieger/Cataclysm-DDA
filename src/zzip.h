@@ -22,12 +22,18 @@ class zzip
     public:
         ~zzip() noexcept;
 
-        static std::shared_ptr<zzip> load( const fs::path &path );
+        static std::shared_ptr<zzip> load( const fs::path &path, const fs::path &dictionary = {} );
 
-        std::vector<std::byte> get_file( const fs::path &zzip_relative_path );
+        size_t get_file_size( const fs::path &zzip_relative_path ) const;
+        std::vector<std::byte> get_file( const fs::path &zzip_relative_path ) const;
+        size_t get_file_to( const fs::path &zzip_relative_path, std::byte *dest, size_t dest_len ) const;
+
         bool add_file( const fs::path &zzip_relative_path, std::string_view content );
 
-        bool save();
+        static std::shared_ptr<zzip> create_from_folder( const fs::path &path, const fs::path &folder,
+                const fs::path &dictionary = {} );
+        static bool extract_to_folder( const fs::path &path, const fs::path &folder,
+                                       const fs::path &dictionary = {} );
 
     private:
         fs::path path;
@@ -35,9 +41,6 @@ class zzip
         JsonObject footer;
 
         struct context;
-        void init_context();
-        void init_cctx();
-        void init_dctx();
         std::unique_ptr<context> ctx;
 };
 

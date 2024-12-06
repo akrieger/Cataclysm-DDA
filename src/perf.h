@@ -41,7 +41,7 @@ struct cata_timer {
 
         cata_timer( std::string_view name ) {
             timers_map &timer_map = ( [&]() -> timers_map& {
-                if( timer_stack().empty()) {
+                if( timer_stack().empty() ) {
                     return top_level_timer_map();
                 } else {
                     return timer_stack().back()->second.child_timers;
@@ -51,7 +51,7 @@ struct cata_timer {
             if( timer == timer_map.end() ) {
                 timer = timer_map.emplace( name, timer_stats{ name } ).first;
             }
-            timer_stack().push_back(timer);
+            timer_stack().push_back( timer );
             timer->second.current_start = std::chrono::high_resolution_clock::now();
         }
 
@@ -73,8 +73,8 @@ struct cata_timer {
         std::chrono::high_resolution_clock::time_point current_start =
             std::chrono::high_resolution_clock::now();
 
-        static timers_map& top_level_timer_map();
-        static std::vector<timers_map::iterator>& timer_stack();
+        static timers_map &top_level_timer_map();
+        static std::vector<timers_map::iterator> &timer_stack();
 };
 
 #endif // CATA_SRC_PERF_H
