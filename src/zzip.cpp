@@ -371,3 +371,79 @@ std::vector<zzip::entry> zzip::entries() const
     }
     return entries;
 }
+
+void zzip::compact()
+{
+    // Algorithm: newest files on the right, move left to overwrite dead versions.
+    // Unchanged files on the left don't have to move.
+    // Memcpy allowed because data always moves left and doesn't self overlap.
+
+    // vector<pair<offset, compressed length>>
+    struct compressed_entry {
+        std::string relative_path;
+        int offset;
+        int len;
+
+        compressed_entry( std::string path, int o, int l ) : relative_path{ path }, offset{ o }, len{ l } {}
+    };
+    std::vector<compressed_entry> compressed_entries;
+    JsonObject json_entries = footer.get_object( "entries" );
+    compressed_entries.reserve( json_entries.size() );
+
+    for( const JsonMember &entry : json_entries ) {
+        JsonObject entry_object = entry.get_object();
+        compressed_entries.emplace_back( entry.name(),
+                                         entry_object.get_int( "offset" ),
+                                         entry_object.get_int( "len" ) );
+    }
+
+    std::sort( compressed_entries.begin(), compressed_entries.end(), []( const compressed_entry & lhs,
+    const compressed_entry & rhs ) {
+        return lhs.offset < rhs.offset;
+    } );
+
+    size_t current_end = 0;
+    for( compressed_entry &entry : compressed_entries ) {
+        if( entry.offset != current_end ) {
+            // This file needs to be shifted left.
+            memcpy( static_cast<char *>( file->base() ) + current_end,
+                    static_cast<char *>( file->base() ) + entry.offset, entry.len );
+            entry.offset = current_end;
+        }
+        current_end += entry.len;
+    }
+
+    flexbuffers::Builder builder;
+    size_t root_start = builder.StartMap();
+    {
+        size_t meta_start = builder.StartMap( "meta" );
+        builder.UInt( "content_end", current_end );
+        // TODO more meta
+        builder.EndMap( meta_start );
+    }
+    {
+        size_t entries_start = builder.StartMap( "entries" );
+        for( compressed_entry entry : compressed_entries ) {
+            size_t entry_map = builder.StartMap( entry.relative_path.c_str() );
+            builder.UInt( "offset", entry.offset );
+            builder.UInt( "len", entry.len );
+            builder.EndMap( entry_map );
+        }
+        builder.EndMap( entries_start );
+    }
+    builder.EndMap( root_start );
+    builder.Finish();
+    auto buf = builder.GetBuffer();
+
+    if( !file->resize_file( current_end + buf.size() ) ) {
+        return;
+    }
+    memcpy( static_cast<char *>( file->base() ) + current_end, buf.data(),
+            buf.size() );
+
+    std::shared_ptr<flexbuffer_storage> new_storage = std::make_shared<zzip_flexbuffer_storage>( file );
+    flexbuffers::Reference new_root = flexbuffer_root_from_storage( new_storage );
+    std::shared_ptr<parsed_flexbuffer> new_flexbuffer = std::make_shared<zzip_flexbuffer>( std::move(
+                new_storage ) );
+    footer = JsonValue( std::move( new_flexbuffer ), new_root, nullptr, 0 );
+}
