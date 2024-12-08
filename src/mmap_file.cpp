@@ -21,7 +21,6 @@
 
 #include "cata_scope_helpers.h"
 #include "cata_utility.h"
-#include "perf.h"
 
 mmap_file::mmap_file() = default;
 
@@ -65,50 +64,38 @@ struct mmap_file::impl {
     HANDLE file_mapping = NULL;
 
     bool map_view() {
-        cata_timer map_timer( "mmap_file map_view" );
         LARGE_INTEGER file_size{};
-        {
-            cata_timer size_timer( "mmap_file get_file_size" );
-            if( !GetFileSizeEx( file, &file_size ) ) {
-                // Failed to get file size.
-                debugmsg( std::to_string( GetLastError() ) );
-                return false;
-            }
+        if( !GetFileSizeEx( file, &file_size ) ) {
+            // Failed to get file size.
+            debugmsg( std::to_string( GetLastError() ) );
+            return false;
         }
 
         if( file_size.QuadPart == 0 ) {
             return false;
         }
 
-        HANDLE file_mapping_handle;
-        {
-            cata_timer create_file_mapping_timer( "mmap_file create_file_mapping" );
-            file_mapping_handle = CreateFileMappingW(
-                                      file,
-                                      nullptr,
-                                      writeable ? PAGE_READWRITE : PAGE_READONLY,
-                                      file_size.HighPart,
-                                      file_size.LowPart,
-                                      nullptr
-                                  );
-        }
+        HANDLE file_mapping_handle = CreateFileMappingW(
+                                         file,
+                                         nullptr,
+                                         writeable ? PAGE_READWRITE : PAGE_READONLY,
+                                         file_size.HighPart,
+                                         file_size.LowPart,
+                                         nullptr
+                                     );
         if( file_mapping_handle == NULL ) {
             debugmsg( std::to_string( GetLastError() ) );
             return false;
         }
         on_out_of_scope close_file_mapping_guard( [&] { CloseHandle( file_mapping_handle ); } );
 
-        void *map_base;
-        {
-            cata_timer map_view_timer( "mmap_file map_view_of_file" );
-            map_base = MapViewOfFile(
-                           file_mapping_handle,
-                           ( writeable ? FILE_MAP_WRITE : 0 ) | FILE_MAP_READ,
-                           0,
-                           0,
-                           file_size.QuadPart
-                       );
-        }
+        void *map_base = MapViewOfFile(
+                             file_mapping_handle,
+                             ( writeable ? FILE_MAP_WRITE : 0 ) | FILE_MAP_READ,
+                             0,
+                             0,
+                             file_size.QuadPart
+                         );
         if( map_base == nullptr ) {
             // Failed to mmap file.
             debugmsg( std::to_string( GetLastError() ) );
@@ -122,11 +109,8 @@ struct mmap_file::impl {
     }
 
     bool unmap_view() {
-        cata_timer unmap_view_timer( "mmap_file unmap_view" );
         bool success = true;
-        success = success && flush();
         if( base != nullptr ) {
-            cata_timer unmap_timer( "mmap_file unmap view" );
             if( !UnmapViewOfFile( base ) ) {
                 debugmsg( std::to_string( GetLastError() ) );
                 success = false;
@@ -135,7 +119,6 @@ struct mmap_file::impl {
         base = nullptr;
         len = 0;
         if( file_mapping != NULL ) {
-            cata_timer close_timer( "mmap_file unmap close mapping" );
             if( !CloseHandle( file_mapping ) ) {
                 debugmsg( std::to_string( GetLastError() ) );
                 success = false;
@@ -145,23 +128,9 @@ struct mmap_file::impl {
         return success;
     }
 
-    bool flush() {
-        /*
-        if( writeable && file != INVALID_HANDLE_VALUE && base != nullptr ) {
-            cata_timer flush_timer( "mmap_file flush" );
-            if( !FlushViewOfFile( base, 0 ) ) {
-                debugmsg( std::to_string( GetLastError() ) );
-                return false;
-            }
-        }
-        */
-        return true;
-    }
-
     ~impl() {
         unmap_view();
         if( file != INVALID_HANDLE_VALUE ) {
-            cata_timer close_timer( "mmap_file close file" );
             CloseHandle( file );
         }
     }
@@ -188,19 +157,11 @@ struct mmap_file::impl {
     }
 
     bool unmap_view() {
-        flush();
         if( base != nullptr ) {
             munmap( base, len );
         }
         base = nullptr;
         len = 0;
-        return true;
-    }
-
-    bool flush() {
-        if( writeable && base != nullptr ) {
-            msync( base, len, MS_SYNC );
-        }
         return true;
     }
     ~impl() {
@@ -218,19 +179,16 @@ std::unique_ptr<mmap_file> mmap_file::map_file_generic( const fs::path &file_pat
 
 #ifdef _WIN32
     HANDLE file_handle;
-    {
-        cata_timer create_file_timer( "mmap_file create_file" );
-        file_handle = CreateFileW(
-                          file_path.native().c_str(),
-                          ( writeable ? GENERIC_WRITE : 0 ) | GENERIC_READ,
-                          FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                          nullptr,
-                          writeable ? OPEN_ALWAYS : OPEN_EXISTING,
-                          0,
-                          nullptr
-                      );
+    file_handle = CreateFileW(
+                      file_path.native().c_str(),
+                      ( writeable ? GENERIC_WRITE : 0 ) | GENERIC_READ,
+                      FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                      nullptr,
+                      writeable ? OPEN_ALWAYS : OPEN_EXISTING,
+                      0,
+                      nullptr
+                  );
 
-    }
     if( file_handle == INVALID_HANDLE_VALUE ) {
         debugmsg( std::to_string( GetLastError() ) );
         return nullptr;
