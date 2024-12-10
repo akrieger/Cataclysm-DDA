@@ -177,6 +177,10 @@ std::optional<zzip_meta> get_meta( const JsonObject &footer )
     return zmeta;
 }
 
+struct zzip_footer {
+
+};
+
 }
 
 size_t zzip::get_file_size( const fs::path &zzip_relative_path ) const

@@ -331,7 +331,7 @@ submap *mapbuffer::unserialize_submaps( const tripoint_abs_sm &p )
             return nullptr;
         }
         std::vector<std::byte> contents = z->get_file( file_name );
-        std::string string_contents{ reinterpret_cast<char *>( contents.data() ), contents.size() };
+        std::string_view string_contents{ reinterpret_cast<char *>( contents.data() ), contents.size() };
         JsonValue jsin = json_loader::from_string( string_contents );
         try {
             deserialize( jsin );
