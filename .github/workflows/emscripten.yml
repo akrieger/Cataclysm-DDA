@@ -56,6 +56,7 @@ jobs:
         export CCACHE_CONFIGPATH=$EMSCRYPTEN_CCACHE_BIN/emcc_ccache.conf
         find $EMSCRYPTEN_CCACHE_BIN/../../ -type f
         echo `which ccache -a`
+        ccache --show-stats
         ccache --zero-stats
         ccache -M 5G
         ccache --show-stats
