@@ -53,7 +53,7 @@ jobs:
         # sure why this isn't figured out automatically.
         export EM_CONFIG=$EMSDK/.emscripten
         export CCACHE_COMPILERCHECK=string:3.1.51
-        export CCACHE_CONFIGPATH=EMSCRYPTEN_BIN/emcc_ccache.conf
+        export CCACHE_CONFIGPATH=$EMSCRYPTEN_CCACHE_BIN/emcc_ccache.conf
         cat $CCACHE_CONFIGPATH
         echo `which ccache -a`
         ccache --zero-stats
