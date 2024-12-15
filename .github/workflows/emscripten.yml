@@ -54,7 +54,7 @@ jobs:
         export EM_CONFIG=$EMSDK/.emscripten
         export CCACHE_COMPILERCHECK=string:3.1.51
         export CCACHE_CONFIGPATH=$EMSCRYPTEN_CCACHE_BIN/emcc_ccache.conf
-        ls $EMSCRYPTEN_CCACHE_BIN
+        find $EMSCRYPTEN_CCACHE_BIN/../../ -type f
         echo `which ccache -a`
         ccache --zero-stats
         ccache -M 5G
