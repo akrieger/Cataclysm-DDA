@@ -52,6 +52,9 @@ jobs:
         # sure why this isn't figured out automatically.
         export EM_CONFIG=$EMSDK/.emscripten
         export CCACHE_COMPILERCHECK=string:3.1.51
+        export CCACHE_CONFIGPATH=${PATH%%:*}/../../ccache/git-emscripten_64bit/bin/emcc_ccache.conf
+        cat $CCACHE_CONFIGPATH
+        echo `which ccache -a`
         ccache --zero-stats
         ccache -M 5G
         ccache --show-stats
