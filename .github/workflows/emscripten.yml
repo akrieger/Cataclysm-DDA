@@ -47,12 +47,13 @@ jobs:
         # https://github.com/emscripten-core/emsdk/pull/1345
         # Once that bug is fixed, we should be able to drop this weird PATH
         # stuff.
-        export PATH="${PATH%%:*}/../../ccache/git-emscripten_64bit/bin":$PATH
+        EMSCRYPTEN_CCACHE_BIN=${PATH%%:*}/../../ccache/git-emscripten_64bit/bin
+        export PATH=$EMSCRYPTEN_CCACHE_BIN:$PATH
         # The forked ccache seems to crash unless EM_CONFIG is defined, I'm not
         # sure why this isn't figured out automatically.
         export EM_CONFIG=$EMSDK/.emscripten
         export CCACHE_COMPILERCHECK=string:3.1.51
-        export CCACHE_CONFIGPATH=${PATH%%:*}/../../ccache/git-emscripten_64bit/bin/emcc_ccache.conf
+        export CCACHE_CONFIGPATH=EMSCRYPTEN_BIN/emcc_ccache.conf
         cat $CCACHE_CONFIGPATH
         echo `which ccache -a`
         ccache --zero-stats
