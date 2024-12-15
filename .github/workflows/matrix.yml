@@ -75,7 +75,7 @@ jobs:
           echo "skip_tests=$([ "$GITHUB_REF_NAME" = "master" ] && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "max_parallel=$([ "$GITHUB_REF_NAME" = "master" ] && echo 20 || echo 1)" >> $GITHUB_OUTPUT
   emscripten:
-    needs: [ skip-duplicates-code, varied_builds ]
+    needs: [ skip-duplicates-code ]
     uses: ./.github/workflows/emscripten.yml
     if: ${{ needs.skip-duplicates.outputs.should_skip_code != 'true' && success() && github.event.pull_request.draft == false }}
     secrets: inherit
