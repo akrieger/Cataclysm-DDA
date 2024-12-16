@@ -19,7 +19,7 @@ struct zzip_flexbuffer_storage : flexbuffer_storage {
     explicit zzip_flexbuffer_storage( std::shared_ptr<mmap_file> mmap_handle ) : mmap_handle_{ std::move( mmap_handle ) } {}
 
     const uint8_t *data() const override {
-        return mmap_handle_->base();
+        return static_cast<const uint8_t *>( mmap_handle_->base() );
     }
     size_t size() const override {
         return mmap_handle_->len();
@@ -207,7 +207,7 @@ std::vector<std::byte> zzip::get_file( const fs::path &zzip_relative_path )
     if( !fparams.has_value() ) {
         throw std::runtime_error( "whups" );
     }
-    void *base = file->base() + fparams->offset;
+    void *base = static_cast<char *>( file->base() ) + fparams->offset;
     unsigned long long file_size = ZSTD_decompressBound( base, fparams->len );
     std::vector<std::byte> buf{ file_size };
     size_t actual = ZSTD_decompressDCtx( ctx->dctx, buf.data(), file_size, base, fparams->len );
@@ -243,7 +243,7 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
         size_t footer_size = file->len() - old_content_end;
         std::vector<std::byte> footer_buf;
         footer_buf.resize( footer_size );
-        memcpy( footer_buf.data(), file->base() + old_content_end, footer_size );
+        memcpy( footer_buf.data(), static_cast<char *>( file->base() ) + old_content_end, footer_size );
         std::shared_ptr<flexbuffer_storage> footer_storage = std::make_shared<zzip_vector_storage>
                 ( std::move( footer_buf ) );
         flexbuffers::Reference root = flexbuffer_root_from_storage( footer_storage );
@@ -257,7 +257,8 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
             return false;
         }
     }
-    size_t actual_size = ZSTD_compress2( ctx->cctx, file->base() + old_content_end, estimated_size,
+    size_t actual_size = ZSTD_compress2( ctx->cctx,
+                                         static_cast<char *>( file->base() ) + old_content_end, estimated_size,
                                          content.data(), content.size() );
     if( ZSTD_isError( actual_size ) ) {
         return false;
@@ -310,7 +311,8 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
         debugmsg( std::to_string( GetLastError() ) );
         return false;
     }
-    memcpy( file->base() + old_content_end + actual_size, buf.data(), buf.size() );
+    memcpy( static_cast<char *>( file->base() ) + old_content_end + actual_size, buf.data(),
+            buf.size() );
 
     std::shared_ptr<flexbuffer_storage> new_storage = std::make_shared<zzip_flexbuffer_storage>( file );
     flexbuffers::Reference new_root = flexbuffer_root_from_storage( new_storage );
