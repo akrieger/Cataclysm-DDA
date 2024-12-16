@@ -12,4 +12,4 @@ then
     export CCACHE=0
 fi
 
-make -j`nproc` NATIVE=emscripten BACKTRACE=0 TILES=1 TESTS=0 RUNTESTS=0 RELEASE=1 LINTJSON=0 cataclysm-tiles.js
+make -j`nproc` NATIVE=emscripten PCH=0 BACKTRACE=0 TILES=1 TESTS=0 RUNTESTS=0 RELEASE=1 LINTJSON=0 cataclysm-tiles.js
