@@ -22,6 +22,7 @@
 #include "output.h"
 #include "overmapbuffer.h"
 #include "path_info.h"
+#include "perf.h"
 #include "popup.h"
 #include "string_formatter.h"
 #include "submap.h"
@@ -141,64 +142,70 @@ bool mapbuffer::submap_exists( const tripoint_abs_sm &p )
 
 void mapbuffer::save( bool delete_after_save )
 {
-    assure_dir_exist( PATH_INFO::world_base_save_path() / "maps" );
+    {
+        cata_timer save_timer( "mapbuffer::save" );
+        assure_dir_exist( PATH_INFO::world_base_save_path() / "maps" );
 
-    int num_saved_submaps = 0;
-    int num_total_submaps = submaps.size();
+        int num_saved_submaps = 0;
+        int num_total_submaps = submaps.size();
 
-    map &here = get_map();
+        map &here = get_map();
 
-    static_popup popup;
+        static_popup popup;
 
-    // A set of already-saved submaps, in global overmap coordinates.
-    std::set<tripoint_abs_omt> saved_submaps;
-    std::list<tripoint_abs_sm> submaps_to_delete;
-    static constexpr std::chrono::milliseconds update_interval( 500 );
-    std::chrono::steady_clock::time_point last_update = std::chrono::steady_clock::now();
+        // A set of already-saved submaps, in global overmap coordinates.
+        std::set<tripoint_abs_omt> saved_submaps;
+        std::list<tripoint_abs_sm> submaps_to_delete;
+        static constexpr std::chrono::milliseconds update_interval( 500 );
+        std::chrono::steady_clock::time_point last_update = std::chrono::steady_clock::now();
 
-    for( auto &elem : submaps ) {
-        std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-        if( last_update + update_interval < now ) {
-            popup.message( _( "Please wait as the map saves [%d/%d]" ),
-                           num_saved_submaps, num_total_submaps );
-            ui_manager::redraw();
-            refresh_display();
-            inp_mngr.pump_events();
-            last_update = now;
+        for( auto &elem : submaps ) {
+            std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+            if( last_update + update_interval < now ) {
+                popup.message( _( "Please wait as the map saves [%d/%d]" ),
+                               num_saved_submaps, num_total_submaps );
+                ui_manager::redraw();
+                refresh_display();
+                inp_mngr.pump_events();
+                last_update = now;
+            }
+            // Whatever the coordinates of the current submap are,
+            // we're saving a 2x2 quad of submaps at a time.
+            // Submaps are generated in quads, so we know if we have one member of a quad,
+            // we have the rest of it, if that assumption is broken we have REAL problems.
+            const tripoint_abs_omt om_addr = project_to<coords::omt>( elem.first );
+            if( saved_submaps.count( om_addr ) != 0 ) {
+                // Already handled this one.
+                continue;
+            }
+            saved_submaps.insert( om_addr );
+
+            // A segment is a chunk of 32x32 submap quads.
+            // We're breaking them into subdirectories so there aren't too many files per directory.
+            // Might want to make a set for this one too so it's only checked once per save().
+            const cata_path dirname = find_dirname( om_addr );
+            const cata_path quad_path = find_quad_path( dirname, om_addr );
+
+            bool inside_reality_bubble = here.inbounds( om_addr );
+            // delete_on_save deletes everything, otherwise delete submaps
+            // outside the current map.
+            save_quad( dirname, quad_path, om_addr, submaps_to_delete,
+                       delete_after_save || !inside_reality_bubble );
+            num_saved_submaps += 4;
         }
-        // Whatever the coordinates of the current submap are,
-        // we're saving a 2x2 quad of submaps at a time.
-        // Submaps are generated in quads, so we know if we have one member of a quad,
-        // we have the rest of it, if that assumption is broken we have REAL problems.
-        const tripoint_abs_omt om_addr = project_to<coords::omt>( elem.first );
-        if( saved_submaps.count( om_addr ) != 0 ) {
-            // Already handled this one.
-            continue;
+        for( auto &elem : submaps_to_delete ) {
+            remove_submap( elem );
         }
-        saved_submaps.insert( om_addr );
-
-        // A segment is a chunk of 32x32 submap quads.
-        // We're breaking them into subdirectories so there aren't too many files per directory.
-        // Might want to make a set for this one too so it's only checked once per save().
-        const cata_path dirname = find_dirname( om_addr );
-        const cata_path quad_path = find_quad_path( dirname, om_addr );
-
-        bool inside_reality_bubble = here.inbounds( om_addr );
-        // delete_on_save deletes everything, otherwise delete submaps
-        // outside the current map.
-        save_quad( dirname, quad_path, om_addr, submaps_to_delete,
-                   delete_after_save || !inside_reality_bubble );
-        num_saved_submaps += 4;
     }
-    for( auto &elem : submaps_to_delete ) {
-        remove_submap( elem );
-    }
+    cata_timer::print_stats();
 }
 
 void mapbuffer::save_quad(
     const cata_path &dirname, const cata_path &filename, const tripoint_abs_omt &om_addr,
     std::list<tripoint_abs_sm> &submaps_to_delete, bool delete_after_save )
 {
+
+    cata_timer save_quad( "save_quad" );
     std::vector<point> offsets;
     std::vector<tripoint_abs_sm> submap_addrs;
     offsets.reserve( 4 );
@@ -244,56 +251,77 @@ void mapbuffer::save_quad(
 
     // Don't create the directory if it would be empty
     assure_dir_exist( dirname );
-    write_to_file( filename, [&]( std::ostream & fout ) {
-        std::stringstream stringout;
-        JsonOut jsout( stringout );
-        jsout.start_array();
-        for( auto &submap_addr : submap_addrs ) {
-            if( submaps.count( submap_addr ) == 0 ) {
-                continue;
+    {
+        cata_timer outer_serialize_timer("write_to_file outer");
+        write_to_file(filename, [&](std::ostream& fout) {
+            cata_timer serialize_timer("write_to_file inner");
+            std::stringstream stringout;
+            JsonOut jsout(stringout);
+            std::string s;
+            {
+                cata_timer jsonout_timer("jsonout");
+                jsout.start_array();
+                for (auto& submap_addr : submap_addrs) {
+                    if (submaps.count(submap_addr) == 0) {
+                        continue;
+                    }
+
+                    submap* sm = submaps[submap_addr].get();
+
+                    if (sm == nullptr) {
+                        continue;
+                    }
+
+                    jsout.start_object();
+
+                    jsout.member("version", savegame_version);
+                    jsout.member("coordinates");
+
+                    jsout.start_array();
+                    jsout.write(submap_addr.x());
+                    jsout.write(submap_addr.y());
+                    jsout.write(submap_addr.z());
+                    jsout.end_array();
+
+                    sm->store(jsout);
+
+                    jsout.end_object();
+
+                    if (delete_after_save) {
+                        submaps_to_delete.push_back(submap_addr);
+                    }
+                }
+
+                jsout.end_array();
+
+                s = std::move(stringout).str();
             }
-
-            submap *sm = submaps[submap_addr].get();
-
-            if( sm == nullptr ) {
-                continue;
+            {
+                cata_timer ostream_timer("fout<<");
+                fout << s;
             }
-
-            jsout.start_object();
-
-            jsout.member( "version", savegame_version );
-            jsout.member( "coordinates" );
-
-            jsout.start_array();
-            jsout.write( submap_addr.x() );
-            jsout.write( submap_addr.y() );
-            jsout.write( submap_addr.z() );
-            jsout.end_array();
-
-            sm->store( jsout );
-
-            jsout.end_object();
-
-            if( delete_after_save ) {
-                submaps_to_delete.push_back( submap_addr );
+            {
+                cata_timer zzip_timer("zzip write/read");
+                std::shared_ptr<zzip> z;
+                {
+                    cata_timer all_but_timer("everything but the dtor");
+                    std::string s2;
+                    cata_path zzip_name = dirname;
+                    zzip_name += ".zzip";
+                    {
+                        cata_timer zzip_timer("zzip write");
+                        z = zzip::load(zzip_name.get_unrelative_path());
+                        z->add_file(filename.get_relative_path().filename(), s);
+                    }
+                    {
+                        cata_timer zzip_timer("zzip read");
+                        std::vector<std::byte> sb = z->get_file(filename.get_relative_path().filename());
+                        s2 = std::string{ reinterpret_cast<const char*>(sb.data()), reinterpret_cast<const char*>(sb.data() + sb.size()) };
+                    }
+                }
             }
-        }
-
-        jsout.end_array();
-
-        std::string s = std::move( stringout ).str();
-        fout << s;
-        cata_path zzip_name = dirname;
-        zzip_name += ".zzip";
-        auto z = zzip::load( zzip_name.get_unrelative_path() );
-        z->add_file( filename.get_relative_path().filename(), s );
-        std::vector<std::byte> sb = z->get_file( filename.get_relative_path().filename() );
-        std::string s2{ reinterpret_cast<const char *>( sb.data() ), reinterpret_cast<const char *>( sb.data() + sb.size() ) };
-        if( s != s2 ) {
-            cata_assert( false );
-        }
-    } );
-
+            });
+    }
     if( all_uniform && reverted_to_uniform ) {
         fs::remove( filename.get_unrelative_path() );
     }
