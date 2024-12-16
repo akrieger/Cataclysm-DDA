@@ -35,6 +35,13 @@ class zzip
         static bool extract_to_folder( const fs::path &path, const fs::path &folder,
                                        const fs::path &dictionary = {} );
 
+        struct entry {
+            entry( fs::path relative_path, size_t length ) : relative_path{ std::move( relative_path ) }, length{ length } {}
+            fs::path relative_path;
+            size_t length;
+        };
+        std::vector<entry> entries() const;
+
     private:
         fs::path path;
         std::shared_ptr<mmap_file> file;

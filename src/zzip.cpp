@@ -366,3 +366,15 @@ bool zzip::extract_to_folder( const fs::path &path, const fs::path &folder,
     }
     return true;
 }
+
+std::vector<zzip::entry> zzip::entries() const
+{
+    std::vector<entry> entries;
+    JsonObject json_entries = footer.get_object( "entries" );
+    entries.reserve( json_entries.size() );
+
+    for( const JsonMember &entry : footer.get_object( "entries" ) ) {
+        entries.emplace_back( fs::path( entry.name() ), entry.get_object().get_int( "len" ) );
+    }
+    return entries;
+}
