@@ -189,6 +189,12 @@ size_t zzip::get_file_size( const fs::path &zzip_relative_path ) const
     return ZSTD_decompressBound( base, fparams->len );
 }
 
+bool zzip::has_file( const fs::path &zzip_relative_path ) const
+{
+    std::optional<file_params> fparams = get_file_params( zzip_relative_path, footer );
+    return fparams.has_value();
+}
+
 std::vector<std::byte> zzip::get_file( const fs::path &zzip_relative_path ) const
 {
     std::optional<file_params> fparams = get_file_params( zzip_relative_path, footer );

@@ -289,10 +289,10 @@ void mapbuffer::save_quad(
     std::string s = std::move( stringout ).str();
 
     if( world_generator->active_world->has_compression_enabled() ) {
-        std::shared_ptr<zzip> z;
         cata_path zzip_name = dirname;
         zzip_name += ".zzip";
-        z = zzip::load( zzip_name.get_unrelative_path() );
+        std::shared_ptr<zzip> z = zzip::load( zzip_name.get_unrelative_path(),
+                                              ( PATH_INFO::world_base_save_path() / "maps.dict" ).get_unrelative_path() );
         z->add_file( filename.get_relative_path().filename(), s );
     } else {
         // Don't create the directory if it would be empty
@@ -314,28 +314,40 @@ submap *mapbuffer::unserialize_submaps( const tripoint_abs_sm &p )
     // Map the tripoint to the submap quad that stores it.
     const tripoint_abs_omt om_addr = project_to<coords::omt>( p );
     const cata_path dirname = find_dirname( om_addr );
-    cata_path quad_path = dirname / quad_file_name( om_addr );
+    std::string file_name = quad_file_name( om_addr );
+    cata_path quad_path = dirname / file_name;
 
-    if( !file_exist( quad_path ) ) {
-        // Fix for old saves where the path was generated using std::stringstream, which
-        // did format the number using the current locale. That formatting may insert
-        // thousands separators, so the resulting path is "map/1,234.7.8.map" instead
-        // of "map/1234.7.8.map".
-        std::ostringstream buffer;
-        buffer << om_addr.x() << "." << om_addr.y() << "." << om_addr.z()
-               << ".map";
-        cata_path legacy_quad_path = dirname / buffer.str();
-        if( file_exist( legacy_quad_path ) ) {
-            quad_path = std::move( legacy_quad_path );
+    if( world_generator->active_world->has_compression_enabled() ) {
+        cata_path zzip_name = dirname;
+        zzip_name += ".zzip";
+        if( !file_exist( zzip_name ) ) {
+            return nullptr;
+        }
+        std::shared_ptr<zzip> z = zzip::load( zzip_name.get_unrelative_path(),
+                                              ( PATH_INFO::world_base_save_path() / "maps.dict" ).get_unrelative_path() );
+        // TODO check if entry exists.
+        if( !z->has_file( file_name ) ) {
+            return nullptr;
+        }
+        std::vector<std::byte> contents = z->get_file( file_name );
+        std::string string_contents{ reinterpret_cast<char *>( contents.data() ), contents.size() };
+        JsonValue jsin = json_loader::from_string( string_contents );
+        try {
+            deserialize( jsin );
+        } catch( std::exception &err ) {
+            debugmsg( _( "Failed to read from \"%1$s\": %2$s" ), zzip_name.generic_u8string() + ":" + file_name,
+                      err.what() );
+            return nullptr;
+        }
+    } else {
+        if( !read_from_file_optional_json( quad_path, [this]( const JsonValue & jsin ) {
+        deserialize( jsin );
+        } ) ) {
+            // If it doesn't exist, trigger generating it.
+            return nullptr;
         }
     }
 
-    if( !read_from_file_optional_json( quad_path, [this]( const JsonValue & jsin ) {
-    deserialize( jsin );
-    } ) ) {
-        // If it doesn't exist, trigger generating it.
-        return nullptr;
-    }
     // fill in uniform submaps that were not serialized
     oter_id const oid = overmap_buffer.ter( om_addr );
     generate_uniform_omt( project_to<coords::sm>( om_addr ), oid );

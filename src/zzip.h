@@ -24,6 +24,7 @@ class zzip
 
         static std::shared_ptr<zzip> load( const fs::path &path, const fs::path &dictionary = {} );
 
+        bool has_file( const fs::path &zzip_relative_path ) const;
         size_t get_file_size( const fs::path &zzip_relative_path ) const;
         std::vector<std::byte> get_file( const fs::path &zzip_relative_path ) const;
         size_t get_file_to( const fs::path &zzip_relative_path, std::byte *dest, size_t dest_len ) const;
