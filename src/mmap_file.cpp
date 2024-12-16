@@ -28,9 +28,9 @@ mmap_file::~mmap_file() = default;
 
 struct mmap_file::impl {
 #ifdef _WIN32
-    impl( HANDLE file, bool writeable ) : file { file }, writeable { writeable } {}
+    impl( HANDLE file, bool writeable ) : writeable { writeable }, file { file} {}
 #else
-    impl( int file, bool writeable ) : file { file }, writeable { writeable } {}
+    impl( int file, bool writeable ) : writeable { writeable}, file { file } {}
 #endif
     void reset() {
         writeable = false;
@@ -144,14 +144,14 @@ struct mmap_file::impl {
 
     bool map_view() {
         struct stat buf {};
-        if( !fstat( file, &buf ) ) {
+        if( fstat( file, &buf ) ) {
             return false;
         }
         size_t file_size = buf.st_size;
 
-        void *map_base = mmap( nullptr, file_size, ( writeable ? PROT_WRITE : 0 ) | PROT_READ, MAP_PRIVATE,
+        void *map_base = mmap( nullptr, file_size, ( writeable ? PROT_WRITE : 0 ) | PROT_READ, MAP_SHARED,
                                file, 0 );
-        if( !map_base ) {
+        if( map_base == MAP_FAILED ) {
             return false;
         }
 
@@ -166,6 +166,8 @@ struct mmap_file::impl {
         if( base != nullptr ) {
             munmap( base, len );
         }
+        base = nullptr;
+        len = 0;
         return true;
     }
 
@@ -204,7 +206,10 @@ std::unique_ptr<mmap_file> mmap_file::map_file_generic( const fs::path &file_pat
     }
 #else
     const std::string &file_path_string = file_path.native();
-    int file_handle = open( file_path_string.c_str(), writeable ? O_CREAT | O_RDWR : O_RDONLY );
+    // 644 = User RW, Group R, Other R.
+    // Only used when creating a file. Ignored when file exists.
+    int perms = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+    int file_handle = open( file_path_string.c_str(), writeable ? O_CREAT | O_RDWR : O_RDONLY, perms );
     if( file_handle == -1 ) {
         return nullptr;
     }
@@ -251,7 +256,7 @@ bool mmap_file::resize_file( size_t desired_size )
         return false;
     }
 #else
-    if( !ftruncate( pimpl->file, desired_size ) ) {
+    if( ftruncate( pimpl->file, desired_size ) ) {
         return false;
     }
 #endif
