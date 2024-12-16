@@ -1046,7 +1046,7 @@ all: version prefix $(CHECKS) $(TARGET) $(L10N) $(TESTSTARGET)
 	@
 
 $(TARGET): $(OBJS)
-	+$(LD) $(W32FLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
+	+EMPROFILE=2 $(LD) $(W32FLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
 ifeq ($(RELEASE), 1)
   ifndef DEBUG_SYMBOLS
     ifneq ($(BACKTRACE),1)
