@@ -233,7 +233,6 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
         // Can't mmap an empty file
         fs::resize_file( path, estimated_size, ec );
         if( ec ) {
-            debugmsg( ec.message() );
             return false;
         }
         file = mmap_file::map_writeable_file( path );
@@ -253,7 +252,6 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
         footer_copy.allow_omitted_members();
 
         if( !file->resize_file( old_content_end + estimated_size ) ) {
-            debugmsg( std::to_string( GetLastError() ) );
             return false;
         }
     }
@@ -308,7 +306,6 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
     auto buf = builder.GetBuffer();
 
     if( !file->resize_file( old_content_end + actual_size + buf.size() ) ) {
-        debugmsg( std::to_string( GetLastError() ) );
         return false;
     }
     memcpy( static_cast<char *>( file->base() ) + old_content_end + actual_size, buf.data(),
