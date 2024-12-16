@@ -28,6 +28,7 @@
 #include "submap.h"
 #include "translations.h"
 #include "ui_manager.h"
+#include "worldfactory.h"
 #include "zzip.h"
 
 #define dbg(x) DebugLog((x),D_MAP) << __FILE__ << ":" << __LINE__ << ": "
@@ -38,9 +39,9 @@ extern std::unique_ptr<game> g;
 // NOLINTNEXTLINE(cata-static-declarations)
 extern const int savegame_version;
 
-static cata_path find_quad_path( const cata_path &dirname, const tripoint_abs_omt &om_addr )
+static std::string quad_file_name( const tripoint_abs_omt &om_addr )
 {
-    return dirname / string_format( "%d.%d.%d.map", om_addr.x(), om_addr.y(), om_addr.z() );
+    return string_format( "%d.%d.%d.map", om_addr.x(), om_addr.y(), om_addr.z() );
 }
 
 static cata_path find_dirname( const tripoint_abs_omt &om_addr )
@@ -184,7 +185,7 @@ void mapbuffer::save( bool delete_after_save )
             // We're breaking them into subdirectories so there aren't too many files per directory.
             // Might want to make a set for this one too so it's only checked once per save().
             const cata_path dirname = find_dirname( om_addr );
-            const cata_path quad_path = find_quad_path( dirname, om_addr );
+            const cata_path quad_path = dirname / quad_file_name( om_addr );
 
             bool inside_reality_bubble = here.inbounds( om_addr );
             // delete_on_save deletes everything, otherwise delete submaps
@@ -249,79 +250,58 @@ void mapbuffer::save_quad(
         }
     }
 
-    // Don't create the directory if it would be empty
-    assure_dir_exist( dirname );
-    {
-        cata_timer outer_serialize_timer( "write_to_file outer" );
+    std::stringstream stringout;
+    JsonOut jsout( stringout );
+    jsout.start_array();
+    for( auto &submap_addr : submap_addrs ) {
+        if( submaps.count( submap_addr ) == 0 ) {
+            continue;
+        }
+
+        submap *sm = submaps[submap_addr].get();
+
+        if( sm == nullptr ) {
+            continue;
+        }
+
+        jsout.start_object();
+
+        jsout.member( "version", savegame_version );
+        jsout.member( "coordinates" );
+
+        jsout.start_array();
+        jsout.write( submap_addr.x() );
+        jsout.write( submap_addr.y() );
+        jsout.write( submap_addr.z() );
+        jsout.end_array();
+
+        sm->store( jsout );
+
+        jsout.end_object();
+
+        if( delete_after_save ) {
+            submaps_to_delete.push_back( submap_addr );
+        }
+    }
+
+    jsout.end_array();
+
+    std::string s = std::move( stringout ).str();
+
+    if( world_generator->active_world->has_compression_enabled() ) {
+        std::shared_ptr<zzip> z;
+        cata_path zzip_name = dirname;
+        zzip_name += ".zzip";
+        z = zzip::load( zzip_name.get_unrelative_path() );
+        z->add_file( filename.get_relative_path().filename(), s );
+    } else {
+        // Don't create the directory if it would be empty
+        assure_dir_exist( dirname );
         write_to_file( filename, [&]( std::ostream & fout ) {
-            cata_timer serialize_timer( "write_to_file inner" );
-            std::stringstream stringout;
-            JsonOut jsout( stringout );
-            std::string s;
-            {
-                cata_timer jsonout_timer( "jsonout" );
-                jsout.start_array();
-                for( auto &submap_addr : submap_addrs ) {
-                    if( submaps.count( submap_addr ) == 0 ) {
-                        continue;
-                    }
-
-                    submap *sm = submaps[submap_addr].get();
-
-                    if( sm == nullptr ) {
-                        continue;
-                    }
-
-                    jsout.start_object();
-
-                    jsout.member( "version", savegame_version );
-                    jsout.member( "coordinates" );
-
-                    jsout.start_array();
-                    jsout.write( submap_addr.x() );
-                    jsout.write( submap_addr.y() );
-                    jsout.write( submap_addr.z() );
-                    jsout.end_array();
-
-                    sm->store( jsout );
-
-                    jsout.end_object();
-
-                    if( delete_after_save ) {
-                        submaps_to_delete.push_back( submap_addr );
-                    }
-                }
-
-                jsout.end_array();
-
-                s = std::move( stringout ).str();
-            }
-            {
-                cata_timer ostream_timer( "fout<<" );
-                fout << s;
-            }
-            {
-                cata_timer zzip_timer( "zzip write/read" );
-                std::shared_ptr<zzip> z;
-                {
-                    cata_timer all_but_timer( "everything but the dtor" );
-                    std::string s2;
-                    cata_path zzip_name = dirname;
-                    zzip_name += ".zzip";
-                    {
-                        cata_timer zzip_timer( "zzip write" );
-                        z = zzip::load( zzip_name.get_unrelative_path() );
-                        z->add_file( filename.get_relative_path().filename(), s );
-                    }
-                    {
-                        cata_timer zzip_timer( "zzip read" );
-                        std::vector<std::byte> sb = z->get_file( filename.get_relative_path().filename() );
-                        s2 = std::string{ reinterpret_cast<const char *>( sb.data() ), reinterpret_cast<const char *>( sb.data() + sb.size() ) };
-                    }
-                }
-            }
+            fout << s;
         } );
     }
+
     if( all_uniform && reverted_to_uniform ) {
         fs::remove( filename.get_unrelative_path() );
     }
@@ -334,7 +314,7 @@ submap *mapbuffer::unserialize_submaps( const tripoint_abs_sm &p )
     // Map the tripoint to the submap quad that stores it.
     const tripoint_abs_omt om_addr = project_to<coords::omt>( p );
     const cata_path dirname = find_dirname( om_addr );
-    cata_path quad_path = find_quad_path( dirname, om_addr );
+    cata_path quad_path = dirname / quad_file_name( om_addr );
 
     if( !file_exist( quad_path ) ) {
         // Fix for old saves where the path was generated using std::stringstream, which
