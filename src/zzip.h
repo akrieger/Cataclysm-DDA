@@ -31,6 +31,8 @@ class zzip
 
         bool add_file( const fs::path &zzip_relative_path, std::string_view content );
 
+        void compact();
+
         static std::shared_ptr<zzip> create_from_folder( const fs::path &path, const fs::path &folder,
                 const fs::path &dictionary = {} );
         static bool extract_to_folder( const fs::path &path, const fs::path &folder,

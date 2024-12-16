@@ -294,6 +294,7 @@ void mapbuffer::save_quad(
         std::shared_ptr<zzip> z = zzip::load( zzip_name.get_unrelative_path(),
                                               ( PATH_INFO::world_base_save_path() / "maps.dict" ).get_unrelative_path() );
         z->add_file( filename.get_relative_path().filename(), s );
+        z->compact();
     } else {
         // Don't create the directory if it would be empty
         assure_dir_exist( dirname );
