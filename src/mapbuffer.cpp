@@ -9,12 +9,16 @@
 #include <utility>
 #include <vector>
 
+#include <zstd/zstd.h>
+#include <zstd/zdict.h>
+
 #include "cata_utility.h"
 #include "debug.h"
 #include "filesystem.h"
 #include "input.h"
 #include "json.h"
 #include "map.h"
+#include "mmap_file.h"
 #include "output.h"
 #include "overmapbuffer.h"
 #include "path_info.h"
@@ -23,6 +27,7 @@
 #include "submap.h"
 #include "translations.h"
 #include "ui_manager.h"
+#include "zzip.h"
 
 #define dbg(x) DebugLog((x),D_MAP) << __FILE__ << ":" << __LINE__ << ": "
 
@@ -240,7 +245,8 @@ void mapbuffer::save_quad(
     // Don't create the directory if it would be empty
     assure_dir_exist( dirname );
     write_to_file( filename, [&]( std::ostream & fout ) {
-        JsonOut jsout( fout );
+        std::stringstream stringout;
+        JsonOut jsout( stringout );
         jsout.start_array();
         for( auto &submap_addr : submap_addrs ) {
             if( submaps.count( submap_addr ) == 0 ) {
@@ -274,6 +280,18 @@ void mapbuffer::save_quad(
         }
 
         jsout.end_array();
+
+        std::string s = std::move( stringout ).str();
+        fout << s;
+        cata_path zzip_name = dirname;
+        zzip_name += ".zzip";
+        auto z = zzip::load( zzip_name.get_unrelative_path() );
+        z->add_file( filename.get_relative_path().filename(), s );
+        std::vector<std::byte> sb = z->get_file( filename.get_relative_path().filename() );
+        std::string s2{ reinterpret_cast<const char *>( sb.data() ), reinterpret_cast<const char *>( sb.data() + sb.size() ) };
+        if( s != s2 ) {
+            cata_assert( false );
+        }
     } );
 
     if( all_uniform && reverted_to_uniform ) {
