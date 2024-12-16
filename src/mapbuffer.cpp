@@ -252,75 +252,75 @@ void mapbuffer::save_quad(
     // Don't create the directory if it would be empty
     assure_dir_exist( dirname );
     {
-        cata_timer outer_serialize_timer("write_to_file outer");
-        write_to_file(filename, [&](std::ostream& fout) {
-            cata_timer serialize_timer("write_to_file inner");
+        cata_timer outer_serialize_timer( "write_to_file outer" );
+        write_to_file( filename, [&]( std::ostream & fout ) {
+            cata_timer serialize_timer( "write_to_file inner" );
             std::stringstream stringout;
-            JsonOut jsout(stringout);
+            JsonOut jsout( stringout );
             std::string s;
             {
-                cata_timer jsonout_timer("jsonout");
+                cata_timer jsonout_timer( "jsonout" );
                 jsout.start_array();
-                for (auto& submap_addr : submap_addrs) {
-                    if (submaps.count(submap_addr) == 0) {
+                for( auto &submap_addr : submap_addrs ) {
+                    if( submaps.count( submap_addr ) == 0 ) {
                         continue;
                     }
 
-                    submap* sm = submaps[submap_addr].get();
+                    submap *sm = submaps[submap_addr].get();
 
-                    if (sm == nullptr) {
+                    if( sm == nullptr ) {
                         continue;
                     }
 
                     jsout.start_object();
 
-                    jsout.member("version", savegame_version);
-                    jsout.member("coordinates");
+                    jsout.member( "version", savegame_version );
+                    jsout.member( "coordinates" );
 
                     jsout.start_array();
-                    jsout.write(submap_addr.x());
-                    jsout.write(submap_addr.y());
-                    jsout.write(submap_addr.z());
+                    jsout.write( submap_addr.x() );
+                    jsout.write( submap_addr.y() );
+                    jsout.write( submap_addr.z() );
                     jsout.end_array();
 
-                    sm->store(jsout);
+                    sm->store( jsout );
 
                     jsout.end_object();
 
-                    if (delete_after_save) {
-                        submaps_to_delete.push_back(submap_addr);
+                    if( delete_after_save ) {
+                        submaps_to_delete.push_back( submap_addr );
                     }
                 }
 
                 jsout.end_array();
 
-                s = std::move(stringout).str();
+                s = std::move( stringout ).str();
             }
             {
-                cata_timer ostream_timer("fout<<");
+                cata_timer ostream_timer( "fout<<" );
                 fout << s;
             }
             {
-                cata_timer zzip_timer("zzip write/read");
+                cata_timer zzip_timer( "zzip write/read" );
                 std::shared_ptr<zzip> z;
                 {
-                    cata_timer all_but_timer("everything but the dtor");
+                    cata_timer all_but_timer( "everything but the dtor" );
                     std::string s2;
                     cata_path zzip_name = dirname;
                     zzip_name += ".zzip";
                     {
-                        cata_timer zzip_timer("zzip write");
-                        z = zzip::load(zzip_name.get_unrelative_path());
-                        z->add_file(filename.get_relative_path().filename(), s);
+                        cata_timer zzip_timer( "zzip write" );
+                        z = zzip::load( zzip_name.get_unrelative_path() );
+                        z->add_file( filename.get_relative_path().filename(), s );
                     }
                     {
-                        cata_timer zzip_timer("zzip read");
-                        std::vector<std::byte> sb = z->get_file(filename.get_relative_path().filename());
-                        s2 = std::string{ reinterpret_cast<const char*>(sb.data()), reinterpret_cast<const char*>(sb.data() + sb.size()) };
+                        cata_timer zzip_timer( "zzip read" );
+                        std::vector<std::byte> sb = z->get_file( filename.get_relative_path().filename() );
+                        s2 = std::string{ reinterpret_cast<const char *>( sb.data() ), reinterpret_cast<const char *>( sb.data() + sb.size() ) };
                     }
                 }
             }
-            });
+        } );
     }
     if( all_uniform && reverted_to_uniform ) {
         fs::remove( filename.get_unrelative_path() );

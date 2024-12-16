@@ -34,6 +34,7 @@
 #include "translations.h"
 #include "ui.h"
 #include "ui_manager.h"
+#include "zzip.h"
 
 // single instance of world generator
 std::unique_ptr<worldfactory> world_generator;
@@ -294,7 +295,7 @@ void worldfactory::set_active_world( WORLD *world )
     }
 }
 
-bool WORLD::save( const bool is_conversion ) const
+bool WORLD::save() const
 {
     if( !assure_dir_exist( folder_path() ) ) {
         debugmsg( "Unable to create or open world[%s] directory for saving", world_name );
@@ -307,6 +308,7 @@ bool WORLD::save( const bool is_conversion ) const
         return false;
     }
 
+/*
     if( !is_conversion ) {
         const cata_path savefile = folder_path() / PATH_INFO::worldoptions();
         const bool saved = write_to_file( savefile, [&]( std::ostream & fout ) {
@@ -408,7 +410,6 @@ void worldfactory::init()
         }
         add_existing_world( dir );
     }
-
     // In old versions, there was only one world, stored directly in the "save" directory.
     // If that directory contains the expected files, it's an old save and must be converted.
     if( is_save_dir( "save" ) ) {
@@ -2087,6 +2088,52 @@ void load_external_option( const JsonObject &jo )
         jo.throw_error_at( "stype", "Unknown or unsupported stype for external option" );
     }
     options_manager::update_options_cache();
+}
+
+bool WORLD::has_compression_enabled() const
+{
+    return fs::exists( ( folder_path() / "maps.dict" ).get_unrelative_path() ) ||
+           fs::exists( ( folder_path() / "mmr.dict" ).get_unrelative_path() );
+}
+
+bool WORLD::set_compression_enabled( bool enabled ) const
+{
+    // If enabled and has_compression_enabled are both true or both false,
+    // we just return immediately. That's computed by inverting the xor.
+    if( !( enabled ^ has_compression_enabled() ) ) {
+        return true;
+    }
+    if( enabled ) {
+        fs::path maps_dict = PATH_INFO::maps_compression_dictionary_path().get_unrelative_path();
+        std::vector<cata_path> maps_folders = get_directories( folder_path() / "maps" );
+        for( const cata_path &map_folder : maps_folders ) {
+            if( !zzip::create_from_folder( ( map_folder + ".zzip" ).get_unrelative_path(),
+                                           map_folder.get_unrelative_path(), maps_dict ) ) {
+                return false;
+            }
+        }
+        copy_file( PATH_INFO::maps_compression_dictionary_path(), folder_path() / "maps.dict" );
+        for( const cata_path &map_folder : maps_folders ) {
+            std::error_code ec;
+            fs::remove_all( map_folder.get_unrelative_path(), ec );
+        }
+    } else {
+        fs::path maps_dict = ( folder_path() / "maps.dict" ).get_unrelative_path();
+        std::vector<cata_path> zzips = get_files_from_path( "zzip", folder_path() / "maps", false, true );
+        for( const cata_path &map_zzip : zzips ) {
+            fs::path zzip_path = map_zzip.get_unrelative_path();
+            fs::path dest_folder_name = zzip_path.parent_path() / zzip_path.stem();
+            if( !zzip::extract_to_folder( zzip_path, dest_folder_name, maps_dict ) ) {
+                return false;
+            }
+        }
+        remove_file( maps_dict );
+        for( const cata_path &map_zzip : zzips ) {
+            std::error_code ec;
+            fs::remove( map_zzip.get_unrelative_path(), ec );
+        }
+    }
+    return true;
 }
 
 mod_manager &worldfactory::get_mod_manager()

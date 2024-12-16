@@ -7,10 +7,11 @@
 #include <zstd/zdict.h>
 #include <zstd/zstd.h>
 
-#include "perf.h"
+#include "filesystem.h"
 #include "flexbuffer_cache.h"
 #include "json_loader.h"
 #include "platform_win.h"
+#include "perf.h"
 
 namespace
 {
@@ -58,7 +59,25 @@ struct zzip_vector_storage : flexbuffer_storage {
     }
 };
 
+struct cached_zstd_context {
+    ZSTD_CCtx *cctx;
+    ZSTD_DCtx *dctx;
+};
+
+std::unordered_map<fs::path, cached_zstd_context> cached_contexts;
+
 }
+
+struct zzip::context {
+    context(
+        ZSTD_CCtx *cctx,
+        ZSTD_DCtx *dctx
+    ) : cctx{ cctx }, dctx{ dctx } {
+    }
+    ZSTD_CCtx *cctx;
+    ZSTD_DCtx *dctx;
+};
+
 zzip::zzip( const fs::path &path, std::shared_ptr<mmap_file> file, JsonObject footer ) : path{path},
     file{std::move( file )},
     footer{ std::move( footer ) } {}
@@ -67,7 +86,7 @@ zzip::~zzip() noexcept
     footer.allow_omitted_members();
 }
 
-std::shared_ptr<zzip> zzip::load( const fs::path &path )
+std::shared_ptr<zzip> zzip::load( const fs::path &path, const fs::path &dictionary_path )
 {
     std::shared_ptr<zzip> zip;
     std::shared_ptr<mmap_file> file = mmap_file::map_writeable_file( path );
@@ -86,29 +105,31 @@ std::shared_ptr<zzip> zzip::load( const fs::path &path )
 
     zip = std::shared_ptr<zzip>( new zzip( path, std::move( file ), JsonValue( std::move( flexbuffer ),
                                            root, nullptr, 0 ) ) );
+
+    ZSTD_CCtx *cctx;
+    ZSTD_DCtx *dctx;
+    if( dictionary_path.empty() ) {
+        cctx = ZSTD_createCCtx();
+        dctx = ZSTD_createDCtx();
+    } else if( auto it = cached_contexts.find( dictionary_path ); it != cached_contexts.end() ) {
+        cctx = it->second.cctx;
+        dctx = it->second.dctx;
+    } else {
+        std::shared_ptr<const mmap_file> dictionary = mmap_file::map_file( dictionary_path );
+        cctx = ZSTD_createCCtx();
+        ZSTD_CCtx_loadDictionary( cctx, dictionary->base(), dictionary->len() );
+        ZSTD_CCtx_setParameter( cctx, ZSTD_c_compressionLevel, 7 );
+        dctx = ZSTD_createDCtx();
+        ZSTD_DCtx_loadDictionary( dctx, dictionary->base(), dictionary->len() );
+        cached_contexts.emplace( dictionary_path, cached_zstd_context{ cctx, dctx } );
+    }
+    zip->ctx = std::make_unique<zzip::context>( cctx, dctx );
+
     return zip;
 }
 
 namespace
 {
-
-struct dictionary_params {
-    size_t offset = 0;
-    size_t len = 0;
-};
-
-std::optional<dictionary_params> get_dictionary_params( const JsonObject &footer )
-{
-    if( !footer.has_object( "dict" ) ) {
-        return std::nullopt;
-    }
-
-    dictionary_params params;
-    JsonObject dict = footer.get_object( "dict" );
-    params.offset = dict.get_int( "offset" );
-    params.len = dict.get_int( "len" );
-    return params;
-}
 
 struct file_params {
     size_t offset = 0;
@@ -158,52 +179,18 @@ std::optional<zzip_meta> get_meta( const JsonObject &footer )
 
 }
 
-struct zzip::context {
-    ~context() {
-        //ZSTD_freeCCtx( cctx );
-        //ZSTD_freeDCtx( dctx );
-    }
-
-    ZSTD_CCtx *cctx;
-    ZSTD_DCtx *dctx;
-};
-
-void zzip::init_context()
+size_t zzip::get_file_size( const fs::path &zzip_relative_path ) const
 {
-    if( !ctx ) {
-        ctx = std::make_unique<context>();
+    std::optional<file_params> fparams = get_file_params( zzip_relative_path, footer );
+    if( !fparams.has_value() ) {
+        throw std::runtime_error( "whups" );
     }
+    void *base = static_cast<char *>( file->base() ) + fparams->offset;
+    return ZSTD_decompressBound( base, fparams->len );
 }
 
-static std::shared_ptr<const mmap_file> dictionary = mmap_file::map_file(
-            fs::u8path( "maps100k.dict.new" ) );
-ZSTD_CCtx *cctx = nullptr;
-ZSTD_DCtx *dctx = nullptr;
-
-void zzip::init_cctx()
+std::vector<std::byte> zzip::get_file( const fs::path &zzip_relative_path ) const
 {
-    init_context();
-    if( !cctx ) {
-        cctx = ZSTD_createCCtx();
-        ZSTD_CCtx_loadDictionary_byReference( cctx, dictionary->base(), dictionary->len() );
-        ZSTD_CCtx_setParameter( cctx, ZSTD_c_compressionLevel, 7 );
-    }
-    ctx->cctx = cctx;
-}
-
-void zzip::init_dctx()
-{
-    init_context();
-    if( !dctx ) {
-        dctx = ZSTD_createDCtx();
-        ZSTD_DCtx_loadDictionary_byReference( dctx, dictionary->base(), dictionary->len() );
-    }
-    ctx->dctx = dctx;
-}
-
-std::vector<std::byte> zzip::get_file( const fs::path &zzip_relative_path )
-{
-    init_dctx();
     std::optional<file_params> fparams = get_file_params( zzip_relative_path, footer );
     if( !fparams.has_value() ) {
         throw std::runtime_error( "whups" );
@@ -216,9 +203,24 @@ std::vector<std::byte> zzip::get_file( const fs::path &zzip_relative_path )
     return buf;
 }
 
+size_t zzip::get_file_to( const fs::path &zzip_relative_path, std::byte *dest,
+                          size_t dest_len ) const
+{
+    std::optional<file_params> fparams = get_file_params( zzip_relative_path, footer );
+    if( !fparams.has_value() ) {
+        throw std::runtime_error( "whups" );
+    }
+    void *base = static_cast<char *>( file->base() ) + fparams->offset;
+    unsigned long long file_size = ZSTD_decompressBound( base, fparams->len );
+    if( dest_len < file_size ) {
+        return 0;
+    }
+    size_t actual = ZSTD_decompressDCtx( ctx->dctx, dest, dest_len, base, fparams->len );
+    return actual;
+}
+
 bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view content )
 {
-    init_cctx();
     size_t estimated_size = ZSTD_compressBound( content.length() );
 
     std::error_code ec;
@@ -282,15 +284,6 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
         builder.EndMap( meta_start );
     }
     {
-        std::optional<dictionary_params> dparams = get_dictionary_params( footer_copy );
-        if( dparams ) {
-            size_t dict_start = builder.StartMap( "dict" );
-            builder.UInt( "offset", dparams->offset );
-            builder.UInt( "len", dparams->len );
-            builder.EndMap( dict_start );
-        }
-    }
-    {
         std::string new_filename = zzip_relative_path.generic_u8string();
         JsonObject entries = footer_copy.get_object( "entries" );
         size_t entries_start = builder.StartMap( "entries" );
@@ -333,7 +326,43 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
     return true;
 }
 
-bool zzip::save()
+std::shared_ptr<zzip> zzip::create_from_folder( const fs::path &path, const fs::path &folder,
+        const fs::path &dictionary )
 {
-    return false;
+    std::shared_ptr<zzip> zip = zzip::load( path, dictionary );
+    for( const fs::directory_entry &entry : fs::recursive_directory_iterator( folder ) ) {
+        if( !entry.is_regular_file() ) {
+            continue;
+        }
+        std::shared_ptr<const mmap_file> file = mmap_file::map_file( entry.path() );
+        zip->add_file( fs::relative( entry.path(), folder ).generic_u8string(), std::string_view{static_cast<const char *>( file->base() ), file->len()} );
+    }
+    return zip;
+}
+
+bool zzip::extract_to_folder( const fs::path &path, const fs::path &folder,
+                              const fs::path &dictionary )
+{
+    std::shared_ptr<zzip> zip = zzip::load( path, dictionary );
+
+    for( const JsonMember &entry : zip->footer.get_object( "entries" ) ) {
+        std::string filename = entry.name();
+        size_t len = zip->get_file_size( filename );
+        fs::path destination_file_path = folder / filename;
+        if( !assure_dir_exist( destination_file_path.parent_path() ) ) {
+            return false;
+        }
+        std::shared_ptr<mmap_file> file = mmap_file::map_writeable_file( destination_file_path );
+        if( !file ) {
+            fs::resize_file( destination_file_path, len );
+            file = mmap_file::map_writeable_file( destination_file_path );
+        }
+        if( !file ) {
+            return false;
+        }
+        if( zip->get_file_to( filename, static_cast<std::byte *>( file->base() ), file->len() ) != len ) {
+            return false;
+        }
+    }
+    return true;
 }
