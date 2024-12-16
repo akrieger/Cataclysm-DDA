@@ -234,10 +234,7 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
     JsonObject footer_copy;
     if( !file ) {
         // Can't mmap an empty file
-        {
-            cata_timer resize_timer_empty( "resize timer empty" );
-            fs::resize_file( path, estimated_size, ec );
-        }
+        fs::resize_file( path, estimated_size, ec );
         if( ec ) {
             return false;
         }
@@ -257,20 +254,13 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
         footer_copy = JsonValue( std::move( footer_flexbuffer ), root, nullptr, 0 );
         footer_copy.allow_omitted_members();
 
-        {
-            cata_timer resize_timer( "resize timer estimated" );
-            if( !file->resize_file( old_content_end + estimated_size ) ) {
-                return false;
-            }
+        if( !file->resize_file( old_content_end + estimated_size ) ) {
+            return false;
         }
     }
-    size_t actual_size;
-    {
-        cata_timer compress_timer( "zstd compress" );
-        actual_size = ZSTD_compress2( ctx->cctx,
-                                      static_cast<char *>( file->base() ) + old_content_end, estimated_size,
-                                      content.data(), content.size() );
-    }
+    size_t actual_size = ZSTD_compress2( ctx->cctx,
+                                         static_cast<char *>( file->base() ) + old_content_end, estimated_size,
+                                         content.data(), content.size() );
     if( ZSTD_isError( actual_size ) ) {
         return false;
     }
@@ -309,11 +299,8 @@ bool zzip::add_file( const fs::path &zzip_relative_path, std::string_view conten
     builder.Finish();
     auto buf = builder.GetBuffer();
 
-    {
-        cata_timer resize_timer_finish( "resize timer 3" );
-        if( !file->resize_file( old_content_end + actual_size + buf.size() ) ) {
-            return false;
-        }
+    if( !file->resize_file( old_content_end + actual_size + buf.size() ) ) {
+        return false;
     }
     memcpy( static_cast<char *>( file->base() ) + old_content_end + actual_size, buf.data(),
             buf.size() );
