@@ -332,7 +332,7 @@ std::shared_ptr<zzip> zzip::create_from_folder( const fs::path &path, const fs::
             continue;
         }
         std::shared_ptr<const mmap_file> file = mmap_file::map_file( entry.path() );
-        zip->add_file( fs::relative( entry.path(), folder ).generic_u8string(), std::string_view{static_cast<const char *>( file->base() ), file->len()} );
+        zip->add_file( entry.path().lexically_relative( folder ).generic_u8string(), std::string_view{static_cast<const char *>( file->base() ), file->len()} );
     }
     return zip;
 }
