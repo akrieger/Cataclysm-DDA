@@ -928,7 +928,8 @@ ifeq ($(MSYS2),1)
   CXXFLAGS += -DMSYS2
 endif
 
-CFLAGS += $(CXXFLAGS) $(C_STD)
+CFLAGS := $(CXXFLAGS)
+CFLAGS += $(C_STD)
 CXXFLAGS += $(CXX_STD)
 
 # Enumerations of all the source files and headers.
@@ -1115,7 +1116,7 @@ $(ODIR)/%.o: $(SRC_DIR)/%.cpp $(PCH_P)
 	$(CXX) $(CPPFLAGS) $(DEFINES) $(CXXFLAGS) -MMD -MP $(PCHFLAGS) -c $< -o $@
 
 $(ODIR)/%.o: $(SRC_DIR)/%.c $(PCH_P)
-	$(CXX) $(CPPFLAGS) $(DEFINES) $(CFLAGS) -w -MMD -MP $(PCHFLAGS) -c $< -o $@
+	$(CXX) -x c $(CPPFLAGS) $(DEFINES) $(CFLAGS) -w -MMD -MP -c $< -o $@
 
 $(ODIR)/%.o: $(SRC_DIR)/%.rc
 	$(RC) $(RFLAGS) $< -o $@
