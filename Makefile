@@ -1016,6 +1016,8 @@ ifeq ($(USE_XDG_DIR),1)
   DEFINES += -DUSE_XDG_DIR
 endif
 
+DEFINES += -DFOOBAR=FOOBAR
+
 ifeq ($(LTO), 1)
   # Depending on the compiler version, LTO usually requires all the
   # optimization flags to be specified on the link line, and requires them to
