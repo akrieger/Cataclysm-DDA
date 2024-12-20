@@ -192,7 +192,7 @@ jobs:
         RELEASE: 1
         ARCHIVE_SUCCESS: ${{ matrix.archive-success }}
         CCACHE_LIMIT: ${{ matrix.ccache_limit }}
-        CCACHE_FILECLONE: true
+        CCACHE_FILECLONE: false
         CCACHE_HARDLINK: true
         CCACHE_NOCOMPRESS: true
         SKIP: >-

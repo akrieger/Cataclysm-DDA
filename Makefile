@@ -1016,7 +1016,7 @@ ifeq ($(USE_XDG_DIR),1)
   DEFINES += -DUSE_XDG_DIR
 endif
 
-DEFINES += -DFOOBAR=FOOBAR
+DEFINES += -DFOOBAR=FOOBAR -DBAZQUUX=BAZQUUX
 
 ifeq ($(LTO), 1)
   # Depending on the compiler version, LTO usually requires all the
