@@ -26,12 +26,12 @@ mmap_file::mmap_file() = default;
 mmap_file::~mmap_file()
 {
 #ifdef _WIN32
-    if( base != nullptr ) {
-        UnmapViewOfFile( base );
+    if( map_base != nullptr ) {
+        UnmapViewOfFile( map_base );
     }
 #else
     if( base != nullptr ) {
-        munmap( base, len );
+        munmap( map_base, map_len );
     }
 #endif
 }
@@ -63,12 +63,7 @@ struct mmap_file::handle {
 #endif
 };
 
-std::shared_ptr<mmap_file> mmap_file::map_file( const std::string &file_path )
-{
-    return map_file( fs::u8path( file_path ) );
-}
-
-std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
+std::shared_ptr<const mmap_file> mmap_file::map_file( const fs::path &file_path )
 {
     std::shared_ptr<mmap_file> mapped_file;
 
@@ -117,8 +112,8 @@ std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
     mapped_file->mmap_handle = std::make_shared<handle>();
     mapped_file->mmap_handle->file = file_handle;
     mapped_file->mmap_handle->file_mapping = file_mapping_handle;
-    mapped_file->base = static_cast<uint8_t *>( map_base );
-    mapped_file->len = file_size.QuadPart;
+    mapped_file->map_base = static_cast<uint8_t *>( map_base );
+    mapped_file->map_len = file_size.QuadPart;
 #else
     const std::string &file_path_string = file_path.native();
     std::error_code ec;
@@ -132,15 +127,30 @@ std::shared_ptr<mmap_file> mmap_file::map_file( const fs::path &file_path )
         return mapped_file;
     }
     on_out_of_scope close_file_guard( [&] { close( fd ); } );
-    void *map_base = mmap( nullptr, file_size, PROT_READ, MAP_PRIVATE, fd, 0 );
-    if( !map_base ) {
+    void *base = mmap( nullptr, file_size, PROT_READ, MAP_PRIVATE, fd, 0 );
+    if( !base ) {
         return mapped_file;
     }
 
-    mapped_file = std::shared_ptr<mmap_file> { new mmap_file() };
+    mapped_file = std::shared_ptr<const mmap_file> { new mmap_file() };
     // No need for an underlying handle.
-    mapped_file->base = static_cast<uint8_t *>( map_base );
-    mapped_file->len = file_size;
+    mapped_file->map_base = static_cast<uint8_t *>( base );
+    mapped_file->map_len = file_size;
 #endif
     return mapped_file;
+}
+
+uint8_t *mmap_file::base()
+{
+    return map_base;
+}
+
+uint8_t const *mmap_file::base() const
+{
+    return map_base;
+}
+
+size_t mmap_file::len() const
+{
+    return map_len;
 }
