@@ -317,10 +317,25 @@ void mapbuffer::save_quad(
     if( world_generator->active_world->has_compression_enabled() ) {
         cata_path zzip_name = dirname;
         zzip_name += ".zzip";
-        std::shared_ptr<zzip> z = zzip::load( zzip_name.get_unrelative_path(),
-                                              ( PATH_INFO::world_base_save_path() / "maps.dict" ).get_unrelative_path() );
-        z->add_file( filename.get_relative_path().filename(), s );
-        z->compact( 1.5 );
+        {
+            std::shared_ptr<zzip> z = zzip::load( zzip_name.get_unrelative_path(),
+                                                  ( PATH_INFO::world_base_save_path() / "maps.dict" ).get_unrelative_path() );
+            z->add_file( filename.get_relative_path().filename(), s );
+            z->compact( 1.5 );
+        }
+        {
+            std::shared_ptr<zzip> z = zzip::load( zzip_name.get_unrelative_path(),
+                                                  ( PATH_INFO::world_base_save_path() / "maps.dict" ).get_unrelative_path() );
+            try {
+                auto vec2 = z->get_file( filename.get_relative_path().filename() );
+                std::string s2{reinterpret_cast<const char*>(vec2.data()), vec2.size()};
+                if( s != s2 ) {
+                    debugmsg( "error!" );
+                }
+            } catch( std::exception &e ) {
+                debugmsg( std::string("exception! ") + e.what() );
+            }
+        }
     } else {
         // Don't create the directory if it would be empty
         assure_dir_exist( dirname );

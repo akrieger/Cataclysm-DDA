@@ -152,6 +152,7 @@ struct mmap_file::impl {
 
     bool unmap_view() {
         if( base != nullptr ) {
+            msync(base, len, MS_SYNC | MS_INVALIDATE);
             munmap( base, len );
         }
         base = nullptr;
