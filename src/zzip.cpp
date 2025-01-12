@@ -799,19 +799,40 @@ void zzip::compact( double bloat_factor )
         return lhs.offset < rhs.offset;
     } );
 
+    fs::path tmp_path = path_;
+    tmp_path.replace_extension( ".zzip.tmp" );
+    std::shared_ptr<mmap_file> compacted_file = mmap_file::map_writeable_file(
+                tmp_path,
+                meta.total_content_size + 1024
+            );
+    if( !compacted_file ) {
+        return;
+    }
     size_t current_end = 0;
     for( compressed_entry &entry : compressed_entries ) {
         if( entry.offset != current_end ) {
             // This file needs to be shifted left.
-            memcpy( file_base_plus( current_end ), file_base_plus( entry.offset ), entry.len );
+            memcpy( static_cast<char *>( compacted_file->base() ) + current_end, file_base_plus( entry.offset ),
+                    entry.len );
             entry.offset = current_end;
         }
         current_end += entry.len;
     }
 
     JsonObject old_footer{ copy_footer() };
+    file_ = compacted_file;
     old_footer.allow_omitted_members();
     update_footer( old_footer, current_end, compressed_entries, /* shrink_to_fit = */ true );
+
+    compacted_file = nullptr;
+
+    std::error_code ec;
+    fs::rename( tmp_path, path_, ec );
+    size_t attempts = 1;
+    while( ec && attempts < 3 ) {
+        ++attempts;
+        fs::rename( tmp_path, path_, ec );
+    }
 }
 
 void *zzip::file_base_plus( size_t offset ) const

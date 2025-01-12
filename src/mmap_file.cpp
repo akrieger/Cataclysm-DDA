@@ -167,7 +167,8 @@ struct mmap_file::impl {
 #endif
 };
 
-std::unique_ptr<mmap_file> mmap_file::map_file_generic( const fs::path &file_path, bool writeable )
+std::unique_ptr<mmap_file> mmap_file::map_file_generic( const fs::path &file_path, bool writeable,
+        size_t size )
 {
     std::unique_ptr<mmap_file> mapped_file;
 
@@ -197,14 +198,16 @@ std::unique_ptr<mmap_file> mmap_file::map_file_generic( const fs::path &file_pat
     }
 #endif
     // pimpl owns file_handle now.
-    impl pimpl{ std::move( file_handle ), writeable };
+    impl pimpl{ file_handle, writeable };
+    mapped_file = std::unique_ptr<mmap_file> { new mmap_file() };
+    mapped_file->pimpl = std::shared_ptr<impl>( new impl( std::move( pimpl ) ) );
+    if( size && !mapped_file->resize_file( size ) ) {
+        return nullptr;
+    }
 
     if( !pimpl.map_view() ) {
         return nullptr;
     }
-
-    mapped_file = std::unique_ptr<mmap_file> { new mmap_file() };
-    mapped_file->pimpl = std::shared_ptr<impl>( new impl( std::move( pimpl ) ) );
     return mapped_file;
 }
 
@@ -213,9 +216,9 @@ std::shared_ptr<const mmap_file> mmap_file::map_file( const fs::path &file_path 
     return map_file_generic( file_path, false );
 }
 
-std::unique_ptr<mmap_file> mmap_file::map_writeable_file( const fs::path &file_path )
+std::unique_ptr<mmap_file> mmap_file::map_writeable_file( const fs::path &file_path, size_t size )
 {
-    return map_file_generic( file_path, true );
+    return map_file_generic( file_path, true, size );
 }
 
 bool mmap_file::resize_file( size_t desired_size )

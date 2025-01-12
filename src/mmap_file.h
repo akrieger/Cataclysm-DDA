@@ -14,7 +14,7 @@ class mmap_file
     public:
         static std::shared_ptr<const mmap_file> map_file( const fs::path &file_path );
 
-        static std::unique_ptr<mmap_file> map_writeable_file( const fs::path &file_path );
+        static std::unique_ptr<mmap_file> map_writeable_file( const fs::path &file_path, size_t size = 0 );
 
         bool resize_file( size_t desired_size );
 
@@ -28,7 +28,8 @@ class mmap_file
     private:
         mmap_file();
 
-        static std::unique_ptr<mmap_file> map_file_generic( const fs::path &file_path, bool writeable );
+        static std::unique_ptr<mmap_file> map_file_generic( const fs::path &file_path, bool writeable,
+                size_t size = 0 );
 
         // Opaque type to platform specific mmap implementation.
         struct impl;
