@@ -247,7 +247,7 @@ std::shared_ptr<zzip> zzip::load( const std::filesystem::path &path,
     flexbuffers::Reference root;
     std::shared_ptr<parsed_flexbuffer> flexbuffer;
     JsonObject footer;
-    bool needs_recovery = true;
+    bool needs_recovery = false;
 
     if( file->len() > 0 ) {
         try {
@@ -382,7 +382,9 @@ std::vector<std::byte> zzip::get_file( const std::filesystem::path &zzip_relativ
     std::vector<std::byte> buf{};
     size_t size = get_file_size( zzip_relative_path );
     buf.resize( size );
-    get_file_to( zzip_relative_path, buf.data(), size );
+    size_t final_size = get_file_to(zzip_relative_path, buf.data(), size);
+    // get_file_to returns 0 on error so we return an empty array.
+    buf.resize( final_size );
     return buf;
 }
 
@@ -457,11 +459,12 @@ size_t zzip::write_file_at( std::string_view filename, std::string_view content,
 {
     // The format of a compressed entry is a series of zstd frames.
     // There are an unbounded number of leading skippable frames of unspecified content.
-    // At present, we write two frames:
+    // At present, we write two skippable frames per entry:
     //   - A frame for the filename of the entry.
     //   - A frame for a 64 bit XXH checksum of the entire compressed frame.
-    //   - The actual compressed frame
-    // Returns the size of the entire skippable frame.
+    //   - The actual compressed frame.
+    // Returns the size of the entire file entry
+    // (i.e. from the start of the first skippable frame to the end of the compressed data).
 
     if( file_->len() <= offset ) {
         return 0;
@@ -603,7 +606,7 @@ void zzip::recover_lost_footer()
         std::optional<std::string> filename_opt;
         std::optional<uint64_t> checksum_opt;
         bool recovered_headers = false;
-        while( entry_begin < file_len ) {
+        while( entry_offset < file_len ) {
             size_t file_remaining = file_len - entry_begin;
             // For each entry we expect at least a filename and checksum header.
             void *entry_ptr = file_base_plus( entry_offset );
@@ -622,6 +625,7 @@ void zzip::recover_lost_footer()
                 size_t content_size = header.frameContentSize;
                 switch( magic ) {
                     case kFileNameMagic: {
+                        // Pre-create a new string with the correct size, and zero-bytes as content.
                         filename_opt.emplace( content_size, '\0' );
                         std::string &filename = *filename_opt;
                         size_t bytes_read = ZSTD_readSkippableFrame(

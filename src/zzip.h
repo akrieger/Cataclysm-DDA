@@ -37,14 +37,16 @@ class zzip
 
         /**
          * Create a zzip at the given path, using the given dictionary to de/compress files in the zzip.
-         * If created with a dictionary, the same dictionary must be used for all operations.
+         * The same dictionary must be used every time the zzip is loaded.
+         * A dictionary can either be arbitrary reference data or a dictionary created with the zstd cli.
+         * See https://github.com/facebook/zstd/blob/dev/programs/README.md#dictionary-builder-in-command-line-interface
+         * for more details.
          */
         static std::shared_ptr<zzip> load( const std::filesystem::path &path,
                                            const std::filesystem::path &dictionary = {} );
 
-
         /**
-         * Writes the given file contents under the given file path into the zzip
+         * Writes the given file contents under the given file path into the zzip.
          * Returns true on success, false on any error.
          */
         bool add_file( const std::filesystem::path &zzip_relative_path, std::string_view content );
@@ -73,12 +75,14 @@ class zzip
          * Returns 0 if the destination does not have enough space for the file.
          * Returns the size of the decompressed file on success.
          */
-        size_t get_file_to( const std::filesystem::path &zzip_relative_path, std::byte *dest,
+        size_t get_file_to( const std::filesystem::path &zzip_relative_path,
+                            std::byte *dest,
                             size_t dest_len ) const;
 
         /**
          * Possibly shrink the zzip by eliminating orphaned data or padding bytes.
-         * If passed, only shrinks the zzip if the underlying file is larger than optimal than the given ratio.
+         * If bloat_factor passed, only shrinks the zzip if the underlying file is
+         * larger than optimal than the given ratio.
          * Returns true if compaction occurred.
          */
         bool compact( double bloat_factor = 1.0 );
@@ -86,7 +90,7 @@ class zzip
         /**
          * Create a zzip from a folder of existing files.
          * The files in the zzip are indexed based on their relative path inside the folder.
-         * If given, the dictionary is used to compress the files.
+         * See zzip::load for documentation about dictionaries.
          */
         static std::shared_ptr<zzip> create_from_folder( const std::filesystem::path &path,
                 const std::filesystem::path &folder,
@@ -94,6 +98,7 @@ class zzip
         /**
          * Extract the given zzip's contents into the given folder.
          * The files in the zzip are written into the folder under their relative paths.
+         * See zzip::load for documentation about dictionaries.
          */
         static bool extract_to_folder( const std::filesystem::path &path,
                                        const std::filesystem::path &folder,

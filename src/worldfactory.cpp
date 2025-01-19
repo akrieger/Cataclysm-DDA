@@ -2064,9 +2064,8 @@ bool WORLD::has_compression_enabled() const
 
 bool WORLD::set_compression_enabled( bool enabled ) const
 {
-    // If enabled and has_compression_enabled are both true or both false,
-    // we just return immediately. That's computed by inverting the xor.
-    if( !( enabled ^ has_compression_enabled() ) ) {
+    // Return immediately if we're already in the desired state.
+    if( enabled == has_compression_enabled() ) {
         return true;
     }
     static_popup popup;
