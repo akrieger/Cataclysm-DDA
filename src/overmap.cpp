@@ -12,6 +12,7 @@
 #include <optional>
 #include <ostream>
 #include <set>
+#include <strstream>
 #include <unordered_set>
 #include <vector>
 
@@ -69,6 +70,8 @@
 #include "text_snippets.h"
 #include "translations.h"
 #include "weighted_list.h"
+#include "worldfactory.h"
+#include "zzip.h"
 
 static const mongroup_id GROUP_NEMESIS( "GROUP_NEMESIS" );
 static const mongroup_id GROUP_OCEAN_DEEP( "GROUP_OCEAN_DEEP" );
@@ -7599,30 +7602,52 @@ void overmap::place_radios()
 
 void overmap::open( overmap_special_batch &enabled_specials )
 {
-    const cata_path terfilename = PATH_INFO::world_base_save_path() / overmapbuffer::terrain_filename(
-                                      loc );
+    if( world_generator->active_world->has_compression_enabled() ) {
+        const std::string terfilename = overmapbuffer::terrain_filename( loc );
+        const std::filesystem::path terfilename_path = std::filesystem::u8path( terfilename );
+        const cata_path zzip_path = PATH_INFO::world_base_save_path() / "overmaps" / terfilename_path +
+                                    ".zzip";
+        std::shared_ptr<zzip> z = zzip::load( zzip_path.get_unrelative_path(),
+                                              ( PATH_INFO::world_base_save_path() / "overmaps.dict" ).get_unrelative_path()
+                                            );
 
-    if( read_from_file_optional( terfilename, [this, &terfilename]( std::istream & is ) {
-    unserialize( terfilename, is );
-    } ) ) {
-        const cata_path plrfilename = overmapbuffer::player_filename( loc );
-        read_from_file_optional( plrfilename, [this, &plrfilename]( std::istream & is ) {
-            unserialize_view( plrfilename, is );
-        } );
-    } else { // No map exists!  Prepare neighbors, and generate one.
-        std::vector<const overmap *> pointers;
-        // Fetch south and north
-        for( int i = -1; i <= 1; i += 2 ) {
-            pointers.push_back( overmap_buffer.get_existing( loc + point( 0, i ) ) );
+        if( read_from_zzip_optional( z, terfilename_path, [this, &terfilename]( std::istream & is ) {
+        unserialize( is );
+        } ) ) {
+            const cata_path plrfilename = overmapbuffer::player_filename( loc );
+            read_from_file_optional( plrfilename, [this, &plrfilename]( std::istream & is ) {
+                unserialize_view( plrfilename, is );
+            } );
+            return;
         }
-        // Fetch east and west
-        for( int i = -1; i <= 1; i += 2 ) {
-            pointers.push_back( overmap_buffer.get_existing( loc + point( i, 0 ) ) );
-        }
+    } else {
+        const cata_path terfilename = PATH_INFO::world_base_save_path() / overmapbuffer::terrain_filename(
+                                          loc );
 
-        // pointers looks like (north, south, west, east)
-        generate( pointers[0], pointers[3], pointers[1], pointers[2], enabled_specials );
+        if( read_from_file_optional( terfilename, [this, &terfilename]( std::istream & is ) {
+        unserialize( terfilename, is );
+        } ) ) {
+            const cata_path plrfilename = overmapbuffer::player_filename( loc );
+            read_from_file_optional( plrfilename, [this, &plrfilename]( std::istream & is ) {
+                unserialize_view( plrfilename, is );
+            } );
+            return;
+        }
     }
+
+    // No map exists!  Prepare neighbors, and generate one.
+    std::vector<const overmap *> pointers;
+    // Fetch south and north
+    for( int i = -1; i <= 1; i += 2 ) {
+        pointers.push_back( overmap_buffer.get_existing( loc + point( 0, i ) ) );
+    }
+    // Fetch east and west
+    for( int i = -1; i <= 1; i += 2 ) {
+        pointers.push_back( overmap_buffer.get_existing( loc + point( i, 0 ) ) );
+    }
+
+    // pointers looks like (north, south, west, east)
+    generate( pointers[0], pointers[3], pointers[1], pointers[2], enabled_specials );
 }
 
 // Note: this may throw io errors from std::ofstream
@@ -7632,10 +7657,37 @@ void overmap::save() const
         serialize_view( stream );
     } );
 
-    write_to_file( PATH_INFO::world_base_save_path() / overmapbuffer::terrain_filename( loc ), [&](
-    std::ostream & stream ) {
-        serialize( stream );
-    } );
+    if( world_generator->active_world->has_compression_enabled() ) {
+        const std::string terfilename = overmapbuffer::terrain_filename( loc );
+        const std::filesystem::path terfilename_path = std::filesystem::u8path( terfilename );
+        const cata_path overmaps_folder = PATH_INFO::world_base_save_path() / "overmaps";
+        assure_dir_exist( overmaps_folder );
+        const cata_path zzip_path = overmaps_folder / terfilename_path + ".zzip";
+        std::shared_ptr<zzip> z = zzip::load( zzip_path.get_unrelative_path(),
+                                              ( PATH_INFO::world_base_save_path() / "overmaps.dict" ).get_unrelative_path()
+                                            );
+        if( !z ) {
+            throw std::runtime_error(
+                string_format(
+                    "Failed to open %s",
+                    zzip_path.get_unrelative_path().generic_u8string().c_str()
+                )
+            );
+        }
+
+        std::stringstream s;
+        serialize( s );
+
+        if( !z->add_file( terfilename_path, s.str() ) ) {
+            throw std::runtime_error( string_format( "Failed to save omap %d.%d to %s", loc.x(),
+                                      loc.y(), zzip_path.get_unrelative_path().generic_u8string().c_str() ) );
+        }
+    } else {
+        write_to_file( PATH_INFO::world_base_save_path() / overmapbuffer::terrain_filename( loc ), [&](
+        std::ostream & stream ) {
+            serialize( stream );
+        } );
+    }
 }
 
 void overmap::spawn_mon_group( const mongroup &group, int radius )
