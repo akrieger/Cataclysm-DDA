@@ -30,6 +30,8 @@
 
 #include <flatbuffers/util.h>
 
+#include <mimalloc/mimalloc-new-delete.h>
+
 #include "cached_options.h"
 #include "cata_path.h"
 #include "color.h"
@@ -613,6 +615,8 @@ EM_ASYNC_JS( void, mount_idbfs, (), {
 } );
 #endif
 
+#include <mimalloc/mimalloc.h>
+
 #if defined(USE_WINMAIN)
 int APIENTRY WinMain( _In_ HINSTANCE /* hInstance */, _In_opt_ HINSTANCE /* hPrevInstance */,
                       _In_ LPSTR /* lpCmdLine */, _In_ int /* nCmdShow */ )
@@ -625,6 +629,11 @@ extern "C" int SDL_main( int argc, char **argv ) {
 int main( int argc, const char *argv[] )
 {
 #endif
+
+#if defined(TILES) || defined(SDL_SOUND)
+    SDL_SetMemoryFunctions(mi_malloc, mi_calloc, mi_realloc, mi_free);
+#endif
+
     ordered_static_globals();
     init_crash_handlers();
     reset_floating_point_mode();
@@ -861,6 +870,7 @@ int main( int argc, const char *argv[] )
 
         shared_ptr_fast<ui_adaptor> ui = g->create_or_get_main_ui_adaptor();
         get_event_bus().send<event_type::game_begin>( getVersionString() );
+        _exit(0);
         while( !do_turn() ) {}
     }
 
