@@ -32,6 +32,7 @@ constexpr unsigned int kEntryChecksumMagic = 1;
 constexpr unsigned int kFooterChecksumMagic = 15;
 
 constexpr uint64_t kCheckumSeed = 0x1337C0DE;
+constexpr uint64_t kDeletedChecksumTombstone = 0xDE1337ED;
 
 struct IDK : public std::runtime_error {
     IDK( std::filesystem::path file ) : runtime_error{ "Don't know what to do with " + file.generic_u8string() } {}
@@ -182,8 +183,8 @@ static std::pair<const char *, ExnPtr> for_each_zzip_entry(
     base += ZSTD_SKIPPABLEHEADERSIZE + 2 * sizeof( uint64_t );
     remaining_len -= ZSTD_SKIPPABLEHEADERSIZE + 2 * sizeof( uint64_t );
 
-    std::string filename;
-    uint64_t checksum = 0;
+    std::optional<std::string> filename_opt;
+    std::optional<uint64_t> checksum_opt = 0;
 
     while( remaining_len > 0 && ZSTD_isFrame( base, remaining_len ) ) {
         size_t offset = zzip_contents.size() - remaining_len;
@@ -200,6 +201,7 @@ static std::pair<const char *, ExnPtr> for_each_zzip_entry(
                 RETURN_ERROR( ZstdError( zzip_path, offset, error_code, "Error reading frame header." ) );
             }
             if( header.dictID == kEntryFileNameMagic ) {
+                std::string &filename = filename_opt.emplace();
                 filename.resize( header.frameContentSize );
                 error_code = ZSTD_readSkippableFrame( filename.data(), filename.size(), nullptr, base,
                                                       remaining_len );
@@ -209,12 +211,12 @@ static std::pair<const char *, ExnPtr> for_each_zzip_entry(
             }
             if( header.dictID == kEntryChecksumMagic ) {
                 uint64_t raw_checksum;
-                error_code = ZSTD_readSkippableFrame( &raw_checksum, sizeof( checksum ), nullptr, base,
+                error_code = ZSTD_readSkippableFrame( &raw_checksum, sizeof( raw_checksum ), nullptr, base,
                                                       remaining_len );
                 if( ZSTD_isError( error_code ) || error_code != sizeof( uint64_t ) ) {
                     RETURN_ERROR( ZstdError( zzip_path, offset, error_code, "Error reading checksum." ) );
                 }
-                checksum = MEM_readLE64( &raw_checksum );
+                checksum_opt.emplace() = MEM_readLE64( &raw_checksum );
             }
             base += frame_size;
             remaining_len -= frame_size;
@@ -223,9 +225,12 @@ static std::pair<const char *, ExnPtr> for_each_zzip_entry(
 
         // At this point we should have read the filename and compressed frame checksums.
         // If either is missing, the end of the zzip is corrupt.
-        if( filename.empty() || checksum == 0 ) {
+        if( !filename_opt.has_value() || !checksum_opt.has_value() ) {
             RETURN_ERROR( ZzipError( zzip_path, offset, "Entry metadata missing." ) );
         }
+
+        std::string &filename = filename_opt.value();
+        uint64_t checksum = checksum_opt.value();
 
         if( frame_size > remaining_len ) {
             RETURN_ERROR( ZzipError( zzip_path, offset, filename + ": compressed contents truncated." ) );
@@ -233,20 +238,22 @@ static std::pair<const char *, ExnPtr> for_each_zzip_entry(
 
         uint64_t computed_checksum = XXH64( base, frame_size, kCheckumSeed );
         if( checksum != computed_checksum ) {
-            RETURN_ERROR( ZzipError( zzip_path, offset, filename + ": compressed frame corrupted." ) );
+            if( checksum != kDeletedChecksumTombstone || ZSTD_getDecompressedSize( base, frame_size ) != 0 ) {
+                RETURN_ERROR( ZzipError( zzip_path, offset, filename + ": compressed frame corrupted." ) );
+            }
         }
         ExnPtr err = fn( filename, checksum, base, frame_size );
         if( err ) {
             return { end_of_last_entry, std::move( err ) };
         }
 
-        filename.clear();
-        checksum = 0;
+        filename_opt.reset();
+        checksum_opt.reset();
         base += frame_size;
         remaining_len -= frame_size;
         end_of_last_entry = base;
     }
-    if( !filename.empty() || checksum != 0 ) {
+    if( !filename_opt.has_value() || !checksum_opt.has_value() ) {
         RETURN_ERROR( ZzipError( zzip_path, zzip_contents.size() - remaining_len,
                                  "Expected a compressed frame after entry metadata." ) );
     }
@@ -301,7 +308,7 @@ static int decompress_to( std::filesystem::path const &zzip_path,
         }
     }
 
-    // Iterate through the zstd frames extracting each file as we get to it.
+    // Iterate through the zstd frames indexing each file as we get to it.
     auto [after_last_entry_ptr, err] = for_each_zzip_entry(
                                            zzip_path,
                                            zzip_contents,
