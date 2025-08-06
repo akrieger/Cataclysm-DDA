@@ -127,6 +127,26 @@ static void randomly_fill_transparency(
     } );
 }
 
+static void randomly_fill_transparency(
+    cata::mdarray<int_least8_t, point_bub_ms> &transparency_cache,
+    const unsigned int numerator = NUMERATOR, const unsigned int denominator = DENOMINATOR )
+{
+    // Construct a rng that produces integers in a range selected to provide the probability
+    // we want, i.e. if we want 1/4 tiles to be set, produce numbers in the range 0-3,
+    // with 0 indicating the bit is set.
+    std::uniform_int_distribution<unsigned int> distribution( 0, denominator );
+    auto rng = std::bind( distribution, rng_get_engine() );
+
+    // Initialize the transparency value of each square to a random value.
+    transparency_cache.fill_from_callable( [numerator, &rng]() {
+        if( rng() < numerator ) {
+            return 0;
+        } else {
+            return 1;
+        }
+    } );
+}
+
 static bool is_nonzero( const float x )
 {
     return x != 0;
@@ -360,18 +380,18 @@ static void shadowcasting_float_quad(
 }
 
 static void do_3d_benchmark(
-    const array_of_grids_of<const float> &transparency_caches,
+    const array_of_grids_of<const int_least8_t> &transparency_caches,
     const int iterations )
 {
     struct test_grids {
-        std::array<cata::mdarray<float, point_bub_ms>, OVERMAP_LAYERS> seen_squares = {};
+        std::array<cata::mdarray<int_least8_t, point_bub_ms>, OVERMAP_LAYERS> seen_squares = {};
         std::array<cata::mdarray<bool, point_bub_ms>, OVERMAP_LAYERS> floor_cache = {};
     };
 
     std::unique_ptr<test_grids> grids = std::make_unique<test_grids>();
 
     const tripoint_bub_ms origin( 65, 65, 0 );
-    array_of_grids_of<float> seen_caches;
+    array_of_grids_of<int_least8_t> seen_caches;
     array_of_grids_of<const bool> floor_caches;
 
     for( int z = -OVERMAP_DEPTH; z <= OVERMAP_HEIGHT; z++ ) {
@@ -382,7 +402,7 @@ static void do_3d_benchmark(
     const std::chrono::high_resolution_clock::time_point start =
         std::chrono::high_resolution_clock::now();
     for( int i = 0; i < iterations; i++ ) {
-        cast_zlight<float, sight_calc, sight_check, accumulate_transparency>(
+        cast_zlight<int_least8_t, sight_calc, sight_check, accumulate_transparency>(
             seen_caches, transparency_caches, floor_caches, origin, 0, 1.0 );
     }
     const std::chrono::high_resolution_clock::time_point end =
@@ -399,13 +419,13 @@ static void do_3d_benchmark(
 static void shadowcasting_3d_benchmark( const int iterations )
 {
     struct test_grids {
-        std::array<cata::mdarray<float, point_bub_ms>, OVERMAP_LAYERS> transparency_cache = {};
+        std::array<cata::mdarray<int_least8_t, point_bub_ms>, OVERMAP_LAYERS> transparency_cache = {};
     };
 
     std::unique_ptr<test_grids> grids = std::make_unique<test_grids>();
-    std::array<cata::mdarray<float, point_bub_ms>, OVERMAP_LAYERS> &transparency_cache =
+    std::array<cata::mdarray<int_least8_t, point_bub_ms>, OVERMAP_LAYERS> &transparency_cache =
         grids->transparency_cache;
-    array_of_grids_of<const float> transparency_caches;
+    array_of_grids_of<const int_least8_t> transparency_caches;
     for( int z = -OVERMAP_DEPTH; z <= OVERMAP_HEIGHT; z++ ) {
         randomly_fill_transparency( transparency_cache[z + OVERMAP_DEPTH] );
         transparency_caches[z + OVERMAP_DEPTH] = &transparency_cache[z + OVERMAP_DEPTH];
@@ -415,18 +435,18 @@ static void shadowcasting_3d_benchmark( const int iterations )
     // Flat plain
     // TODO: add roofs
     for( int z = -OVERMAP_DEPTH; z <= OVERMAP_HEIGHT; z++ ) {
-        float value_to_set = LIGHT_TRANSPARENCY_SOLID;
+        int_least8_t value_to_set = LIGHT_TRANSPARENCY_SOLID;
         if( z < 0 ) {
             value_to_set = LIGHT_TRANSPARENCY_SOLID;
         } else {
-            value_to_set = LIGHT_TRANSPARENCY_OPEN_AIR;
+            value_to_set = 1;
         }
         transparency_cache[z + OVERMAP_DEPTH].fill( value_to_set );
     }
     do_3d_benchmark( transparency_caches, iterations );
 
     // Add some obstacles, a ring at distance 5
-    cata::mdarray<float, point_bub_ms> &ground_level = transparency_cache[OVERMAP_DEPTH];
+    cata::mdarray<int_least8_t, point_bub_ms> &ground_level = transparency_cache[OVERMAP_DEPTH];
     ground_level[60][65] = LIGHT_TRANSPARENCY_SOLID;
     ground_level[63][63] = LIGHT_TRANSPARENCY_SOLID;
     ground_level[65][60] = LIGHT_TRANSPARENCY_SOLID;

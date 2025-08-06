@@ -671,6 +671,13 @@ template void cast_zlight<float, sight_calc, sight_check, accumulate_transparenc
     const tripoint_bub_ms &origin, int offset_distance, float numerator,
     vertical_direction dir );
 
+template void cast_zlight<int_least8_t, sight_calc, sight_check, accumulate_transparency>(
+    const array_of_grids_of<int_least8_t> &output_caches,
+    const array_of_grids_of<const int_least8_t> &input_arrays,
+    const array_of_grids_of<const bool> &floor_caches,
+    const tripoint_bub_ms &origin, const int offset_distance, const int_least8_t numerator,
+    vertical_direction dir );
+
 template void cast_zlight<fragment_cloud, shrapnel_calc, shrapnel_check, accumulate_fragment_cloud>(
     const array_of_grids_of<fragment_cloud> &output_caches,
     const array_of_grids_of<const fragment_cloud> &input_arrays,
