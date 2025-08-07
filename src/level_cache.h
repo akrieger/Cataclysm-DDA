@@ -51,7 +51,7 @@ struct level_cache {
 
         // stores cached transparency of the tiles
         // units: "transparency" (see LIGHT_TRANSPARENCY_OPEN_AIR)
-        cata::mdarray<float, point_bub_ms>transparency_cache;
+        cata::mdarray<uint_least8_t, point_bub_ms>transparency_cache;
 
         // materialized  (transparency_cache[i][j] > LIGHT_TRANSPARENCY_SOLID)
         // doesn't consider fields (i.e. if tile is covered in thick smoke, it's still
@@ -62,7 +62,7 @@ struct level_cache {
         // stores "adjusted transparency" of the tiles
         // initial values derived from transparency_cache, uses same units
         // examples of adjustment: changed transparency on player's tile and special case for crouching
-        cata::mdarray<float, point_bub_ms> vision_transparency_cache;
+        cata::mdarray<uint_least8_t, point_bub_ms> vision_transparency_cache;
 
         // stores "visibility" of the tiles to the player
         // values range from 1 (fully visible to player) to 0 (not visible)

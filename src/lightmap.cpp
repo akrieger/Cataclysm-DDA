@@ -1054,8 +1054,8 @@ void map::build_seen_cache( const tripoint_bub_ms &origin, const int target_z, i
     }
 
     // Cache the caches (pointers to them)
-    array_of_grids_of<const float> transparency_caches;
-    array_of_grids_of<float> seen_caches;
+    array_of_grids_of<const uint_least8_t> transparency_caches;
+    array_of_grids_of<uint_least8_t> seen_caches;
     array_of_grids_of<const bool> floor_caches;
     vertical_direction directions_to_cast = vertical_direction::BOTH;
     for( int z = -OVERMAP_DEPTH; z <= OVERMAP_HEIGHT; z++ ) {
@@ -1076,8 +1076,8 @@ void map::build_seen_cache( const tripoint_bub_ms &origin, const int target_z, i
         ( *seen_caches[ target_z + OVERMAP_DEPTH ] )[origin.x()][origin.y()] = VISIBILITY_FULL;
     }
 
-    cast_zlight<float, sight_calc, sight_check, accumulate_transparency>(
-        seen_caches, transparency_caches, floor_caches, origin, penalty, 1.0,
+    cast_zlight<uint_least8_t, sight_calc, sight_check, accumulate_transparency>(
+        seen_caches, transparency_caches, floor_caches, origin, penalty, (uint_least8_t)1,
         directions_to_cast );
     seen_cache_process_ledges( seen_caches, floor_caches, std::nullopt );
 
@@ -1147,7 +1147,7 @@ void map::build_seen_cache( const tripoint_bub_ms &origin, const int target_z, i
     }
 }
 
-void map::seen_cache_process_ledges( array_of_grids_of<float> &seen_caches,
+void map::seen_cache_process_ledges( array_of_grids_of<uint_least8_t> &seen_caches,
                                      const array_of_grids_of<const bool> &floor_caches,
                                      const std::optional<tripoint_bub_ms> &override_p ) const
 {
@@ -1219,7 +1219,7 @@ void map::apply_light_source( const tripoint_bub_ms &p, float luminance )
     level_cache &cache = get_cache( p.z() );
     cata::mdarray<four_quadrants, point_bub_ms> &lm = cache.lm;
     cata::mdarray<float, point_bub_ms> &sm = cache.sm;
-    cata::mdarray<float, point_bub_ms> &transparency_cache =
+    cata::mdarray<uint_least8_t, point_bub_ms> &transparency_cache =
         cache.transparency_cache;
     cata::mdarray<float, point_bub_ms> &light_source_buffer =
         cache.light_source_buffer;
@@ -1260,37 +1260,37 @@ void map::apply_light_source( const tripoint_bub_ms &p, float luminance )
     bool west = p2.x() != 0 && light_source_buffer[p2.x() - 1][p2.y()] < luminance;
 
     if( north ) {
-        castLight < 1, 0, 0, -1, float, four_quadrants, light_calc, light_check,
+        castLight < 1, 0, 0, -1, uint_least8_t, four_quadrants, light_calc, light_check,
                   update_light_quadrants, accumulate_transparency > (
                       lm, transparency_cache, p2, 0, luminance );
-        castLight < -1, 0, 0, -1, float, four_quadrants, light_calc, light_check,
+        castLight < -1, 0, 0, -1, uint_least8_t, four_quadrants, light_calc, light_check,
                   update_light_quadrants, accumulate_transparency > (
                       lm, transparency_cache, p2, 0, luminance );
     }
 
     if( east ) {
-        castLight < 0, -1, 1, 0, float, four_quadrants, light_calc, light_check,
+        castLight < 0, -1, 1, 0, uint_least8_t, four_quadrants, light_calc, light_check,
                   update_light_quadrants, accumulate_transparency > (
                       lm, transparency_cache, p2, 0, luminance );
-        castLight < 0, -1, -1, 0, float, four_quadrants, light_calc, light_check,
+        castLight < 0, -1, -1, 0, uint_least8_t, four_quadrants, light_calc, light_check,
                   update_light_quadrants, accumulate_transparency > (
                       lm, transparency_cache, p2, 0, luminance );
     }
 
     if( south ) {
-        castLight<1, 0, 0, 1, float, four_quadrants, light_calc, light_check,
+        castLight<1, 0, 0, 1, uint_least8_t, four_quadrants, light_calc, light_check,
                   update_light_quadrants, accumulate_transparency>(
                       lm, transparency_cache, p2, 0, luminance );
-        castLight < -1, 0, 0, 1, float, four_quadrants, light_calc, light_check,
+        castLight < -1, 0, 0, 1, uint_least8_t, four_quadrants, light_calc, light_check,
                   update_light_quadrants, accumulate_transparency > (
                       lm, transparency_cache, p2, 0, luminance );
     }
 
     if( west ) {
-        castLight<0, 1, 1, 0, float, four_quadrants, light_calc, light_check,
+        castLight<0, 1, 1, 0, uint_least8_t, four_quadrants, light_calc, light_check,
                   update_light_quadrants, accumulate_transparency>(
                       lm, transparency_cache, p2, 0, luminance );
-        castLight < 0, 1, -1, 0, float, four_quadrants, light_calc, light_check,
+        castLight < 0, 1, -1, 0, uint_least8_t, four_quadrants, light_calc, light_check,
                   update_light_quadrants, accumulate_transparency > (
                       lm, transparency_cache, p2, 0, luminance );
     }
@@ -1302,7 +1302,7 @@ void map::apply_directional_light( const tripoint_bub_ms &p, int direction, floa
 
     level_cache &cache = get_cache( p.z() );
     cata::mdarray<four_quadrants, point_bub_ms> &lm = cache.lm;
-    cata::mdarray<float, point_bub_ms> &transparency_cache =
+    cata::mdarray<uint_least8_t, point_bub_ms> &transparency_cache =
         cache.transparency_cache;
 
     if( direction == 90 ) {

@@ -1911,7 +1911,7 @@ class map
         bool build_floor_cache( int zlev );
         // We want this visible in `game`, because we want it built earlier in the turn than the rest
         void build_floor_caches();
-        void seen_cache_process_ledges( array_of_grids_of<float> &seen_caches,
+        void seen_cache_process_ledges( array_of_grids_of<uint_least8_t> &seen_caches,
                                         const array_of_grids_of<const bool> &floor_caches,
                                         const std::optional<tripoint_bub_ms> &override_p ) const;
 
