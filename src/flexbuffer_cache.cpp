@@ -24,6 +24,8 @@
 #include "json.h"
 #include "mmap_file.h"
 #include "options.h"
+#include "std_hash_fs_path.h"
+#include "zzip.h"
 
 namespace
 {
@@ -239,23 +241,29 @@ class flexbuffer_disk_cache
             // Private constructor, make_unique doesn't have access.
             std::unique_ptr<flexbuffer_disk_cache> cache{ new flexbuffer_disk_cache( cache_path, root_path ) };
 
-            std::string cache_path_string = cache_path.u8string();
-            std::vector<std::string> all_cached_flexbuffers = get_files_from_path(
-                        ".fb",
-                        cache_path_string,
-                        true,
-                        true );
+            std::filesystem::path cache_zzip_path = cache_path;
+            cache_zzip_path.concat( ".zzip" );
 
-            for( const std::string &cached_flexbuffer : all_cached_flexbuffers ) {
+            assure_dir_exist( cache_zzip_path.parent_path() );
+
+            std::shared_ptr<zzip> cache_zzip = zzip::load( cache_zzip_path,
+                                               ( PATH_INFO::compression_folder_path() / "flexbuffers.dict" ).get_unrelative_path() );
+            if( !cache_zzip ) {
+                return nullptr;
+            }
+
+            std::vector<std::filesystem::path> all_cached_flexbuffers = cache_zzip->get_entries();
+            std::unordered_set<std::filesystem::path, std_fs_path_hash> deletions;
+
+            for( const std::filesystem::path &cached_flexbuffer_path : all_cached_flexbuffers ) {
                 // The file path format is <input file>.<mtime>.fb
                 // So find the second-to-last-dot
-                std::filesystem::path cached_flexbuffer_path = std::filesystem::u8path( cached_flexbuffer );
                 std::filesystem::path json_with_mtime = cached_flexbuffer_path.stem();
-                std::string mtime_str = json_with_mtime.extension().u8string();
+                std::string mtime_str = json_with_mtime.extension().generic_u8string();
                 std::filesystem::path original_json_file_name = json_with_mtime.stem();
                 if( mtime_str.empty() || original_json_file_name.empty() ) {
                     // Not a recognized flexbuffer filename.
-                    remove_file( cached_flexbuffer );
+                    deletions.emplace( cached_flexbuffer_path );
                     continue;
                 }
 
@@ -266,53 +274,50 @@ class flexbuffer_disk_cache
                                     mtime_str.c_str() + 1,
                                     nullptr, 0 ) ) );
 
-                std::filesystem::path root_relative_json_path =
-                    cached_flexbuffer_path.parent_path().lexically_relative(
-                        cache_path ) / original_json_file_name;
-                std::string root_relative_json_path_string = root_relative_json_path.u8string();
+                std::string root_relative_json_path_string = ( cached_flexbuffer_path.parent_path() /
+                        original_json_file_name ).generic_u8string();
 
                 // Don't just blindly insert, we may end up in a situation with multiple flexbuffers for the same input json
                 auto old_entry = cache->cached_flexbuffers_.find( root_relative_json_path_string );
                 if( old_entry != cache->cached_flexbuffers_.end() ) {
                     if( old_entry->second.mtime < cached_mtime ) {
                         // Lets only keep the newest.
-                        remove_file( old_entry->second.flexbuffer_path.u8string() );
+                        deletions.emplace( old_entry->second.flexbuffer_path );
                         old_entry->second = disk_cache_entry{ cached_flexbuffer_path, cached_mtime };
                     } else {
                         // The file we're iterating is older than the cached entry.
-                        remove_file( cached_flexbuffer );
+                        deletions.emplace( cached_flexbuffer_path );
                     }
 
                 } else {
                     cache->cached_flexbuffers_.emplace( root_relative_json_path_string, disk_cache_entry{ cached_flexbuffer_path, cached_mtime } );
                 }
             }
+            cache_zzip->delete_files( deletions );
+            cache_zzip->compact( 1.0 );
+            cache->cache_zzip_ = std::move( cache_zzip );
             return cache;
-        }
-
-        bool has_cached_flexbuffer_for_json( const std::filesystem::path &json_source_path ) {
-            return cached_flexbuffers_.count( json_source_path.u8string() ) > 0;
         }
 
         std::filesystem::file_time_type cached_mtime_for_json( const std::filesystem::path
                 &json_source_path ) {
-            auto it = cached_flexbuffers_.find( json_source_path.u8string() );
+            auto it = cached_flexbuffers_.find( json_source_path.generic_u8string() );
             if( it != cached_flexbuffers_.end() ) {
                 return it->second.mtime;
             }
             return {};
         }
 
-        std::shared_ptr<flexbuffer_mmap_storage> load_flexbuffer_if_not_stale(
+        std::shared_ptr<flexbuffer_vector_storage> load_flexbuffer_if_not_stale(
             const std::filesystem::path &lexically_normal_json_source_path ) {
-            std::shared_ptr<flexbuffer_mmap_storage> storage;
+            std::shared_ptr<flexbuffer_vector_storage> storage;
 
             std::filesystem::path root_relative_source_path =
                 lexically_normal_json_source_path.lexically_relative(
-                    root_path_ ).lexically_normal();
+                    root_path_ ).lexically_normal().generic_u8string();
 
             // Is there even a potential cached flexbuffer for this file.
-            auto disk_entry = cached_flexbuffers_.find( root_relative_source_path.u8string() );
+            auto disk_entry = cached_flexbuffers_.find( root_relative_source_path.generic_u8string() );
             if( disk_entry == cached_flexbuffers_.end() ) {
                 return storage;
             }
@@ -323,6 +328,8 @@ class flexbuffer_disk_cache
             if( ec ) {
                 return storage;
             }
+
+            const std::filesystem::path &entry_path = disk_entry->second.flexbuffer_path;
 
             // Does the source file's mtime match what we cached previously
             if( source_mtime != disk_entry->second.mtime ) {
@@ -342,19 +349,23 @@ class flexbuffer_disk_cache
                     }
                 }
                 // Cached flexbuffer on disk is out of date, remove it.
-                remove_file( disk_entry->second.flexbuffer_path.u8string() );
+                cache_zzip_->delete_files( { entry_path } );
                 cached_flexbuffers_.erase( disk_entry );
                 return storage;
             }
 
-            // Try to mmap the cached flexbuffer
-            std::shared_ptr<const mmap_file> mmap_handle = mmap_file::map_file(
-                        disk_entry->second.flexbuffer_path );
-            if( !mmap_handle ) {
+            size_t file_size = cache_zzip_->get_file_size( entry_path );
+            if( file_size == 0 ) {
+                return storage;
+            }
+            std::vector<uint8_t> flexbuffer_binary;
+            flexbuffer_binary.resize( file_size );
+            if( cache_zzip_->get_file_to( entry_path, reinterpret_cast<std::byte *>( flexbuffer_binary.data() ),
+                                          file_size ) != file_size ) {
                 return storage;
             }
 
-            storage = std::make_shared<flexbuffer_mmap_storage>( mmap_handle );
+            storage = std::make_shared<flexbuffer_vector_storage>( std::move( flexbuffer_binary ) );
 
             return storage;
         }
@@ -362,7 +373,7 @@ class flexbuffer_disk_cache
         bool save_to_disk( const std::filesystem::path &lexically_normal_json_source_path,
                            const std::vector<uint8_t> &flexbuffer_binary ) {
             std::error_code ec;
-            std::string json_source_path_string = lexically_normal_json_source_path.u8string();
+            std::string json_source_path_string = lexically_normal_json_source_path.generic_u8string();
             std::filesystem::file_time_type mtime = get_file_mtime_millis( lexically_normal_json_source_path,
                                                     ec );
             if( ec ) {
@@ -373,27 +384,16 @@ class flexbuffer_disk_cache
                                ( mtime.time_since_epoch() ).count();
 
             // Doing some variable reuse to avoid copies.
-            std::filesystem::path flexbuffer_path = ( cache_path_ /
-                                                    lexically_normal_json_source_path.lexically_relative(
-                                                            root_path_ ) ).remove_filename();
+            std::filesystem::path root_relative_source_path =
+                lexically_normal_json_source_path.lexically_relative( root_path_ );
+            std::filesystem::path zzip_path = root_relative_source_path;
+            zzip_path += std::filesystem::u8path( "." + std::to_string( mtime_ms ) + ".fb" );
 
-            assure_dir_exist( flexbuffer_path );
-
-            std::filesystem::path flexbuffer_filename = lexically_normal_json_source_path.filename();
-            flexbuffer_filename += std::filesystem::u8path( "." + std::to_string( mtime_ms ) + ".fb" );
-            flexbuffer_path /= flexbuffer_filename;
-            std::ofstream fb( flexbuffer_path, std::ofstream::binary );
-            if( !fb.good() ) {
+            if( !cache_zzip_->add_file( zzip_path, { reinterpret_cast<const char *>( flexbuffer_binary.data() ), flexbuffer_binary.size() } ) ) {
                 return false;
             }
 
-            fb.write( reinterpret_cast<const char *>( flexbuffer_binary.data() ), flexbuffer_binary.size() );
-            if( !fb.good() ) {
-                return false;
-            }
-
-            fb.close();
-            cached_flexbuffers_[json_source_path_string] = disk_cache_entry{ flexbuffer_path, mtime };
+            cached_flexbuffers_[root_relative_source_path.generic_u8string()] = disk_cache_entry{ zzip_path, mtime};
 
             return true;
         }
@@ -412,6 +412,7 @@ class flexbuffer_disk_cache
         };
         // Maps game root relative json source path to the most recent cached flexbuffer we have on disk for it.
         std::unordered_map<std::string, disk_cache_entry> cached_flexbuffers_;
+        std::shared_ptr<zzip> cache_zzip_;
 };
 
 flexbuffer_cache::flexbuffer_cache( const std::filesystem::path &cache_directory,
@@ -454,11 +455,11 @@ std::shared_ptr<parsed_flexbuffer> flexbuffer_cache::parse( std::filesystem::pat
 std::shared_ptr<parsed_flexbuffer> flexbuffer_cache::parse_and_cache(
     std::filesystem::path lexically_normal_json_source_path, size_t offset )
 {
-
     // Is our cache potentially stale?
     if( disk_cache_ ) {
-        std::shared_ptr<flexbuffer_mmap_storage> cached_storage = disk_cache_->load_flexbuffer_if_not_stale(
-                    lexically_normal_json_source_path );
+        std::shared_ptr<flexbuffer_vector_storage> cached_storage =
+            disk_cache_->load_flexbuffer_if_not_stale(
+                lexically_normal_json_source_path );
         if( cached_storage ) {
             std::error_code ec;
             std::filesystem::file_time_type mtime = get_file_mtime_millis( lexically_normal_json_source_path,
