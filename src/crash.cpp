@@ -31,12 +31,75 @@
 #include <dbghelp.h>
 #endif
 
+#include <client/windows/handler/exception_handler.h>
+
 #include "debug.h"
 #include "get_version.h"
 #include "path_info.h"
 
 // signal handlers are expected to have C linkage, and only use the
 // common subset of C & C++
+
+static google_breakpad::ExceptionHandler* handler;
+std::atomic<char*> report_ = nullptr;
+
+static bool breakpadExceptionFilter(
+    void* /*context*/,
+    EXCEPTION_POINTERS* /*exinfo*/,
+    MDRawAssertionInfo* /*assertion*/) {
+    // TODO: Port ExceptionFilter logic here
+    return true;
+}
+
+static bool breakpadMinidumpCallback(
+    const wchar_t* dumpPath,
+    const wchar_t* minidumpId,
+    void* context,
+    EXCEPTION_POINTERS* /*exinfo*/,
+    MDRawAssertionInfo* /*assertion*/,
+    bool succeeded) {
+    if (succeeded) {
+        // write additional info to file
+        static wchar_t metadataPath[MAX_PATH] = { '\0' };
+        if (-1 ==
+            _snwprintf_s(
+                metadataPath,
+                sizeof(metadataPath) / sizeof(wchar_t),
+                _TRUNCATE,
+                L"%s\\%s.txt",
+                dumpPath,
+                minidumpId)) {
+            // Path doesn't fit
+            return false;
+        }
+
+        HANDLE handle = CreateFileW(
+            metadataPath,
+            GENERIC_READ | GENERIC_WRITE,
+            0,
+            NULL,
+            CREATE_ALWAYS,
+            FILE_ATTRIBUTE_NORMAL,
+            NULL);
+
+        if (handle == INVALID_HANDLE_VALUE) {
+            return false;
+        }
+
+        // We leak `report` intentionally because we can't trust that malloc/free
+        // work as we crash.
+        char* report = static_cast<std::atomic<char*>*>(context)->exchange(nullptr);
+
+        if (report) {
+            DWORD bytesWritten;
+            WriteFile(handle, report, DWORD(strlen(report) * sizeof(char)), &bytesWritten, NULL);
+        }
+        CloseHandle(handle);
+    }
+
+    return false;
+}
+
 extern "C" {
 
 #if defined(_WIN32)
@@ -62,7 +125,7 @@ extern "C" {
         // But it should usually work in practice, unless for example the
         // program segfaults inside malloc.
 #if defined(_WIN32)
-        dump_to( ".core" );
+        // dump_to( ".core" );
 #endif
         const std::string crash_log_file = PATH_INFO::crash();
         std::ostringstream log_text;
@@ -146,6 +209,7 @@ extern "C" {
         if( !isDebuggerActive() ) {
             log_crash( "Signal", msg );
         }
+        handler->WriteMinidump();
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -217,6 +281,30 @@ void init_crash_handlers()
         }
     }
     std::set_terminate( crash_terminate_handler );
+
+    MINIDUMP_TYPE minidumpType =
+        (MINIDUMP_TYPE)(MiniDumpNormal |
+            // Contents of process handle table.
+            MiniDumpWithHandleData |
+            // Process virtual memory layout.
+            MiniDumpWithFullMemoryInfo |
+            // Portions of readable pages referenced by all thread stacks.
+            MiniDumpWithIndirectlyReferencedMemory |
+            // Additional thread info.
+            MiniDumpWithThreadInfo |
+            // Info from recently unloaded modules.
+            MiniDumpWithUnloadedModules);
+    std::error_code ec;
+    std::filesystem::create_directories(".cores", ec);
+    handler = new google_breakpad::ExceptionHandler(
+        L".cores",
+        breakpadExceptionFilter,
+        breakpadMinidumpCallback,
+        &report_,
+        google_breakpad::ExceptionHandler::HANDLER_ALL,
+        minidumpType,
+        (HANDLE) nullptr,
+        nullptr);
 }
 
 #else // !BACKTRACE
