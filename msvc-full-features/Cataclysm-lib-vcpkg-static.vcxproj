@@ -181,6 +181,10 @@
       <Project>{8a533a64-435d-4d4f-9ff0-1e97aace9374}</Project>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
+    <ProjectReference Include="qjs.vcxproj">
+      <Project>{4a8c26a5-294c-4142-85e7-0cb107409dd8}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
     <ProjectReference Include="zstd.vcxproj">
       <Project>{f49f14c6-b046-41c7-b707-03366f4b1578}</Project>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
