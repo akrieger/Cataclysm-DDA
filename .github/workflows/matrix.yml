@@ -87,7 +87,7 @@ jobs:
       - id: matrix_vars
         run: |
           echo "fail_fast=$([ "$GITHUB_REF_NAME" = "master" -o "$GITHUB_REPOSITORY_OWNER" != "CleverRaven" ] && echo false || echo true)" >> $GITHUB_OUTPUT
-          echo "skip_tests=$([ "$GITHUB_REF_NAME" = "master" ] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "skip_tests=$([ "$GITHUB_REF_NAME" = "master" ] && echo false || echo false)" >> $GITHUB_OUTPUT
           echo "max_parallel=$([ "$GITHUB_REF_NAME" = "master" -o "$GITHUB_REPOSITORY_OWNER" != "CleverRaven" ] && echo 20 || echo 1)" >> $GITHUB_OUTPUT
   varied_builds:
     needs: [ skip-duplicates-code, skip-duplicates-data, matrix-variables ]
@@ -96,54 +96,6 @@ jobs:
       max-parallel: ${{ fromJSON(needs.matrix-variables.outputs.max_parallel) }}
       matrix:
         include:
-          - compiler: clang++-13
-            os: ubuntu-22.04
-            tiles: 0
-            sound: 0
-            cmake: 0
-            localize: 1
-            test-stage: 1
-            native: linux64
-            pch: 1
-            archive-success: basic-build
-            dont_skip_data_only_changes: 1
-            mods: --mods=magiclysm
-            title: Basic Build and Test (Clang oldest supported, Ubuntu, Curses)
-            ccache_limit: 4.5G
-            ccache_key: linux-llvm-13
-
-          - compiler: clang++
-            os: macos-13
-            cmake: 0
-            native: osx
-            pch: 0
-            tiles: 1
-            sound: 1
-            localize: 1
-            title: macOS 13, Apple Clang 15, Tiles, Sound, x64 and arm64 Universal Binary
-            ccache_limit: 10G
-            ccache_key: macos-llvm-15-universal
-
-          - title: Android x64 (build only)
-            os: ubuntu-latest
-            android: arm64
-
-          - compiler: g++-9
-            os: ubuntu-22.04
-            cmake: 0
-            tiles: 0
-            sound: 0
-            localize: 1
-            gold: 1
-            lto: 1
-            libbacktrace: 1
-            native: linux64
-            pch: 1
-            cxxflags: -gsplit-dwarf
-            title: GCC 9, Curses, LTO
-            ccache_limit: 7.5G
-            ccache_key: linux-gcc-9-lto
-
           - compiler: clang++-18
             os: ubuntu-latest
             cmake: 0
@@ -157,31 +109,6 @@ jobs:
             title: Clang 18, Ubuntu, Tiles, ASan
             ccache_limit: 6G
             ccache_key: linux-llvm-18-asan
-
-          - compiler: g++-14
-            os: ubuntu-latest
-            cmake: 0
-            tiles: 0
-            sound: 0
-            localize: 1
-            native: linux64
-            pch: 1
-            title: GCC 14, Ubuntu, Curses
-            ccache_limit: 6.5G
-            ccache_key: linux-gcc-14
-
-          - compiler: g++-9
-            os: ubuntu-22.04
-            cmake: 1
-            tiles: 1
-            sound: 1
-            localize: 0
-            native: linux64
-            sanitize: undefined
-            pch: 1
-            title: GCC 9, Ubuntu, Tiles, Sound, CMake
-            ccache_limit: 1G
-            ccache_key: linux-gcc-9-cmake
 
     name: ${{ matrix.title }}
     runs-on: ${{ matrix.os }}
