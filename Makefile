@@ -1185,7 +1185,7 @@ json-check: $(CHKJSON_BIN)
 
 clean: clean-tests clean-pch clean-lang
 	rm -rf *$(TARGET_NAME) *$(TILES_TARGET_NAME)
-	rm -rf *$(TILES_TARGET_NAME).exe *$(TARGET_NAME).exe *$(TARGET_NAME).a
+	rm -rf *$(TILES_TARGET_NAME).exe *$(TARGET_NAME).exe *$(TARGET_NAME).a zstd.a cataclysm.a
 	rm -rf *obj *objwin
 	rm -rf *$(BINDIST_DIR) *cataclysmdda-*.tar.gz *cataclysmdda-*.zip
 	rm -f $(SRC_DIR)/version.h $(SRC_DIR)/prefix.h

@@ -394,6 +394,7 @@ static inline bool JS_VALUE_IS_NAN(JSValue v)
 typedef JSValue JSCFunction(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv);
 typedef JSValue JSCFunctionMagic(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv, int magic);
 typedef JSValue JSCFunctionData(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv, int magic, JSValueConst *func_data);
+typedef JSValue JSCClosure(JSContext* ctx, JSValueConst this_val, int argc, JSValueConst* argv, int magic, void* opaque);
 
 typedef struct JSMallocFunctions {
     void *(*js_calloc)(void *opaque, size_t count, size_t size);
@@ -1159,6 +1160,9 @@ JS_EXTERN JSValue JS_NewCFunction3(JSContext *ctx, JSCFunction *func,
 JS_EXTERN JSValue JS_NewCFunctionData(JSContext *ctx, JSCFunctionData *func,
                                       int length, int magic, int data_len,
                                       JSValueConst *data);
+JSValue JS_NewCClosure(JSContext * ctx, JSCClosure * func,
+                       int length, int magic, void* opaque,
+                       void (*opaque_finalize)(void*));
 
 static inline JSValue JS_NewCFunction(JSContext *ctx, JSCFunction *func,
                                       const char *name, int length)

@@ -160,17 +160,17 @@ cstring value::to_cstring() const
     return cstring{ ctx, v };
 }
 
-exception value::to_exception() const &
+exn value::to_exception() const &
 {
     return clone().to_exception();
 }
 
-exception value::to_exception()&& {
+exn value::to_exception() && {
     if( !JS_IsException( v ) )
     {
         // idk throw?
     }
-    return exception( std::move( *this ) );
+    return exn( std::move( *this ) );
 }
 
 string value::to_string() const &
@@ -178,7 +178,7 @@ string value::to_string() const &
     return clone().to_string();
 }
 
-string value::to_string()&& {
+string value::to_string() && {
     if( !JS_IsString( v ) )
     {
         // idk throw?
