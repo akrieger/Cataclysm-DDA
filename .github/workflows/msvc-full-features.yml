@@ -146,7 +146,7 @@ jobs:
       run: |
         NOW=`/bin/date +%s`
         DELTA=$(( $NOW - ${{ steps.get-vars.outputs.datetime-seconds }} ))
-        echo "ccache-age=$(( $NOW - ${{ steps.get-vars.outputs.datetime-seconds }} ))" >> $GITHUB_OUTPUT
+        echo "ccache-age=$DELTA" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Post-build ccache manipulation
