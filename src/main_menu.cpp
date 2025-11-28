@@ -47,6 +47,7 @@
 #include "overmapbuffer.h"
 #include "path_info.h"
 #include "popup.h"
+#include "qjs.h"
 #include "safemode_ui.h"
 #include "scenario.h"
 #include "sdlsound.h"
@@ -870,7 +871,7 @@ bool main_menu::opening_screen()
                         style_picker picker;
                         picker.show();
                     } else if( sel2 == 6 ) { /// ImGui demo
-                        imgui_demo_ui demo;
+                        qjs::Console demo;
                         demo.run();
                     }
                     break;
