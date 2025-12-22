@@ -261,6 +261,10 @@ endif
 ifneq (,$(findstring clang,$(COMPILER)))
   CLANG = $(COMPILER)
   CXX_WARNINGS += -Wno-unknown-warning-option
+else
+ifneq(,$(findstring clang,$(CXX)))
+  CXX_WARNINGS += -Wno-unknown-warning-option
+endif
 endif
 
 # Windows sets the OS environment variable so we can cheaply test for it.
