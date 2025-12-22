@@ -266,7 +266,7 @@ jobs:
     - name: install build dependencies (mac)
       if: ${{ env.SKIP == 'false' && runner.os == 'macOS' }}
       run: |
-          HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install gettext ccache parallel
+          HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install gettext ccache parallel tree
     - name: install macports (mac)
       if: ${{ env.SKIP == 'false' && runner.os == 'macOS' && matrix.tiles == 1 }}
       uses: melusina-org/setup-macports@v1
@@ -277,9 +277,7 @@ jobs:
     - name: prepare
       if: ${{ env.SKIP == 'false' }}
       run: |
-        clang++ --version
         bash ./build-scripts/requirements.sh
-        clang++ --version
     - name: Get ccache vars
       id: get-vars
       if: ${{ env.SKIP == 'false' }}
@@ -345,6 +343,11 @@ jobs:
       with:
         name: ${{ env.ARCHIVE_SUCCESS }}
         path: ${{ env.ARCHIVE_SUCCESS }}
+    - name: disk usage if failed
+      if: failure()
+      run: |
+        tree -s obj
+        du -sh *
     - name: upload artifacts if failed
       uses: actions/upload-artifact@v4
       if: failure()
