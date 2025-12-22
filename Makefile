@@ -262,7 +262,7 @@ ifneq (,$(findstring clang,$(COMPILER)))
   CLANG = $(COMPILER)
   CXX_WARNINGS += -Wno-unknown-warning-option
 else
-ifneq(,$(findstring clang,$(CXX)))
+ifneq (,$(findstring clang,$(CXX)))
   CXX_WARNINGS += -Wno-unknown-warning-option
 endif
 endif
