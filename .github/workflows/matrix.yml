@@ -225,10 +225,16 @@ jobs:
         SKIP_TESTS: ${{ fromJSON(needs.matrix-variables.outputs.skip_tests) || (matrix.android != '') }}
     steps:
     - name: Maximize build space
-      if: ${{ runner.os == 'Linux' }}
-      uses: AdityaGarg8/remove-unwanted-software@v4.1
+      if: ${{ runner.os != 'Windows' }}
+      uses: insightsengineering/disk-space-reclaimer@v1.1.0
       with:
-        remove-android: ${{ matrix.android == '' }}
+        android: ${{ matrix.android == '' }}
+        docker-images: false
+        dotnet: false
+        haskell: false
+        large-packages: false
+        swap-storage: false
+        tools-cache: false
     - name: checkout repository
       if: ${{ env.SKIP == 'false' }}
       uses: actions/checkout@v4
