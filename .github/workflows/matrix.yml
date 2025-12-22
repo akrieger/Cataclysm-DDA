@@ -276,7 +276,10 @@ jobs:
         sudo port install freetype +universal pkgconfig +universal
     - name: prepare
       if: ${{ env.SKIP == 'false' }}
-      run: bash ./build-scripts/requirements.sh
+      run: |
+        clang++ --version
+        bash ./build-scripts/requirements.sh
+        clang++ --version
     - name: Get ccache vars
       id: get-vars
       if: ${{ env.SKIP == 'false' }}

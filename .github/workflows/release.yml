@@ -259,7 +259,9 @@ jobs:
       - name: install macports packages (mac)
         if: runner.os == 'macOS' && matrix.tiles == 1
         run: |
+          clang++ --version
           sudo port install freetype +universal pkgconfig +universal
+          clang++ --version
       - name: Create VERSION.TXT
         shell: bash
         run: |
