@@ -260,7 +260,9 @@ jobs:
     - name: install build dependencies (mac)
       if: ${{ env.SKIP == 'false' && runner.os == 'macOS' }}
       run: |
-          HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install gettext ccache parallel tree binutils
+          HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install gettext ccache parallel tree
+          sudo du -sh $ANDROID_HOME
+          sudo rm -rf $ANDROID_HOME
     - name: install macports (mac)
       if: ${{ env.SKIP == 'false' && runner.os == 'macOS' && matrix.tiles == 1 }}
       uses: melusina-org/setup-macports@v1
