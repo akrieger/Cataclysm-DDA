@@ -612,8 +612,14 @@ ifeq ($(NATIVE), osx)
   DEFINES += -DMACOSX
   CXXFLAGS += -mmacosx-version-min=10.15
   LDFLAGS += -mmacosx-version-min=10.15 -framework CoreFoundation -Wl,-headerpad_max_install_names
-  # doesn't use GNU ar
-  THIN_AR=0
+  # do we have GNU ar?
+  GAR := $(shell command -v gar 2> /dev/null)
+  ifdef GAR
+    AR = GAR
+  else
+    # Apple ar doesn't support thin archives
+    THIN_AR=0
+  endif
   ifeq ($(UNIVERSAL_BINARY), 1)
     CXXFLAGS += -arch x86_64 -arch arm64
     LDFLAGS += -arch x86_64 -arch arm64
