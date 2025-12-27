@@ -7,6 +7,8 @@
 
 #include <filesystem>
 
+#include "string_formatter.h"
+
 /**
  * One of the problems of filesystem paths is they lack contextual awareness
  * of 'where' they are. They're just a list of segments pointing into the
@@ -160,6 +162,14 @@ class cata_path
         as_fs_path( T &&path ) {
             return std::filesystem::u8path( std::forward<T>( path ) );
         }
+};
+
+template<>
+struct fmt::formatter<cata_path> : formatter<const char *> {
+    template<typename Ctx>
+    auto format( const cata_path &p, Ctx &ctx ) const {
+        return formatter<const char *>::format( p.generic_u8string().c_str(), ctx );
+    }
 };
 
 #endif // CATA_SRC_CATA_PATH_H

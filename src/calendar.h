@@ -54,6 +54,11 @@ enum moon_phase {
     MOON_PHASE_MAX
 };
 
+inline auto  format_as( moon_phase mp )
+{
+    return static_cast<std::underlying_type_t<moon_phase>>( mp );
+}
+
 enum class time_accuracy {
     /** No accuracy, no idea what time it is **/
     NONE = 0,

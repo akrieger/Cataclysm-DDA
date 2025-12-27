@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "demangle.h"
+#include <fmt/printf.h>
 
 class cata_path;
 class translation;
@@ -92,6 +93,7 @@ inline std::enable_if_t < is_integer<RT> &&std::is_enum_v<std::decay_t<T>>, RT >
 {
     return static_cast<RT>( value );
 }
+
 template<typename RT, typename T>
 inline std::enable_if_t < std::is_floating_point_v<RT> &&is_numeric<T>
 && !is_integer<T>, RT >
@@ -423,16 +425,66 @@ class string_formatter
  * to match the given format specifier (if possible) - see @ref string_formatter_convert.
  */
 /**@{*/
+/*
+template<typename T, typename Enable = void>
+struct printf_converter
+{
+    const T& convert(const T& t)
+    {
+        return t;
+    }
+};
+
+template<typename T>
+struct printf_converter<T, std::enable_if_t<std::is_same_v<T, std::string>>>
+{
+    const char* convert(const std::string& s)
+    {
+        return s.c_str();
+    }
+};
+
+template<typename T>
+struct printf_converter<T, std::void_t<decltype(format_as(std::declval<T>()))>>
+{
+    template<typename U = T>
+    auto convert(U&& u)
+    {
+        return format_as(std::forward<U>(u));
+    }
+};
+
+template<typename T>
+struct printf_converter<T, std::enable_if_t<std::is_enum_v<T>>>
+{
+    auto convert(T t)
+    {
+        return fmt::underlying(t);
+    }
+};
+*/
+
+template<typename T, typename = std::enable_if_t<std::is_enum_v<T>>>
+         inline auto format_as( T e )
+{
+    return static_cast<std::underlying_type_t<T>>( e );
+}
+
+namespace cata
+{
+template<typename T, typename = std::enable_if_t<std::is_enum_v<T>>>
+         inline auto format_as( T e )
+{
+    return static_cast<std::underlying_type_t<T>>( e );
+}
+}
+
+extern std::string vstring_printf( fmt::string_view format, fmt::printf_args args );
+
 template<typename ...Args>
 inline std::string string_format( std::string_view format, Args &&...args )
 {
-    try {
-        cata::string_formatter formatter( format );
-        formatter.parse( std::forward<Args>( args )... );
-        return formatter.get_output();
-    } catch( ... ) {
-        return cata::handle_string_format_error();
-    }
+    return vstring_printf( format, fmt::make_printf_args( args... ) );
 }
 template<typename T, typename ...Args>
 inline std::enable_if_t<cata::is_translation<T>, std::string>

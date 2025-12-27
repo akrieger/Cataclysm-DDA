@@ -28,6 +28,11 @@ enum clothing_mod_type : int {
     num_clothing_mod_types
 };
 
+inline auto  format_as( clothing_mod_type cmt )
+{
+    return static_cast<std::underlying_type_t<clothing_mod_type>>( cmt );
+}
+
 template<>
 struct enum_traits<clothing_mod_type> {
     static constexpr clothing_mod_type last = clothing_mod_type::num_clothing_mod_types;

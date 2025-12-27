@@ -2,6 +2,9 @@
 
 #include <stdexcept>
 
+#include <fmt/format.h>
+#include <fmt/printf.h>
+
 #include "cata_assert.h"
 #include "cata_utility.h"
 
@@ -134,4 +137,13 @@ void cata::string_formatter::add_long_long_length_modifier()
     modifier = "ll";
 #endif
     current_format.insert( current_format.size() - 1, modifier );
+}
+
+std::string vstring_printf( fmt::string_view fmt, fmt::printf_args args )
+{
+    try {
+        return fmt::vsprintf( fmt, args );
+    } catch( const std::exception &err ) {
+        return err.what();
+    }
 }

@@ -64,6 +64,11 @@ enum body_part : int {
     num_bp
 };
 
+inline auto format_as( body_part bp )
+{
+    return static_cast<std::underlying_type_t<body_part>>( bp );
+}
+
 template<>
 struct enum_traits<body_part> {
     static constexpr body_part last = body_part::num_bp;

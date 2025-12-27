@@ -5,6 +5,8 @@
 #include <optional>
 #include <string>
 
+#include <fmt/printf.h>
+
 #include "translation_cache.h"
 #include "value_ptr.h"
 
@@ -70,7 +72,7 @@ class translation
          * the translated string. A number can be used to translate the plural
          * form if the object has it.
          **/
-        std::string translated( int num = 1 ) const;
+        const std::string &translated( int num = 1 ) const;
 
         /**
          * Methods exposing the underlying raw strings are not implemented, and
@@ -223,5 +225,13 @@ std::ostream &operator<<( std::ostream &out, const translation &t );
 std::string operator+( const translation &lhs, const std::string &rhs );
 std::string operator+( const std::string &lhs, const translation &rhs );
 std::string operator+( const translation &lhs, const translation &rhs );
+
+template<>
+struct fmt::formatter<translation> : formatter<const char *> {
+    template<typename Ctx>
+    auto format( const translation &t, Ctx &ctx ) const {
+        return formatter<const char *>::format( t.translated().c_str(), ctx );
+    }
+};
 
 #endif // CATA_SRC_TRANSLATION_H

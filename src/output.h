@@ -514,6 +514,11 @@ enum PopupFlags {
     PF_FULLSCREEN  = 1 << 3,
 };
 
+inline auto  format_as( PopupFlags pf )
+{
+    return static_cast<std::underlying_type_t<PopupFlags>>( pf );
+}
+
 PopupFlags popup_flag_from_string( const std::string &str );
 
 template<typename ...Args>
