@@ -1397,20 +1397,25 @@ zone_type_id zone_manager::get_near_zone_type_for_item( const item &it,
 
         if( it_food != nullptr ) {
             if( it_food->get_comestible()->comesttype == "DRINK" ) {
-                if( perishable && has_near( zone_type_LOOT_PDRINK, where, range, fac ) ) {
-                    if( !get_near( zone_type_LOOT_PDRINK, where, range, &it, fac ).empty() ) {
-                        return zone_type_LOOT_PDRINK;
+                if (perishable) {
+                    if (has_near(zone_type_LOOT_PDRINK, where, range, fac)) {
+                        if (!get_near(zone_type_LOOT_PDRINK, where, range, &it, fac).empty()) {
+                            return zone_type_LOOT_PDRINK;
+                        }
                     }
-                } else if( has_near( zone_type_LOOT_DRINK, where, range, fac ) ) {
+                }
+                if( has_near( zone_type_LOOT_DRINK, where, range, fac ) ) {
                     if( !get_near( zone_type_LOOT_DRINK, where, range, &it, fac ).empty() ) {
                         return zone_type_LOOT_DRINK;
                     }
                 }
             }
 
-            if( perishable && has_near( zone_type_LOOT_PFOOD, where, range, fac ) ) {
-                if( !get_near( zone_type_LOOT_PFOOD, where, range, &it, fac ).empty() ) {
-                    return zone_type_LOOT_PFOOD;
+            if (perishable) {
+                if (has_near(zone_type_LOOT_PFOOD, where, range, fac)) {
+                    if (!get_near(zone_type_LOOT_PFOOD, where, range, &it, fac).empty()) {
+                        return zone_type_LOOT_PFOOD;
+                    }
                 }
             }
         }
