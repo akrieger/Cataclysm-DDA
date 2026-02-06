@@ -184,6 +184,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\tests\*.cpp" />
+    <ClCompile Include="..\src\cata_allocator.cpp">
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\msvc-full-features\Cataclysm-lib-vcpkg-static.vcxproj">
