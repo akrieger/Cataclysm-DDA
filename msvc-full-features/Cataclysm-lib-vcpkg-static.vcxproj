@@ -174,7 +174,11 @@
     <ClInclude Include="..\src\*.h" Exclude="..\src\messages.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\*.cpp" Exclude="..\src\main.cpp;..\src\messages.cpp" />
+    <ClCompile Include="..\src\cata_allocator_c.c">
+      <ForcedIncludeFiles />
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\src\*.cpp" Exclude="..\src\main.cpp;..\src\messages.cpp;..\src\cata_allocator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="flatbuffers.vcxproj">

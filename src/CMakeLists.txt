@@ -2,6 +2,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third-party)
 
 set(MAIN_CPP ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 set(MESSAGES_CPP ${CMAKE_CURRENT_SOURCE_DIR}/messages.cpp)
+set(CATA_ALLOCATOR_CPP ${CMAKE_CURRENT_SOURCE_DIR}/cata_allocator.cpp)
 set(RESOURCE_RC ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc)
 
 if (WIN32)
@@ -13,7 +14,7 @@ if (WIN32)
             OBJECT_DEPENDS "${RSRC_RC_DEP}")
 endif ()
 
-file(GLOB CATACLYSM_DDA_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB CATACLYSM_DDA_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
 if (MSVC)
     set_source_files_properties(
         ${CMAKE_CURRENT_SOURCE_DIR}/mapgen.cpp
@@ -21,7 +22,7 @@ if (MSVC)
     )
 endif()
 
-list(REMOVE_ITEM CATACLYSM_DDA_SOURCES ${MAIN_CPP} ${MESSAGES_CPP})
+list(REMOVE_ITEM CATACLYSM_DDA_SOURCES ${MAIN_CPP} ${MESSAGES_CPP} ${CATA_ALLOCATOR_CPP})
 
 file(GLOB CATACLYSM_DDA_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 
@@ -52,6 +53,7 @@ if (TILES)
                 cataclysm-tiles WIN32
                 ${MAIN_CPP}
                 ${MESSAGES_CPP}
+                ${CATA_ALLOCATOR_CPP}
                 ${RESOURCE_RC})
         if(MSYS2)
             set(_KEEP $<$<CONFIG:RelWithDebInfo,Debug>:objcopy
@@ -78,7 +80,8 @@ if (TILES)
     else ()
         add_executable(cataclysm-tiles
                 ${MAIN_CPP}
-                ${MESSAGES_CPP})
+                ${MESSAGES_CPP}
+                ${CATA_ALLOCATOR_CPP})
     endif ()
 
     add_dependencies(cataclysm-tiles-common get_version)
@@ -183,6 +186,7 @@ if (CURSES)
         add_executable(cataclysm
                 ${MAIN_CPP}
                 ${MESSAGES_CPP}
+                ${CATA_ALLOCATOR_CPP}
                 ${RESOURCE_RC})
         if(NOT MINGW)
             # Use only our RT_MANIFEST from resource.rc
@@ -193,7 +197,8 @@ if (CURSES)
     else ()
         add_executable(cataclysm
                 ${MAIN_CPP}
-                ${MESSAGES_CPP})
+                ${MESSAGES_CPP}
+                ${CATA_ALLOCATOR_CPP})
     endif ()
 
     add_dependencies(cataclysm-common get_version)
