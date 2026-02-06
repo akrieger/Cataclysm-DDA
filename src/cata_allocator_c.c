@@ -1,14 +1,18 @@
 #include "cata_allocator_c.h"
 
-#include <stdlib.h>
+#ifdef _MSC_VER
+#define ENABLE_OVERRIDE 0
+#endif
+
+#include <rpmalloc/rpmalloc.c> // NOLINT(bugprone-suspicious-include)
 
 alloc_funcs cata_get_alloc_funcs( void )
 {
     alloc_funcs funcs = {
-        .mallocp = malloc,
-        .callocp = calloc,
-        .reallocp = realloc,
-        .freep = free,
+        rpmalloc,
+        rpcalloc,
+        rprealloc,
+        rpfree,
     };
     return funcs;
 }
