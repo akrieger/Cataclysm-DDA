@@ -1,6 +1,8 @@
 #include "cata_allocator.h"
 #include "cata_allocator_c.h"
 
+#include <rpmalloc/rpnew.h>
+
 #if defined(TILES) || defined(SDL_SOUND)
 #define SDL_SET_MEMORY_FUNCTIONS
 #if defined(_MSC_VER) && defined(USE_VCPKG)
