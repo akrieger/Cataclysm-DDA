@@ -1150,7 +1150,7 @@ $(ODIR)/%.inc: $(SRC_DIR)/%.cc
 	$(COMPILE.cc) -o /dev/null -Wno-error -H -E $< 2> $@
 
 $(ODIR)/%.inc: $(SRC_DIR)/%.c
-	$(COMPILE.c) -o /dev/null -Wno-error -H -E $< 2> $@
+	$(COMPILE.c) -o /dev/null -Wno-error -isystem ${SRC_DIR}/third-party/mimalloc -H -E $< 2> $@
 
 .PHONY: includes
 includes: $(OBJS:.o=.inc)
@@ -1169,7 +1169,8 @@ $(ODIR)/%.o: $(SRC_DIR)/%.cpp $(PCH_P)
 	$(COMPILE.cc) $(OUTPUT_OPTION) $(PCHFLAGS) -MMD -MP $<
 
 $(ODIR)/%.o: $(SRC_DIR)/%.c
-	$(COMPILE.c) $(OUTPUT_OPTION) -x c $(CFLAGS) -MMD -MP $<
+	# Cheating a little bit but to avoid completely thrashing cache we can just add the include directory here.
+	$(COMPILE.c) $(OUTPUT_OPTION) -x c $(CFLAGS) -isystem ${SRC_DIR}/third-party/mimalloc -MMD -MP $<
 
 $(ODIR)/%.o: $(SRC_DIR)/%.rc
 	$(RC) $(RFLAGS) $< -o $@
