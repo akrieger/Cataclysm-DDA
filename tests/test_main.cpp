@@ -204,7 +204,8 @@ struct CataListener : Catch::TestEventListenerBase {
 
     std::ofstream test_stats_report;
 
-    void testRunStarting( Catch::TestRunInfo const & ) override {
+    void testRunStarting( Catch::TestRunInfo const &testRunInfo ) override {
+        TestEventListenerBase::testRunStarting( testRunInfo );
         if( !test_stats_report.is_open() ) {
             test_stats_report = std::ofstream( std::filesystem::u8path( "test_stats_" + std::to_string(
                                                    std::chrono::duration_cast<std::chrono::microseconds>
