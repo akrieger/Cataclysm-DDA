@@ -202,10 +202,22 @@ static option_overrides_t extract_option_overrides( const std::string_view optio
 struct CataListener : Catch::TestEventListenerBase {
     using TestEventListenerBase::TestEventListenerBase;
 
+    std::ofstream test_stats_report;
+
     void testRunStarting( Catch::TestRunInfo const & ) override {
+        if( !test_stats_report.is_open() ) {
+            test_stats_report = std::ofstream( std::filesystem::u8path( "test_stats_" + std::to_string(
+                                                   std::chrono::duration_cast<std::chrono::microseconds>
+                                                   ( std::chrono::steady_clock::now().time_since_epoch() ).count() ) + ".csv" ), std::ios::binary );
+            test_stats_report << "test name,duration" << std::endl;
+        }
         if( needs_game ) {
             try {
+                std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
                 init_global_game_state( mods, option_overrides_for_test_suite, user_dir );
+                std::chrono::duration load_time = std::chrono::duration_cast<std::chrono::microseconds>
+                                                  ( std::chrono::steady_clock::now() - now );
+                test_stats_report << "__game_load__," << std::to_string( load_time.count() ) << std::endl;
             } catch( ... ) {
                 DebugLog( D_INFO, DC_ALL ) << "Fail to initialize global game state" << std::endl;
                 // NOLINTNEXTLINE(cata-tests-must-restore-global-state)
@@ -224,6 +236,27 @@ struct CataListener : Catch::TestEventListenerBase {
 
     void testRunEnded( Catch::TestRunStats const & ) override {
         end_time = std::chrono::system_clock::now();
+        if( test_stats_report.good() ) {
+            test_stats_report.flush();
+            test_stats_report.close();
+        }
+    }
+
+    std::chrono::steady_clock::time_point test_case_start;
+
+    void testCaseStarting( Catch::TestCaseInfo const &testCaseInfo ) override {
+        TestEventListenerBase::testCaseStarting( testCaseInfo );
+        test_case_start = std::chrono::steady_clock::now();
+    }
+
+    void testCaseEnded( Catch::TestCaseStats const &testCaseStats ) override {
+        TestEventListenerBase::testCaseEnded( testCaseStats );
+        std::chrono::microseconds test_duration = std::chrono::duration_cast<std::chrono::microseconds>
+                ( std::chrono::steady_clock::now() - test_case_start );
+        if( test_stats_report.good() ) {
+            test_stats_report << testCaseStats.testInfo.name << "," << std::to_string(
+                                  test_duration.count() ) << std::endl;
+        }
     }
 
     void sectionStarting( Catch::SectionInfo const &sectionInfo ) override {
