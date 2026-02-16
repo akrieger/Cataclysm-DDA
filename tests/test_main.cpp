@@ -234,7 +234,8 @@ struct CataListener : Catch::TestEventListenerBase {
         end_time = start_time = std::chrono::system_clock::now();
     }
 
-    void testRunEnded( Catch::TestRunStats const & ) override {
+    void testRunEnded( Catch::TestRunStats const &testRunStats ) override {
+        TestEventListenerBase::testRunEnded( testRunStats );
         end_time = std::chrono::system_clock::now();
         if( test_stats_report.good() ) {
             test_stats_report.flush();
