@@ -431,20 +431,20 @@ endif
 # enable optimizations. slow to build
 ifeq ($(RELEASE), 1)
   ifeq ($(NATIVE), osx)
-    ifeq ($(shell $(CXX) -E -Os - < /dev/null > /dev/null 2>&1 && echo fos),fos)
-      OPTLEVEL = -Os
+    ifeq ($(shell $(CXX) -E -O2 - < /dev/null > /dev/null 2>&1 && echo fos),fos)
+      OPTLEVEL = -O2
     else
       OPTLEVEL = -O3
     endif
   else ifeq ($(NATIVE), emscripten)
-    OPTLEVEL = -Os
+    OPTLEVEL = -O2
   else
     # MXE ICE Workaround
     # known bad on 4.9.3 and 4.9.4, if it gets fixed this could include a version test too
     ifeq ($(CXXMACHINE), x86_64-w64-mingw32.static)
       OPTLEVEL = -O3
     else
-      OPTLEVEL = -Os
+      OPTLEVEL = -O2
     endif
   endif
 
@@ -713,7 +713,7 @@ ifeq ($(NATIVE), emscripten)
 
   ifeq ($(RELEASE), 1)
     # Release-mode Linker flags.
-    LDFLAGS += -Os
+    LDFLAGS += -O2
     LDFLAGS += -sLZ4
   else
     # Debug mode linker flags.
