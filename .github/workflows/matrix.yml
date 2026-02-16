@@ -222,7 +222,7 @@ jobs:
           ( matrix.dont_skip_data_only_changes == 0 && needs.skip-duplicates.outputs.should_skip_code == 'true' ) ||
           ( matrix.dont_skip_data_only_changes != 0 && needs.skip-duplicates-mods.outputs.should_skip_data == 'true' )
           }}
-        SKIP_TESTS: ${{ fromJSON(needs.matrix-variables.outputs.skip_tests) || (matrix.android != '') }}
+        SKIP_TESTS: ${{ (matrix.android != '') }}
     steps:
     - name: Maximize build space (ubuntu)
       if: ${{ runner.os == 'Linux' }}
