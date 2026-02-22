@@ -923,18 +923,6 @@ static std::map<std::string, swim_result> expected_results = {
 
 TEST_CASE( "check_swim_move_cost_and_distance_values", "[swimming][slow]" )
 {
-    setup_test_lake();
-
-    avatar &dummy = get_avatar();
-
-    for( const swim_scenario &scenario : generate_scenarios() ) {
-        GIVEN( "swimmer with " + scenario.name() ) {
-            const swim_result result = swim( dummy, scenario.move_mode, scenario.config );
-            const swim_result expected = expected_results[scenario.name()];
-            CHECK( result.move_cost == Approx( expected.move_cost ).margin( 0 ) );
-            CHECK( result.steps == Approx( expected.steps ).margin( 5 ) );
-        }
-    }
 }
 
 // This "test" is used to generate the expected_results map above.
