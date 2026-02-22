@@ -1157,7 +1157,7 @@ namespace snmalloc
       // If we have several slabs, and it isn't too expensive as a proportion
       // return to the global pool.
       if (
-        (alloc_classes[sizeclass].unused > 4) &&
+        (alloc_classes[sizeclass].unused > 2) &&
         (alloc_classes[sizeclass].unused >
          (alloc_classes[sizeclass].length >> 2)))
       {
