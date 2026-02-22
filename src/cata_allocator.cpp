@@ -4,8 +4,10 @@
 #define __has_feature(x) 0
 #endif
 
+//#define CATA_USE_MIMALLOC
+
 // snmalloc isn't compatible with any sanitizers.
-#if !defined(__SANITIZE_ADDRESS__) && !__has_feature(address_sanitizer)
+#if !defined CATA_USE_MIMALLOC && !defined(__SANITIZE_ADDRESS__) && !__has_feature(address_sanitizer)
 #define CATA_USE_SNMALLOC
 #endif
 
@@ -32,8 +34,13 @@
 // mimalloc internal asserts by default check NDEBUG which we don't set.
 #define MI_DEBUG 0
 
+#ifdef CATA_USE_MIMALLOC
+#define SDL_SET_MEMORY_FUNCTIONS
+
 #include <mimalloc/static.c> // NOLINT(bugprone-suspicious-include)
 #include <mimalloc/mimalloc-new-delete.h> // IWYU pragma: keep
+
+#endif
 
 #if defined(TILES) || defined(SDL_SOUND)
 #define SDL_SET_MEMORY_FUNCTIONS
