@@ -248,6 +248,11 @@ namespace snmalloc
         is_aligned_block<page_size>(p, size) || (zero_mem == NoZero));
 
       void* r = VirtualAlloc(p, size, MEM_COMMIT, PAGE_READWRITE);
+      if (r) {
+          for (size_t i = 0; i < size; i += 4 * 1024) {
+              *(reinterpret_cast<char*>(r) + i) = 0;
+          }
+      }
 
       return r != nullptr;
     }
