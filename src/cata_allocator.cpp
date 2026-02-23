@@ -17,7 +17,6 @@
 #define NDEBUG
 #endif
 #define SNMALLOC_USE_WAIT_ON_ADDRESS 1
-#define SNMALLOC_CHECK_CLIENT 1
 #ifdef __ANDROID__
 #define MALLOC_USABLE_SIZE_QUALIFIER const
 #endif
