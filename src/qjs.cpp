@@ -84,7 +84,7 @@ void Console::run()
 
     js_std_init_handlers( r->get() );
 
-    JS_SetModuleLoaderFunc( r->get(), nullptr, js_module_loader, nullptr );
+    JS_SetModuleLoaderFunc2( r->get(), nullptr, js_module_loader, nullptr, nullptr );
 
     js_std_add_helpers( c->get(), 0, nullptr );
 
