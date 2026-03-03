@@ -9,32 +9,32 @@
 namespace qjs
 {
 
-Runtime::Runtime( JSRuntime *r ) : runtime{ r } {}
+runtime::runtime( JSRuntime *r ) : r{ r } {}
 
-Runtime::~Runtime()
+runtime::~runtime()
 {
-    JS_FreeRuntime( runtime );
-    runtime = nullptr;
+    JS_FreeRuntime( r );
+    r = nullptr;
 }
 
-std::shared_ptr<Runtime> Runtime::make()
+std::shared_ptr<runtime> runtime::make()
 {
-    return std::shared_ptr<Runtime>( new Runtime{ JS_NewRuntime() } );
+    return std::shared_ptr<runtime>( new runtime{ JS_NewRuntime() } );
 }
 
-Context::Context( JSContext *c, std::shared_ptr<Runtime> r ) : context{ c }, runtime{ std::move( r ) } {};
+context::context( JSContext *c, std::shared_ptr<qjs::runtime> r ) : c{ c }, r{ std::move( r ) } {};
 
-Context::~Context()
+context::~context()
 {
-    JS_FreeContext( context );
-    context = nullptr;
+    JS_FreeContext( c );
+    c = nullptr;
 }
 
-std::shared_ptr<Context> Context::make( std::shared_ptr<Runtime> r )
+std::shared_ptr<context> context::make( std::shared_ptr<runtime> r )
 {
-    JSRuntime *runtime = r->get();
+    JSRuntime *rt = r->get();
     // std::move may evaluate before r->get() unless we separate the calls.
-    return std::shared_ptr<Context>( new Context( JS_NewContext( runtime ), std::move( r ) ) );
+    return std::shared_ptr<context>( new context( JS_NewContext( rt ), std::move( r ) ) );
 }
 
 cataimgui::bounds Console::get_bounds()
@@ -56,9 +56,9 @@ void Console::init()
 
 void Console::run()
 {
-    auto r = Runtime::make();
+    auto r = runtime::make();
 
-    auto c = Context::make( r );
+    auto c = context::make( r );
 
     js_std_init_handlers( r->get() );
 
