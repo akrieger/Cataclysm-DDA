@@ -25,6 +25,8 @@ class runtime
         JSRuntime *r;
 };
 
+class value;
+
 class context
 {
         context( JSContext *c, std::shared_ptr<runtime> r );
@@ -67,9 +69,18 @@ class cstring
         }
 
         ~cstring() {
-            if( ctx && str.data() ) {
-                JS_FreeCString( ctx->get(), str.data() );
-            }
+            free();
+        }
+
+        cstring( cstring const & ) noexcept = delete;
+        cstring &operator=( cstring const & ) noexcept = delete;
+
+        cstring( cstring &&rhs ) noexcept : ctx{ std::move( rhs.ctx ) }, str{ rhs.str } {}
+        cstring &operator=( cstring &&rhs ) noexcept {
+            free();
+            ctx = std::move( rhs.ctx );
+            str = rhs.str;
+            return *this;
         }
 
         operator std::string_view() const {
@@ -79,22 +90,27 @@ class cstring
     private:
         std::shared_ptr<context> ctx;
         std::string_view str;
+
+        void free() {
+            if( ctx && str.data() ) {
+                JS_FreeCString( ctx->get(), str.data() );
+            }
+        }
 };
 
-class exception;
+class exn;
 class number;
 class string;
 
 class value
 {
+        friend class context;
     public:
         value( std::shared_ptr<context> ctx, JSValue v ) : ctx{ std::move( ctx ) }, v{ v } {}
         value( std::nullptr_t, JSValue ) = delete;
 
         ~value() {
-            if( ctx ) {
-                JS_FreeValue( ctx->get(), v );
-            }
+            free();
         }
 
         // No implicit copies maybe.
@@ -106,22 +122,20 @@ class value
             if( &rhs == this ) {
                 return *this;
             }
-            if( ctx ) {
-                JS_FreeValue( ctx->get(), v );
-            }
+            free();
             ctx = std::move( rhs.ctx );
             v = rhs.v;
             return *this;
         }
 
         // Explicit copies.
-        value clone() const& {
+        value clone() const & {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone()&& {
+        value clone() && {
             return std::move( *this );
         }
 
@@ -130,8 +144,8 @@ class value
 
         cstring to_cstring() const;
 
-        exception to_exception() const&;
-        exception to_exception() &&;
+        exn to_exception() const&;
+        exn to_exception() &&;
 
         number to_number() const&;
         number to_number() &&;
@@ -142,6 +156,13 @@ class value
     protected:
         std::shared_ptr<context> ctx;
         JSValue v;
+
+    private:
+        void free() {
+            if( ctx ) {
+                JS_FreeValue( ctx->get(), v );
+            }
+        }
 };
 
 class number : value
@@ -172,10 +193,10 @@ class string : value
         }
 };
 
-class exception : value
+class exn : value
 {
     public:
-        exception( value &&v ) : value{ std::move( v ) } {}
+        exn( value &&v ) : value{ std::move( v ) } {}
 
         string get_message() const {
             return prop( "message" ).to_string();
