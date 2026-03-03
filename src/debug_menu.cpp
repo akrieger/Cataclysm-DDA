@@ -107,6 +107,7 @@
 #include "overmapbuffer.h"
 #include "path_info.h"
 #include "pathfinding.h"
+#include "perf.h"
 #include "pimpl.h"
 #include "point.h"
 #include "popup.h"
@@ -239,6 +240,7 @@ std::string enum_to_string<debug_menu::debug_menu_index>( debug_menu::debug_menu
         case debug_menu::debug_menu_index::SHOW_MUT_CAT: return "SHOW_MUT_CAT";
         case debug_menu::debug_menu_index::OM_EDITOR: return "OM_EDITOR";
         case debug_menu::debug_menu_index::BENCHMARK: return "BENCHMARK";
+        case debug_menu::debug_menu_index::PRINT_TIMERS: return "PRINT_TIMERS";
         case debug_menu::debug_menu_index::OM_TELEPORT: return "OM_TELEPORT";
         case debug_menu::debug_menu_index::OM_TELEPORT_COORDINATES: return "OM_TELEPORT_COORDINATES";
         case debug_menu::debug_menu_index::OM_TELEPORT_CITY: return "OM_TELEPORT_CITY";
@@ -971,6 +973,7 @@ static int info_uilist()
         { uilist_entry( debug_menu_index::DISPLAY_LIGHTING, true, 'l', _( "Toggle display lighting" ) ) },
         { uilist_entry( debug_menu_index::DISPLAY_TRANSPARENCY, true, 'p', _( "Toggle display transparency" ) ) },
         { uilist_entry( debug_menu_index::DISPLAY_RADIATION, true, 'R', _( "Toggle display radiation" ) ) },
+        { uilist_entry( debug_menu_index::PRINT_TIMERS, true, 'P', _( "Print timers" ) ) },
         { uilist_entry( debug_menu_index::SHOW_MUT_CAT, true, 'm', _( "Show mutation category levels" ) ) },
         { uilist_entry( debug_menu_index::BENCHMARK, true, 'b', _( "Draw benchmark (X seconds)" ) ) },
         { uilist_entry( debug_menu_index::HOUR_TIMER, true, 'E', _( "Toggle hour timer" ) ) },
@@ -4370,6 +4373,10 @@ void debug()
             }
         }
         break;
+
+        case debug_menu_index::PRINT_TIMERS:
+            cata_timer::print_stats();
+            break;
 
         case debug_menu_index::OM_TELEPORT:
             debug_menu::teleport_overmap();

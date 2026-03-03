@@ -66,6 +66,7 @@ enum class debug_menu_index : int {
     SHOW_MUT_CAT,
     OM_EDITOR,
     BENCHMARK,
+    PRINT_TIMERS,
     OM_TELEPORT,
     OM_TELEPORT_COORDINATES,
     OM_TELEPORT_CITY,
