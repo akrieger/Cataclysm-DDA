@@ -1,5 +1,7 @@
 #include <memory>
 
+#include "cata_imgui.h"
+
 struct JSContext;
 struct JSRuntime;
 
@@ -16,7 +18,7 @@ class Runtime
 
         static std::shared_ptr<Runtime> make();
 
-        JSRuntime* get() {
+        JSRuntime *get() {
             return runtime;
         }
 
@@ -31,7 +33,7 @@ class Context
         ~Context();
         static std::shared_ptr<Context> make( std::shared_ptr<Runtime> r );
 
-        JSContext* get() {
+        JSContext *get() {
             return context;
         }
 
@@ -41,4 +43,20 @@ class Context
         JSContext *context;
         std::shared_ptr<Runtime> runtime;
 };
+
+class Console : cataimgui::window
+{
+    public:
+        Console( ) : cataimgui::window( "qjs console" ), ctx{  } {};
+        void init();
+        void run();
+        void draw_controls() override;
+        cataimgui::bounds get_bounds() override;
+        void on_resized() override {
+            init();
+        }
+    private:
+        std::shared_ptr<Context> ctx;
+};
+
 }
