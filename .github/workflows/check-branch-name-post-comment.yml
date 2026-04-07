@@ -1,0 +1,49 @@
+name: Check pull request head branch name comment post
+
+on:
+  workflow_run:
+    workflows: ["Check pull request head branch name"]
+    types:
+      - completed
+
+jobs:
+  check_branch_name:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+			# https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/
+      - name: Download artifact
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            var artifacts = await github.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: ${{ github.event.workflow_run.id }},
+            });
+            var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "pr"
+            })[0];
+            var download = await github.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifact.id,
+               archive_format: 'zip',
+            });
+            var fs = require('fs');
+            fs.writeFileSync('${{github.workspace}}/pr.zip', Buffer.from(download.data));
+      - run: unzip pr.zip
+      - name: Post warning
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+						var fs = require('fs');
+            var issue_number = Number(fs.readFileSync('./NR'));
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: "You are creating a pull request with the master branch as the head branch. This is completely fine if you plan to make contribution once or do not plan to do it often, but if you are interested in making multiple pull requests within a short span of time, this would prevent you from doing it comfortably. You may read https://docs.github.com/en/get-started/quickstart/contributing-to-projects#creating-a-branch-to-work-on for a typical workflow of contributing to a project on GitHub."
+            });
+
