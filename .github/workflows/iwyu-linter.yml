@@ -1,7 +1,7 @@
 name: IWYU Suggester
 
 on:
-  pull_request_target:
+  pull_request:
     types: ['opened', 'reopened', 'synchronize', 'ready_for_review']
     paths:
       - '**.cpp'
@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  iwyu-suggest:
+  iwyu-run:
     runs-on: ubuntu-24.04
     env:
       COMPILER: clang++-19

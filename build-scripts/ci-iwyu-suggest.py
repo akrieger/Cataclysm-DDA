@@ -49,16 +49,6 @@ def main():
         # whatever partial changes were applied.
         print("IWYU run failed: %s" % e, file=sys.stderr)
 
-    diff_text = get_diff()
-    if not diff_text:
-        print("No changes after IWYU -- nothing to suggest.")
-        return
-
-    file_hunks = parse_hunks(diff_text)
-    print("Files with IWYU changes: %s" % ", ".join(file_hunks.keys()))
-
-    post_suggestions(file_hunks)
-
 
 def get_changed_files() -> list[Path]:
     files_index = Path(CHANGED_FILES_INDEX)
@@ -180,13 +170,6 @@ def run_iwyu_and_fix(files: list[Path]):
     print("::endgroup::")
     print("IWYU exit code: %d, fix_includes exit code: %d"
           % (iwyu_proc.returncode, fix_proc.returncode))
-
-
-def get_diff() -> str:
-    result = subprocess.run(
-        ["git", "diff", "--no-color"],
-        capture_output=True, encoding="utf-8")
-    return result.stdout.strip()
 
 
 def parse_hunks(diff_text: str) -> dict[str, list[dict]]:

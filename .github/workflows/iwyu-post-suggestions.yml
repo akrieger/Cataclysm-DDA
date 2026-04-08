@@ -1,0 +1,53 @@
+name: Post IWYU suggestions
+
+on:
+  workflow_run:
+    workflows: ["IWYU (include-what-you-use)"]
+    types:
+      - completed
+
+jobs:
+  iwyu-suggest:
+    if: github.event.workflow_run.conclusion == 'failed'
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      with:
+        ref: '${{ github.event.pull_request.head.sha }}'
+        persist-credentials: false
+    - name: Download artifact
+      id: download-artifact
+      uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+      with:
+        script: |
+          var artifacts = await github.actions.listWorkflowRunArtifacts({
+             owner: context.repo.owner,
+             repo: context.repo.repo,
+             run_id: ${{ github.event.workflow_run.id }},
+          });
+          var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+            return artifact.name == "outputs"
+          });
+          if (matchArtifact.length != 1) {
+            return false;
+          }
+          var download = await github.actions.downloadArtifact({
+             owner: context.repo.owner,
+             repo: context.repo.repo,
+             artifact_id: matchArtifact[0].id,
+             archive_format: 'zip',
+          });
+          var fs = require('fs');
+          fs.writeFileSync('${{github.workspace}}/output.zip', Buffer.from(download.data));
+    - name: Extract artifact
+      if: ${{ !cancelled() && steps.download-artifact.outputs.result == 'true' }}
+      run: unzip output.zip
+
+    - name: Post IWYU fixes as comments.
+      if: ${{ !cancelled() && steps.download-artifact.outputs.result == 'true' }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        export PR_NUMBER=`cat pr_number`
+        export COMMIT_SHA=`cat commit_sha`
+        python build-scripts/post-diff-as-comments.py
