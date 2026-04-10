@@ -1,0 +1,28 @@
+name: Check pull request head branch name comment post
+
+on:
+  workflow_run:
+    workflows: [Check pull request head branch name]
+    types: [completed]
+
+jobs:
+  check_branch_name:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@8305c0f1062bb0d184d09ef4493ecb9288447732 # v20
+        with:
+          workflow: ${{ github.event.workflow_run.name }}
+          run_id: ${{ github.event.workflow_run.id }}
+          name: pr
+          use_unzip: true
+      - name: Post warning
+        if: ${{ steps.download-artifact.outputs.found_artifact == 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ ! -s NR ]]; then
+            gh pr comment `cat NR` -b "You are creating a pull request with the master branch as the head branch. This is completely fine if you plan to make contribution once or do not plan to do it often, but if you are interested in making multiple pull requests within a short span of time, this would prevent you from doing it comfortably. You may read https://docs.github.com/en/get-started/quickstart/contributing-to-projects#creating-a-branch-to-work-on for a typical workflow of contributing to a project on GitHub."
+          fi
