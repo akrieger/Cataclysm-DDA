@@ -3,9 +3,11 @@ on:
   push:
     branches:
     - master
+    - main
   pull_request:
     branches:
     - master
+    - main
     types: [opened, reopened, synchronize, ready_for_review]
 
 # We only care about the latest revision of a PR, so cancel all previous instances.
