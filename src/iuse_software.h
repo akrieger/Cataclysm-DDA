@@ -4,6 +4,11 @@
 
 #include <map>
 #include <string>
+#include <vector>
+#include <string_view>
+#include <set>
+#include <utility>
+#include <filesystem>
 
 bool play_videogame( const std::string &function_name,
                      std::map<std::string, std::string> &game_data,

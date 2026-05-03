@@ -115,7 +115,7 @@ void PATH_INFO::set_standard_filenames()
     // Data is always relative to itself. Also, the base path might not be writeable.
     datadir_path_value = cata_path{ cata_path::root_path::data, std::filesystem::path{} };
 
-    if( !base_path_value.empty() ) {
+    if(!base_path_value.empty()) {
 #if defined(DATA_DIR_PREFIX)
         datadir_value = base_path_value + "share/cataclysm-dda/";
         prefix = datadir_value;
