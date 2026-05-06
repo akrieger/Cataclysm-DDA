@@ -576,7 +576,8 @@ TEST_CASE( "post_process_pre_burn_material_immunity", "[mapgen][post_process]" )
     rng_set_engine_seed( 42424242 );
     pp_generator_test_pp_pre_burn_only.obj().execute( here, pos );
 
-    SECTION( "walls: flammable burn, non-flammable survive" ) {
+    {
+        INFO( "walls: flammable burn, non-flammable survive" );
         // Wood walls -> t_wall_burnt
         CHECK( here.ter( tripoint_bub_ms( 1, 1, 0 ) ) == ter_t_wall_burnt.id() );
         CHECK( here.ter( tripoint_bub_ms( 3, 1, 0 ) ) == ter_t_wall_burnt.id() );
@@ -585,14 +586,16 @@ TEST_CASE( "post_process_pre_burn_material_immunity", "[mapgen][post_process]" )
         CHECK( here.ter( tripoint_bub_ms( 7, 1, 0 ) ) == ter_t_wall_metal.id() );
     }
 
-    SECTION( "closed doors: flammable burn, non-flammable survive" ) {
+    {
+        INFO( "closed doors: flammable burn, non-flammable survive" );
         // Wood door -> t_floor_burnt (has DOOR flag + FLAMMABLE)
         CHECK( here.ter( tripoint_bub_ms( 1, 3, 0 ) ) == ter_t_floor_burnt.id() );
         // Metal door unchanged (has DOOR flag, no FLAMMABLE)
         CHECK( here.ter( tripoint_bub_ms( 3, 3, 0 ) ) == ter_t_door_metal_c.id() );
     }
 
-    SECTION( "open/locked doors: flammable burn to dirt, non-flammable survive" ) {
+    {
+        INFO( "open/locked doors: flammable burn to dirt, non-flammable survive" );
         // Open wood door -> t_dirt (no DOOR flag, flammable outdoor)
         CHECK( here.ter( tripoint_bub_ms( 1, 5, 0 ) ) == ter_t_dirt.id() );
         // Open metal door unchanged (no DOOR flag, not flammable)
@@ -603,25 +606,29 @@ TEST_CASE( "post_process_pre_burn_material_immunity", "[mapgen][post_process]" )
         CHECK( here.ter( tripoint_bub_ms( 7, 5, 0 ) ) == ter_t_dirt.id() );
     }
 
-    SECTION( "floors: flammable burn, non-flammable survive" ) {
+    {
+        INFO( "floors: flammable burn, non-flammable survive" );
         CHECK( here.ter( tripoint_bub_ms( 1, 7, 0 ) ) == ter_t_floor_burnt.id() );
         CHECK( here.ter( tripoint_bub_ms( 3, 7, 0 ) ) == ter_t_thconc_floor.id() );
     }
 
-    SECTION( "outdoor: grass to dirt, pavement and water survive" ) {
+    {
+        INFO( "outdoor: grass to dirt, pavement and water survive" );
         CHECK( here.ter( tripoint_bub_ms( 1, 9, 0 ) ) == ter_t_dirt.id() );
         CHECK( here.ter( tripoint_bub_ms( 3, 9, 0 ) ) == ter_t_pavement.id() );
         CHECK( here.ter( tripoint_bub_ms( 5, 9, 0 ) ) == ter_t_water_dp.id() );
     }
 
-    SECTION( "furniture: flammable destroyed, non-flammable survives" ) {
+    {
+        INFO( "furniture: flammable destroyed, non-flammable survives" );
         // Metal locker on concrete floor: locker survives
         CHECK( here.furn( tripoint_bub_ms( 1, 11, 0 ) ) == furn_f_locker.id() );
         // Wood table on concrete floor: table destroyed (terrain immunity != furniture immunity)
         CHECK( here.furn( tripoint_bub_ms( 3, 11, 0 ) ) == furn_str_id::NULL_ID().id() );
     }
 
-    SECTION( "items: cleared on non-water tiles, preserved in water" ) {
+    {
+        INFO( "items: cleared on non-water tiles, preserved in water" );
         // Items on concrete floor: cleared (fire chaos destroys contents)
         CHECK( here.i_at( tripoint_bub_ms( 1, 13, 0 ) ).empty() );
         // Items in water: preserved
