@@ -7,22 +7,28 @@
 
 level_cache::level_cache()
 {
-    const int map_dimensions = MAPSIZE_X * MAPSIZE_Y;
+    reset();
+}
+
+void level_cache::reset()
+{
+    // Blast zeroes over the entire region. Some compilers, looking at you msvc, aren't smart enough
+    // to turn this into a single fused memset. Sometimes it doesn't even optimize fill_n into memset
+    // but emits scalar loops. This murders map test performance.
+    std::memset( static_cast<level_cache_default_zero_members *>( this ), 0,
+                 sizeof( level_cache_default_zero_members ) );
+
     transparency_cache_dirty.set();
     outside_cache_dirty = true;
     floor_cache_dirty = false;
-    constexpr four_quadrants four_zeros( 0.0f );
-    std::fill_n( &lm[0][0], map_dimensions, four_zeros );
-    std::fill_n( &sm[0][0], map_dimensions, 0.0f );
-    std::fill_n( &light_color_cache[0][0], map_dimensions, light_color_rgb{} );
-    std::fill_n( &light_source_buffer[0][0], map_dimensions, buffered_light_source{} );
-    std::fill_n( &outside_cache[0][0], map_dimensions, false );
-    std::fill_n( &floor_cache[0][0], map_dimensions, false );
-    std::fill_n( &transparency_cache[0][0], map_dimensions, 0.0f );
-    std::fill_n( &vision_transparency_cache[0][0], map_dimensions, 0.0f );
-    std::fill_n( &seen_cache[0][0], map_dimensions, 0.0f );
-    std::fill_n( &camera_cache[0][0], map_dimensions, 0.0f );
-    std::fill_n( &visibility_cache[0][0], map_dimensions, lit_level::DARK );
+    seen_cache_dirty = false;
+    lightmap_dirty = true;
+
+    natural_light_level_cache = 0.0f;
+
+    vehicle_list.clear();
+    zone_vehicles.clear();
+
     clear_vehicle_cache();
 }
 
