@@ -26,6 +26,7 @@ jobs:
               state: 'closed'
             })
 
+            console.log(JSON.stringify(context))
             const this_pr = context.pull_request.number;
             let is_new_contributor = true;
             for await (const pr of github.paginate.iterator(opts)) {
