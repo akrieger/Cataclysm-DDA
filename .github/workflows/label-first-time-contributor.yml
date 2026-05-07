@@ -21,8 +21,8 @@ jobs:
             // See: https://octokit.github.io/rest.js/#pagination
             const creator = context.payload.sender.login
             const opts = github.rest.pulls.list.endpoint.merge({
-              context.repo.owner,
-              context.repo.repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               state: 'closed'
             })
 
