@@ -26,7 +26,7 @@
     <_UseSDL3 Condition="'$(UseSDL3)'=='true'">true</_UseSDL3>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
-    <VcpkgAdditionalInstallOptions>--clean-after-build</VcpkgAdditionalInstallOptions>
+    <VcpkgAdditionalInstallOptions></VcpkgAdditionalInstallOptions>
     <VcpkgAdditionalInstallOptions Condition="$(_UseSDL3)">$(VcpkgAdditionalInstallOptions) --x-feature=sdl3</VcpkgAdditionalInstallOptions>
     <VcpkgAdditionalInstallOptions Condition="!$(_UseSDL3)">$(VcpkgAdditionalInstallOptions) --x-feature=sdl2</VcpkgAdditionalInstallOptions>
   </PropertyGroup>

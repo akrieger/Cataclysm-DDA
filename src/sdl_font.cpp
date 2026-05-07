@@ -1,6 +1,10 @@
 ﻿#if defined( TILES )
 #include "sdl_font.h"
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
 #include "font_loader.h"
 #include "output.h"
 #include "sdl_utils.h"
@@ -314,11 +318,66 @@ SDL_Texture_Ptr CachedTTFFont::create_glyph( const SDL_Renderer_Ptr &renderer,
         dbg( D_ERROR ) << "Failed to create glyph for " << ch << ": " << SDL_GetError();
         return nullptr;
     }
+#if SDL_MAJOR_VERSION >= 3
+    static int probe_n = []() {
+        const char *e = std::getenv( "CDDA_GLYPH_DEBUG" );
+        return e ? std::atoi( e ) : 0;
+    }
+    ();
+    const bool dump = probe_n > 0;
+    if( dump ) {
+        --probe_n;
+    }
+    if( const char *bmp_prefix = std::getenv( "CDDA_GLYPH_BMP" ) ) {
+        char path[512];
+        unsigned codepoint = !ch.empty() ? static_cast<unsigned char>( ch[0] ) : 0u;
+        std::snprintf( path, sizeof( path ), "%s_%03d_prepre_U%04X.bmp",
+                       bmp_prefix, probe_n, codepoint );
+        SDL_SaveBMP( sglyph.get(), path );
+    }
+    if( std::getenv( "CDDA_GLYPH_PRECONVERT" ) ) {
+        SDL_Surface *converted = SDL_ConvertSurface( sglyph.get(), SDL_PIXELFORMAT_ABGR8888 );
+        if( converted ) {
+            sglyph.reset( converted );
+        }
+    }
+    if( std::getenv( "CDDA_GLYPH_PREMUL" ) ) {
+        SDL_PremultiplySurfaceAlpha( sglyph.get(), false );
+    }
+    if( dump ) {
+        SDL_BlendMode sbm = SDL_BLENDMODE_NONE;
+        SDL_GetSurfaceBlendMode( sglyph.get(), &sbm );
+        SDL_Colorspace scolorspace = SDL_GetSurfaceColorspace( sglyph.get() );
+        DebugLog( DL_ALL, DC_ALL ) << __FILE__ << ":" << __LINE__ << ": GLYPH_DUMP src ch='" << ch <<
+                                   "' fontblending=" << fontblending
+                                   << " fmt=" << SDL_GetPixelFormatName( sglyph->format )
+                                   << " w=" << sglyph->w << " h=" << sglyph->h
+                                   << " pitch=" << sglyph->pitch
+                                   << " sbm=" << static_cast<int>( sbm )
+                                   << " colorspace=" << static_cast<unsigned>( scolorspace );
+        if( const char *bmp_prefix = std::getenv( "CDDA_GLYPH_BMP" ) ) {
+            char path[512];
+            unsigned codepoint = !ch.empty() ? static_cast<unsigned char>( ch[0] ) : 0u;
+            std::snprintf( path, sizeof( path ), "%s_%03d_pre_U%04X.bmp",
+                           bmp_prefix, probe_n, codepoint );
+            SDL_SaveBMP( sglyph.get(), path );
+        }
+    }
+#endif
     const int wf = utf8_width( ch );
     ch_width = width * wf;
     // Note: bits per pixel must be 8 to be synchronized with the surface
     // that TTF_RenderGlyph above returns. This is important for SDL_BlitScaled
-    SDL_Surface_Ptr surface = create_surface_32( ch_width, height );
+    SDL_Surface_Ptr surface;
+#if SDL_MAJOR_VERSION >= 3
+    if( std::getenv( "CDDA_GLYPH_SAMEFMT" ) ) {
+        surface.reset( SDL_CreateSurface( ch_width, height, sglyph->format ) );
+    } else {
+        surface = create_surface_32( ch_width, height );
+    }
+#else
+    surface = create_surface_32( ch_width, height );
+#endif
     SDL_Rect src_rect = { 0, 0, sglyph->w, sglyph->h };
     SDL_Rect dst_rect = { 0, 0, ch_width, height };
     if( src_rect.w < dst_rect.w ) {
@@ -344,7 +403,95 @@ SDL_Texture_Ptr CachedTTFFont::create_glyph( const SDL_Renderer_Ptr &renderer,
     }
     SetSurfaceBlendMode( sglyph, SDL_BLENDMODE_BLEND );
 
-    return CreateTextureFromSurface( renderer, sglyph );
+#if SDL_MAJOR_VERSION >= 3
+    if( dump ) {
+        if( const char *bmp_prefix = std::getenv( "CDDA_GLYPH_BMP" ) ) {
+            char path[512];
+            unsigned codepoint = !ch.empty() ? static_cast<unsigned char>( ch[0] ) : 0u;
+            std::snprintf( path, sizeof( path ), "%s_%03d_post_U%04X.bmp",
+                           bmp_prefix, probe_n, codepoint );
+            SDL_SaveBMP( sglyph.get(), path );
+        }
+    }
+#endif
+    SDL_Texture_Ptr tex = CreateTextureFromSurface( renderer, sglyph );
+#if SDL_MAJOR_VERSION >= 3
+    if( tex ) {
+        if( const char *mode = std::getenv( "CDDA_GLYPH_BLEND" ) ) {
+            SDL_BlendMode bm = SDL_BLENDMODE_BLEND;
+            if( std::strcmp( mode, "premul" ) == 0 ) {
+                bm = SDL_BLENDMODE_BLEND_PREMULTIPLIED;
+            } else if( std::strcmp( mode, "none" ) == 0 ) {
+                bm = SDL_BLENDMODE_NONE;
+            }
+            SDL_SetTextureBlendMode( tex.get(), bm );
+        }
+        if( dump ) {
+            SDL_PropertiesID tprops = SDL_GetTextureProperties( tex.get() );
+            Sint64 tfmt = SDL_GetNumberProperty(
+                              tprops, SDL_PROP_TEXTURE_FORMAT_NUMBER, 0 );
+            Sint64 tcolorspace = SDL_GetNumberProperty(
+                                     tprops, SDL_PROP_TEXTURE_COLORSPACE_NUMBER, -1 );
+            Sint64 taccess = SDL_GetNumberProperty(
+                                 tprops, SDL_PROP_TEXTURE_ACCESS_NUMBER, -1 );
+            SDL_BlendMode tbm = SDL_BLENDMODE_NONE;
+            SDL_GetTextureBlendMode( tex.get(), &tbm );
+            SDL_ScaleMode tsm = SDL_SCALEMODE_NEAREST;
+            SDL_GetTextureScaleMode( tex.get(), &tsm );
+            Uint8 r = 0, g = 0, b = 0, a = 0;
+            SDL_GetTextureColorMod( tex.get(), &r, &g, &b );
+            SDL_GetTextureAlphaMod( tex.get(), &a );
+
+            SDL_Texture *rt = SDL_GetRenderTarget( renderer.get() );
+            SDL_PropertiesID rprops = SDL_GetRendererProperties( renderer.get() );
+            const char *rname = SDL_GetStringProperty(
+                                    rprops, SDL_PROP_RENDERER_NAME_STRING, "?" );
+            Sint64 routcs = SDL_GetNumberProperty(
+                                rprops, SDL_PROP_RENDERER_OUTPUT_COLORSPACE_NUMBER, -1 );
+            SDL_BlendMode rbm = SDL_BLENDMODE_NONE;
+            SDL_GetRenderDrawBlendMode( renderer.get(), &rbm );
+
+            DebugLog( DL_ALL, DC_ALL ) << __FILE__ << ":" << __LINE__ << ": GLYPH_DUMP tex ch='" << ch
+                                       << "' fmt=" << SDL_GetPixelFormatName(
+                                           static_cast<SDL_PixelFormat>( tfmt ) )
+                                       << " access=" << taccess
+                                       << " colorspace=" << tcolorspace
+                                       << " bm=" << static_cast<int>( tbm )
+                                       << " scale=" << static_cast<int>( tsm )
+                                       << " rgba_mod=" << static_cast<int>( r ) << ","
+                                       << static_cast<int>( g ) << ","
+                                       << static_cast<int>( b ) << ","
+                                       << static_cast<int>( a );
+            DebugLog( DL_ALL, DC_ALL ) << __FILE__ << ":" << __LINE__ << ": GLYPH_DUMP renderer name='" << rname
+                                       << "' output_colorspace=" << routcs
+                                       << " draw_bm=" << static_cast<int>( rbm )
+                                       << " has_target=" << ( rt ? 1 : 0 );
+            if( rt ) {
+                SDL_PropertiesID rtp = SDL_GetTextureProperties( rt );
+                Sint64 rtfmt = SDL_GetNumberProperty(
+                                   rtp, SDL_PROP_TEXTURE_FORMAT_NUMBER, 0 );
+                Sint64 rtcs = SDL_GetNumberProperty(
+                                  rtp, SDL_PROP_TEXTURE_COLORSPACE_NUMBER, -1 );
+                Sint64 rtacc = SDL_GetNumberProperty(
+                                   rtp, SDL_PROP_TEXTURE_ACCESS_NUMBER, -1 );
+                SDL_BlendMode rtbm = SDL_BLENDMODE_NONE;
+                SDL_GetTextureBlendMode( rt, &rtbm );
+                DebugLog( DL_ALL, DC_ALL ) << __FILE__ << ":" << __LINE__ << ": GLYPH_DUMP rt fmt=" <<
+                                           SDL_GetPixelFormatName(
+                                               static_cast<SDL_PixelFormat>( rtfmt ) )
+                                           << " access=" << rtacc
+                                           << " colorspace=" << rtcs
+                                           << " bm=" << static_cast<int>( rtbm );
+            }
+            int sdl_v = SDL_GetVersion();
+            DebugLog( DL_ALL, DC_ALL ) << __FILE__ << ":" << __LINE__ << ": GLYPH_DUMP sdl_version="
+                                       << SDL_VERSIONNUM_MAJOR( sdl_v ) << "."
+                                       << SDL_VERSIONNUM_MINOR( sdl_v ) << "."
+                                       << SDL_VERSIONNUM_MICRO( sdl_v );
+        }
+    }
+#endif
+    return tex;
 }
 
 bool CachedTTFFont::isGlyphProvided( const std::string &ch ) const
