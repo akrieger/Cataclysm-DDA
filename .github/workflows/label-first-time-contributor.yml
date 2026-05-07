@@ -27,8 +27,8 @@ jobs:
               state: 'closed'
             })
 
-            console.log(JSON.stringify(context))
-            const this_pr = context.pull_request.number;
+            console.log(JSON.stringify(context, null, 2))
+            const this_pr = context.payload.pull_request.number;
             let is_new_contributor = true;
             for await (const pr of github.paginate.iterator(opts)) {
               if (pr.number !== this_pr && pr.merged_at !== null) {
