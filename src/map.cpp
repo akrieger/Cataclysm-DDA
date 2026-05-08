@@ -339,6 +339,21 @@ map &map::operator=( map && ) = default;
 
 static submap null_submap;
 
+std::list<std::unique_ptr<level_cache>> map::free_cache_pool;
+
+std::unique_ptr<level_cache, map::level_cache_free> map::alloc_cache()
+{
+    std::unique_ptr<level_cache, level_cache_free> cache;
+    if( !free_cache_pool.empty() ) {
+        cache.reset( free_cache_pool.front().release() );
+        free_cache_pool.pop_front();
+        cache->reset();
+    } else {
+        cache.reset( new level_cache{} );
+    }
+    return cache;
+}
+
 void map::set_transparency_cache_dirty( const int zlev )
 {
     if( inbounds_z( zlev ) ) {
@@ -11310,9 +11325,9 @@ std::list<Creature *> map::get_creatures_in_radius_circ( const tripoint_bub_ms &
 level_cache &map::access_cache( int zlev )
 {
     if( zlev >= -OVERMAP_DEPTH && zlev <= OVERMAP_HEIGHT ) {
-        std::unique_ptr<level_cache> &cache = caches[zlev + OVERMAP_DEPTH];
+        std::unique_ptr<level_cache, level_cache_free> &cache = caches[zlev + OVERMAP_DEPTH];
         if( !cache ) {
-            cache = std::make_unique<level_cache>();
+            cache.reset( new level_cache{} );
         }
         return *cache;
     }
@@ -11324,9 +11339,9 @@ level_cache &map::access_cache( int zlev )
 const level_cache &map::access_cache( int zlev ) const
 {
     if( zlev >= -OVERMAP_DEPTH && zlev <= OVERMAP_HEIGHT ) {
-        std::unique_ptr<level_cache> &cache = caches[zlev + OVERMAP_DEPTH];
+        std::unique_ptr<level_cache, level_cache_free> &cache = caches[zlev + OVERMAP_DEPTH];
         if( !cache ) {
-            cache = std::make_unique<level_cache>();
+            cache.reset( new level_cache{} );
         }
         return *cache;
     }
