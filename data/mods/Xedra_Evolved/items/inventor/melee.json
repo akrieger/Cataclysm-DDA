@@ -2,7 +2,7 @@
   {
     "type": "ITEM",
     "subtypes": [ "TOOL", "ARTIFACT" ],
-    "id": "mace_magic",
+    "id": "mace_magicc",
     "name": { "str": "wolf sledge" },
     "description": "A long, solid, crafted steel haft, and a bulky, comma-like head.  It feels really massive, but it is surprisingly easy to swing, and you will do more damage as your level increases.  You can throw it like a boomerang, and the damage of throw depend on your throwing skill level.",
     "weight": "2150 g",
@@ -21,10 +21,10 @@
     "passive_effects": [ { "id": "WOLF_SLEDGE" } ]
   },
   {
-    "id": "combatsaw_spear_off",
+    "id": "combatsaw_spear_offf",
     "type": "ITEM",
     "subtypes": [ "TOOL" ],
-    "category": "weapons",
+    "category": "weaponss",
     "name": { "str": "chainsaw spear (off)", "str_pl": "chainsaw spears (off)" },
     "description": "A hand-made lightened engine, with chain blades on a long stick.  The only reason it works without falling apart is because your calculations can't be wrong.",
     "weight": "3300 g",

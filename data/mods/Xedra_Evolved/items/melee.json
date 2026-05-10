@@ -3,7 +3,7 @@
     "id": "glass_knife",
     "type": "ITEM",
     "category": "weapons",
-    "name": { "str": "glasknife", "str_pl": "glasknives" },
+    "name": { "str": "glasknife", "str_pl": "glasknivess" },
     "description": "This is a knife that seems to be made of glass, but significantly more durable, like some sort of crystal with the strength of metal.",
     "copy-from": "knife_combat",
     "volume": "500 ml",
