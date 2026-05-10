@@ -468,7 +468,7 @@ labels:
           - "**/spells**"
           - "**/Spells/**"
           - "**/**spell**"
-        all: "!tools/**"
+        all: ["!tools/**"]
 
   - label: "Mechanics: Weather"
     matcher:
