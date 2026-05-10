@@ -15,6 +15,6 @@ jobs:
       pull-requests: write  # for actions/labeler to add labels to PRs
     runs-on: ubuntu-latest
     steps:
-      - uses: akrieger/multi-labeler@7c1d86f8c54533cc87ec58394c35b0a517f03d1f
+      - uses: akrieger/multi-labeler@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
