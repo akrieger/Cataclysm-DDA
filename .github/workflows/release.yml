@@ -169,11 +169,11 @@ jobs:
         uses: microsoft/setup-msbuild@v2
       - name: Install dependencies (windows msvc) (2/4)
         if: runner.os == 'Windows'
-        uses: lukka/run-vcpkg@b1a0dd252f06b9e25b3c022a9a03bd7a427fb6a2 # v11.6
+        uses: lukka/run-vcpkg@v11.6
         id: runvcpkg
         with:
           vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
-          vcpkgGitCommitId: '3b57fb2e1ff55613db14d2aaf0a30529289c7050'
+          vcpkgGitCommitId: 'c3867e714dd3a51c272826eea77267876517ed99'
       - name: Install dependencies (windows msvc) (3/4)
         if: runner.os == 'Windows'
         run: |
