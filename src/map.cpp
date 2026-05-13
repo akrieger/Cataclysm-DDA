@@ -11327,7 +11327,7 @@ level_cache &map::access_cache( int zlev )
     if( zlev >= -OVERMAP_DEPTH && zlev <= OVERMAP_HEIGHT ) {
         std::unique_ptr<level_cache, level_cache_free> &cache = caches[zlev + OVERMAP_DEPTH];
         if( !cache ) {
-            cache.reset( new level_cache{} );
+            cache = alloc_cache();
         }
         return *cache;
     }
@@ -11341,7 +11341,7 @@ const level_cache &map::access_cache( int zlev ) const
     if( zlev >= -OVERMAP_DEPTH && zlev <= OVERMAP_HEIGHT ) {
         std::unique_ptr<level_cache, level_cache_free> &cache = caches[zlev + OVERMAP_DEPTH];
         if( !cache ) {
-            cache.reset( new level_cache{} );
+            cache = alloc_cache();
         }
         return *cache;
     }

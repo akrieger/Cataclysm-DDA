@@ -3569,7 +3569,7 @@ float game::natural_light_level( const int zlev ) const
         return LIGHT_AMBIENT_MINIMAL;
     }
 
-    if( latest_lightlevels[zlev] > -std::numeric_limits<float>::max() ) {
+    if( latest_lightlevels[zlev] > std::numeric_limits<float>::lowest() ) {
         // Already found the light level for now?
         return latest_lightlevels[zlev];
     }
@@ -3628,7 +3628,7 @@ unsigned char game::light_level( const int zlev ) const
 void game::reset_light_level()
 {
     for( float &lev : latest_lightlevels ) {
-        lev = -std::numeric_limits<float>::max();
+        lev = std::numeric_limits<float>::lowest();
     }
 }
 

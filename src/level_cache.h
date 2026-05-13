@@ -98,7 +98,7 @@ struct level_cache : level_cache_default_zero_members {
         bool no_floor_gaps = false;
 
         // Cache of natural light level is useful if it needs to be in sync with the light cache.
-        float natural_light_level_cache;
+        float natural_light_level_cache = 0.0f;
 
         std::set<vehicle *> vehicle_list;
         std::set<vehicle *> zone_vehicles;
