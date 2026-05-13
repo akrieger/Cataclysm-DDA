@@ -224,14 +224,37 @@ TEST_CASE( "uncolored_source_produces_no_color", "[light_color]" )
     scoped_weather_override weather_clear( WEATHER_CLEAR );
 
     const tripoint_bub_ms src = get_player_character().pos_bub() + tripoint::east * 3;
+    debugmsg("(%d,%d,%d) src", src.x(), src.y(), src.z());
+    light_color_rgb color = get_light_color_at( src );
+#define CHECK_COLOR() \
+    color = get_light_color_at( src ); \
+    if ( *reinterpret_cast<const uint32_t*>(&color.b) != 0 ) debugmsg(std::to_string(__LINE__) + " broke\n")
+    CHECK_COLOR();
     place_ter_roofed( src, ter_test_t_utility_light );
 
-    rebuild_lightmap( 0 );
+    CHECK_COLOR();
+    int zlev = 0;
+    map &here = get_map();
+    CHECK_COLOR();
+    for( int z = -2; z <= OVERMAP_HEIGHT; z++ ) {
+        here.invalidate_map_cache( z );
+        CHECK_COLOR();
+    }
+    here.invalidate_visibility_cache();
+    CHECK_COLOR();
+    here.build_map_cache( zlev );
+    CHECK_COLOR();
+    here.invalidate_visibility_cache();
+    CHECK_COLOR();
+    here.update_visibility_cache( zlev );
+    CHECK_COLOR();
+    here.build_map_cache( zlev );
+    CHECK_COLOR();
 
-    const light_color_rgb color = get_light_color_at( src );
-    CHECK( color.r == 0.0f );
-    CHECK( color.g == 0.0f );
-    CHECK( color.b == 0.0f );
+    color = get_light_color_at( src );
+    CHECK( *reinterpret_cast<const uint32_t*>(&color.r) == 0 );
+    CHECK( *reinterpret_cast<const uint32_t*>(&color.g) == 0 );
+    CHECK( *reinterpret_cast<const uint32_t*>(&color.b) == 0 );
 }
 
 TEST_CASE( "colored_light_footprint_matches_scalar", "[light_color]" )

@@ -347,10 +347,10 @@ std::unique_ptr<level_cache, map::level_cache_free> map::alloc_cache()
     if( !free_cache_pool.empty() ) {
         cache.reset( free_cache_pool.front().release() );
         free_cache_pool.pop_front();
-        cache->reset();
     } else {
         cache.reset( new level_cache{} );
     }
+    cache->reset();
     return cache;
 }
 
@@ -10451,13 +10451,26 @@ void map::do_vehicle_caching( int z )
         }
     }
 }
+static light_color_rgb get_light_color_at( const tripoint_bub_ms &pos )
+{
+    const map &here = get_map();
+    const level_cache &cache = here.access_cache( pos.z() );
+    return cache.light_color_cache[pos.x()][pos.y()];
+}
 
 void map::build_map_cache( const int zlev, bool skip_lightmap )
 {
+    const tripoint_bub_ms src = get_player_character().pos_bub() + tripoint::east * 3;
+    light_color_rgb color = get_light_color_at( src );
+#define CHECK_COLOR() \
+    color = get_light_color_at( src ); \
+    if ( *reinterpret_cast<const uint32_t*>(&color.b) != 0 ) debugmsg(std::to_string(__LINE__) + " broke\n")
+    CHECK_COLOR();
     const int minz = zlevels ? -OVERMAP_DEPTH : zlev;
     const int maxz = zlevels ? OVERMAP_HEIGHT : zlev;
     bool seen_cache_dirty = false;
     bool camera_cache_dirty = false;
+
     for( int z = minz; z <= maxz; z++ ) {
         build_outside_cache( z );
         build_transparency_cache( z );
@@ -10465,19 +10478,23 @@ void map::build_map_cache( const int zlev, bool skip_lightmap )
         seen_cache_dirty |= floor_cache_was_dirty;
         seen_cache_dirty |= get_cache( z ).seen_cache_dirty;
     }
+    CHECK_COLOR();
     // needs a separate pass as it changes the caches on neighbour z-levels (e.g. floor_cache);
     // otherwise such changes might be overwritten by main cache-building logic
     for( int z = minz; z <= maxz; z++ ) {
         do_vehicle_caching( z );
     }
+    CHECK_COLOR();
     for( int z = minz; z <= maxz; z++ ) {
         seen_cache_dirty |= build_vision_transparency_cache( z );
     }
+    CHECK_COLOR();
 
     if( seen_cache_dirty ) {
         skew_vision_cache.clear();
         skew_vision_wo_fields_cache.clear();
     }
+    CHECK_COLOR();
     avatar &u = get_avatar();
     Character::moncam_cache_t mcache = u.get_active_moncams();
     Character::moncam_cache_t diff;
@@ -10503,7 +10520,9 @@ void map::build_map_cache( const int zlev, bool skip_lightmap )
             tilecontext->set_draw_cache_dirty();
         }
 #endif
+        CHECK_COLOR();
     }
+    CHECK_COLOR();
     if( camera_cache_dirty ) {
         u.moncam_cache = mcache;
         bool cumulative = seen_cache_dirty;
@@ -10515,6 +10534,7 @@ void map::build_map_cache( const int zlev, bool skip_lightmap )
                 cumulative = true;
             }
         }
+        CHECK_COLOR();
     }
     // Detect character/NPC light changes reactively.
     // Covers equipment, effects, trade/dialogue mutations, and position changes.
@@ -10544,9 +10564,11 @@ void map::build_map_cache( const int zlev, bool skip_lightmap )
         static std::vector<char_light_state> cached_char_lights;
         std::vector<char_light_state> current_lights;
         current_lights.push_back( compute( get_player_character() ) );
+        CHECK_COLOR();
         for( const npc &guy : g->all_npcs() ) {
             current_lights.push_back( compute( guy ) );
         }
+        CHECK_COLOR();
         if( current_lights != cached_char_lights ) {
             for( const char_light_state &s : cached_char_lights ) {
                 set_lightmap_cache_dirty( s.pos.z() );
@@ -10555,12 +10577,17 @@ void map::build_map_cache( const int zlev, bool skip_lightmap )
                 set_lightmap_cache_dirty( s.pos.z() );
             }
             cached_char_lights = std::move( current_lights );
+            CHECK_COLOR();
         }
+        CHECK_COLOR();
     }
+    CHECK_COLOR();
 
     if( !skip_lightmap ) {
         generate_lightmap( zlev );
+        CHECK_COLOR();
     }
+    CHECK_COLOR();
 }
 
 //////////

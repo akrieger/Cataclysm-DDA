@@ -479,23 +479,39 @@ void map::build_sunlight_cache( int pzlev )
     }
 }
 
+static light_color_rgb get_light_color_at( const tripoint_bub_ms &pos )
+{
+    const map &here = get_map();
+    const level_cache &cache = here.access_cache( pos.z() );
+    return cache.light_color_cache[pos.x()][pos.y()];
+}
 void map::generate_lightmap( const int zlev )
 {
+    const tripoint_bub_ms src = get_player_character().pos_bub() + tripoint::east * 3;
+    light_color_rgb color = get_light_color_at( src );
+#define CHECK_COLOR() \
+    color = get_light_color_at( src ); \
+    if ( *reinterpret_cast<const uint32_t*>(&color.b) != 0 ) debugmsg(std::to_string(__LINE__) + " broke\n")
+#define CHECK_LSB() \
+    if (light_source_buffer[63][60].luminance > 0.0) debugmsg("lsb not zero anymore")
     level_cache &map_cache = get_cache( zlev );
     if( !map_cache.lightmap_dirty ) {
         return;
     }
     map_cache.lightmap_dirty = false;
+    CHECK_COLOR();
 
     auto &lm = map_cache.lm;
     auto &sm = map_cache.sm;
     auto &outside_cache = map_cache.outside_cache;
     auto &prev_floor_cache = get_cache( clamp( zlev + 1, -OVERMAP_DEPTH, OVERMAP_DEPTH ) ).floor_cache;
     bool top_floor = zlev == OVERMAP_DEPTH;
-    lm.fill( four_quadrants{} );
+    CHECK_COLOR();
+    lm.fill( four_quadrants{0} );
     sm.fill( 0 );
-    map_cache.light_color_cache.fill( light_color_rgb{} );
+    map_cache.light_color_cache.fill( light_color_rgb{0.0f, 0.0f, 0.0f} );
     map_cache.has_colored_lights = false;
+    CHECK_COLOR();
 
     /* Bulk light sources wastefully cast rays into neighbors; a burning hospital can produce
          significant slowdown, so for stuff like fire and lava:
@@ -507,7 +523,9 @@ void map::generate_lightmap( const int zlev )
      * Step 4: Profit!
      */
     auto &light_source_buffer = map_cache.light_source_buffer;
-    light_source_buffer.fill( level_cache::buffered_light_source{} );
+    light_source_buffer.fill( level_cache::buffered_light_source{0.0f, {0.0f, 0.0f, 0.0f}} );
+    CHECK_COLOR();
+    CHECK_LSB();
 
     constexpr std::array<int, 4> dir_x = { {  0, -1, 1, 0 } };    //    [0]
     constexpr std::array<int, 4> dir_y = { { -1,  0, 0, 1 } };    // [1][X][2]
@@ -523,6 +541,8 @@ void map::generate_lightmap( const int zlev )
     const float natural_light = g->natural_light_level( zlev );
 
     build_sunlight_cache( zlev );
+    CHECK_COLOR();
+    CHECK_LSB();
 
     // Dawn/dusk tint: color sunlit tiles during twilight. At this point lm
     // contains only sunlight (no artificial sources yet), so any excess over
@@ -550,12 +570,22 @@ void map::generate_lightmap( const int zlev )
         }
         if( wrote_any ) {
             map_cache.has_colored_lights = true;
+            CHECK_COLOR();
+            CHECK_LSB();
         }
+        CHECK_COLOR();
+        CHECK_LSB();
     }
+    CHECK_COLOR();
+    CHECK_LSB();
 
     apply_character_light( get_player_character() );
+    CHECK_COLOR();
+    CHECK_LSB();
     for( npc &guy : g->all_npcs() ) {
         apply_character_light( guy );
+        CHECK_COLOR();
+        CHECK_LSB();
     }
 
     std::vector<std::pair<tripoint_bub_ms, float>> lm_override;
@@ -607,7 +637,17 @@ void map::generate_lightmap( const int zlev )
 
                     const ter_id &terrain = cur_submap->get_ter( { sx, sy } );
                     if( terrain->light_emitted > 0 ) {
+                        if (p.x() == 63 && p.y() == 60) {
+                            debugmsg("light color is %.8f,%.8f,%.8f", terrain->light_color.r, terrain->light_color.g, terrain->light_color.b);
+                            CHECK_COLOR();
+                            CHECK_LSB();
+                        }
                         add_light_source( p, terrain->light_emitted, terrain->light_color );
+                        if (p.x() == 63 && p.y() == 60) {
+                            debugmsg("light color is %.8f,%.8f,%.8f", terrain->light_color.r, terrain->light_color.g, terrain->light_color.b);
+                            CHECK_COLOR();
+                            CHECK_LSB();
+                        }
                     }
                     const furn_id &furniture = cur_submap->get_furn( {sx, sy } );
                     if( furniture->light_emitted > 0 ) {
@@ -628,6 +668,8 @@ void map::generate_lightmap( const int zlev )
             }
         }
     }
+    CHECK_COLOR();
+    CHECK_LSB();
 
     for( monster &critter : g->all_monsters() ) {
         if( critter.is_hallucination() ) {
@@ -648,6 +690,8 @@ void map::generate_lightmap( const int zlev )
             }
         }
     }
+    CHECK_COLOR();
+    CHECK_LSB();
 
     // Apply any vehicle light sources
     VehicleList vehs = get_vehicles();
@@ -728,6 +772,8 @@ void map::generate_lightmap( const int zlev )
             add_light_from_items( pos, vpr.items() );
         }
     }
+    CHECK_COLOR();
+    CHECK_LSB();
 
     /* Now that we have position and intensity of all bulk light sources, apply_ them
       This may seem like extra work, but take a 12x12 raging inferno:
@@ -736,15 +782,29 @@ void map::generate_lightmap( const int zlev )
     */
     const tripoint_bub_ms cache_start( 0, 0, zlev );
     const tripoint_bub_ms cache_end( LIGHTMAP_CACHE_X, LIGHTMAP_CACHE_Y, zlev );
+    static bool failed = false;
+    CHECK_LSB();
     for( const tripoint_bub_ms &p : points_in_rectangle( cache_start, cache_end ) ) {
         if( light_source_buffer[p.x()][p.y()].luminance > 0.0 ) {
             apply_light_source( p, light_source_buffer[p.x()][p.y()].luminance );
+            if (!failed) {
+               color = get_light_color_at( src );
+               if (*reinterpret_cast<const uint32_t*>(&color.b) != 0 ) {
+                    debugmsg("(%d,%d,%d) light causing problems", p.x(), p.y(), p.z());
+
+                    failed = true;
+               } else {
+                    debugmsg("(%d,%d,%d) light is fine", p.x(), p.y(), p.z());
+               }
+            }
         }
     }
+    CHECK_COLOR();
 
     for( const std::pair<tripoint_bub_ms, float> &elem : lm_override ) {
         lm[elem.first.x()][elem.first.y()].fill( elem.second );
     }
+    CHECK_COLOR();
 
     // 3x3 box blur on the color cache softens residual octant boundary seams.
     // Even with per-channel max in the color write, attenuation differences
@@ -753,13 +813,13 @@ void map::generate_lightmap( const int zlev )
         auto &light_color_cache = map_cache.light_color_cache;
         static auto blur_buf =
             std::make_unique<cata::mdarray<light_color_rgb, point_bub_ms>>();
-        blur_buf->fill( light_color_rgb{} );
+        blur_buf->fill( light_color_rgb{0.0f, 0.0f, 0.0f} );
         for( int x = 1; x < MAPSIZE_X - 1; ++x ) {
             for( int y = 1; y < MAPSIZE_Y - 1; ++y ) {
                 if( !light_color_cache[x][y].is_colored() ) {
                     continue;
                 }
-                light_color_rgb sum{};
+                light_color_rgb sum{0.0f, 0.0f, 0.0f};
                 int count = 0;
                 for( int dx = -1; dx <= 1; ++dx ) {
                     for( int dy = -1; dy <= 1; ++dy ) {
@@ -778,6 +838,7 @@ void map::generate_lightmap( const int zlev )
             }
         }
     }
+    CHECK_COLOR();
 }
 
 void map::add_light_source( const tripoint_bub_ms &p, float luminance,
@@ -1070,7 +1131,7 @@ void castLight( cata::mdarray<Out, point_bub_ms> &output_cache,
                 T numerator = VISIBILITY_FULL,
                 int row = 1, float start = 1.0f, float end = 0.0f,
                 T cumulative_transparency = T( LIGHT_TRANSPARENCY_OPEN_AIR ),
-                light_color_rgb source_color = {},
+                light_color_rgb source_color = {0.0f, 0.0f, 0.0f},
                 cata::mdarray<light_color_rgb, point_bub_ms> *color_cache = nullptr );
 
 template<int xx, int xy, int yx, int yy, typename T, typename Out,
@@ -1438,7 +1499,7 @@ void map::apply_light_source( const tripoint_bub_ms &p, float luminance )
     // re-scales by the per-tile attenuated intensity -- same falloff as scalar.
     const auto &buf = light_source_buffer[p2.x()][p2.y()];
     const bool has_color = buf.color.is_colored();
-    light_color_rgb source_color;
+    light_color_rgb source_color{0.0f, 0.0f, 0.0f};
     if( has_color ) {
         source_color = buf.color * ( 1.0f / buf.luminance );
         // Set source tile color directly
@@ -1504,6 +1565,7 @@ void map::apply_light_source( const tripoint_bub_ms &p, float luminance )
         CAST_LIGHT_OCTANT( 0, 1, -1, 0 )
     }
 #undef CAST_LIGHT_OCTANT
+#undef CHECK_COLOR
 }
 
 void map::apply_directional_light( const tripoint_bub_ms &p, int direction,
