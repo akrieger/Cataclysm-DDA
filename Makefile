@@ -1538,6 +1538,7 @@ ifdef OSXCROSS
 	rm Cataclysm-uncompressed.dmg
 else
 	plutil -convert binary1 Cataclysm.app/Contents/Info.plist
+	codesign --force --sign - $(APPTARGETDIR)
 	dmgbuild -s build-data/osx/dmgsettings.py "Cataclysm DDA" Cataclysm.dmg
 endif
 
