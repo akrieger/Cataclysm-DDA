@@ -9,7 +9,7 @@ namespace qjs
 
 class context;
 
-class runtime
+class runtime : public std::enable_shared_from_this<runtime>
 {
         runtime( JSRuntime *r );
     public:
@@ -27,7 +27,7 @@ class runtime
 
 class value;
 
-class context
+class context : public std::enable_shared_from_this<context>
 {
         context( JSContext *c, std::shared_ptr<runtime> r );
     public:
@@ -75,11 +75,17 @@ class cstring
         cstring( cstring const & ) noexcept = delete;
         cstring &operator=( cstring const & ) noexcept = delete;
 
-        cstring( cstring &&rhs ) noexcept : ctx{ std::move( rhs.ctx ) }, str{ rhs.str } {}
+        cstring( cstring &&rhs ) noexcept : ctx{ std::move( rhs.ctx ) }, str{ rhs.str } {
+            rhs.str = {};
+        }
         cstring &operator=( cstring &&rhs ) noexcept {
+            if( &rhs == this ) {
+                return *this;
+            }
             free();
             ctx = std::move( rhs.ctx );
             str = rhs.str;
+            rhs.str = {};
             return *this;
         }
 
@@ -129,13 +135,13 @@ class value
         }
 
         // Explicit copies.
-        value clone() const& {
+        value clone() const & {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone()&& {
+        value clone() && {
             return std::move( *this );
         }
 
