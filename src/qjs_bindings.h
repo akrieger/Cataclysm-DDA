@@ -7,6 +7,7 @@
 
 #include <qjs/quickjs.h>
 
+#include "cata_compiler_support.h"
 #include "qjs.h"
 
 // Finding the maximum required number of arguments a function accepts is easy. It's just
@@ -66,7 +67,18 @@ struct member_function_wrapper<Binding, ArityTester, MemFn> : type_erasing_wrapp
             std::integral_constant<int, find_min_arity<ArityTester, ArgsTuple, max_arity>()>::value;
         virtual JSValue call( JSContext *ctx, void *this_val, int argc,
                               JSValueConst *argv ) noexcept override {
-            return switch_arity<min_arity>( ctx, static_cast<C *>( this_val ), argc, argv );
+            if( argc < min_arity ) {
+                // DO SOMETHING EVIL
+                return JS_UNDEFINED;
+            }
+            return call( ctx, static_cast<C *>( this_val ), argc, argv, std::make_index_sequence<min_arity>() );
+        }
+
+        template<size_t ...I>
+        CATA_FORCEINLINE JSValue call( JSContext *ctx, void *this_val, int argc, JSValueConst *argv,
+                                       std::index_sequence<I...> ) {
+            return switch_arity<min_arity>( ctx, static_cast<C *>( this_val ), argc, argv,
+                                            from_js<std::tuple_element_t<I, ArgsTuple>>( ctx, argv[I] )... );
         }
 
     private:
@@ -75,24 +87,26 @@ struct member_function_wrapper<Binding, ArityTester, MemFn> : type_erasing_wrapp
         // switch_arity<2> is the first call, falls into the if constexpr block, calls switch_arity<3>
         // switch_arity<3> calls call_n(ctx, this_val, argv, std::make_index_sequence<3>{})
         // call_n(...) calls Binding::call(*this_val, from_js(ctx, argv[0]), from_js(ctx, argv[1]), from_js(ctx, argv[2]));
-        template<int N>
-        static JSValue switch_arity( JSContext *ctx, C *this_val, int argc, JSValueConst *argv ) noexcept {
+        template<int N, typename ...ArgsSlice>
+        CATA_FORCEINLINE static JSValue switch_arity( JSContext *ctx, C *this_val,
+                int argc, JSValueConst *argv, ArgsSlice &&...args ) noexcept {
             if( argc <= N || N == max_arity ) {
-                return call_n( ctx, this_val, argv, std::make_index_sequence<N> {} );
+                return call_( ctx, this_val, std::forward<ArgsSlice>( args )... );
             }
             if constexpr( N < max_arity ) {
-                return switch_arity < N + 1 > ( ctx, this_val, argc, argv );
+                return switch_arity < N + 1 > ( ctx, this_val, argc, argv, std::forward<ArgsSlice>( args )...,
+                                                from_js<std::tuple_element_t<N, ArgsTuple>>( ctx, argv[N] ) );
             }
             return JS_UNDEFINED;
         }
 
-        template<size_t... I>
-        static JSValue call_n( JSContext *ctx, C *this_val, JSValueConst *argv,
-                               std::index_sequence<I...> ) noexcept {
+        template<typename ...ArgsSlice>
+        CATA_FORCEINLINE static JSValue call_( JSContext *ctx, C *this_val,
+                                               ArgsSlice &&...args ) noexcept {
             if constexpr( std::is_void_v<R> ) {
                 Binding::call(
                     *this_val,
-                    from_js<std::tuple_element_t<I, ArgsTuple>>( ctx, argv[I] )...
+                    std::forward<ArgsSlice>( args )...
                 );
                 return JS_UNDEFINED;
             } else {
@@ -100,7 +114,7 @@ struct member_function_wrapper<Binding, ArityTester, MemFn> : type_erasing_wrapp
                            ctx,
                            Binding::call(
                                *this_val,
-                               from_js<std::tuple_element_t<I, ArgsTuple>>( ctx, argv[I] )...
+                               std::forward<ArgsSlice>( args )...
                            )
                        );
             }
@@ -173,16 +187,14 @@ struct proto : proto_base {
     /**/&decltype(__proto)::Class::func                                                                         \
     > {                                                                                                         \
         func##_binding() noexcept;                                                                              \
-        template<typename... Args>                                                                \
-        /* this triggers ICE */ \
-        /*static decltype(auto) decltype(__proto)::Class::func##_binding::call(decltype(__proto)::Class& val, Args&&... args) noexcept  */ \
-        static decltype(auto) call(decltype(__proto)::Class& val, Args&&... args) noexcept               \
-        {                                                                                         \
-            try {                                                                                 \
-                return val.func(std::forward<Args>(args)...);                                     \
-            } catch(...) {                                                                        \
-                if constexpr (!std::is_void_v<decltype(val.func(std::forward<Args>(args)...))>) { \
-                    return decltype(val.func(std::forward<Args>(args)...)){};                     \
+        template<typename... Args>                                                                              \
+        CATA_FORCEINLINE static decltype(auto) call(decltype(__proto)::Class& val, Args&&... args) noexcept                      \
+        {                                                                                                       \
+            try {                                                                                               \
+                return val.func(std::forward<Args>(args)...);                                                   \
+            } catch(...) {                                                                                      \
+                if constexpr (!std::is_void_v<decltype(val.func(std::forward<Args>(args)...))>) {               \
+                    return decltype(val.func(std::forward<Args>(args)...)){};                                   \
                 }                                                                                               \
             }                                                                                                   \
         }                                                                                                       \
@@ -197,11 +209,11 @@ struct proto : proto_base {
 #define PROTO(cls) \
     proto<cls> cls::__proto; \
     template<> \
-    JSClassID proto<cls>::clsid; \
+    JSClassID proto<cls>::clsid{}; \
     template<> \
-    std::vector<JSCFunctionListEntry> proto<cls>::bindings; \
+    std::vector<JSCFunctionListEntry> proto<cls>::bindings{}; \
     template<> \
-    std::vector<type_erasing_wrapper *> proto<cls>::funcs
+    std::vector<type_erasing_wrapper *> proto<cls>::funcs{}
 
 #define BOUND(cls, func)                                                                      \
     cls::func##_binding cls::__##func##_binder;                                               \
