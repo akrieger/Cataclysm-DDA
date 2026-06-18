@@ -4,15 +4,30 @@
 #include <qjs/quickjs-libc.h>
 
 #include "input_context.h"
+#include "qjs_bindings.h"
 #include "ui_manager.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-variable"
+
+struct bound {
+    BINDABLE( bound );
+    void foo( int, std::string, int = 0 );
+    BIND( foo );
+    std::string bar( std::string, int );
+    BIND( bar );
+};
+
+PROTO( bound );
+
 void proto_base::push_erased(
-    std::vector<JSCFunctionListEntry>& bindings,
-    std::vector<type_erasing_wrapper*>& funcs,
+    std::vector<JSCFunctionListEntry> &bindings,
+    std::vector<type_erasing_wrapper *> &funcs,
     std::string_view name,
     int argc,
     qjs::generic_magic call,
-    type_erasing_wrapper* fn)
+    type_erasing_wrapper *fn ) noexcept
 {
     bindings.emplace_back(
         qjs::js_cfunc_magic_def(
@@ -22,7 +37,7 @@ void proto_base::push_erased(
             funcs.size()
         )
     );
-    funcs.emplace_back(fn);
+    funcs.emplace_back( fn );
 }
 
 namespace qjs
@@ -209,7 +224,7 @@ string value::to_string() && {
 }
 
 JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, generic_magic func1,
-        int magic )
+        int magic ) noexcept
 {
     JSCFunctionListEntry entry;
     entry.name = name;
@@ -224,3 +239,5 @@ JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, generic_m
 }
 
 }
+
+#pragma clang diagnostic pop
