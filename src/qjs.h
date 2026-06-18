@@ -75,6 +75,7 @@ class cstring
         operator std::string_view() const {
             return str;
         }
+
     private:
         std::shared_ptr<context> ctx;
         std::string_view str;
@@ -114,13 +115,13 @@ class value
         }
 
         // Explicit copies.
-        value clone() const & {
+        value clone() const& {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone() && {
+        value clone()&& {
             return std::move( *this );
         }
 
@@ -185,41 +186,10 @@ class exception : value
         }
 };
 
-value value::prop( std::string_view key ) const
-{
-    JSValue message_value = JS_GetPropertyStr( ctx->get(), v, key.data() );
-    return value{ ctx, message_value };
-}
+using generic_magic = JSValue( * )( JSContext *ctx, JSValueConst this_val, int argc,
+                                    JSValueConst *argv, int magic );
 
-cstring value::to_cstring() const
-{
-    return cstring{ ctx, v };
-}
-
-exception value::to_exception() const &
-{
-    return clone().to_exception();
-}
-
-exception value::to_exception() && {
-    if( !JS_IsException( v ) )
-    {
-        // idk throw?
-    }
-    return exception( std::move( *this ) );
-}
-
-string value::to_string() const &
-{
-    return clone().to_string();
-}
-
-string value::to_string()&& {
-    if( !JS_IsString( v ) )
-    {
-        // idk throw?
-    }
-    return string( std::move( *this ) );
-}
+extern JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, generic_magic func1,
+        int magic );
 
 }

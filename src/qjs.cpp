@@ -69,10 +69,41 @@ void Console::run()
     /* system modules */
     js_init_module_std( c->get(), "std" );
     js_init_module_os( c->get(), "os" );
+    static auto f = +[]( JSContext * ctx, JSValueConst this_val, int argc, JSValueConst * argv,
+    int magic ) -> JSValue {
+        if( argc != 2 )
+        {
+            debugmsg( "fail" );
+        }
+        if( !JS_IsNumber( argv[0] ) )
+        {
+            debugmsg( "no" );
+        }
+        if( !JS_IsString( argv[1] ) )
+        {
+            debugmsg( "doublefail" );
+        }
+        return JS_NULL;
+    };
 
-    std::string script = R"(console.log(yolo,))";
+    static const JSCFunctionListEntry funcs[] = {
+        js_cfunc_magic_def( "f", 2, f, 0 )
+    };
+    JSModuleDef *m = JS_NewCModule( c->get(), "funcy", []( JSContext * ctx, JSModuleDef * m ) {
+        JS_SetModuleExportList( ctx, m, funcs, 1 );
+        return 0;
+    } );
+    JS_AddModuleExportList( c->get(), m, funcs, 1 );
+    JS_AddModuleExport( c->get(), m, "f" );
 
-    auto ret = JS_Eval( c->get(), script.c_str(), script.size(), "<input>", JS_EVAL_FLAG_COMPILE_ONLY );
+    std::string script = R"(
+import {f} from "funcy";
+export const f2 = () => {
+    f(2, "hello");    
+};)";
+
+    auto ret = JS_Eval( c->get(), script.c_str(), script.size(), "test.js",
+                        JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_COMPILE_ONLY );
 
     if( JS_IsException( ret ) ) {
         JSValue exn = JS_GetException( c->get() );
@@ -85,6 +116,8 @@ void Console::run()
         JS_FreeValue( c->get(), m ); // Free the exception object
     } else {
         ret = JS_EvalFunction( c->get(), ret );
+        script = R"(import {f2} from "test.js"; f2();)";
+        ret = JS_Eval( c->get(), script.c_str(), script.size(), "<eval>", JS_EVAL_TYPE_MODULE );
         auto exn = JS_GetException( c->get() );
         JSValue m = JS_GetPropertyStr( c->get(), exn, "message" );
         JSValue s = JS_GetPropertyStr( c->get(), exn, "stack" );
@@ -116,6 +149,56 @@ void Console::run()
     }
 }
 
+value value::prop( std::string_view key ) const
+{
+    JSValue message_value = JS_GetPropertyStr( ctx->get(), v, key.data() );
+    return value{ ctx, message_value };
 }
 
+cstring value::to_cstring() const
+{
+    return cstring{ ctx, v };
+}
 
+exception value::to_exception() const &
+{
+    return clone().to_exception();
+}
+
+exception value::to_exception()&& {
+    if( !JS_IsException( v ) )
+    {
+        // idk throw?
+    }
+    return exception( std::move( *this ) );
+}
+
+string value::to_string() const &
+{
+    return clone().to_string();
+}
+
+string value::to_string()&& {
+    if( !JS_IsString( v ) )
+    {
+        // idk throw?
+    }
+    return string( std::move( *this ) );
+}
+
+JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, generic_magic func1,
+        int magic )
+{
+    JSCFunctionListEntry entry;
+    entry.name = name;
+    entry.prop_flags = JS_PROP_WRITABLE | JS_PROP_CONFIGURABLE;
+    entry.def_type = JS_DEF_CFUNC;
+    entry.magic = magic;
+    entry.u.func.length = length;
+    entry.u.func.cproto = JS_CFUNC_generic_magic;
+    entry.u.func.cfunc.generic_magic = func1;
+    return entry;
+
+}
+
+}
