@@ -31,16 +31,14 @@ constexpr int find_min_arity()
 {
     if constexpr( N == 0 ) {
         return 0;
-    } else if constexpr( !is_callable_with_n<ArityTester, ArgsTuple>( std::make_index_sequence < N - 1
-                         > {} ) ) {
+    } else if constexpr( !is_callable_with_n<ArityTester, ArgsTuple>(
+                             std::make_index_sequence < N - 1 > {} ) ) {
         return N;
     } else {
         return find_min_arity < ArityTester, ArgsTuple, N - 1 > ();
     }
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
 struct type_erasing_wrapper {
     protected:
         virtual ~type_erasing_wrapper();
@@ -51,74 +49,120 @@ struct type_erasing_wrapper {
 template<typename Binding, typename ArityTester, auto MemFn>
 struct member_function_wrapper;
 
-// placeholders
-template<typename T>
-T from_js( JSContext *ctx, JSValueConst v ) noexcept;
+template<typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
+inline T from_js( JSContext *, JSValueConst v )
+{
+    // need to check convertibility and set a VM error
+    if( !JS_IsNumber( v ) ) {
+        // not the right error
+        throw std::runtime_error( "Non number binding argument" );
+    }
+    if( JS_TAG_IS_FLOAT64( JS_VALUE_GET_TAG( v ) ) ) {
+        return static_cast<T>( JS_VALUE_GET_FLOAT64( v ) );
+    }
+    return static_cast<T>( JS_VALUE_GET_INT( v ) );
+}
 
-template<typename T>
-JSValue to_js( JSContext *ctx, T &&t ) noexcept;
+template<typename T, std::enable_if_t<std::is_same_v<T, std::string>>* = nullptr>
+inline T from_js( JSContext *ctx, JSValueConst v )
+{
+    // need to check convertibility and set a VM error
+    if( !JS_IsString( v ) ) {
+        // not the right error
+        throw std::runtime_error( "Non string binding argument" );
+    }
+    size_t len;
+    const char *str = JS_ToCStringLen( ctx, &len, v );
+    std::string s{ str, len };
+    JS_FreeCString( ctx, str );
+    return s;
+}
+
+template<typename T, std::enable_if_t<std::is_integral_v<std::decay_t<T>>>* = nullptr>
+                                      inline JSValue to_js( JSContext *ctx, T && t )
+{
+    // need to switch off size and signedness to call appropriate bigint ctor,
+    // or else just forbid >32bit ints in the vm
+    return JS_NewNumber( ctx, t );
+}
+
+template<typename T, std::enable_if_t<std::is_same_v<std::decay_t<T>, std::string>>* = nullptr>
+inline JSValue to_js( JSContext *ctx, T && t )
+{
+    return JS_NewStringLen( ctx, t.data(), t.size() );
+}
 
 template<typename Binding, typename ArityTester,
          typename C, typename R, typename... Args, R( C::* MemFn )( Args... )>
 struct member_function_wrapper<Binding, ArityTester, MemFn> : type_erasing_wrapper {
-        using ArgsTuple = std::tuple<Args...>;
-        static constexpr int max_arity = sizeof...( Args );
-        static constexpr int min_arity =
-            std::integral_constant<int, find_min_arity<ArityTester, ArgsTuple, max_arity>()>::value;
-        virtual JSValue call( JSContext *ctx, void *this_val, int argc,
-                              JSValueConst *argv ) noexcept override {
-            if( argc < min_arity ) {
-                // DO SOMETHING EVIL
-                return JS_UNDEFINED;
-            }
-            return call( ctx, static_cast<C *>( this_val ), argc, argv, std::make_index_sequence<min_arity>() );
-        }
-
-        template<size_t ...I>
-        CATA_FORCEINLINE JSValue call( JSContext *ctx, void *this_val, int argc, JSValueConst *argv,
-                                       std::index_sequence<I...> ) {
-            return switch_arity<min_arity>( ctx, static_cast<C *>( this_val ), argc, argv,
-                                            from_js<std::tuple_element_t<I, ArgsTuple>>( ctx, argv[I] )... );
-        }
-
-    private:
-        // Automagically generate the appropriate call_n invocation for every value from min_arity to max_arity.
-        // Eg. assume a function takes between 2 and 4 args and argc is 3.
-        // switch_arity<2> is the first call, falls into the if constexpr block, calls switch_arity<3>
-        // switch_arity<3> calls call_n(ctx, this_val, argv, std::make_index_sequence<3>{})
-        // call_n(...) calls Binding::call(*this_val, from_js(ctx, argv[0]), from_js(ctx, argv[1]), from_js(ctx, argv[2]));
-        template<int N, typename ...ArgsSlice>
-        CATA_FORCEINLINE static JSValue switch_arity( JSContext *ctx, C *this_val,
-                int argc, JSValueConst *argv, ArgsSlice &&...args ) noexcept {
-            if( argc <= N || N == max_arity ) {
-                return call_( ctx, this_val, std::forward<ArgsSlice>( args )... );
-            }
-            if constexpr( N < max_arity ) {
-                return switch_arity < N + 1 > ( ctx, this_val, argc, argv, std::forward<ArgsSlice>( args )...,
-                                                from_js<std::tuple_element_t<N, ArgsTuple>>( ctx, argv[N] ) );
-            }
+    using ArgsTuple = std::tuple<Args...>;
+    static constexpr int max_arity = sizeof...( Args );
+    static constexpr int min_arity =
+        std::integral_constant<int, find_min_arity<ArityTester, ArgsTuple, max_arity>()>::value;
+    virtual JSValue call( JSContext *ctx, void *this_val, int argc,
+                          JSValueConst *argv ) noexcept override {
+        if( argc < min_arity ) {
+            // DO SOMETHING EVIL
             return JS_UNDEFINED;
         }
+        return call( ctx, static_cast<C *>( this_val ), argc, argv, std::make_index_sequence<min_arity>() );
+    }
 
-        template<typename ...ArgsSlice>
-        CATA_FORCEINLINE static JSValue call_( JSContext *ctx, C *this_val,
-                                               ArgsSlice &&...args ) noexcept {
-            if constexpr( std::is_void_v<R> ) {
-                Binding::call(
-                    *this_val,
-                    std::forward<ArgsSlice>( args )...
-                );
-                return JS_UNDEFINED;
-            } else {
-                return to_js(
-                           ctx,
-                           Binding::call(
-                               *this_val,
-                               std::forward<ArgsSlice>( args )...
-                           )
-                       );
-            }
+private:
+    // *INDENT-OFF*
+    // astyle loses its shit over all this template stuff
+    template<size_t ...I>
+    CATA_FORCEINLINE JSValue call(
+            JSContext *ctx,
+            void *this_val,
+            int argc,
+            JSValueConst *argv,
+            std::index_sequence<I...> ) noexcept {
+        return switch_arity<min_arity>( ctx, static_cast<C *>( this_val ), argc, argv,
+                                        from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>( ctx, argv[I] )... );
+    }
+
+    // N is the number of args in ...args
+    // argc is the number of args in argv
+    // We recursively call switch_arity with increasingly more args from argv converted
+    // with from_js until we hit argc or max_arity. Then we forward to call_ which wraps
+    // Binding::call__. With the right inlining, some compilers (like clang) can elide
+    // all the recursive calls and just unwrap exactly the right number of args in one
+    // clean block of code, directly into the appropriate argument slots for the underlying
+    // bound function. Just nice clean code.
+    template<int N, typename ...ArgsSlice>
+    CATA_FORCEINLINE static JSValue switch_arity(
+            JSContext *ctx,
+            C *this_val,
+            int argc,
+            JSValueConst *argv,
+            ArgsSlice &&...args ) noexcept {
+        if( argc <= N || N == max_arity ) {
+            return call_( ctx, this_val, std::forward<ArgsSlice>( args )... );
         }
+        if constexpr( N < max_arity ) {
+            return switch_arity < N + 1 > ( ctx, this_val, argc, argv, std::forward<ArgsSlice>( args )...,
+                                            from_js<std::decay_t<std::tuple_element_t<N, ArgsTuple>>>( ctx, argv[N] ) );
+        }
+        return JS_UNDEFINED;
+    }
+
+    template<typename ...ArgsSlice>
+    CATA_FORCEINLINE static JSValue call_(
+            JSContext *ctx,
+            C *this_val,
+            ArgsSlice &&...args ) noexcept {
+        if constexpr( std::is_void_v<R> ) {
+            Binding::call( *this_val, std::forward<ArgsSlice>( args )... );
+            return JS_UNDEFINED;
+        } else {
+            return to_js(
+                ctx,
+                Binding::call( *this_val, std::forward<ArgsSlice>( args )... )
+            );
+        }
+    }
+    // *INDENT-ON*
 };
 
 struct proto_base {
@@ -203,8 +247,6 @@ struct proto : proto_base {
 // *INDENT-ON
 
 #define BINDABLE(cls) static proto<cls> __proto
-
-#pragma clang diagnostic pop
 
 #define PROTO(cls) \
     proto<cls> cls::__proto; \
