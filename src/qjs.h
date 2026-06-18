@@ -135,13 +135,13 @@ class value
         }
 
         // Explicit copies.
-        value clone() const& {
+        value clone() const & {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone()&& {
+        value clone() && {
             return std::move( *this );
         }
 
@@ -221,6 +221,21 @@ extern JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, ge
 
 }
 
+template<typename>
+struct arity;
+
+template<typename R, typename ... Args>
+struct arity<R( Args... )> {
+    static constexpr auto value = sizeof...( Args );
+};
+
+template<typename C, typename R, typename ... Args>
+struct arity<R( C::* )( Args... )> : arity<R( Args... )> {
+};
+
+template<typename F>
+constexpr auto arity_v = arity<F>::value;
+
 template<typename T>
 struct proto {
     static JSClassID clsid;
@@ -231,10 +246,21 @@ struct proto {
         static_cast<T *>( JS_GetOpaque( this_val, clsid ) )->call( argc, argv, magic );
     }
 
-    void push();
+    void push( std::string_view name, int argc ) {
+        funcs.emplace_back( js_cfunc_magic_def( name.data(), argc, funcs.size() ) );
+    }
 };
 
 struct bound {
     static proto<bound> proto;
 
+#define BIND(func) proto.push(#func, arity_v<decltype(func)>)
+
+    void foo( int, std::string );
+
+    static struct binder {
+        binder() {
+            BIND( foo );
+        }
+    } _;
 };
