@@ -47,6 +47,33 @@ bool operator==( const slope &lhs, const slope &rhs )
     return lhs.rise * rhs.run == rhs.rise * lhs.run;
 }
 
+// Ceiling division, for a strictly positive denominator.  slope normalizes
+// run to be positive, but rise may be negative.
+int ceil_div_pos_den( const int a, const int b )
+{
+    return a >= 0 ? ( a + b - 1 ) / b : -( ( -a ) / b );
+}
+
+// Both sweep loops below advance an index i whose leading edge is
+//     leading_edge( i ) = slope( i * 2 + 1, distance * 2 - 1 )
+// and skip every index before the span's start slope.  Scanning up to that
+// point costs the majority of all loop iterations on cluttered maps, so
+// solve for the first index inside the span directly instead.
+//
+//     skip while  start > leading_edge( i )
+//             <=> ( i * 2 + 1 ) * start.run < start.rise * ( distance * 2 - 1 )
+//
+// so the first index kept satisfies i * 2 + 1 >= ceil( R / start.run ) for
+// R = start.rise * ( distance * 2 - 1 ).  Exact integer arithmetic, so this
+// lands on precisely the index the linear scan would have stopped at.
+// R is bounded by ( 2 * MAX_VIEW_DISTANCE + 1 ) ^ 2, far inside int.
+int first_index_in_span( const slope &start, const int distance )
+{
+    const int needed = ceil_div_pos_den( start.rise * ( distance * 2 - 1 ), start.run );
+    const int index = ceil_div_pos_den( needed - 1, 2 );
+    return index > 0 ? index : 0;
+}
+
 template<typename T>
 struct span {
     span( const slope &s_major, const slope &e_major,
@@ -203,8 +230,13 @@ static void cast_horizontal_zlight_segment(
 
         for( auto this_span = spans.begin(); this_span != spans.end(); ) {
             bool started_block = false;
-            // TODO: Precalculate min/max delta.z based on start/end and distance
-            for( delta.z() = 0; delta.z() <= distance; delta.z()++ ) {
+            // Only sweep the z-levels that both exist in this direction and fall
+            // inside the current span; the guards below remain as a safety net
+            // but are never expected to fire.
+            const int z_headroom = z_transform < 0 ? offset.z() - min_z : max_z - offset.z();
+            const int z_limit = std::min( distance, z_headroom );
+            for( delta.z() = first_index_in_span( this_span->start_major, distance );
+                 delta.z() <= z_limit; delta.z()++ ) {
                 // Shadowcasting sweeps from the cardinal to the most extreme edge of the octant
                 // XXXX
                 // --->
@@ -251,7 +283,8 @@ static void cast_horizontal_zlight_segment(
 
                 bool started_span = false;
                 const int z_index = current.z() + OVERMAP_DEPTH;
-                for( delta.x() = 0; delta.x() <= distance; delta.x()++ ) {
+                for( delta.x() = first_index_in_span( this_span->start_minor, distance );
+                     delta.x() <= distance; delta.x()++ ) {
                     current.x() = offset.x() + delta.x() * xx_transform + delta.y() * xy_transform;
                     current.y() = offset.y() + delta.x() * yx_transform + delta.y() * yy_transform;
                     // See definition of trailing_edge_major and leading_edge_major for clarification.
@@ -398,7 +431,8 @@ static void cast_vertical_zlight_segment(
 
         for( auto this_span = spans.begin(); this_span != spans.end(); ) {
             bool started_block = false;
-            for( delta.y() = 0; delta.y() <= distance; delta.y()++ ) {
+            for( delta.y() = first_index_in_span( this_span->start_major, distance );
+                 delta.y() <= distance; delta.y()++ ) {
                 // See comment above trailing_edge_major and leading_edge_major in above function.
                 const slope trailing_edge_major( delta.y() * 2 - 1, delta.z() * 2 + 1 );
                 const slope leading_edge_major( delta.y() * 2 + 1, delta.z() * 2 - 1 );
@@ -429,7 +463,8 @@ static void cast_vertical_zlight_segment(
                 }
 
                 bool started_span = false;
-                for( delta.x() = 0; delta.x() <= distance; delta.x()++ ) {
+                for( delta.x() = first_index_in_span( this_span->start_minor, distance );
+                     delta.x() <= distance; delta.x()++ ) {
                     current.x() = offset.x() + delta.x() * x_transform;
                     current.z() = offset.z() + delta.z() * z_transform;
                     // See comment above trailing_edge_major and leading_edge_major in above function.
