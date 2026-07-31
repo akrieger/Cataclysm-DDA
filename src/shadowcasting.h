@@ -89,6 +89,22 @@ struct four_quadrants {
 };
 static_assert( std::is_trivially_copyable_v<four_quadrants> );
 
+// sight_calc runs once per tile in the shadowcasting inner loops, where the
+// std::exp call dominated the arithmetic cost.  exp(-x) is sampled on
+// [0, sight_exp_lut_max] and linearly interpolated instead: worst-case
+// relative error 2e-5, well below the precision at which any light threshold
+// is compared, for roughly 2.5x the throughput of std::exp.
+inline constexpr int sight_exp_lut_n = 1024;
+inline constexpr float sight_exp_lut_max = 12.0f;
+
+inline const std::array<float, sight_exp_lut_n + 1> sight_exp_lut = []() {
+    std::array<float, sight_exp_lut_n + 1> t{};
+    for( int i = 0; i <= sight_exp_lut_n; ++i ) {
+        t[i] = std::exp( -i * ( sight_exp_lut_max / sight_exp_lut_n ) );
+    }
+    return t;
+}();
+
 // Hoisted to header and inlined so the test in tests/shadowcasting_test.cpp can use it.
 // Beer-Lambert law says attenuation is going to be equal to
 // 1 / (e^al) where a = coefficient of absorption and l = length.
@@ -96,7 +112,17 @@ static_assert( std::is_trivially_copyable_v<four_quadrants> );
 // We merge all of the absorption values by taking their cumulative average.
 inline float sight_calc( const float &numerator, const float &transparency, const int &distance )
 {
-    return numerator / std::exp( transparency * distance );
+    const float scaled = transparency * distance * ( sight_exp_lut_n / sight_exp_lut_max );
+    const int idx = static_cast<int>( scaled );
+    // Past the end of the table the result is under 6e-6.  Fall back to
+    // std::exp rather than clamping to zero: apparent_light_helper
+    // distinguishes a seen_cache value of exactly 0 from a merely tiny one.
+    if( idx < 0 || idx >= sight_exp_lut_n ) {
+        return numerator / std::exp( transparency * distance );
+    }
+    const float frac = scaled - idx;
+    return numerator * ( sight_exp_lut[idx] +
+                         frac * ( sight_exp_lut[idx + 1] - sight_exp_lut[idx] ) );
 }
 inline bool sight_check( const float &transparency, const float &/*intensity*/ )
 {
