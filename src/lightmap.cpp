@@ -1089,7 +1089,12 @@ void castLight( cata::mdarray<Out, point_bub_ms> &output_cache,
                 cata::mdarray<light_color_rgb, point_bub_ms> *color_cache )
 {
     constexpr quadrant quad = quadrant_from_x_y( -xx - xy, -yx - yy );
-    float newStart = 0.0f;
+    // Tracked as a delta.x rather than as a slope: the leading edge is only ever
+    // consumed when the transparency changes, so computing the quotient eagerly
+    // on every tile is a division wasted on the common path.  Only ever set and
+    // read within a single row, so delta.y is the same at both points and the
+    // deferred quotient is bit-identical to the eager one.
+    int newStartX = 0;
     float radius = static_cast<float>( MAX_VIEW_DISTANCE ) - offsetDistance;
     if( start < end ) {
         return;
@@ -1100,19 +1105,20 @@ void castLight( cata::mdarray<Out, point_bub_ms> &output_cache,
         delta.y = -distance;
         bool started_row = false;
         T current_transparency( 0.0 );
+        const float trailing_den = delta.y + 0.5f;
+        const float leading_den = delta.y - 0.5f;
         float away = start - ( -distance + 0.5f ) / ( -distance -
-                     0.5f ); //The distance between our first leadingEdge and start
+                     0.5f ); //The distance between our first leading edge and start
 
         //We initialize delta.x to -distance adjusted so that the commented start < leadingEdge condition below is never false
         delta.x = -distance + std::max( static_cast<int>( std::ceil( away * ( -distance - 0.5f ) ) ), 0 );
 
         for( ; delta.x <= 0; delta.x++ ) {
             point current( offset.x() + delta.x * xx + delta.y * xy, offset.y() + delta.x * yx + delta.y * yy );
-            float trailingEdge = ( delta.x - 0.5f ) / ( delta.y + 0.5f );
-            float leadingEdge = ( delta.x + 0.5f ) / ( delta.y - 0.5f );
+            const float trailingEdge = ( delta.x - 0.5f ) / trailing_den;
 
             if( !( current.x >= 0 && current.y >= 0 && current.x < MAPSIZE_X &&
-                   current.y < MAPSIZE_Y ) /* || start < leadingEdge */ ) {
+                   current.y < MAPSIZE_Y ) /* || start < leading edge */ ) {
                 continue;
             } else if( end > trailingEdge ) {
                 break;
@@ -1145,31 +1151,29 @@ void castLight( cata::mdarray<Out, point_bub_ms> &output_cache,
             }
 
             if( new_transparency == current_transparency ) {
-                newStart = leadingEdge;
+                newStartX = delta.x;
                 continue;
             }
-            // Only cast recursively if previous span was not opaque.
+            // The new span starts at the leading edge of the previous square if it is
+            // opaque, and at the trailing edge of the current square if it is transparent.
             if( check( current_transparency, last_intensity ) ) {
+                // Only cast recursively if previous span was not opaque.
                 castLight<xx, xy, yx, yy, T, Out, calc, check, update_output, accumulate, with_color>(
                     output_cache, input_array, offset, offsetDistance,
                     numerator, distance + 1, start, trailingEdge,
                     accumulate( cumulative_transparency, current_transparency, distance ),
                     source_color, color_cache );
-            }
-            // The new span starts at the leading edge of the previous square if it is opaque,
-            // and at the trailing edge of the current square if it is transparent.
-            if( !check( current_transparency, last_intensity ) ) {
-                start = newStart;
-            } else {
                 // Note this is the same slope as the recursive call we just made.
                 start = trailingEdge;
+            } else {
+                start = ( newStartX + 0.5f ) / leading_den;
             }
             // Trailing edge ahead of leading edge means this span is fully processed.
             if( start < end ) {
                 return;
             }
             current_transparency = new_transparency;
-            newStart = leadingEdge;
+            newStartX = delta.x;
         }
         if( !check( current_transparency, last_intensity ) ) {
             // If we reach the end of the span with terrain being opaque, we don't iterate further.
