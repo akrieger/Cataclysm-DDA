@@ -79,25 +79,6 @@ inline auto to_js( JSContext *ctx,
 
 namespace
 {
-template<auto Func>
-struct arity_tester {
-    /* The below gnarly template funk is a hairball of SFINAE helpers for determining the minimum */
-    /* and maximum number of arguments a function can be invoked with. */
-    /* This is the 'good' test function. */
-    /* This overload is preferred over the other because it is a more specific match under normal*/
-    /* overload resolution rules. It only exists if func is invokable with Args */
-    template <
-        typename ...Args,
-        typename = std::enable_if_t<std::is_invocable_v<decltype( Func ), Args...> >>
-    static auto test( int ) -> std::true_type;
-    /* The bad overload matches anything because of the ... argument. So whenever test(int) is */
-    /* removed by SFINAE then we get std::false_type as the type and callable then is false. */
-    template<typename...>
-    static auto test( ... ) -> std::false_type;
-    /* true if C.func(Args...) is well formed, false otherwise. */
-    template<typename... Args>
-    static constexpr bool is_callable_with_v = decltype( test<Args...>( 0 ) )::value;
-};
 
 // Finding the maximum required number of arguments a function accepts is easy. It's just
 // the size of the ...Args parameter pack. Finding the *minimum* is hard for two reasons.
@@ -105,6 +86,10 @@ struct arity_tester {
 //    arity but with differently typed variables, which do we pick to invoke?)
 // 2) Default arguments. The values are inserted by the compiler at callsites but are not
 //    encoded in the function type at all.
+//
+// Therefore we generate a unique 'arity tester' helper type per bound function which tests
+// whether a member function is invocable with hardcoded calls inside a decltype() so the
+// compiler can supplement default args it could not do if we used std::is_invocable_v.
 // We can derive the minimum number of arguments a given function can be invoked with though
 // with some clever SFINAE and some constexpr calculations which invoke a function with
 // increasingly fewer arguments until it runs out or fails.
@@ -129,15 +114,15 @@ constexpr int find_min_arity()
 }
 }
 
-template<auto MemFn>
+template<typename ArityTester, auto MemFn>
 struct member_function_wrapper;
 
-template<typename C, typename R, typename... Args, R( C::* MemFn )( Args... )>
-struct member_function_wrapper<MemFn> {
+template<typename ArityTester, typename C, typename R, typename... Args, R( C::* MemFn )( Args... )>
+struct member_function_wrapper<ArityTester, MemFn> {
     using ArgsTuple = std::tuple<Args...>;
     static constexpr int max_arity = sizeof...( Args );
     static constexpr int min_arity =
-        std::integral_constant<int, find_min_arity<arity_tester<MemFn>, std::tuple<C, Args...>, max_arity>()>::value;
+        std::integral_constant<int, find_min_arity<ArityTester, std::tuple<Args...>, max_arity>()>::value;
 
     // *INDENT-OFF*
     // astyle loses its shit over all this template stuff
@@ -186,13 +171,8 @@ using type_erased_wrapper = JSValue( * )( JSContext *, void *, int, JSValueConst
 struct proto_base {
     JSClassID clsid;
     std::vector<JSCFunctionListEntry> bindings;
-    void push_erased(
-        std::vector<JSCFunctionListEntry> &bindings,
-        std::string_view name,
-        int argc,
-        qjs::generic_cfunc fn
-    );
 
+    void push_erased( std::string_view name, int argc, qjs::generic_cfunc fn );
     static JSValue call_erased( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
                                 int min_arity, qjs::generic_cfunc fn );
 };
@@ -200,31 +180,42 @@ struct proto_base {
 template<typename Clazz>
 struct proto : proto_base {
     using Class = Clazz;
-
-    void push( std::string_view name, int argc, qjs::generic_cfunc fn ) {
-        push_erased(
-            bindings,
-            name,
-            argc,
-            fn
-        );
-    }
 };
 
 // *INDENT-OFF*
-#define BIND(func)                                                                                              \
-    struct func##_binding : member_function_wrapper<&decltype(__proto)::Class::func> {                          \
-        func##_binding();                                                                              \
-    };                                                                                                          \
-    static func##_binding __##func##_binder
-
 #define BINDABLE(cls) static proto<cls> __proto
+
+#define BIND(func)                                                                                                  \
+    struct func##_arity_tester                                                                                      \
+    {                                                                                                               \
+        /* The below gnarly template funk is a hairball of SFINAE helpers for determining the minimum */            \
+        /* and maximum number of arguments a function can be invoked with. */                                       \
+        /**/                                                                                                        \
+        /* This is the 'good' test function. */                                                                     \
+        /* This overload is preferred over the other because it is a more specific match under normal */            \
+        /* overload resolution rules. It only exists if func is invokable with Args */                              \
+        template <                                                                                                  \
+            typename ...Args,                                                                                       \
+            typename = decltype((std::declval<decltype(__proto)::Class>().*(func))(std::declval<Args>()...), true)> \
+        static auto test(int) -> std::true_type;                                                                    \
+        /* The bad overload matches anything because of the ... argument. So whenever test(int) is */               \
+        /* removed by SFINAE then we get std::false_type as the type and callable then is false. */                 \
+        template<typename...>                                                                                       \
+        static auto test(...) -> std::false_type;                                                                   \
+        /* true if C.func(Args...) is well formed, false otherwise. */                                              \
+        template<typename... Args>                                                                                  \
+        static constexpr bool is_callable_with_v = decltype(test<Args...>(0))::value;                               \
+    };                                                                                                              \
+    struct func##_binding : member_function_wrapper<func##_arity_tester, &decltype(__proto)::Class::func> {         \
+        func##_binding();                                                                                           \
+    };                                                                                                              \
+    static func##_binding __##func##_binder
 
 #define PROTO(cls) proto<cls> cls::__proto
 
 #define BOUND(cls, func)                                                                                                                               \
-    cls::func##_binding::func##_binding() {                                                                                                   \
-        __proto.push(                                                                                                                                  \
+    cls::func##_binding::func##_binding() {                                                                                                            \
+        __proto.push_erased(                                                                                                                           \
             #func,                                                                                                                                     \
             min_arity,                                                                                                                                 \
             [](JSContext *ctx, JSValueConst this_val, int argc, JSValueConst* argv){                                                                   \

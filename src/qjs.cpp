@@ -24,7 +24,7 @@ struct bound {
 };
 
 PROTO( bound );
-BOUND( bound, foo );
+BOUND(bound, foo);
 BOUND( bound, bar );
 BOUND( bound, baz );
 BOUND( bound, quux );
@@ -42,7 +42,6 @@ extern std::string get_string()
 }
 
 void proto_base::push_erased(
-    std::vector<JSCFunctionListEntry> &bindings,
     std::string_view name,
     int argc,
     qjs::generic_cfunc fn )
