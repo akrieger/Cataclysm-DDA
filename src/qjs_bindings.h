@@ -211,7 +211,7 @@ struct proto_base {
 template<typename Clazz>
 struct proto : proto_base {
     using Class = Clazz;
-    static JSClassID clsid;
+    static std::string_view clsname;
     static std::vector<JSCFunctionListEntry> bindings;
     static std::vector<type_erasing_wrapper *> funcs;
 
@@ -280,7 +280,7 @@ struct proto : proto_base {
 #define PROTO(cls) \
     proto<cls> cls::__proto; \
     template<> \
-    JSClassID proto<cls>::clsid{}; \
+    std::string_view proto<cls>::clsname = #cls; \
     template<> \
     std::vector<JSCFunctionListEntry> proto<cls>::bindings{}; \
     template<> \
