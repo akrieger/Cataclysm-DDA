@@ -11,9 +11,9 @@ type_erasing_wrapper::~type_erasing_wrapper() {}
 
 struct bound {
     BINDABLE( bound );
-    void foo( int, const std::string &, int = 0 );
+    void foo( int, int = 0 );
     BIND( foo );
-    std::string bar( std::string, int );
+    std::string bar( std::string const &s, int );
     BIND( bar );
 };
 
@@ -21,11 +21,16 @@ PROTO( bound );
 BOUND( bound, foo );
 BOUND( bound, bar );
 
-void bound::foo( int, const std::string &, int ) {}
+void bound::foo( int, int ) {}
 
-std::string bound::bar( std::string s, int )
+std::string bound::bar( std::string const &s, int )
 {
     return s;
+}
+
+extern std::string get_string()
+{
+    return {};
 }
 
 void proto_base::push_erased(
