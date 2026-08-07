@@ -7,13 +7,11 @@
 #include "qjs_bindings.h"
 #include "ui_manager.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-#pragma clang diagnostic ignored "-Wunused-variable"
+type_erasing_wrapper::~type_erasing_wrapper() {}
 
 struct bound {
     BINDABLE( bound );
-    void foo( int, std::string, int = 0 );
+    void foo( int, const std::string &, int = 0 );
     BIND( foo );
     std::string bar( std::string, int );
     BIND( bar );
@@ -22,6 +20,13 @@ struct bound {
 PROTO( bound );
 BOUND( bound, foo );
 BOUND( bound, bar );
+
+void bound::foo( int, const std::string &, int ) {}
+
+std::string bound::bar( std::string s, int )
+{
+    return s;
+}
 
 void proto_base::push_erased(
     std::vector<JSCFunctionListEntry> &bindings,
@@ -204,7 +209,7 @@ exn value::to_exception() const &
     return clone().to_exception();
 }
 
-exn value::to_exception() && {
+exn value::to_exception()&& {
     if( !JS_IsException( v ) )
     {
         // idk throw?
@@ -217,7 +222,7 @@ string value::to_string() const &
     return clone().to_string();
 }
 
-string value::to_string() && {
+string value::to_string()&& {
     if( !JS_IsString( v ) )
     {
         // idk throw?
@@ -241,5 +246,3 @@ JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, generic_m
 }
 
 }
-
-#pragma clang diagnostic pop
