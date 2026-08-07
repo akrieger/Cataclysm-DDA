@@ -77,6 +77,28 @@ inline auto to_js( JSContext *ctx,
     return JS_NewStringLen( ctx, t.data(), t.size() );
 }
 
+namespace
+{
+template<auto Func>
+struct arity_tester {
+    /* The below gnarly template funk is a hairball of SFINAE helpers for determining the minimum */
+    /* and maximum number of arguments a function can be invoked with. */
+    /* This is the 'good' test function. */
+    /* This overload is preferred over the other because it is a more specific match under normal*/
+    /* overload resolution rules. It only exists if func is invokable with Args */
+    template <
+        typename ...Args,
+        typename = std::enable_if_t<std::is_invocable_v<Func, Args...> >>
+    static auto test( int ) -> std::true_type;
+    /* The bad overload matches anything because of the ... argument. So whenever test(int) is */
+    /* removed by SFINAE then we get std::false_type as the type and callable then is false. */
+    template<typename...>
+    static auto test( ... ) -> std::false_type;
+    /* true if C.func(Args...) is well formed, false otherwise. */
+    template<typename... Args>
+    static constexpr bool is_callable_with_v = decltype( test<Args...>( 0 ) )::value;
+};
+
 // Finding the maximum required number of arguments a function accepts is easy. It's just
 // the size of the ...Args parameter pack. Finding the *minimum* is hard for two reasons.
 // 1) Overloads, which we can't support for other reasons (if two overloads share the same
@@ -105,50 +127,20 @@ constexpr int find_min_arity()
         return find_min_arity < ArityTester, ArgsTuple, N - 1 > ();
     }
 }
-
-struct type_erasing_wrapper {
-    protected:
-        virtual ~type_erasing_wrapper();
-    public:
-        //virtual JSValue call( JSContext *ctx, void *this_val, int argc, JSValueConst *argv ) = 0;
-};
+}
 
 template<auto MemFn>
 struct member_function_wrapper;
-
-namespace
-{
-
-template<auto Func, typename ...Args>
-struct arity_tester {
-    /* The below gnarly template funk is a hairball of SFINAE helpers for determining the minimum */
-    /* and maximum number of arguments a function can be invoked with. */
-    /* This is the 'good' test function. */
-    /* This overload is preferred over the other because it is a more specific match under normal*/
-    /* overload resolution rules. It only exists if func is invokable with Args */
-    template <
-        typename ...Args,
-        typename = std::enable_if_t<std::is_invocable_v<Func, Args...> >>
-    static auto test( int ) -> std::true_type {};
-    /* The bad overload matches anything because of the ... argument. So whenever test(int) is */
-    /* removed by SFINAE then we get std::false_type as the type and callable then is false. */
-    template<typename...>
-    static auto test( ... ) -> std::false_type;
-    /* true if C.func(Args...) is well formed, false otherwise. */
-    template<typename... Args>
-    static constexpr bool is_callable_with_v = decltype( test<Args...>( 0 ) )::value;
-};
-}
 
 template<typename C, typename R, typename... Args, R( C::* MemFn )( Args... )>
 struct member_function_wrapper<MemFn> {
     using ArgsTuple = std::tuple<Args...>;
     static constexpr int max_arity = sizeof...( Args );
     static constexpr int min_arity =
-        std::integral_constant<int, find_min_arity<arity_tester<MemFn, C, Args...>, ArgsTuple, max_arity>()>::value;
-    static JSValue call( JSContext *ctx, void *this_val, int argc,
-                          JSValueConst *argv ) {
-        return call( ctx, static_cast<C *>( this_val ), argc, argv, std::make_index_sequence<min_arity>() );
+        std::integral_constant<int, find_min_arity<arity_tester<MemFn>, std::tuple<C, Args...>, max_arity>()>::value;
+    static JSValue call( JSContext *ctx, C *this_val, int argc,
+                         JSValueConst *argv ) {
+        return call( ctx, this_val, argc, argv, std::make_index_sequence<min_arity>() );
     }
 
 private:
@@ -157,16 +149,16 @@ private:
     template<size_t ...I>
     CATA_FORCEINLINE static JSValue call(
             JSContext *ctx,
-            void *this_val,
+            C *this_val,
             int argc,
             JSValueConst *argv,
             std::index_sequence<I...> ) {
         // This would be nice, sadly its c++26
         // auto&& [...args] = std::forward_as_tuple(from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
         if constexpr (min_arity == max_arity) {
-            return call_binding(ctx, static_cast<C*>(this_val), from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+            return call_binding(ctx, this_val, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
         } else {
-            return switch_arity(ctx, static_cast<C*>(this_val), argc, argv, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+            return switch_arity(ctx, this_val, argc, argv, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
         }
     }
 
@@ -213,19 +205,20 @@ private:
     // *INDENT-ON*
 };
 
+using type_erased_wrapper = JSValue( * )( JSContext *, void *, int, JSValueConst * );
+
 struct proto_base {
     static void push_erased(
         std::vector<JSCFunctionListEntry> &bindings,
-        std::vector<JSValue(*)(JSContext*, void*, int, JSValueConst*)> &funcs,
+        std::vector<type_erased_wrapper> &funcs,
         std::string_view name,
         int argc,
         qjs::generic_magic call,
-        JSValue(*fn)(JSContext*, void*, int, JSValueConst*)
+        type_erased_wrapper fn
     ) noexcept;
 
-    static JSValue call_erased(JSValue(*fn)(JSContext*, void*, int, JSValueConst*), JSContext *ctx, void *this_val, int min_arity,
-                                int argc,
-                                JSValueConst *argv ) noexcept;
+    static JSValue call_erased( type_erased_wrapper fn, JSContext *ctx, void *this_val, int min_arity,
+                                int argc, JSValueConst *argv ) noexcept;
 };
 
 template<typename Clazz>
@@ -233,7 +226,7 @@ struct proto : proto_base {
     using Class = Clazz;
     static JSClassID clsid;
     static std::vector<JSCFunctionListEntry> bindings;
-    static std::vector<JSValue(*)(JSContext*, void*, int, JSValueConst*)> funcs;
+    static std::vector<type_erased_wrapper> funcs;
 
     static JSValue call( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
                          int magic ) noexcept {
@@ -242,7 +235,7 @@ struct proto : proto_base {
                             argc, argv );
     }
 
-    static void push( std::string_view name, int argc, JSValue(*fn)(JSContext*, void*, int, JSValueConst*) ) noexcept {
+    static void push( std::string_view name, int argc, type_erased_wrapper fn ) noexcept {
         push_erased(
             bindings,
             funcs,
@@ -271,10 +264,10 @@ struct proto : proto_base {
     template<> \
     std::vector<JSCFunctionListEntry> proto<cls>::bindings{}; \
     template<> \
-    std::vector<JSValue(*)(JSContext*, void*, int, JSValueConst*)> proto<cls>::funcs{}
+    std::vector<type_erased_wrapper> proto<cls>::funcs{}
 
 #define BOUND(cls, func)                                                                      \
-    cls::func##_binding::func##_binding() noexcept { __proto.push(#func, min_arity, [](JSContext *ctx, void *this_val, int argc, JSValueConst* argv){ return call(ctx, this_val, argc, argv);}); }  \
+    cls::func##_binding::func##_binding() noexcept { __proto.push(#func, min_arity, [](JSContext *ctx, void *this_val, int argc, JSValueConst* argv){ return call(ctx, static_cast<cls*>(this_val), argc, argv);}); }  \
     cls::func##_binding cls::__##func##_binder
 
 #endif // CATA_SRC_QJS_BINDINGS_H

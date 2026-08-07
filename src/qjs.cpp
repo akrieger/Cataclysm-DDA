@@ -7,8 +7,6 @@
 #include "qjs_bindings.h"
 #include "ui_manager.h"
 
-type_erasing_wrapper::~type_erasing_wrapper() {}
-
 struct bound {
     BINDABLE( bound );
     void foo( int, int = 0 );
@@ -34,12 +32,12 @@ extern std::string get_string()
 }
 
 void proto_base::push_erased(
-    std::vector<JSCFunctionListEntry>& bindings,
-    std::vector<JSValue(*)(JSContext*, void*, int, JSValueConst*)>& funcs,
+    std::vector<JSCFunctionListEntry> &bindings,
+    std::vector<type_erased_wrapper> &funcs,
     std::string_view name,
     int argc,
     qjs::generic_magic call,
-    JSValue(*fn)(JSContext*, void*, int, JSValueConst*)) noexcept
+    type_erased_wrapper fn ) noexcept
 {
     bindings.emplace_back(
         qjs::js_cfunc_magic_def(
@@ -53,7 +51,7 @@ void proto_base::push_erased(
 }
 
 
-JSValue proto_base::call_erased(JSValue(*fn)(JSContext*, void*, int, JSValueConst*), JSContext *ctx, void *this_val,
+JSValue proto_base::call_erased( type_erased_wrapper fn, JSContext *ctx, void *this_val,
                                  int min_arity,
                                  int argc,
                                  JSValueConst *argv ) noexcept
