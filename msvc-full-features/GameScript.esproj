@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.5984942">
+  <PropertyGroup>
+    <PackageJsonDirectory>D:\code\Cataclysm-DDA</PackageJsonDirectory>
+    <StartupCommandWorkingDirectory>D:\code\Cataclysm-DDA</StartupCommandWorkingDirectory>
+    <TypeScriptAllowJS>true</TypeScriptAllowJS>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove=".\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\data\js\**\*.d.ts">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </None>
+    <None Include="..\data\js\**\*.js">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\tsconfig.json">
+      <Link>tsconfig.json</Link>
+    </None>
+  </ItemGroup>
+</Project>
