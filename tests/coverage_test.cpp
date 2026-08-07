@@ -78,44 +78,6 @@ static void check_not_near( const std::string &subject, float actual, const floa
     }
 }
 
-static float get_avg_melee_dmg( const itype_id &clothing_id, bool infect_risk = false )
-{
-    map &here = get_map();
-
-    monster zed( mon_manhack, mon_pos );
-    standard_npc dude( "TestCharacter", dude_pos, {}, 0, 8, 8, 8, 8 );
-    item cloth( clothing_id );
-    if( infect_risk ) {
-        cloth.set_flag( json_flag_FILTHY );
-    }
-    int dam_acc = 0;
-    int num_hits = 0;
-    for( int i = 0; i < num_iters; i++ ) {
-        clear_character( dude, true );
-        dude.setpos( here, dude_pos );
-        dude.wear_item( cloth, false );
-        dude.add_effect( effect_sleep, 1_hours );
-        if( zed.melee_attack( dude, 10000.0f ) ) {
-            num_hits++;
-        }
-        cloth.set_damage( 0 );
-        if( !infect_risk ) {
-            dam_acc += dude.get_hp_max() - dude.get_hp();
-        } else if( dude.has_effect( effect_bite ) ) {
-            dam_acc++;
-        }
-        if( dude.is_dead() ) {
-            break;
-        }
-    }
-    CAPTURE( dude.is_dead() );
-    const std::string ret_type = infect_risk ? "infections" : "damage total";
-    INFO( string_format( "%s landed %d hits on character, causing %d %s.", zed.get_name(), num_hits,
-                         dam_acc, ret_type ) );
-    num_hits = num_hits ? num_hits : 1;
-    return static_cast<float>( dam_acc ) / num_hits;
-}
-
 static float get_avg_melee_dmg( item cloth, bool infect_risk = false )
 {
     map &here = get_map();
@@ -151,6 +113,11 @@ static float get_avg_melee_dmg( item cloth, bool infect_risk = false )
                          dam_acc, ret_type ) );
     num_hits = num_hits ? num_hits : 1;
     return static_cast<float>( dam_acc ) / num_hits;
+}
+
+static float get_avg_melee_dmg( const itype_id &clothing_id, bool infect_risk = false )
+{
+    return get_avg_melee_dmg( item{ clothing_id } );
 }
 
 static float get_avg_bullet_dmg( const itype_id &clothing_id )

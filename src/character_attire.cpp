@@ -1967,18 +1967,24 @@ std::unordered_set<bodypart_id> outfit::where_discomfort( const Character &guy )
     for( const item &i : worn ) {
         // check each sublimb individually
         for( const sub_bodypart_id &sbp : i.get_covered_sub_body_parts() ) {
-            if( i.is_bp_comfortable( sbp ) ) {
-                covered_sbps.insert( sbp );
+            std::optional<bool> bp_is_comfortable;
+            if( covered_sbps.count( sbp ) == 0 ) {
+                bp_is_comfortable = i.is_bp_comfortable( sbp );
+                if( bp_is_comfortable.value() ) {
+                    covered_sbps.insert( sbp );
+                }
             }
             // if the bp is uncomfortable and has yet to display as covered with something comfortable then it should cause discomfort
             // note anything selectively rigid reasonably can be assumed to support itself so we don't need to worry about this
             // items must also be somewhat heavy in order to cause discomfort
-            if( !i.is_bp_rigid_selective( sbp ) && !i.is_bp_comfortable( sbp ) &&
+            if( uncomfortable_bps.count( sbp->parent ) == 0 && !i.is_bp_rigid_selective( sbp ) &&
+                ( ( bp_is_comfortable.has_value() && !bp_is_comfortable.value() ) ||
+                  !i.is_bp_comfortable( sbp ) ) &&
                 i.weight() > units::from_gram( 250 ) ) {
 
                 // need to go through each locations under location to check if it's covered, since secondary locations can cover multiple underlying locations
                 for( const sub_bodypart_str_id &under_sbp : sbp->locations_under ) {
-                    if( covered_sbps.count( under_sbp ) != 1 && guy.has_sub_bodypart( sbp ) ) {
+                    if( covered_sbps.count( under_sbp ) == 0 && guy.has_sub_bodypart( sbp ) ) {
                         guy.add_msg_if_player(
                             string_format( _( "<color_c_red>The %s rubs uncomfortably against your unpadded %s.</color>" ),
                                            i.display_name(), under_sbp->name ) );

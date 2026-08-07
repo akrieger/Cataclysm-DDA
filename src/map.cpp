@@ -6952,33 +6952,37 @@ partial_con *map::partial_con_at( const tripoint_bub_ms &p )
     return nullptr;
 }
 
-void map::partial_con_remove( const tripoint_bub_ms &p )
+bool map::partial_con_remove( const tripoint_bub_ms &p )
 {
-    partial_con_remove_impl( p );
+    bool erased = partial_con_remove_impl( p );
+    if( !erased ) {
+        return erased;
+    }
     memory_cache_dec_set_dirty( p, true );
     avatar &player_character = get_avatar();
     if( player_character.sees( *this, p ) ) {
         player_character.memorize_clear_decoration( get_abs( p ), "tr_" );
     }
+    return erased;
 }
 
-void map::partial_con_remove_no_vision_for_testing( const tripoint_bub_ms &p )
+bool map::partial_con_remove_no_vision_for_testing( const tripoint_bub_ms &p )
 {
-    partial_con_remove_impl( p );
+    return partial_con_remove_impl( p );
 }
 
-void map::partial_con_remove_impl( const tripoint_bub_ms &p )
+bool map::partial_con_remove_impl( const tripoint_bub_ms &p )
 {
     if( !inbounds( p ) ) {
-        return;
+        return false;
     }
     point_sm_ms l;
     submap *const current_submap = unsafe_get_submap_at( p, l );
     if( current_submap == nullptr ) {
         debugmsg( "Tried to remove construction at %s but the submap is not loaded", l.to_string() );
-        return;
+        return false;
     }
-    current_submap->partial_constructions.erase( tripoint_sm_ms( l, p.z() ) );
+    return current_submap->partial_constructions.erase( tripoint_sm_ms( l, p.z() ) ) != 0;
 }
 
 void map::partial_con_set( const tripoint_bub_ms &p, const partial_con &con )

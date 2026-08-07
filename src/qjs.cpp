@@ -227,7 +227,7 @@ exn value::to_exception() const &
     return clone().to_exception();
 }
 
-exn value::to_exception()&& {
+exn value::to_exception() && {
     if( !JS_IsException( v ) )
     {
         // idk throw?
@@ -240,7 +240,7 @@ string value::to_string() const &
     return clone().to_string();
 }
 
-string value::to_string()&& {
+string value::to_string() && {
     if( !JS_IsString( v ) )
     {
         // idk throw?
