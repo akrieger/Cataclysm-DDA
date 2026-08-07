@@ -34,12 +34,12 @@ extern std::string get_string()
 }
 
 void proto_base::push_erased(
-    std::vector<JSCFunctionListEntry> &bindings,
-    std::vector<type_erasing_wrapper *> &funcs,
+    std::vector<JSCFunctionListEntry>& bindings,
+    std::vector<JSValue(*)(JSContext*, void*, int, JSValueConst*)>& funcs,
     std::string_view name,
     int argc,
     qjs::generic_magic call,
-    type_erasing_wrapper *fn ) noexcept
+    JSValue(*fn)(JSContext*, void*, int, JSValueConst*)) noexcept
 {
     bindings.emplace_back(
         qjs::js_cfunc_magic_def(
@@ -53,7 +53,7 @@ void proto_base::push_erased(
 }
 
 
-JSValue proto_base::call_erased( type_erasing_wrapper *fn, JSContext *ctx, void *this_val,
+JSValue proto_base::call_erased(JSValue(*fn)(JSContext*, void*, int, JSValueConst*), JSContext *ctx, void *this_val,
                                  int min_arity,
                                  int argc,
                                  JSValueConst *argv ) noexcept
@@ -63,7 +63,7 @@ JSValue proto_base::call_erased( type_erasing_wrapper *fn, JSContext *ctx, void 
                                   argc );
     }
     try {
-        return fn->call( ctx, this_val, argc, argv );
+        return fn( ctx, this_val, argc, argv );
     } catch( ... ) {
         qjs::context *qctx = static_cast<qjs::context *>( JS_GetContextOpaque( ctx ) );
         qctx->set_ffi_exn( std::current_exception() );

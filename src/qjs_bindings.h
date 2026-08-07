@@ -110,10 +110,10 @@ struct type_erasing_wrapper {
     protected:
         virtual ~type_erasing_wrapper();
     public:
-        virtual JSValue call( JSContext *ctx, void *this_val, int argc, JSValueConst *argv ) = 0;
+        //virtual JSValue call( JSContext *ctx, void *this_val, int argc, JSValueConst *argv ) = 0;
 };
 
-template<typename Binding, auto MemFn>
+template<auto MemFn>
 struct member_function_wrapper;
 
 namespace
@@ -140,14 +140,14 @@ struct arity_tester {
 };
 }
 
-template<typename Binding, typename C, typename R, typename... Args, R( C::* MemFn )( Args... )>
-struct member_function_wrapper<Binding, MemFn> : type_erasing_wrapper {
+template<typename C, typename R, typename... Args, R( C::* MemFn )( Args... )>
+struct member_function_wrapper<MemFn> {
     using ArgsTuple = std::tuple<Args...>;
     static constexpr int max_arity = sizeof...( Args );
     static constexpr int min_arity =
         std::integral_constant<int, find_min_arity<arity_tester<MemFn, C, Args...>, ArgsTuple, max_arity>()>::value;
-    virtual JSValue call( JSContext *ctx, void *this_val, int argc,
-                          JSValueConst *argv ) override {
+    static JSValue call( JSContext *ctx, void *this_val, int argc,
+                          JSValueConst *argv ) {
         return call( ctx, static_cast<C *>( this_val ), argc, argv, std::make_index_sequence<min_arity>() );
     }
 
@@ -155,7 +155,7 @@ private:
     // *INDENT-OFF*
     // astyle loses its shit over all this template stuff
     template<size_t ...I>
-    CATA_FORCEINLINE JSValue call(
+    CATA_FORCEINLINE static JSValue call(
             JSContext *ctx,
             void *this_val,
             int argc,
@@ -201,12 +201,12 @@ private:
             C *this_val,
             ArgsSlice &&...args ) {
         if constexpr( std::is_void_v<R> ) {
-            Binding::call( *this_val, std::forward<ArgsSlice>( args )... );
+            (this_val->*MemFn)(std::forward<ArgsSlice>(args)...);
             return JS_UNDEFINED;
         } else {
             return to_js(
                 ctx,
-                Binding::call( *this_val, std::forward<ArgsSlice>( args )... )
+                (this_val->*MemFn)(std::forward<ArgsSlice>(args)...)
             );
         }
     }
@@ -216,14 +216,14 @@ private:
 struct proto_base {
     static void push_erased(
         std::vector<JSCFunctionListEntry> &bindings,
-        std::vector<type_erasing_wrapper *> &funcs,
+        std::vector<JSValue(*)(JSContext*, void*, int, JSValueConst*)> &funcs,
         std::string_view name,
         int argc,
         qjs::generic_magic call,
-        type_erasing_wrapper *fn
+        JSValue(*fn)(JSContext*, void*, int, JSValueConst*)
     ) noexcept;
 
-    static JSValue call_erased( type_erasing_wrapper *fn, JSContext *ctx, void *this_val, int min_arity,
+    static JSValue call_erased(JSValue(*fn)(JSContext*, void*, int, JSValueConst*), JSContext *ctx, void *this_val, int min_arity,
                                 int argc,
                                 JSValueConst *argv ) noexcept;
 };
@@ -233,7 +233,7 @@ struct proto : proto_base {
     using Class = Clazz;
     static JSClassID clsid;
     static std::vector<JSCFunctionListEntry> bindings;
-    static std::vector<type_erasing_wrapper *> funcs;
+    static std::vector<JSValue(*)(JSContext*, void*, int, JSValueConst*)> funcs;
 
     static JSValue call( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
                          int magic ) noexcept {
@@ -242,7 +242,7 @@ struct proto : proto_base {
                             argc, argv );
     }
 
-    static void push( std::string_view name, int argc, type_erasing_wrapper *fn ) noexcept {
+    static void push( std::string_view name, int argc, JSValue(*fn)(JSContext*, void*, int, JSValueConst*) ) noexcept {
         push_erased(
             bindings,
             funcs,
@@ -256,16 +256,8 @@ struct proto : proto_base {
 
 // *INDENT-OFF
 #define BIND(func)                                                                                              \
-    struct func##_binding : member_function_wrapper<                                                            \
-        func##_binding,                                                                                         \
-    /**/&decltype(__proto)::Class::func                                                                         \
-    > {                                                                                                         \
+    struct func##_binding : member_function_wrapper<&decltype(__proto)::Class::func> {                          \
         func##_binding() noexcept;                                                                              \
-        template<typename ...Args>                                                                              \
-        CATA_FORCEINLINE static decltype(auto) call(decltype(__proto)::Class& val, Args&&... args)              \
-        {                                                                                                       \
-            return val.func(std::forward<Args>(args)...);                                                       \
-        }                                                                                                       \
     };                                                                                                          \
     static func##_binding __##func##_binder
 // *INDENT-ON
@@ -279,10 +271,10 @@ struct proto : proto_base {
     template<> \
     std::vector<JSCFunctionListEntry> proto<cls>::bindings{}; \
     template<> \
-    std::vector<type_erasing_wrapper *> proto<cls>::funcs{}
+    std::vector<JSValue(*)(JSContext*, void*, int, JSValueConst*)> proto<cls>::funcs{}
 
 #define BOUND(cls, func)                                                                      \
-    cls::func##_binding::func##_binding() noexcept { __proto.push(#func, min_arity, this); }  \
+    cls::func##_binding::func##_binding() noexcept { __proto.push(#func, min_arity, [](JSContext *ctx, void *this_val, int argc, JSValueConst* argv){ return call(ctx, this_val, argc, argv);}); }  \
     cls::func##_binding cls::__##func##_binder
 
 #endif // CATA_SRC_QJS_BINDINGS_H
