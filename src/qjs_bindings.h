@@ -131,17 +131,26 @@ struct js_ffi {
         JSValueConst* argv,
         std::index_sequence<I...>)
     {
-        // This would be nice, sadly its c++26
-        // auto&& [...args] = std::forward_as_tuple(from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
-        if constexpr (min_arity == max_arity || N == max_arity) {
-            return invoke(ctx, this_val, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+        return ffi_(ctx, this_val, argc, argv, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+    }
+
+    template<typename... Args, size_t N = sizeof...(Args)>
+    CATA_FORCEINLINE static JSValue ffi_(
+        JSContext* ctx,
+        void* this_val,
+        int argc,
+        JSValueConst* argv,
+        Args&& ...args)
+    {
+        if constexpr (N == max_arity) {
+            return invoke(ctx, this_val, std::forward<Args>(args)...);
+        }
+        if (argc == N) {
+            return invoke(ctx, this_val, std::forward<Args>(args)...);
+        }
+        if constexpr (N < max_arity) {
+            return ffi_(ctx, this_val, argc, argv, std::forward<Args>(args)..., from_js<std::decay_t<std::tuple_element_t<N, ArgsTuple>>>(ctx, argv[N]));
         } else {
-            if (argc == N) {
-                return invoke(ctx, this_val, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
-            }
-            if constexpr (N < max_arity) {
-                return ffi(ctx, this_val, argc, argv, std::make_index_sequence<N + 1>());
-            }
             return JS_UNDEFINED;
         }
     }
@@ -165,15 +174,24 @@ struct js_ffi {
     // *INDENT-ON*
 };
 
-// Generic traits template for member function pointers
+// Generic traits template for function pointers
 template <typename T>
-struct member_function_pointer_traits;
+struct function_pointer_traits;
+
+
+// Partial specialization for non-const functions
+template <typename R, typename... Args>
+struct function_pointer_traits<R( * )( Args... )> {
+    using ReturnType = R;
+    using ArgsTuple = std::tuple<Args...>;
+    static constexpr int max_arity = sizeof...( Args );
+    static constexpr bool is_const = false;
+};
 
 // Partial specialization for non-const member functions
 template <typename R, typename C, typename... Args>
-struct member_function_pointer_traits<R( C::* )( Args... )> {
+struct function_pointer_traits<R( C::* )( Args... )> {
     using ReturnType = R;
-    using Class = C;
     using ArgsTuple = std::tuple<Args...>;
     static constexpr int max_arity = sizeof...( Args );
     static constexpr bool is_const = false;
@@ -181,9 +199,8 @@ struct member_function_pointer_traits<R( C::* )( Args... )> {
 
 // Partial specialization for const member functions
 template <typename R, typename C, typename... Args>
-struct member_function_pointer_traits<R( C::* )( Args... ) const> {
+struct function_pointer_traits<R( C::* )( Args... ) const> {
     using ReturnType = R;
-    using Class = C;
     using ArgsTuple = std::tuple<Args...>;
     static constexpr int max_arity = sizeof...( Args );
     static constexpr bool is_const = true;
@@ -210,32 +227,32 @@ struct proto : proto_base {
 
 #define PROTO(cls) proto<cls> cls::__proto
 
-#define BOUND(cls, func)                                                                            \
-namespace                                                                                           \
-{                                                                                                   \
-    struct cls##__##func##_binding                                                                  \
-    {                                                                                               \
-        struct func##_invoker : member_function_pointer_traits<decltype(&cls::func)>                \
-        {                                                                                           \
-            template<                                                                               \
-                typename ...Args,                                                                   \
-                typename = decltype(std::declval<cls>().func(std::declval<Args>()...), true)>       \
-            static auto test(int) -> std::true_type;                                                \
-            template<typename...> static auto test(...) -> std::false_type;                         \
-            template<typename... Args>                                                              \
-            static constexpr bool is_callable_with_v = decltype(test<Args...>(0))::value;           \
-                                                                                                    \
-            template<typename ...Args, typename = std::enable_if_t<is_callable_with_v<Args...>>>    \
-            auto operator()(void* this_val, Args&&... args)                                         \
-            {                                                                                       \
-                return static_cast<cls*>(this_val)->func(std::forward<Args>(args)...);              \
-            }                                                                                       \
-            static constexpr int min_arity = find_min_arity<func##_invoker, ArgsTuple, max_arity>();\
-        };                                                                                          \
-                                                                                                    \
-        cls##__##func##_binding();                                                                  \
-    };                                                                                              \
-                                                                                                    \
+#define BOUND(cls, func)                                                                                \
+namespace                                                                                               \
+{                                                                                                       \
+    struct cls##__##func##_binding                                                                      \
+    {                                                                                                   \
+        struct func##_invoker : function_pointer_traits<decltype(&cls::func)>                           \
+        {                                                                                               \
+            template<                                                                                   \
+                typename ...Args,                                                                       \
+                typename = decltype(std::declval<cls>().func(std::declval<Args>()...), true)>           \
+            static auto test(int) -> std::true_type;                                                    \
+            template<typename...> static auto test(...) -> std::false_type;                             \
+            template<typename... Args>                                                                  \
+            static constexpr bool is_callable_with_v = decltype(test<Args...>(0))::value;               \
+                                                                                                        \
+            template<typename ...Args, typename = std::enable_if_t<is_callable_with_v<Args...>>>        \
+            auto operator()(void* this_val, Args&&... args)                                             \
+            {                                                                                           \
+                return static_cast<cls*>(this_val)->func(std::forward<Args>(args)...);                  \
+            }                                                                                           \
+            static constexpr int min_arity = find_min_arity<func##_invoker, ArgsTuple, max_arity>();    \
+        };                                                                                              \
+                                                                                                        \
+        cls##__##func##_binding();                                                                      \
+    };                                                                                                  \
+                                                                                                        \
     cls##__##func##_binding::cls##__##func##_binding()                                                  \
     {                                                                                                   \
         cls::__proto.push_erased(                                                                       \
@@ -258,8 +275,8 @@ namespace                                                                       
                     });                                                                                 \
             });                                                                                         \
     }                                                                                                   \
-                                                                                                    \
-    static cls##__##func##_binding cls##__##func##_binder;                                               \
-}                                                                                                   \
+                                                                                                        \
+    static cls##__##func##_binding cls##__##func##_binder;                                              \
+}                                                                                                       \
 
 #endif // CATA_SRC_QJS_BINDINGS_H
