@@ -42,8 +42,16 @@ class context : public std::enable_shared_from_this<context>
             return c;
         }
 
+        void set_ffi_exn( std::exception_ptr e ) {
+            ffi_exn = std::move( e );
+            JSValue ffi_err = JS_NewInternalError( c, "ffi_err" );
+            JS_SetUncatchableError( c, ffi_err );
+            JS_Throw( c, ffi_err );
+        }
+
     private:
         JSContext *c;
+        std::exception_ptr ffi_exn;
         std::shared_ptr<runtime> r;
 };
 
@@ -139,13 +147,13 @@ class value
         }
 
         // Explicit copies.
-        value clone() const& {
+        value clone() const & {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone()&& {
+        value clone() && {
             return std::move( *this );
         }
 
