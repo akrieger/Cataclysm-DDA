@@ -63,7 +63,7 @@ extern auto from_js( JSContext *ctx,
                      JSValueConst v ) -> std::enable_if_t<std::is_same_v<T, std::string>, std::string>;
 
 template<typename T, std::enable_if_t<std::is_integral_v<std::decay_t<T>>>* = nullptr>
-                                      inline JSValue to_js( JSContext *ctx, T && t )
+                                      inline JSValue to_js( JSContext *ctx, T && t ) noexcept
 {
     // need to switch off size and signedness to call appropriate bigint ctor,
     // or else just forbid >32bit ints in the vm
@@ -72,7 +72,7 @@ template<typename T, std::enable_if_t<std::is_integral_v<std::decay_t<T>>>* = nu
 
 template<typename T>
 inline auto to_js( JSContext *ctx,
-                   T &&t ) -> std::enable_if_t<std::is_same_v<std::decay_t<T>, std::string>, JSValue>
+                   T &&t ) noexcept -> std::enable_if_t<std::is_same_v<std::decay_t<T>, std::string>, JSValue>
 {
     return JS_NewStringLen( ctx, t.data(), t.size() );
 }
@@ -113,16 +113,39 @@ struct type_erasing_wrapper {
         virtual JSValue call( JSContext *ctx, void *this_val, int argc, JSValueConst *argv ) = 0;
 };
 
-template<typename Binding, typename ArityTester, auto MemFn>
+template<typename Binding, auto MemFn>
 struct member_function_wrapper;
 
-template<typename Binding, typename ArityTester,
-         typename C, typename R, typename... Args, R( C::* MemFn )( Args... )>
-struct member_function_wrapper<Binding, ArityTester, MemFn> : type_erasing_wrapper {
+namespace
+{
+
+template<auto Func, typename ...Args>
+struct arity_tester {
+    /* The below gnarly template funk is a hairball of SFINAE helpers for determining the minimum */
+    /* and maximum number of arguments a function can be invoked with. */
+    /* This is the 'good' test function. */
+    /* This overload is preferred over the other because it is a more specific match under normal*/
+    /* overload resolution rules. It only exists if func is invokable with Args */
+    template <
+        typename ...Args,
+        typename = std::enable_if_t<std::is_invocable_v<Func, Args...> >>
+    static auto test( int ) -> std::true_type {};
+    /* The bad overload matches anything because of the ... argument. So whenever test(int) is */
+    /* removed by SFINAE then we get std::false_type as the type and callable then is false. */
+    template<typename...>
+    static auto test( ... ) -> std::false_type;
+    /* true if C.func(Args...) is well formed, false otherwise. */
+    template<typename... Args>
+    static constexpr bool is_callable_with_v = decltype( test<Args...>( 0 ) )::value;
+};
+}
+
+template<typename Binding, typename C, typename R, typename... Args, R( C::* MemFn )( Args... )>
+struct member_function_wrapper<Binding, MemFn> : type_erasing_wrapper {
     using ArgsTuple = std::tuple<Args...>;
     static constexpr int max_arity = sizeof...( Args );
     static constexpr int min_arity =
-        std::integral_constant<int, find_min_arity<ArityTester, ArgsTuple, max_arity>()>::value;
+        std::integral_constant<int, find_min_arity<arity_tester<MemFn, C, Args...>, ArgsTuple, max_arity>()>::value;
     virtual JSValue call( JSContext *ctx, void *this_val, int argc,
                           JSValueConst *argv ) override {
         return call( ctx, static_cast<C *>( this_val ), argc, argv, std::make_index_sequence<min_arity>() );
@@ -138,23 +161,24 @@ private:
             int argc,
             JSValueConst *argv,
             std::index_sequence<I...> ) {
+        // This would be nice, sadly its c++26
+        // auto&& [...args] = std::forward_as_tuple(from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
         if constexpr (min_arity == max_arity) {
-            return call_(ctx, static_cast<C*>(this_val), from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+            return call_binding(ctx, static_cast<C*>(this_val), from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
         } else {
-            return switch_arity<min_arity>(ctx, static_cast<C*>(this_val), argc, argv,
-                from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+            return switch_arity(ctx, static_cast<C*>(this_val), argc, argv, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
         }
     }
 
     // N is the number of args in ...args
     // argc is the number of args in argv
     // We recursively call switch_arity with increasingly more args from argv converted
-    // with from_js until we hit argc or max_arity. Then we forward to call_ which wraps
-    // Binding::call__. With the right inlining, some compilers (like clang) can elide
+    // with from_js until we hit argc or max_arity. Then we forward to call_binding.
+    // With the right inlining, some compilers (like clang) can elide
     // all the recursive calls and just unwrap exactly the right number of args in one
     // clean block of code, directly into the appropriate argument slots for the underlying
     // bound function. Just nice clean code.
-    template<int N, typename ...ArgsSlice>
+    template<typename ...ArgsSlice, size_t N = sizeof...(ArgsSlice)>
     CATA_FORCEINLINE static JSValue switch_arity(
             JSContext *ctx,
             C *this_val,
@@ -162,17 +186,17 @@ private:
             JSValueConst *argv,
             ArgsSlice &&...args ) {
         if( argc <= N || N == max_arity ) {
-            return call_( ctx, this_val, std::forward<ArgsSlice>( args )... );
+            return call_binding( ctx, this_val, std::forward<ArgsSlice>( args )... );
         }
         if constexpr( N < max_arity ) {
-            return switch_arity < N + 1 > ( ctx, this_val, argc, argv, std::forward<ArgsSlice>( args )...,
+            return switch_arity( ctx, this_val, argc, argv, std::forward<ArgsSlice>( args )...,
                                             from_js<std::decay_t<std::tuple_element_t<N, ArgsTuple>>>( ctx, argv[N] ) );
         }
         return JS_UNDEFINED;
     }
 
     template<typename ...ArgsSlice>
-    CATA_FORCEINLINE static JSValue call_(
+    CATA_FORCEINLINE static JSValue call_binding(
             JSContext *ctx,
             C *this_val,
             ArgsSlice &&...args ) {
@@ -199,9 +223,9 @@ struct proto_base {
         type_erasing_wrapper *fn
     ) noexcept;
 
-    static JSValue call_( type_erasing_wrapper *fn, JSContext *ctx, void *this_val, int min_arity,
-                          int argc,
-                          JSValueConst *argv ) noexcept;
+    static JSValue call_erased( type_erasing_wrapper *fn, JSContext *ctx, void *this_val, int min_arity,
+                                int argc,
+                                JSValueConst *argv ) noexcept;
 };
 
 template<typename Clazz>
@@ -213,8 +237,9 @@ struct proto : proto_base {
 
     static JSValue call( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
                          int magic ) noexcept {
-        return call_( funcs[magic], ctx, JS_GetOpaque( this_val, clsid ), bindings[magic].u.func.length,
-                      argc, argv );
+        return call_erased( funcs[magic], ctx, JS_GetOpaque( this_val, clsid ),
+                            bindings[magic].u.func.length,
+                            argc, argv );
     }
 
     static void push( std::string_view name, int argc, type_erasing_wrapper *fn ) noexcept {
@@ -231,34 +256,8 @@ struct proto : proto_base {
 
 // *INDENT-OFF
 #define BIND(func)                                                                                              \
-    /* This struct definition has to be broken out separately so it can be properly consumed in the */          \
-    /* member_function_wrapper definition, otherwise the compiler gets its knickers in a twist with */          \
-    /* self-referential recursive constexpr functions and otherwise is sad. */                                  \
-    struct func##_arity_tester {                                                                                \
-        using cls = decltype(__proto)::Class;                                                                   \
-        /* The below gnarly template funk is a hairball of SFINAE helpers for determining the minimum */        \
-        /* and maximum number of arguments a function can be invoked with. */                                   \
-        /* This is the 'good' test function. If and only if the decltype expression is well formed */           \
-        /* will the overload exist and be callable. The comma operator inside the decltype means the */         \
-        /* computed return type will be std::true_type and have ::value = true. */                              \
-        /* This overload is preferred over the other because it is a more specific match under normal*/         \
-        /* overload resolution rules. */                                                                        \
-        template<                                                                                               \
-                typename ...Args,                                                                               \
-                typename = std::enable_if_t<std::is_invocable_v<decltype(&cls::func), cls, Args...>>>           \
-        static auto test(int) -> std::true_type{};                                                              \
-        /* The bad overload matches anything because of the ... argument. So whenever test(int) is not */       \
-        /* selected, i.e. when SFINAE removes it because the func call cannot succeed with that many args, */   \
-        /* then we get std::false_type as the type and callable then is false. */                               \
-        template<typename...>                                                                                   \
-        static auto test(...) -> std::false_type;                                                               \
-        /* true if C.func(Args...) is well formed, false otherwise. */                                          \
-        template<typename... Args>                                                                              \
-        static constexpr bool is_callable_with_v = decltype(test<Args...>(0))::value;                           \
-    };                                                                                                          \
     struct func##_binding : member_function_wrapper<                                                            \
         func##_binding,                                                                                         \
-        func##_arity_tester,                                                                                    \
     /**/&decltype(__proto)::Class::func                                                                         \
     > {                                                                                                         \
         func##_binding() noexcept;                                                                              \
