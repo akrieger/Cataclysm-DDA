@@ -19,7 +19,9 @@ runtime::~runtime()
 
 std::shared_ptr<runtime> runtime::make()
 {
-    return std::shared_ptr<runtime>( new runtime{ JS_NewRuntime() } );
+    auto rp = std::shared_ptr<runtime>( new runtime{ JS_NewRuntime() } );
+    JS_SetRuntimeOpaque( rp->get(), rp.get() );
+    return rp;
 }
 
 context::context( JSContext *c, std::shared_ptr<qjs::runtime> r ) : c{ c }, r{ std::move( r ) } {};
@@ -34,7 +36,9 @@ std::shared_ptr<context> context::make( std::shared_ptr<runtime> r )
 {
     JSRuntime *rt = r->get();
     // std::move may evaluate before r->get() unless we separate the calls.
-    return std::shared_ptr<context>( new context( JS_NewContext( rt ), std::move( r ) ) );
+    auto cp = std::shared_ptr<context>( new context( JS_NewContext( rt ), std::move( r ) ) );
+    JS_SetContextOpaque( cp->get(), cp.get() );
+    return cp;
 }
 
 cataimgui::bounds Console::get_bounds()
@@ -54,6 +58,24 @@ void Console::init()
     force_to_back = true;
 }
 
+static auto f = +[]( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
+                     int magic ) -> JSValue
+{
+    if( argc != 2 ) {
+        debugmsg( "fail" );
+    }
+    if( !JS_IsNumber( argv[0] ) ) {
+        debugmsg( "no" );
+    }
+    if( !JS_IsString( argv[1] ) ) {
+        debugmsg( "doublefail" );
+    }
+    return JS_NULL;
+};
+static const JSCFunctionListEntry funcs[] = {
+    js_cfunc_magic_def( "f", 2, f, 0 )
+};
+
 void Console::run()
 {
     auto r = runtime::make();
@@ -69,26 +91,7 @@ void Console::run()
     /* system modules */
     js_init_module_std( c->get(), "std" );
     js_init_module_os( c->get(), "os" );
-    static auto f = +[]( JSContext * ctx, JSValueConst this_val, int argc, JSValueConst * argv,
-    int magic ) -> JSValue {
-        if( argc != 2 )
-        {
-            debugmsg( "fail" );
-        }
-        if( !JS_IsNumber( argv[0] ) )
-        {
-            debugmsg( "no" );
-        }
-        if( !JS_IsString( argv[1] ) )
-        {
-            debugmsg( "doublefail" );
-        }
-        return JS_NULL;
-    };
 
-    static const JSCFunctionListEntry funcs[] = {
-        js_cfunc_magic_def( "f", 2, f, 0 )
-    };
     JSModuleDef *m = JS_NewCModule( c->get(), "funcy", []( JSContext * ctx, JSModuleDef * m ) {
         JS_SetModuleExportList( ctx, m, funcs, 1 );
         return 0;
@@ -165,7 +168,7 @@ exn value::to_exception() const &
     return clone().to_exception();
 }
 
-exn value::to_exception()&& {
+exn value::to_exception() && {
     if( !JS_IsException( v ) )
     {
         // idk throw?
@@ -178,7 +181,7 @@ string value::to_string() const &
     return clone().to_string();
 }
 
-string value::to_string()&& {
+string value::to_string() && {
     if( !JS_IsString( v ) )
     {
         // idk throw?
