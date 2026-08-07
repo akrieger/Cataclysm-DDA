@@ -222,11 +222,10 @@ extern JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, ge
 }
 
 template<typename>
-struct arity;
+struct arity {};
 
 template<typename R, typename ... Args>
-struct arity<R( Args... )> {
-    static constexpr auto value = sizeof...( Args );
+struct arity<R( Args... )> : std::integral_constant<int, sizeof...(Args) {
 };
 
 template<typename C, typename R, typename ... Args>
@@ -251,6 +250,12 @@ struct proto {
     }
 };
 
+struct binder
+{
+    template<typename Fn>
+    constexpr binder(Fn&& fn) { fn(); }
+};
+
 struct bound {
     static proto<bound> proto;
 
@@ -258,9 +263,7 @@ struct bound {
 
     void foo( int, std::string );
 
-    static struct binder {
-        binder() {
-            BIND( foo );
-        }
-    } _;
+    auto wat = arity<decltype(foo)>::value;
+
+    static inline int b1 = ([] { BIND(foo); return 1; })();
 };
