@@ -33,28 +33,25 @@ extern std::string get_string()
 
 void proto_base::push_erased(
     std::vector<JSCFunctionListEntry> &bindings,
-    std::vector<type_erased_wrapper> &funcs,
     std::string_view name,
     int argc,
-    qjs::generic_magic call,
-    type_erased_wrapper fn ) noexcept
+    qjs::generic_cfunc fn ) noexcept
 {
     bindings.emplace_back(
-        qjs::js_cfunc_magic_def(
+        qjs::js_cfunc_def(
             name.data(),
             argc,
-            call,
-            funcs.size()
+            fn
         )
     );
-    funcs.emplace_back( fn );
 }
 
 
-JSValue proto_base::call_erased( type_erased_wrapper fn, JSContext *ctx, void *this_val,
-                                 int min_arity,
+JSValue proto_base::call_erased( JSContext *ctx, JSValueConst this_val,
                                  int argc,
-                                 JSValueConst *argv ) noexcept
+                                 JSValueConst *argv,
+                                 int min_arity,
+                                 qjs::generic_cfunc fn ) noexcept
 {
     if( argc < min_arity ) {
         return JS_ThrowTypeError( ctx, "Not enough args, expected at least %d, got %d", min_arity,
@@ -231,7 +228,7 @@ exn value::to_exception() const &
     return clone().to_exception();
 }
 
-exn value::to_exception() && {
+exn value::to_exception()&& {
     if( !JS_IsException( v ) )
     {
         // idk throw?
@@ -244,12 +241,26 @@ string value::to_string() const &
     return clone().to_string();
 }
 
-string value::to_string() && {
+string value::to_string()&& {
     if( !JS_IsString( v ) )
     {
         // idk throw?
     }
     return string( std::move( *this ) );
+}
+
+JSCFunctionListEntry js_cfunc_def( const char *name, int length, generic_cfunc func1 ) noexcept
+{
+    JSCFunctionListEntry entry;
+    entry.name = name;
+    entry.prop_flags = JS_PROP_WRITABLE | JS_PROP_CONFIGURABLE;
+    entry.def_type = JS_DEF_CFUNC;
+    entry.u.func.length = length;
+    entry.u.func.cproto = JS_CFUNC_generic;
+    entry.u.func.cfunc.generic_magic = 0;
+    entry.u.func.cfunc.generic = func1;
+    return entry;
+
 }
 
 JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, generic_magic func1,
