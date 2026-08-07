@@ -135,13 +135,13 @@ class value
         }
 
         // Explicit copies.
-        value clone() const & {
+        value clone() const& {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone() && {
+        value clone()&& {
             return std::move( *this );
         }
 
@@ -225,7 +225,7 @@ template<typename>
 struct arity {};
 
 template<typename R, typename ... Args>
-struct arity<R( Args... )> : std::integral_constant<int, sizeof...(Args) {
+struct arity<R( Args... )> : std::integral_constant<int, sizeof...( Args )> {
 };
 
 template<typename C, typename R, typename ... Args>
@@ -233,37 +233,73 @@ struct arity<R( C::* )( Args... )> : arity<R( Args... )> {
 };
 
 template<typename F>
-constexpr auto arity_v = arity<F>::value;
+constexpr auto arity_v( F fn )
+{
+    return arity<decltype( fn )>::value;
+}
 
-template<typename T>
+
+struct type_erasing_wrapper {
+    virtual JSValue call( JSContext *ctx, void *this_val, int argc, JSValueConst *argv ) = 0;
+};
+
+template<typename>
+struct wrapper {};
+
+template<typename R, typename ... Args>
+struct wrapper<R( Args... )> : type_erasing_wrapper {
+    using Callable = R( Args... );
+    static constexpr int arity = sizeof...( Args );
+
+};
+
+template<typename C, typename R, typename ... Args>
+struct wrapper<R( C::* )( Args... )> : type_erasing_wrapper {
+    using Callable = R( C::* )( Args... );
+    static constexpr int arity = sizeof...( Args );
+};
+
+template<typename>
 struct proto {
     static JSClassID clsid;
-    static std::vector<JSCFunctionListEntry> funcs;
+    static std::vector<JSCFunctionListEntry> bindings;
+    static std::vector<type_erasing_wrapper *> funcs;
 
     static JSValue call( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
                          int magic ) {
-        static_cast<T *>( JS_GetOpaque( this_val, clsid ) )->call( argc, argv, magic );
+        return funcs[magic]->call( ctx, JS_GetOpaque( this_val, clsid ), argc, argv );
     }
 
-    void push( std::string_view name, int argc ) {
-        funcs.emplace_back( js_cfunc_magic_def( name.data(), argc, funcs.size() ) );
+    void push( std::string_view name, int argc, type_erasing_wrapper *fn ) {
+        bindings.emplace_back( qjs::js_cfunc_magic_def( name.data(), argc, &proto::call, funcs.size() ) );
+        funcs.emplace_back( fn );
     }
 };
 
-struct binder
-{
-    template<typename Fn>
-    constexpr binder(Fn&& fn) { fn(); }
-};
+#define CAT(x, y) x##y
+
+#define  BIND(cls, func) BIND1(cls, func, __COUNTER__)
+#define BIND1(cls, func, counter) BIND2(cls, func, CAT(_binder, counter))
+#define BIND2(cls, func, binder) \
+    struct binder : wrapper<decltype(&cls::func)> { \
+        binder() { \
+            proto_.push(#func, arity_v(&cls::func), this); \
+        } \
+        virtual JSValue call(JSContext* ctx, void* this_val, int argc, JSValueConst* argv) \
+        { \
+            return static_cast<cls*>(this_val)->func(argc, argv); \
+        } \
+    }; \
+    static binder b##counter;
+
+#define BINDABLE(cls) \
+    private: \
+    static proto<cls> proto_; \
+    public:
 
 struct bound {
-    static proto<bound> proto;
-
-#define BIND(func) proto.push(#func, arity_v<decltype(func)>)
+    BINDABLE( bound );
 
     void foo( int, std::string );
-
-    auto wat = arity<decltype(foo)>::value;
-
-    static inline int b1 = ([] { BIND(foo); return 1; })();
+    BIND( bound, foo );
 };
