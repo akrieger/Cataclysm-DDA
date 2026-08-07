@@ -114,59 +114,80 @@ constexpr int find_min_arity()
 }
 }
 
-template<typename ArityTester, auto MemFn>
-struct member_function_wrapper;
-
-template<typename ArityTester, typename C, typename R, typename... Args, R( C::* MemFn )( Args... )>
-struct member_function_wrapper<ArityTester, MemFn> {
-    using ArgsTuple = std::tuple<Args...>;
-    static constexpr int max_arity = sizeof...( Args );
-    static constexpr int min_arity =
-        std::integral_constant<int, find_min_arity<ArityTester, std::tuple<Args...>, max_arity>()>::value;
+template<typename Invoke>
+struct js_ffi {
+    using R = typename Invoke::ReturnType;
+    using ArgsTuple = typename Invoke::ArgsTuple;
+    static constexpr int min_arity = Invoke::min_arity;
+    static constexpr int max_arity = Invoke::max_arity;
 
     // *INDENT-OFF*
     // astyle loses its shit over all this template stuff
     template<size_t ...I, size_t N = sizeof...(I)>
-    CATA_FORCEINLINE static JSValue call(
-            JSContext *ctx,
-            C *this_val,
-            int argc,
-            JSValueConst *argv,
-            std::index_sequence<I...> ) {
+    CATA_FORCEINLINE static JSValue ffi(
+        JSContext* ctx,
+        void* this_val,
+        int argc,
+        JSValueConst* argv,
+        std::index_sequence<I...>)
+    {
         // This would be nice, sadly its c++26
         // auto&& [...args] = std::forward_as_tuple(from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
         if constexpr (min_arity == max_arity || N == max_arity) {
-            return call_binding(ctx, this_val, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+            return invoke(ctx, this_val, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
         } else {
             if (argc == N) {
-                return call_binding(ctx, this_val, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+                return invoke(ctx, this_val, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
             }
             if constexpr (N < max_arity) {
-                return call(ctx, this_val, argc, argv, std::make_index_sequence<N + 1>());
+                return ffi(ctx, this_val, argc, argv, std::make_index_sequence<N + 1>());
             }
             return JS_UNDEFINED;
         }
     }
 
     template<typename ...ArgsSlice>
-    CATA_FORCEINLINE static JSValue call_binding(
-            JSContext *ctx,
-            C *this_val,
-            ArgsSlice &&...args ) {
-        if constexpr( std::is_void_v<R> ) {
-            (this_val->*MemFn)(std::forward<ArgsSlice>(args)...);
+    CATA_FORCEINLINE static JSValue invoke(
+        JSContext* ctx,
+        void* this_val,
+        ArgsSlice &&...args)
+    {
+        if constexpr (std::is_void_v<R>) {
+            Invoke{}(this_val, std::forward<ArgsSlice>(args)...);
             return JS_UNDEFINED;
         } else {
             return to_js(
                 ctx,
-                (this_val->*MemFn)(std::forward<ArgsSlice>(args)...)
+                Invoke{}(this_val, std::forward<ArgsSlice>(args)...)
             );
         }
     }
     // *INDENT-ON*
 };
 
-using type_erased_wrapper = JSValue( * )( JSContext *, void *, int, JSValueConst * );
+// Generic traits template for member function pointers
+template <typename T>
+struct member_function_pointer_traits;
+
+// Partial specialization for non-const member functions
+template <typename R, typename C, typename... Args>
+struct member_function_pointer_traits<R( C::* )( Args... )> {
+    using ReturnType = R;
+    using Class = C;
+    using ArgsTuple = std::tuple<Args...>;
+    static constexpr int max_arity = sizeof...( Args );
+    static constexpr bool is_const = false;
+};
+
+// Partial specialization for const member functions
+template <typename R, typename C, typename... Args>
+struct member_function_pointer_traits<R( C::* )( Args... ) const> {
+    using ReturnType = R;
+    using Class = C;
+    using ArgsTuple = std::tuple<Args...>;
+    static constexpr int max_arity = sizeof...( Args );
+    static constexpr bool is_const = true;
+};
 
 struct proto_base {
     JSClassID clsid;
@@ -185,53 +206,60 @@ struct proto : proto_base {
 // *INDENT-OFF*
 #define BINDABLE(cls) static proto<cls> __proto
 
-#define BIND(func)                                                                                                  \
-    struct func##_arity_tester                                                                                      \
-    {                                                                                                               \
-        /* The below gnarly template funk is a hairball of SFINAE helpers for determining the minimum */            \
-        /* and maximum number of arguments a function can be invoked with. */                                       \
-        /**/                                                                                                        \
-        /* This is the 'good' test function. */                                                                     \
-        /* This overload is preferred over the other because it is a more specific match under normal */            \
-        /* overload resolution rules. It only exists if func is invokable with Args */                              \
-        template <                                                                                                  \
-            typename ...Args,                                                                                       \
-            typename = decltype((std::declval<decltype(__proto)::Class>().*(func))(std::declval<Args>()...), true)> \
-        static auto test(int) -> std::true_type;                                                                    \
-        /* The bad overload matches anything because of the ... argument. So whenever test(int) is */               \
-        /* removed by SFINAE then we get std::false_type as the type and callable then is false. */                 \
-        template<typename...>                                                                                       \
-        static auto test(...) -> std::false_type;                                                                   \
-        /* true if C.func(Args...) is well formed, false otherwise. */                                              \
-        template<typename... Args>                                                                                  \
-        static constexpr bool is_callable_with_v = decltype(test<Args...>(0))::value;                               \
-    };                                                                                                              \
-    struct func##_binding : member_function_wrapper<func##_arity_tester, &decltype(__proto)::Class::func> {         \
-        func##_binding();                                                                                           \
-    };                                                                                                              \
-    static func##_binding __##func##_binder
+#define BIND(func)
 
 #define PROTO(cls) proto<cls> cls::__proto
 
-#define BOUND(cls, func)                                                                                                                               \
-    cls::func##_binding::func##_binding() {                                                                                                            \
-        __proto.push_erased(                                                                                                                           \
-            #func,                                                                                                                                     \
-            min_arity,                                                                                                                                 \
-            [](JSContext *ctx, JSValueConst this_val, int argc, JSValueConst* argv){                                                                   \
-                return __proto.call_erased(                                                                                                            \
-                    ctx,                                                                                                                               \
-                    this_val,                                                                                                                          \
-                    argc,                                                                                                                              \
-                    argv,                                                                                                                              \
-                    min_arity,                                                                                                                         \
-                    [](JSContext *ctx, JSValueConst this_val, int argc, JSValueConst* argv){                                                           \
-                        return call(ctx, static_cast<cls*>(JS_GetOpaque(this_val, __proto.clsid)), argc, argv, std::make_index_sequence<min_arity>()); \
-                    });                                                                                                                                \
-            }                                                                                                                                          \
-        );                                                                                                                                             \
-    }                                                                                                                                                  \
-    cls::func##_binding cls::__##func##_binder
-// *INDENT-ON*
+#define BOUND(cls, func)                                                                            \
+namespace                                                                                           \
+{                                                                                                   \
+    struct cls##__##func##_binding                                                                  \
+    {                                                                                               \
+        struct func##_invoker : member_function_pointer_traits<decltype(&cls::func)>                \
+        {                                                                                           \
+            template<                                                                               \
+                typename ...Args,                                                                   \
+                typename = decltype(std::declval<cls>().func(std::declval<Args>()...), true)>       \
+            static auto test(int) -> std::true_type;                                                \
+            template<typename...> static auto test(...) -> std::false_type;                         \
+            template<typename... Args>                                                              \
+            static constexpr bool is_callable_with_v = decltype(test<Args...>(0))::value;           \
+                                                                                                    \
+            template<typename ...Args, typename = std::enable_if_t<is_callable_with_v<Args...>>>    \
+            auto operator()(void* this_val, Args&&... args)                                         \
+            {                                                                                       \
+                return static_cast<cls*>(this_val)->func(std::forward<Args>(args)...);              \
+            }                                                                                       \
+            static constexpr int min_arity = find_min_arity<func##_invoker, ArgsTuple, max_arity>();\
+        };                                                                                          \
+                                                                                                    \
+        cls##__##func##_binding();                                                                  \
+    };                                                                                              \
+                                                                                                    \
+    cls##__##func##_binding::cls##__##func##_binding()                                                  \
+    {                                                                                                   \
+        cls::__proto.push_erased(                                                                       \
+            #func,                                                                                      \
+            func##_invoker::min_arity,                                                                  \
+            [](JSContext* ctx, JSValue this_val, int argc, JSValue* argv) {                             \
+                return cls::__proto.call_erased(                                                        \
+                    ctx,                                                                                \
+                    this_val,                                                                           \
+                    argc,                                                                               \
+                    argv,                                                                               \
+                    func##_invoker::min_arity,                                                          \
+                    [](JSContext* ctx, JSValue this_val, int argc, JSValue* argv) {                     \
+                        return js_ffi<func##_invoker>::ffi(                                             \
+                            ctx,                                                                        \
+                            JS_GetOpaque(this_val, cls::__proto.clsid),                                 \
+                            argc,                                                                       \
+                            argv,                                                                       \
+                            std::make_index_sequence<func##_invoker::min_arity>());                     \
+                    });                                                                                 \
+            });                                                                                         \
+    }                                                                                                   \
+                                                                                                    \
+    static cls##__##func##_binding cls##__##func##_binder;                                               \
+}                                                                                                   \
 
 #endif // CATA_SRC_QJS_BINDINGS_H
