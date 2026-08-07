@@ -88,7 +88,7 @@ struct arity_tester {
     /* overload resolution rules. It only exists if func is invokable with Args */
     template <
         typename ...Args,
-        typename = std::enable_if_t<std::is_invocable_v<Func, Args...> >>
+        typename = std::enable_if_t<std::is_invocable_v<decltype(Func), Args...> >>
     static auto test( int ) -> std::true_type;
     /* The bad overload matches anything because of the ... argument. So whenever test(int) is */
     /* removed by SFINAE then we get std::false_type as the type and callable then is false. */
