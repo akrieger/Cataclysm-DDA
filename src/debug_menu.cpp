@@ -117,6 +117,7 @@
 #include "point.h"
 #include "popup.h"
 #include "proficiency.h"
+#include "qjs.h"
 #include "recipe_dictionary.h"
 #include "relic.h"
 #include "requirements.h"
@@ -4054,7 +4055,7 @@ static void print_overmaps()
 
 static void run_imgui_demo()
 {
-    imgui_demo_ui demo;
+    qjs::Console demo;
     demo.run();
 }
 
