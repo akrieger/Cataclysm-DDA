@@ -135,13 +135,13 @@ class value
         }
 
         // Explicit copies.
-        value clone() const & {
+        value clone() const& {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone() && {
+        value clone()&& {
             return std::move( *this );
         }
 
@@ -216,97 +216,106 @@ class exn : value
 using generic_magic = JSValue( * )( JSContext *ctx, JSValueConst this_val, int argc,
                                     JSValueConst *argv, int magic );
 
-extern JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, generic_magic func1,
-        int magic );
+extern JSCFunctionListEntry js_cfunc_magic_def(
+    const char *name,
+    int length,
+    generic_magic func1,
+    int magic );
 
 }
 
-template<typename>
-struct arity {};
-
-template<typename R, typename ... Args>
-struct arity<R( Args... )> : std::integral_constant<int, sizeof...( Args )> {
-};
-
-template<typename C, typename R, typename ... Args>
-struct arity<R( C::* )( Args... )> : arity<R( Args... )> {
-};
-
-template<typename F>
-constexpr auto arity_v( F fn )
+// Finding the maximum required number of arguments a function accepts is easy. It's just
+// the size of the ...Args parameter pack. Finding the *minimum* is hard for two reasons.
+// 1) Overloads, which we can't support for other reasons (if two overloads share the same
+//    arity but with differently typed variables, which do we pick to invoke?)
+// 2) Default arguments. The values are inserted by the compiler at callsites but are not
+//    encoded in the function type at all.
+// We can derive the minimum number of arguments a given function can be invoked with though
+// with some clever SFINAE and some constexpr calculations which invoke a function with
+// increasingly fewer arguments until it runs out or fails.
+template<typename Binding, typename ArgsTuple, size_t... Argc>
+constexpr bool is_callable_with_n( std::index_sequence<Argc...> )
 {
-    return arity<decltype( fn )>::value;
+    // `std::tuple_element_t<Argc, ArgsTuple>...` expands to a list of types Argc long.
+    return Binding::template is_callable_with_v<std::tuple_element_t<Argc, ArgsTuple>...>;
 }
 
+template<typename Binding, typename ArgsTuple, int N>
+constexpr int find_min_arity()
+{
+    if constexpr( N == 0 ) {
+        return 0;
+    } else if constexpr( !is_callable_with_n<Binding, ArgsTuple>( std::make_index_sequence < N - 1 > {} ) ) {
+        return N;
+    } else {
+        return find_min_arity < Binding, ArgsTuple, N - 1 > ();
+    }
+}
 
 struct type_erasing_wrapper {
     virtual JSValue call( JSContext *ctx, void *this_val, int argc, JSValueConst *argv ) = 0;
 };
 
-template<typename>
-struct wrapper {};
+template<typename Binding, auto MemFn>
+struct member_function_wrapper;
 
-template<typename R, typename ... Args>
-struct wrapper<R( Args... )> : type_erasing_wrapper {
-    using Callable = R( Args... );
-    static constexpr int arity = sizeof...( Args );
-};
-
-template<typename T, typename DecayT = std::decay_t<T>>
-JSValue wrap_return_value( T && t )
-{
-    if constexpr( std::is_integral_v<DecayT> ) {
-
-    } else if constexpr( std::is_floating_point_v<DecayT> ) {
-
-    } else if constexpr( std::is_constructible_v<std::string_view, DecayT> ) {
-
-    }
-}
-
-template<typename C, typename R, typename ... Args>
-struct value_member_fn_wrapper : type_erasing_wrapper {
-    using Callable = R( C::* )( Args... );
-    static constexpr int arity = sizeof...( Args );
-
-    JSValue call( JSContext *ctx, void *this_val, R( C::*func )( Args... ), int argc,
-                  JSValueConst *argv ) {
-        static_cast<C *>( this_val )->*func( argc, argv );
-    }
-};
-
-template<typename C, typename ... Args>
-struct void_member_fn_wrapper : type_erasing_wrapper {
-    using Callable = void ( C::* )( Args... );
-    static constexpr int arity = sizeof...( Args );
-
-    JSValue call2( JSContext *ctx, void *this_val, void ( C::*func )( Args... ), int argc,
-                   JSValueConst *argv ) {
-        ( static_cast<C *>( this_val )->*func )( 0, "argv" );
-        return JS_NULL;
-    }
-};
+// placeholders
+template<typename T>
+T from_js( JSContext *ctx, JSValueConst v );
 
 template<typename T>
-struct carrier {
-    using type = T;
+JSValue to_js( JSContext *ctx, T &&t );
+
+template<typename Binding,
+         typename C, typename R, typename... Args, R( C::* MemFn )( Args... )>
+struct member_function_wrapper<Binding, MemFn> : type_erasing_wrapper {
+        using ArgsTuple = std::tuple<Args...>;
+        static constexpr int max_arity = sizeof...( Args );
+        static constexpr int min_arity = find_min_arity<Binding, ArgsTuple, max_arity>();
+
+        virtual JSValue call( JSContext *ctx, void *this_val, int argc, JSValueConst *argv ) override {
+            return switch_arity<min_arity>( ctx, static_cast<C *>( this_val ), argc, argv );
+        }
+
+    private:
+        // Automagically generate the appropriate call_n invocation for every value from min_arity to max_arity.
+        // Eg. assume a function takes between 2 and 4 args and argc is 3.
+        // switch_arity<2> is the first call, falls into the if constexpr block, calls switch_arity<3>
+        // switch_arity<3> calls call_n(ctx, this_val, argv, std::make_index_sequence<3>{})
+        // call_n(...) calls Binding::call(*this_val, from_js(ctx, argv[0]), from_js(ctx, argv[1]), from_js(ctx, argv[2]));
+        template<int N>
+        static JSValue switch_arity( JSContext *ctx, C *this_val, int argc, JSValueConst *argv ) {
+            if( argc <= N || N == max_arity ) {
+                return call_n( ctx, this_val, argv, std::make_index_sequence<N> {} );
+            }
+            if constexpr( N < max_arity ) {
+                return switch_arity < N + 1 > ( ctx, this_val, argc, argv );
+            }
+            return JS_UNDEFINED;
+        }
+
+        template<size_t... I>
+        static JSValue call_n( JSContext *ctx, C *this_val, JSValueConst *argv,
+                               std::index_sequence<I...> ) {
+            if constexpr( std::is_void_v<R> ) {
+                Binding::call(
+                    *this_val,
+                    from_js<std::tuple_element_t<I, ArgsTuple>>( ctx, argv[I] )...
+                );
+                return JS_UNDEFINED;
+            } else {
+                return to_js(
+                           ctx,
+                           Binding::call(
+                               *this_val,
+                               from_js<std::tuple_element_t<I, ArgsTuple>>( ctx, argv[I] )...
+                           )
+                       );
+            }
+        }
 };
 
-template<typename C, typename ... Args>
-constexpr auto deduce_wrapper_from_member( void ( C::* )( Args... ) )
-{
-    return carrier<void_member_fn_wrapper<C, Args...>> {};
-}
-
-template<typename C, typename R, typename ... Args>
-constexpr auto deduce_wrapper_from_member( R( C::* )( Args... ) )
-{
-    return carrier<value_member_fn_wrapper<C, R, Args...>> {};
-}
-
-template<typename Clazz>
-struct proto {
-    using Class = Clazz;
+struct proto_base {
     static JSClassID clsid;
     static std::vector<JSCFunctionListEntry> bindings;
     static std::vector<type_erasing_wrapper *> funcs;
@@ -316,47 +325,63 @@ struct proto {
         return funcs[magic]->call( ctx, JS_GetOpaque( this_val, clsid ), argc, argv );
     }
 
-    void push( std::string_view name, int argc, type_erasing_wrapper *fn ) {
-        bindings.emplace_back( qjs::js_cfunc_magic_def( name.data(), argc, &proto::call, funcs.size() ) );
+    static void push( std::string_view name, int argc, type_erasing_wrapper *fn ) {
+        bindings.emplace_back(
+            qjs::js_cfunc_magic_def(
+                name.data(),
+                argc,
+                &proto_base::call,
+                funcs.size()
+            )
+        );
         funcs.emplace_back( fn );
     }
 };
 
-#define CAT(x, y) x##y
-#define CAT2(x, y) CAT(x, y)
-#define CAT3(x, y, z) CAT2(x, CAT2(y, z))
+template<typename Clazz>
+struct proto : proto_base {
+    using Class = Clazz;
+};
 
-#define  BIND(func) BIND1(func, __COUNTER__)
-#define BIND1(func, counter) BIND2(func, CAT3(func, _binder, counter))
-#define BIND2(func, binder) \
-    struct binder : decltype( deduce_wrapper_from_member( &decltype( proto_ )::Class::foo ) )::type { \
-        binder() { \
-            proto_.push(#func, arity_v(&decltype(proto_)::Class::func), this); \
-        } \
-        virtual JSValue call(JSContext* ctx, void* this_val, int argc, JSValueConst* argv) \
+// *INDENT-OFF
+#define BIND(func) \
+    struct func##_binding : member_function_wrapper< \
+        func##_binding, \
+    &decltype(__proto)::Class::func \
+    > { \
+        func##_binding() { __proto.push(#func, min_arity, this); } \
+        /* The below gnarly template funk is a hairball of SFINAE helpers for determining the minimum */ \
+        /* and maximum number of arguments a function can be invoked with. */ \
+        /* This is the 'good' test function. If and only if the decltype expression is well formed */ \
+        /* will the overload exist and be callable. The comma operator inside the decltype means the */ \
+        /* computed return type will be std::true_type and have ::value = true. */ \
+        template<typename... Args> \
+        static auto test(int) \
+        -> decltype(std::declval<decltype(__proto)::Class&>().func(std::declval<Args>()...), std::true_type{}); \
+        /* The bad overload matches anything because of the ... argument. So whenever test(int) is not */ \
+        /* selected, i.e. when SFINAE removes it because the func call cannot succeed with that many args, */ \
+        /* then we get std::false_type as the type and callable then is false. */ \
+        template<typename...> \
+        static auto test(...) -> std::false_type; \
+        /* true if C.func(Args...) is well formed, false otherwise. */ \
+        template<typename... Args> \
+        static constexpr bool is_callable_with_v = decltype(test<Args...>(0))::value; \
+        template<typename... Args> \
+        static decltype(auto) call(decltype(__proto)::Class& this_val, Args&&... args) \
         { \
-            return call(ctx, this_val, &decltype(proto_)::Class::func, argc, argv); \
+            return this_val.func(std::forward<Args>(args)...); \
         } \
     }; \
-    static binder b##counter;
+    static inline func##_binding __##func##_binder;
+// *INDENT-ON
 
 #define BINDABLE(cls) \
     protected: \
-    static proto<cls> proto_; \
+    static proto<cls> __proto; \
     public:
 
 struct bound {
     BINDABLE( bound );
-
-    void foo( int, std::string );
-    struct foo_binder4 : decltype( deduce_wrapper_from_member( &decltype( proto_ )::Class::foo ) )
-    ::type {
-        foo_binder4() {
-            proto_.push( "foo", arity_v( &decltype( proto_ )::Class::foo ), this );
-        }
-        virtual JSValue call( JSContext *ctx, void *this_val, int argc, JSValue *argv ) {
-            return call2( ctx, this_val, &decltype( proto_ )::Class::foo, argc, argv );
-        }
-    };
-    static foo_binder4 bcounter;;
+    void foo( int, std::string, int = 0 );
+    BIND( foo );
 };
