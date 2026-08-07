@@ -49,18 +49,39 @@ struct type_erasing_wrapper {
 template<typename Binding, typename ArityTester, auto MemFn>
 struct member_function_wrapper;
 
-template<typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
-inline T from_js( JSContext *, JSValueConst v )
+template<typename T, std::enable_if_t<std::is_floating_point_v<T>>* = nullptr>
+inline T from_js( JSContext *ctx, JSValueConst v )
 {
     // need to check convertibility and set a VM error
     if( !JS_IsNumber( v ) ) {
-        // not the right error
+        // do more different evil
         throw std::runtime_error( "Non number binding argument" );
     }
-    if( JS_TAG_IS_FLOAT64( JS_VALUE_GET_TAG( v ) ) ) {
-        return static_cast<T>( JS_VALUE_GET_FLOAT64( v ) );
+    // Annoyingly need to manually handle int and bigint inputs.
+    double res = 0.0;
+    int failed = JS_ToFloat64( ctx, &res, v );
+    if( failed ) {
+        // do still more evil
+        throw std::runtime_error( "Failed to convert to int." );
     }
-    return static_cast<T>( JS_VALUE_GET_INT( v ) );
+    return static_cast<T>( res );
+}
+
+template<typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
+inline T from_js( JSContext *ctx, JSValueConst v )
+{
+    // need to check convertibility and set a VM error
+    if( !JS_IsNumber( v ) ) {
+        // do more different evil
+        throw std::runtime_error( "Non number binding argument" );
+    }
+    int64_t res = 0;
+    int failed = JS_ToInt64Ext( ctx, &res, v );
+    if( failed ) {
+        // do still more evil
+        throw std::runtime_error( "Failed to convert to int." );
+    }
+    return static_cast<T>( res );
 }
 
 template<typename T, std::enable_if_t<std::is_same_v<T, std::string>>* = nullptr>
