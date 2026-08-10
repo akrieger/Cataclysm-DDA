@@ -8,26 +8,21 @@
 #include "ui_manager.h"
 
 struct bound {
-    BINDABLE( bound );
     void foo( int, int = 0 );
-    BIND( foo );
     std::string bar( std::string const &s, int );
-    BIND( bar );
     int baz( int x, int y ) {
         return x + y;
     }
-    BIND( baz );
     int quux( int x, int y ) {
         return x - y;
     }
-    BIND( quux );
 };
 
 PROTO( bound );
-BOUND( bound, foo );
-BOUND( bound, bar );
-BOUND( bound, baz );
-BOUND( bound, quux );
+BIND( bound, foo );
+BIND( bound, bar );
+BIND( bound, baz );
+BIND( bound, quux );
 
 void bound::foo( int, int ) {}
 
@@ -237,7 +232,7 @@ exn value::to_exception() const &
     return clone().to_exception();
 }
 
-exn value::to_exception() && {
+exn value::to_exception()&& {
     if( !JS_IsException( v ) )
     {
         // idk throw?
@@ -250,7 +245,7 @@ string value::to_string() const &
     return clone().to_string();
 }
 
-string value::to_string() && {
+string value::to_string()&& {
     if( !JS_IsString( v ) )
     {
         // idk throw?

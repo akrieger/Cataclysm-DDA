@@ -184,12 +184,11 @@ struct js_ffi {
     // *INDENT-ON*
 };
 
-// Generic traits template for function pointers
+// Helper type for deducing parts of a function signature.
 template <typename T>
 struct function_pointer_traits;
 
-
-// Partial specialization for non-const functions
+// Free functions
 template <typename R, typename... Args>
 struct function_pointer_traits<R( * )( Args... )> {
     using ReturnType = R;
@@ -198,7 +197,7 @@ struct function_pointer_traits<R( * )( Args... )> {
     static constexpr bool is_const = false;
 };
 
-// Partial specialization for non-const member functions
+// Class member functions
 template <typename R, typename C, typename... Args>
 struct function_pointer_traits<R( C::* )( Args... )> {
     using ReturnType = R;
@@ -207,7 +206,7 @@ struct function_pointer_traits<R( C::* )( Args... )> {
     static constexpr bool is_const = false;
 };
 
-// Partial specialization for const member functions
+// Because c++, a separate overload for class *const* member functions
 template <typename R, typename C, typename... Args>
 struct function_pointer_traits<R( C::* )( Args... ) const> {
     using ReturnType = R;
@@ -227,17 +226,13 @@ struct proto_base {
 
 template<typename Clazz>
 struct proto : proto_base {
-    using Class = Clazz;
+    static proto<Clazz> __proto;
 };
 
 // *INDENT-OFF*
-#define BINDABLE(cls) static proto<cls> __proto
+#define PROTO(cls) proto<cls> proto<cls>::__proto
 
-#define BIND(func)
-
-#define PROTO(cls) proto<cls> cls::__proto
-
-#define BOUND(cls, func)                                                                                \
+#define BIND(cls, func)                                                                                \
 namespace                                                                                               \
 {                                                                                                       \
     struct cls##__##func##_binding                                                                      \
@@ -265,11 +260,11 @@ namespace                                                                       
                                                                                                         \
     cls##__##func##_binding::cls##__##func##_binding()                                                  \
     {                                                                                                   \
-        cls::__proto.push_erased(                                                                       \
+        proto<cls>::__proto.push_erased(                                                                \
             #func,                                                                                      \
             func##_invoker::min_arity,                                                                  \
             [](JSContext* ctx, JSValue this_val, int argc, JSValue* argv) {                             \
-                return cls::__proto.call_erased(                                                        \
+                return proto<cls>::__proto.call_erased(                                                 \
                     ctx,                                                                                \
                     this_val,                                                                           \
                     argc,                                                                               \
@@ -278,7 +273,7 @@ namespace                                                                       
                     [](JSContext* ctx, JSValue this_val, int argc, JSValue* argv) {                     \
                         return js_ffi<func##_invoker>::ffi(                                             \
                             ctx,                                                                        \
-                            JS_GetOpaque(this_val, cls::__proto.clsid),                                 \
+                            JS_GetOpaque(this_val, proto<cls>::__proto.clsid),                          \
                             argc,                                                                       \
                             argv,                                                                       \
                             std::make_index_sequence<func##_invoker::min_arity>());                     \
