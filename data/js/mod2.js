@@ -1,4 +1,4 @@
 import { test } from "Game";
 
-let foo: string = test("string", "hello");
+let foo = test("string");
 console.log(foo);

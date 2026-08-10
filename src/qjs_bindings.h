@@ -114,6 +114,16 @@ constexpr int find_min_arity()
 }
 }
 
+template<typename T>
+struct arg_wrapper {
+    JSContext *ctx;
+    JSValue *v;
+
+    operator T() {
+        return from_js<T>( ctx, *v );
+    }
+};
+
 template<typename Invoke>
 struct js_ffi {
     using R = typename Invoke::ReturnType;
@@ -131,7 +141,7 @@ struct js_ffi {
         JSValueConst* argv,
         std::index_sequence<I...>)
     {
-        return ffi_(ctx, this_val, argc, argv, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+        return ffi_(ctx, this_val, argc, argv, arg_wrapper<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>{ctx, &argv[I]}...);
     }
 
     template<typename... Args, size_t N = sizeof...(Args)>
@@ -149,7 +159,7 @@ struct js_ffi {
             return invoke(ctx, this_val, std::forward<Args>(args)...);
         }
         if constexpr (N < max_arity) {
-            return ffi_(ctx, this_val, argc, argv, std::forward<Args>(args)..., from_js<std::decay_t<std::tuple_element_t<N, ArgsTuple>>>(ctx, argv[N]));
+            return ffi_(ctx, this_val, argc, argv, std::forward<Args>(args)..., arg_wrapper<std::decay_t<std::tuple_element_t<N, ArgsTuple>>>{ctx, &argv[N]});
         } else {
             return JS_UNDEFINED;
         }
