@@ -84,21 +84,20 @@ bool mapbuffer::add_submap( const tripoint_abs_sm &p, std::unique_ptr<submap> &s
         return false;
     }
 
-    submaps[p] = std::move( sm );
+    submaps[p].submap_ = std::move( sm );
 
     return true;
 }
 
 bool mapbuffer::add_submap( const tripoint_abs_sm &p, submap *sm )
 {
-    // FIXME: get rid of this overload and make submap ownership semantics sane.
-    std::unique_ptr<submap> temp( sm );
-    bool result = add_submap( p, temp );
-    if( !result ) {
-        // NOLINTNEXTLINE( bugprone-unused-return-value )
-        temp.release();
+    if( submaps.count( p ) ) {
+        return false;
     }
-    return result;
+
+    submaps[p].submap_.reset( sm );
+
+    return true;
 }
 
 void mapbuffer::remove_submap( const tripoint_abs_sm &addr )
@@ -116,17 +115,17 @@ submap *mapbuffer::lookup_submap( const tripoint_abs_sm &p )
     dbg( D_INFO ) << "mapbuffer::lookup_submap( x[" << p.x() << "], y[" << p.y() << "], z["
                   << p.z() << "])";
 
-    const auto iter = submaps.find( p );
+    auto iter = submaps.find( p );
     if( iter == submaps.end() ) {
         try {
             return unserialize_submaps( p );
         } catch( const std::exception &err ) {
             debugmsg( "Failed to load submap %s: %s", p.to_string(), err.what() );
+            return nullptr;
         }
-        return nullptr;
     }
 
-    return iter->second.get();
+    return iter->second;
 }
 
 bool mapbuffer::submap_exists( const tripoint_abs_sm &p )
@@ -157,6 +156,10 @@ bool mapbuffer::submap_exists_approx( const tripoint_abs_sm &p )
             if( world_generator->active_world->has_compression_enabled() ) {
                 cata_path zzip_name = dirname;
                 zzip_name += zzip_suffix;
+                std::filesystem::path zzip_path = zzip_name.get_unrelative_path();
+                if( std::shared_ptr<zzip> shared_zzip = submap_zzips[zzip_path.generic_u8string()].lock() ) {
+                    return shared_zzip->has_file( std::filesystem::u8path( file_name ) );
+                }
                 if( !file_exist( zzip_name ) ) {
                     return false;
                 }
@@ -248,19 +251,26 @@ void mapbuffer::save_quad(
     bool file_exists = false;
 
     std::optional<zzip> z;
+    std::shared_ptr<zzip> shared_zzip;
     cata_path zzip_name = dirname;
     zzip_name += zzip_suffix;
     // The number of uniform submaps is so enormous that the filesystem overhead
     // for this step of just checking if the quad exists approaches 70% of the
     // total cost of saving the mapbuffer, in one test save I had.
     if( world_generator->active_world->has_compression_enabled() ) {
-        z = zzip::load( zzip_name.get_unrelative_path(),
-                        ( PATH_INFO::world_base_save_path() / "maps.dict" ).get_unrelative_path() );
-        if( !z ) {
-            throw std::runtime_error( "Failed opening compressed save file " +
-                                      zzip_name.get_unrelative_path().generic_u8string() );
+        std::filesystem::path zzip_path = zzip_name.get_unrelative_path();
+        if( shared_zzip = submap_zzips[zzip_path.generic_u8string()].lock() ) {
+            file_exists = shared_zzip->has_file( filename.get_relative_path().filename() );
+        } else {
+            z = zzip::load( zzip_path, ( PATH_INFO::world_base_save_path() /
+                                         "maps.dict" ).get_unrelative_path() );
+            if( !z ) {
+                throw std::runtime_error( "Failed opening compressed save file " +
+                                          zzip_name.get_unrelative_path().generic_u8string() );
+            }
+
+            file_exists = z->has_file( filename.get_relative_path().filename() );
         }
-        file_exists = z->has_file( filename.get_relative_path().filename() );
     } else {
         file_exists = std::filesystem::exists( filename.get_unrelative_path() );
     }
@@ -269,7 +279,7 @@ void mapbuffer::save_quad(
         tripoint_abs_sm submap_addr = project_to<coords::sm>( om_addr );
         submap_addr += offsets_offset.raw(); // TODO: Make += etc. available to relative parameters as well.
         submap_addrs.push_back( submap_addr );
-        submap *sm = submaps[submap_addr].get();
+        submap *sm = submaps[submap_addr];
         if( sm != nullptr ) {
             if( !sm->is_uniform() ) {
                 all_uniform = false;
@@ -304,7 +314,7 @@ void mapbuffer::save_quad(
             continue;
         }
 
-        submap *sm = submaps[submap_addr].get();
+        submap *sm = submaps[submap_addr];
 
         if( sm == nullptr ) {
             continue;
@@ -334,8 +344,8 @@ void mapbuffer::save_quad(
 
     std::string s = std::move( stringout ).str();
 
-    if( z ) {
-        z->add_file( filename.get_relative_path().filename(), s );
+    if( z || shared_zzip ) {
+        ( z ? *z : *shared_zzip ).add_file( filename.get_relative_path().filename(), s );
     } else {
         // Don't create the directory if it would be empty
         assure_dir_exist( dirname );
@@ -346,18 +356,18 @@ void mapbuffer::save_quad(
 
     if( all_uniform && reverted_to_uniform ) {
         if( z ) {
-            z->delete_files( { filename.get_relative_path().filename() } );
+            ( z ? *z : *shared_zzip ).delete_files( { filename.get_relative_path().filename() } );
         } else {
             std::filesystem::remove( filename.get_unrelative_path() );
         }
-    }
+    }/*
     if( z ) {
         cata_path tmp_path = zzip_name + ".tmp";
-        if( z->compact_to( tmp_path.get_unrelative_path(), 2.0 ) ) {
+        if((z ? *z : *shared_zzip).compact_to( tmp_path.get_unrelative_path(), 2.0 ) ) {
             z.reset();
             rename_file( tmp_path, zzip_name );
         }
-    }
+    }*/
 }
 
 // We're reading in way too many entities here to mess around with creating sub-objects and
@@ -380,8 +390,23 @@ submap *mapbuffer::unserialize_submaps( const tripoint_abs_sm &p )
                 return false;
             }
 
-            std::optional<zzip> z = zzip::load( zzip_name.get_unrelative_path(),
-                                                ( PATH_INFO::world_base_save_path() / "maps.dict" ).get_unrelative_path() );
+            std::shared_ptr<zzip> z = [&zzip_name, this] {
+                std::weak_ptr<zzip> &zp = submap_zzips[zzip_name.get_unrelative_path().generic_u8string()];
+                if( std::shared_ptr<zzip> z = zp.lock() )
+                {
+                    return z;
+                }
+                std::optional<zzip> oz = zzip::load( zzip_name.get_unrelative_path(),
+                                                     ( PATH_INFO::world_base_save_path() / "maps.dict" ).get_unrelative_path() );
+                if( oz )
+                {
+                    std::shared_ptr<zzip> z = std::shared_ptr<zzip>( new zzip( std::move( *oz ) ) );
+                    zp = z;
+                    return z;
+                }
+                return std::shared_ptr<zzip>{nullptr};
+            }();
+
             if( !z ) {
                 debugmsg( _fmt( "Failed to load submaps from {0}, could not open zzip.", zzip_name ) );
                 return false;
@@ -399,6 +424,8 @@ submap *mapbuffer::unserialize_submaps( const tripoint_abs_sm &p )
                           err.what() );
                 return false;
             }
+            submaps[p].zzip_ = z;
+            submap_zzips[zzip_name.get_unrelative_path().generic_u8string()] = z;
             return true;
         } else
         {
@@ -421,7 +448,7 @@ submap *mapbuffer::unserialize_submaps( const tripoint_abs_sm &p )
                   quad_path.generic_u8string(), p.to_string(), oid.id().str() );
     }
 
-    return submaps[ p ].get();
+    return submaps[p];
 }
 
 void mapbuffer::deserialize( const JsonArray &ja )

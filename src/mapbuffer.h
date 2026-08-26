@@ -48,7 +48,6 @@ class mapbuffer
          * is not stored and the given unique_ptr retains ownsership.
          */
         bool add_submap( const tripoint_abs_sm &p, std::unique_ptr<submap> &sm );
-        // Old overload that we should stop using, but it's complicated
         bool add_submap( const tripoint_abs_sm &p, submap *sm );
 
         /** Get a submap stored in this buffer.
@@ -56,8 +55,7 @@ class mapbuffer
          * @param p The absolute world position in submap coordinates.
          * Same as the ones in @ref add_submap.
          * @return NULL if the submap is not in the mapbuffer
-         * and could not be loaded. The mapbuffer takes care of the returned
-         * submap object, don't delete it on your own.
+         * and could not be loaded.
          */
         submap *lookup_submap( const tripoint_abs_sm &p );
         // Cheaper version of the above for when you only care about whether the
@@ -68,28 +66,27 @@ class mapbuffer
         bool submap_exists_approx( const tripoint_abs_sm &p );
 
     private:
-        using submap_map_t = std::map<tripoint_abs_sm, std::unique_ptr<submap>>;
+        struct submap_entry_t {
+            std::unique_ptr<submap> submap_;
+            std::shared_ptr<zzip> zzip_;
 
-    public:
-        inline submap_map_t::iterator begin() {
-            return submaps.begin();
-        }
-        inline submap_map_t::iterator end() {
-            return submaps.end();
-        }
+            operator submap *() const {
+                return submap_.get();
+            }
+        };
+        using submap_map_t = std::map<tripoint_abs_sm, submap_entry_t>;
 
-    private:
         // There's a very good reason this is private,
         // if not handled carefully, this can erase in-use submaps and crash the game.
         void remove_submap( const tripoint_abs_sm &addr );
         submap *unserialize_submaps( const tripoint_abs_sm &p );
-        bool submap_file_exists( const tripoint_abs_sm &p );
         void deserialize( const JsonArray &ja );
         void save_quad(
             const cata_path &dirname, const cata_path &filename,
             const tripoint_abs_omt &om_addr, std::list<tripoint_abs_sm> &submaps_to_delete,
             bool delete_after_save );
         submap_map_t submaps; // NOLINT(cata-serialize)
+        std::unordered_map<std::string, std::weak_ptr<zzip>> submap_zzips; // NOLINT(cata-serialize)
 };
 
 extern mapbuffer MAPBUFFER;

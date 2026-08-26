@@ -8,7 +8,7 @@
 // the actual viewable playspace space due to how MAX_VIEW_DISTANCE evaluates
 // MAPSIZE 11 results in a reality bubble approximately 60 tiles in radius
 // MAPSIZE 21 results in approximately 120 tiles in radius
-constexpr int MAPSIZE = 11;
+constexpr int MAPSIZE = 31;
 constexpr int HALF_MAPSIZE = static_cast<int>( MAPSIZE / 2 );
 
 // SEEX/SEEY define the size of a nonant, or grid.

@@ -159,6 +159,7 @@ inline uint64_t ReadUInt64(const uint8_t *data, uint8_t byte_width) {
   // clang-format off
   #if defined(_MSC_VER) && (defined(_M_X64) || defined _M_IX86)
     uint64_t u = 0;
+
     __movsb(reinterpret_cast<uint8_t *>(&u),
             reinterpret_cast<const uint8_t *>(data), byte_width);
     return flatbuffers::EndianScalar(u);
