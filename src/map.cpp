@@ -9701,7 +9701,7 @@ void map::add_tree_tops( const tripoint_rel_sm &grid )
         for( int y = 0; y < SEEY; y++ ) {
             const ter_id &ter_here = sub_here->get_ter( { x, y } );
 
-            if( !ter_here.id()->has_flag( "EMPTY_SPACE" ) ) {
+            if( !ter_here->has_flag( "EMPTY_SPACE" ) ) {
                 continue;
             }
 
@@ -9713,11 +9713,11 @@ void map::add_tree_tops( const tripoint_rel_sm &grid )
 
             const ter_t &ter_below = sub_below->get_ter( { x, y } ).obj();
             if( ter_below.has_flag( "TREE" ) && ter_below.roof ) {
-                sub_here->set_ter( { x, y }, ter_below.roof.id() );
+                sub_here->set_ter( { x, y }, ter_below.roof );
             } else
                 // This code is needed to handle bashing during mapgen, because the Z level below
                 // hasn't yet been generated when the bashing occurs.
-                if( ter_here.id() == ter_t_open_air ) {
+                if( ter_here == ter_t_open_air ) {
                     if( ter_below.has_flag( "NATURAL_UNDERGROUND" ) ) {
                         sub_here->set_ter( {x, y}, ter_below.roof );
                     }
