@@ -9163,9 +9163,6 @@ void map::loadn( const point_bub_sm &grid, bool update_vehicles )
             }
         }
 
-        if( zlevels ) {
-            add_tree_tops( { grid.x(), grid.y(), z } );
-        }
         // When a submap is loaded into the reality bubble, apply
         // temperature-based phase changes
         const weather_generator &wgen = get_weather().get_cur_weather_gen();

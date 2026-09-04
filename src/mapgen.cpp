@@ -379,6 +379,27 @@ void map::generate( const tripoint_abs_omt &p, const time_point &when, bool save
         }
     }
 
+    // Trees iterate z levels the other way though.
+    if( zlevels ) {
+        for( int gridz = -OVERMAP_HEIGHT; gridz <= -OVERMAP_DEPTH; gridz++ ) {
+            const oter_id &terrain_type = overmap_buffer.ter( tripoint_abs_omt( p.xy(), gridz ) );
+            if( terrain_type->has_uniform_terrain() ) {
+                continue;
+            }
+            for( int gridx = 0; gridx <= 1; gridx++ ) {
+                for( int gridy = 0; gridy <= 1; gridy++ ) {
+                    const tripoint_rel_sm pos( gridx, gridy, gridz );
+                    const size_t grid_pos = get_nonant( pos );
+
+                    if( ( !generated.at( grid_pos ) || !save_results ) &&
+                        !getsubmap( grid_pos )->is_uniform() ) {
+                        add_tree_tops( pos );
+                    }
+                }
+            }
+        }
+    }
+
     const weather_generator &wgen = get_weather().get_cur_weather_gen();
     if( abs_sub.z() >= 0 ) {
         for( int i = 0; i < my_MAPSIZE; i++ ) {
@@ -399,7 +420,9 @@ void map::generate( const tripoint_abs_omt &p, const time_point &when, bool save
                         if( gridx <= 1 && gridy <= 1 ) {
                             saven( { gridx, gridy, gridz } );
                         } else {
-                            delete getsubmap( grid_pos );
+                            // wtf this is unsafe
+                            debugmsg( "Not allowed to delete a submap like this, mapbuffer owns them now." );
+                            //delete getsubmap( grid_pos );
                         }
                     }
                 }
