@@ -345,10 +345,6 @@ map::map( int mapsize, bool zlev ) : my_MAPSIZE( mapsize ), my_HALF_MAPSIZE( map
         grid.resize( static_cast<size_t>( my_MAPSIZE ) * my_MAPSIZE, nullptr );
     }
 
-    for( auto &ptr : pathfinding_caches ) {
-        ptr = std::make_unique<pathfinding_cache>();
-    }
-
     dbg( D_INFO ) << "map::map(): my_MAPSIZE: " << my_MAPSIZE << " z-levels enabled:" << zlevels;
     traplocs.resize( trap::count() );
 }
@@ -453,7 +449,9 @@ void map::set_lightmap_cache_dirty_below( const int zlev )
 {
     for( int z = zlev; z >= -OVERMAP_DEPTH; z-- ) {
         if( inbounds_z( z ) ) {
-            get_cache( z ).lightmap_dirty = true;
+            if( level_cache *c = get_cache_lazy( z ) ) {
+                c->lightmap_dirty = true;
+            }
         }
     }
 }
@@ -10151,9 +10149,7 @@ fake_map::fake_map( const ter_id &ter_type )
         for( int gridy = 0; gridy < get_my_MAPSIZE(); gridy++ ) {
             std::unique_ptr<submap> sm = std::make_unique<submap>();
 
-            sm->set_all_ter( ter_type );
-            sm->set_all_furn( furn_str_id::NULL_ID() );
-            sm->set_all_traps( tr_null );
+            sm->set_all_ter( ter_type, true );
 
             setsubmap( get_nonant( tripoint_rel_sm{ gridx, gridy, fake_map_z } ), sm.get() );
 
@@ -10173,9 +10169,7 @@ small_fake_map::small_fake_map( const ter_id &ter_type )
             for( int gridz = -OVERMAP_DEPTH; gridz <= OVERMAP_HEIGHT; gridz++ ) {
                 std::unique_ptr<submap> sm = std::make_unique<submap>();
 
-                sm->set_all_ter( ter_type );
-                sm->set_all_furn( furn_str_id::NULL_ID() );
-                sm->set_all_traps( tr_null );
+                sm->set_all_ter( ter_type, true );
 
                 setsubmap( get_nonant( tripoint_rel_sm{ gridx, gridy, gridz } ), sm.get() );
 
@@ -11490,7 +11484,11 @@ pathfinding_cache::pathfinding_cache()
 
 pathfinding_cache &map::get_pathfinding_cache( int zlev ) const
 {
-    return *pathfinding_caches[zlev + OVERMAP_DEPTH];
+    std::unique_ptr<pathfinding_cache> &cache = pathfinding_caches[zlev + OVERMAP_DEPTH];
+    if( !cache ) {
+        cache = std::make_unique<pathfinding_cache>();
+    }
+    return *cache;
 }
 
 void map::set_pathfinding_cache_dirty( const int zlev )
@@ -11528,7 +11526,7 @@ const pathfinding_cache &map::get_pathfinding_cache_ref( int zlev ) const
 {
     if( !inbounds_z( zlev ) ) {
         debugmsg( "Tried to get pathfinding cache for out of bounds z-level %d", zlev );
-        return *pathfinding_caches[ OVERMAP_DEPTH ];
+        return get_pathfinding_cache( 0 );
     }
     pathfinding_cache &cache = get_pathfinding_cache( zlev );
     if( cache.dirty || !cache.dirty_points.empty() ) {
