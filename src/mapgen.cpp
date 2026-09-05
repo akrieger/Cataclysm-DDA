@@ -190,7 +190,8 @@ void map::generate( const tripoint_abs_omt &p, const time_point &when, bool save
                 const tripoint_rel_sm pos( gridx, gridy, gridz );
                 const size_t grid_pos = get_nonant( pos );
                 // For some reason 'emplace' doesn't work. emplacing data later overwrote data...
-                generated[grid_pos] = MAPBUFFER.submap_exists( p_sm_base.xy() + pos );
+                tripoint_abs_sm sm_pos = p_sm_base.xy() + pos;
+                generated[grid_pos] = MAPBUFFER.submap_exists( sm_pos );
 
                 if( !generated.at( grid_pos ) || !save_results ) {
                     setsubmap( grid_pos, new submap() );
@@ -203,7 +204,7 @@ void map::generate( const tripoint_abs_omt &p, const time_point &when, bool save
                         getsubmap( grid_pos )->last_touched = calendar::turn;
                     }
                 } else {
-                    setsubmap( grid_pos, MAPBUFFER.lookup_submap( p_sm_base.xy() + pos ) );
+                    setsubmap( grid_pos, MAPBUFFER.lookup_submap( sm_pos ) );
                     // Apply historical ice conversion for submaps loaded from disk as well
                 }
             }
