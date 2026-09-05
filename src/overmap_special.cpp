@@ -383,7 +383,7 @@ overmap_special_id overmap_specials::create_building_from( const string_id<oter_
     overmap_special new_special( new_id, ter );
     mod_tracker::assign_src( new_special, base->src.back().second.str() );
 
-    return specials.insert( new_special ).id;
+    return specials.insert( std::move( new_special ) ).id;
 }
 
 void overmap_special_migration::load_migrations( const JsonObject &jo, const std::string &src )

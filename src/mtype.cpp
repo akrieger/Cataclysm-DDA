@@ -316,7 +316,7 @@ void set_mon_flag_ids()
     mon_flag_WIELDED_WEAPON = mon_flag_id( "WIELDED_WEAPON" );
 }
 
-mtype::mtype()
+mtype::mtype() noexcept
 {
     id = mtype_id::NULL_ID();
     name = pl_translation( "human", "humans" );

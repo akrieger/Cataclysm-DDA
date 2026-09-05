@@ -59,7 +59,7 @@ std::string enum_to_string<breathability_rating>( breathability_rating data )
 }
 } // namespace io
 
-material_type::material_type() :
+material_type::material_type() noexcept:
     id( material_id::NULL_ID() ),
     _bash_dmg_verb( to_translation( "damages" ) ),
     _cut_dmg_verb( to_translation( "damages" ) )

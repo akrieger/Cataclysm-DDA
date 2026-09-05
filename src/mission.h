@@ -225,7 +225,13 @@ struct mission_type {
         // A dynamic goal condition invoked by MGOAL_CONDITION.
         std::function<bool( const_dialogue const & )> goal_condition;
 
-        mission_type() = default;
+        mission_type() noexcept = default;
+
+        mission_type( mission_type const & ) noexcept = default;
+        mission_type &operator=( mission_type const & ) noexcept = default;
+
+        mission_type( mission_type && ) noexcept = default;
+        mission_type &operator=( mission_type && ) noexcept = default;
 
         mission create( const character_id &npc_id ) const;
 

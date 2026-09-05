@@ -658,7 +658,7 @@ void vehicles::parts::finalize()
 
         new_part.looks_like = get_looks_like( new_part, *item );
 
-        vpart_info_factory.insert( new_part );
+        vpart_info_factory.insert( std::move( new_part ) );
     }
 
     // hide the generic turret prototype

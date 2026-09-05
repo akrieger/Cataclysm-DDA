@@ -37,6 +37,14 @@ struct wound_limb_score {
 class wound_type
 {
     public:
+        wound_type() noexcept = default;
+
+        wound_type( wound_type const & ) noexcept = default;
+        wound_type &operator=( wound_type const & ) noexcept = default;
+
+        wound_type( wound_type && ) noexcept = default;
+        wound_type &operator=( wound_type && ) noexcept = default;
+
         bool was_loaded = false;
         wound_type_id id;
 
@@ -145,6 +153,14 @@ struct wound_proficiency {
 class wound_fix
 {
     public:
+        wound_fix() noexcept = default;
+
+        wound_fix( wound_fix const & ) noexcept = default;
+        wound_fix &operator=( wound_fix const & ) noexcept = default;
+
+        wound_fix( wound_fix && ) noexcept = default;
+        wound_fix &operator=( wound_fix && ) noexcept = default;
+
         wound_fix_id id;
         translation name;
         translation description;

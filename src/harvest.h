@@ -98,7 +98,13 @@ struct harvest_entry {
 class harvest_list
 {
     public:
-        harvest_list();
+        harvest_list() noexcept;
+
+        harvest_list( harvest_list const & ) noexcept = default;
+        harvest_list &operator=( harvest_list const & ) noexcept = default;
+
+        harvest_list( harvest_list && ) noexcept = default;
+        harvest_list &operator=( harvest_list && ) noexcept = default;
 
         itype_id leftovers = itype_id( "ruined_chunks" );
 

@@ -523,7 +523,15 @@ struct map_data_common_t {
         cata::value_ptr<map_shoot_info> shoot;
 
     public:
+        map_data_common_t() noexcept = default;
         virtual ~map_data_common_t() = default;
+
+        map_data_common_t( map_data_common_t const & ) noexcept = default;
+        map_data_common_t &operator=( map_data_common_t const & ) noexcept = default;
+
+        map_data_common_t( map_data_common_t && ) noexcept = default;
+        map_data_common_t &operator=( map_data_common_t && ) noexcept = default;
+
         virtual std::optional<map_common_bash_info> bash_info() const = 0;
         virtual std::optional<map_common_deconstruct_info> deconstruct_info() const = 0;
     protected:
@@ -695,7 +703,6 @@ struct map_data_common_t {
 * Short for terrain type. This struct defines all of the metadata for a given terrain id (an enum below).
 */
 struct ter_t : map_data_common_t {
-
     std::vector<std::pair<ter_str_id, mod_id>> src;
 
     ter_str_id id;    // The terrain's ID. Must be set, must be unique.
@@ -731,7 +738,13 @@ struct ter_t : map_data_common_t {
 
     std::set<itype_id> allowed_template_id;
 
-    ter_t();
+    ter_t() noexcept;
+
+    ter_t( ter_t const & ) noexcept = default;
+    ter_t &operator=( ter_t const & ) noexcept = default;
+
+    ter_t( ter_t && ) noexcept = default;
+    ter_t &operator=( ter_t && ) noexcept = default;
 
     std::optional<map_common_bash_info> bash_info() const override {
         return bash;
@@ -795,7 +808,13 @@ struct furn_t : map_data_common_t {
     // May return an empty container if no valid ammotype
     std::vector<const itype *> crafting_ammo_item_types() const;
 
-    furn_t();
+    furn_t() noexcept;
+
+    furn_t( furn_t const & ) noexcept = default;
+    furn_t &operator=( furn_t const & ) noexcept = default;
+
+    furn_t( furn_t && ) noexcept = default;
+    furn_t &operator=( furn_t && ) noexcept = default;
 
     std::optional<map_common_bash_info> bash_info() const override {
         return bash;

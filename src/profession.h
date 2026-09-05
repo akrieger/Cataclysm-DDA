@@ -98,7 +98,13 @@ class profession
 
     public:
         //these three aren't meant for external use, but had to be made public regardless
-        profession();
+        profession() noexcept;
+
+        profession( profession const & ) noexcept = default;
+        profession &operator=( profession const & ) noexcept = default;
+
+        profession( profession && ) noexcept = default;
+        profession &operator=( profession && ) noexcept = default;
 
         static void load_profession( const JsonObject &jo, const std::string &src );
         static void finalize_all();

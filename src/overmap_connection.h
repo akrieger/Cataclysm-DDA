@@ -18,6 +18,14 @@ struct overmap_location;
 class overmap_connection
 {
     public:
+        overmap_connection() noexcept = default;
+
+        overmap_connection( overmap_connection const & ) noexcept = default;
+        overmap_connection &operator=( overmap_connection const & ) noexcept = default;
+
+        overmap_connection( overmap_connection && ) noexcept = default;
+        overmap_connection &operator=( overmap_connection && ) noexcept = default;
+
         class subtype
         {
                 friend overmap_connection;

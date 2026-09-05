@@ -172,6 +172,14 @@ struct mutation_variant {
 };
 
 struct mutation_branch {
+        mutation_branch() noexcept = default;
+
+        mutation_branch( mutation_branch const & ) noexcept = default;
+        mutation_branch &operator=( mutation_branch const & ) noexcept = default;
+
+        mutation_branch( mutation_branch && ) noexcept = default;
+        mutation_branch &operator=( mutation_branch && ) noexcept = default;
+
         trait_id id;
         std::vector<std::pair<trait_id, mod_id>> src;
         bool was_loaded = false;

@@ -45,9 +45,13 @@ struct species_type {
         return footsteps.translated();
     }
 
-    species_type(): id( species_id::NULL_ID() ) {
+    species_type() noexcept : id( species_id::NULL_ID() ) {}
 
-    }
+    species_type( species_type const & ) noexcept = default;
+    species_type &operator=( species_type const & ) noexcept = default;
+
+    species_type( species_type && ) noexcept = default;
+    species_type &operator=( species_type && ) noexcept = default;
 
     void load( const JsonObject &jo, std::string_view src );
     static void finalize_all();

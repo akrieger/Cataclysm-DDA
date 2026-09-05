@@ -28,7 +28,13 @@ class JsonObject;
 class JsonOut;
 
 struct bionic_data {
-    bionic_data();
+    bionic_data() noexcept;
+
+    bionic_data( bionic_data const & ) noexcept = default;
+    bionic_data &operator=( bionic_data const & ) noexcept = default;
+
+    bionic_data( bionic_data && ) noexcept = default;
+    bionic_data &operator=( bionic_data && ) noexcept = default;
 
     /** Power cost on activation */
     units::energy power_activate = 0_kJ;

@@ -5,7 +5,7 @@
 // Very repetitious, so define them with a macro.
 #define MAKE_NULL_ID( type, ... ) \
     class type; \
-    template<> const string_id<type> &string_id<type>::NULL_ID() { \
+    template<> const string_id<type> &string_id<type>::NULL_ID() noexcept { \
         static string_id<type> id = string_id<type>( __VA_ARGS__ ); \
         return id; \
     }
@@ -61,7 +61,7 @@ MAKE_NULL_ID( zone_type, "null" )
 
 #define MAKE_NULL_ID2( type, ... ) \
     struct type; \
-    template<> const string_id<type> &string_id<type>::NULL_ID() { \
+    template<> const string_id<type> &string_id<type>::NULL_ID() noexcept { \
         static string_id<type> id = string_id<type>( __VA_ARGS__ ); \
         return id; \
     }

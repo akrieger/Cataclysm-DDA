@@ -31,6 +31,14 @@ class window;
 class scent_type
 {
     public:
+        scent_type() noexcept = default;
+
+        scent_type( scent_type const & ) noexcept = default;
+        scent_type &operator=( scent_type const & ) noexcept = default;
+
+        scent_type( scent_type && ) noexcept = default;
+        scent_type &operator=( scent_type && ) noexcept = default;
+
         static void load_scent_type( const JsonObject &jo, const std::string &src );
         void load( const JsonObject &jo, std::string_view );
         static void finalize_all();

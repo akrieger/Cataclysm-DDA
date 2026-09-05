@@ -76,7 +76,7 @@ bool string_id<harvest_list>::is_valid() const
     return harvest_list_factory.is_valid( *this );
 }
 
-harvest_list::harvest_list() : id( harvest_id::NULL_ID() ) {}
+harvest_list::harvest_list() noexcept : id( harvest_id::NULL_ID() ) {}
 
 std::string harvest_list::message() const
 {

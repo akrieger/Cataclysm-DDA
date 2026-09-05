@@ -169,7 +169,13 @@ struct forest_biome_mapgen {
     void load( const JsonObject &jo, std::string_view );
     static void load_forest_biome_mapgen( const JsonObject &jo, const std::string &src );
     static void reset();
-    forest_biome_mapgen() = default;
+    forest_biome_mapgen() noexcept = default;
+
+    forest_biome_mapgen( forest_biome_mapgen const & ) noexcept = default;
+    forest_biome_mapgen &operator=( forest_biome_mapgen const & ) noexcept = default;
+
+    forest_biome_mapgen( forest_biome_mapgen && ) noexcept = default;
+    forest_biome_mapgen &operator=( forest_biome_mapgen && ) noexcept = default;
 };
 
 /** Defines forest mapgen for a given OMT in a given region */
@@ -186,6 +192,13 @@ struct region_settings_forest_mapgen {
     static void load_region_settings_forest_mapgen( const JsonObject &jo, const std::string &src );
     static void reset();
     region_settings_forest_mapgen() = default;
+
+    region_settings_forest_mapgen( region_settings_forest_mapgen const & ) noexcept = default;
+    region_settings_forest_mapgen &operator=( region_settings_forest_mapgen const & ) noexcept =
+        default;
+
+    region_settings_forest_mapgen( region_settings_forest_mapgen && ) noexcept = default;
+    region_settings_forest_mapgen &operator=( region_settings_forest_mapgen && ) noexcept = default;
 };
 
 struct region_settings_forest_trail {
@@ -399,6 +412,14 @@ struct map_extra_collection {
 };
 
 struct region_settings_map_extras {
+    region_settings_map_extras() noexcept = default;
+
+    region_settings_map_extras( region_settings_map_extras const & ) noexcept = default;
+    region_settings_map_extras &operator=( region_settings_map_extras const & ) noexcept = default;
+
+    region_settings_map_extras( region_settings_map_extras && ) noexcept = default;
+    region_settings_map_extras &operator=( region_settings_map_extras && ) noexcept = default;
+
     region_settings_map_extras_id id = region_settings_map_extras_id::NULL_ID();
     std::set<map_extra_collection_id> extras;
 
@@ -423,7 +444,17 @@ struct region_settings_terrain_furniture {
     void finalize();
     bool was_loaded = false;
     void load( const JsonObject &jo, std::string_view );
-    region_settings_terrain_furniture() = default;
+
+    region_settings_terrain_furniture() noexcept = default;
+
+    region_settings_terrain_furniture( region_settings_terrain_furniture const & ) noexcept = default;
+    region_settings_terrain_furniture &operator=( region_settings_terrain_furniture const & ) noexcept =
+        default;
+
+    region_settings_terrain_furniture( region_settings_terrain_furniture && ) noexcept = default;
+    region_settings_terrain_furniture &operator=( region_settings_terrain_furniture && ) noexcept =
+        default;
+
     static void load_region_settings_terrain_furniture( const JsonObject &jo, const std::string &src );
     static void reset();
 };
@@ -488,9 +519,15 @@ struct region_settings {
 
     region_settings_map_extras_id region_extras;
 
-    region_settings() : id( "null" ) {
+    region_settings() noexcept : id( "null" ) {
         default_groundcover.add( t_null, 0 );
     }
+
+    region_settings( region_settings const & ) noexcept = default;
+    region_settings &operator=( region_settings const & ) noexcept = default;
+
+    region_settings( region_settings && ) noexcept = default;
+    region_settings &operator=( region_settings && ) noexcept = default;
 
     const region_settings_city &get_settings_city() const {
         if( !city_spec.has_value() ) {

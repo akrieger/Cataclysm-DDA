@@ -166,6 +166,14 @@ enum class mod : int {
 class enchantment
 {
     public:
+        enchantment() noexcept = default;
+
+        enchantment( enchantment const & ) noexcept = default;
+        enchantment &operator=( enchantment const & ) noexcept = default;
+
+        enchantment( enchantment && ) noexcept = default;
+        enchantment &operator=( enchantment && ) noexcept = default;
+
         enum has {
             WIELD,
             WORN,

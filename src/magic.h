@@ -199,6 +199,12 @@ class spell_type
 
         spell_type() = default;
 
+        spell_type( spell_type const & ) noexcept = default;
+        spell_type &operator=( spell_type const & ) noexcept = default;
+
+        spell_type( spell_type && ) noexcept = default;
+        spell_type &operator=( spell_type && ) noexcept = default;
+
         bool was_loaded = false;
 
         spell_id id;

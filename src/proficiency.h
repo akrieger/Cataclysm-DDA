@@ -88,6 +88,14 @@ class proficiency
         std::map<std::string, std::vector<proficiency_bonus>> _bonuses;
 
     public:
+        proficiency() noexcept = default;
+
+        proficiency( proficiency const & ) noexcept = default;
+        proficiency &operator=( proficiency const & ) noexcept = default;
+
+        proficiency( proficiency && ) noexcept = default;
+        proficiency &operator=( proficiency && ) noexcept = default;
+
         static void load_proficiencies( const JsonObject &jo, const std::string &src );
         static void finalize_all();
         static void reset();

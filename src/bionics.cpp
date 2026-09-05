@@ -579,7 +579,7 @@ void bionic_data::check_bionic_consistency()
     }
 }
 
-bionic_data::bionic_data() : name( no_translation( "bad bionic" ) ),
+bionic_data::bionic_data() noexcept : name( no_translation( "bad bionic" ) ),
     description( no_translation( "This bionic was not set up correctly, this is a bug" ) )
 {
 }

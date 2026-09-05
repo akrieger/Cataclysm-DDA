@@ -43,7 +43,7 @@ bool string_id<npc_class>::is_valid() const
     return npc_class_factory.is_valid( *this );
 }
 
-npc_class::npc_class() : id( npc_class_id::NULL_ID() )
+npc_class::npc_class() noexcept : id( npc_class_id::NULL_ID() )
 {
 }
 

@@ -78,6 +78,14 @@ class ter_furn_transform
         std::vector<std::pair<ter_furn_transform_id, mod_id>> src;
         bool was_loaded = false;
 
+        ter_furn_transform() = default;
+
+        ter_furn_transform( ter_furn_transform const & ) noexcept = default;
+        ter_furn_transform &operator=( ter_furn_transform const & ) noexcept = default;
+
+        ter_furn_transform( ter_furn_transform && ) noexcept = default;
+        ter_furn_transform &operator=( ter_furn_transform && ) noexcept = default;
+
         void transform( map &m, const tripoint_bub_ms &location ) const;
 
         static void reset();

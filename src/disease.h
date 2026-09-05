@@ -17,6 +17,14 @@ class JsonObject;
 class disease_type
 {
     public:
+        disease_type() noexcept = default;
+
+        disease_type( disease_type const & ) noexcept = default;
+        disease_type &operator=( disease_type const & ) noexcept = default;
+
+        disease_type( disease_type && ) noexcept = default;
+        disease_type &operator=( disease_type && ) noexcept = default;
+
         static void load_disease_type( const JsonObject &jo, const std::string &src );
         static void finalize_all();
         static void reset();

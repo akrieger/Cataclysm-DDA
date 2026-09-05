@@ -39,6 +39,14 @@ struct omt_types_parameters {
 class start_location
 {
     public:
+        start_location() noexcept = default;
+
+        start_location( start_location const & ) noexcept = default;
+        start_location &operator=( start_location const & ) noexcept = default;
+
+        start_location( start_location && ) noexcept = default;
+        start_location &operator=( start_location && ) noexcept = default;
+
         start_location_id id;
         std::vector<std::pair<start_location_id, mod_id>> src;
         bool was_loaded = false;

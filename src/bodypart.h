@@ -195,7 +195,14 @@ struct bp_qualities_provided {
 };
 
 struct body_part_type {
-    public:
+        body_part_type() noexcept = default;
+
+        body_part_type( const body_part_type & ) noexcept = default;
+        body_part_type &operator=( const body_part_type & ) noexcept = default;
+
+        body_part_type( body_part_type && ) noexcept = default;
+        body_part_type &operator=( body_part_type && ) noexcept = default;
+
         /**
          * the different types of body parts there are.
          * this allows for the ability to group limbs or determine a limb of a certain type

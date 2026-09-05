@@ -187,6 +187,14 @@ struct weakpoint {
 };
 
 struct weakpoints {
+    weakpoints() noexcept = default;
+
+    weakpoints( weakpoints const & ) noexcept = default;
+    weakpoints &operator=( weakpoints const & ) noexcept = default;
+
+    weakpoints( weakpoints && ) noexcept = default;
+    weakpoints &operator=( weakpoints && ) noexcept = default;
+
     // id of this set of weakpoints (inline weakpoints have a null id)
     weakpoints_id id;
     std::vector<std::pair<weakpoints_id, mod_id>> src;

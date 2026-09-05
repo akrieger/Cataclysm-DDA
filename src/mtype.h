@@ -574,7 +574,14 @@ struct mtype {
         // Do we indiscriminately attack characters, or should we wait until one annoys us?
         bool aggro_character = true;
 
-        mtype();
+        mtype() noexcept;
+
+        mtype( mtype const & ) noexcept = default;
+        mtype &operator=( mtype const & ) noexcept = default;
+
+        mtype( mtype && ) noexcept = default;
+        mtype &operator=( mtype && ) noexcept = default;
+
         /**
          * Check if this type is of the same species as the other one, because
          * species is a set and can contain several species, one entry that is

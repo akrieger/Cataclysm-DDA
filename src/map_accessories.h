@@ -27,6 +27,14 @@ class bash_damage_profile
         std::map<damage_type_id, double> profile;
 
     public:
+        bash_damage_profile() noexcept = default;
+
+        bash_damage_profile( bash_damage_profile const & ) noexcept = default;
+        bash_damage_profile &operator=( bash_damage_profile const & ) noexcept = default;
+
+        bash_damage_profile( bash_damage_profile && ) noexcept = default;
+        bash_damage_profile &operator=( bash_damage_profile && ) noexcept = default;
+
         int damage_from( const std::map<damage_type_id, int> &str, int armor ) const;
 
         void load( const JsonObject &jo, std::string_view );

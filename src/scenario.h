@@ -84,7 +84,14 @@ class scenario
 
     public:
         //these three aren't meant for external use, but had to be made public regardless
-        scenario();
+        scenario() noexcept;
+
+        scenario( scenario const & ) noexcept = default;
+        scenario &operator=( scenario const & ) noexcept = default;
+
+        scenario( scenario && ) noexcept = default;
+        scenario &operator=( scenario && ) noexcept = default;
+
         static void load_scenario( const JsonObject &jo, const std::string &src );
 
         // these should be the only ways used to get at scenario

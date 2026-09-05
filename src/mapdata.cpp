@@ -604,7 +604,7 @@ furn_t null_furniture_t()
     return new_furniture;
 }
 
-ter_t::ter_t() : open( ter_str_id::NULL_ID() ), close( ter_str_id::NULL_ID() ),
+ter_t::ter_t() noexcept : open( ter_str_id::NULL_ID() ), close( ter_str_id::NULL_ID() ),
     transforms_into( ter_str_id::NULL_ID() ),
     roof( ter_str_id::NULL_ID() ), trap( tr_null ) {}
 
@@ -1594,7 +1594,7 @@ void ter_t::check() const
     }
 }
 
-furn_t::furn_t() : open( furn_str_id::NULL_ID() ), close( furn_str_id::NULL_ID() ) {}
+furn_t::furn_t() noexcept : open( furn_str_id::NULL_ID() ), close( furn_str_id::NULL_ID() ) {}
 
 size_t furn_t::count()
 {

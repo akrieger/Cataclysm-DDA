@@ -35,8 +35,13 @@ struct enum_traits<magic_energy_type> {
 class magic_type
 {
     public:
+        magic_type() noexcept = default;
 
-        magic_type() = default;
+        magic_type( magic_type const & ) noexcept = default;
+        magic_type &operator=( magic_type const & ) noexcept = default;
+
+        magic_type( magic_type && ) noexcept = default;
+        magic_type &operator=( magic_type && ) noexcept = default;
 
         bool was_loaded = false;
 

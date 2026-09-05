@@ -116,7 +116,13 @@ class material_type
         mat_burn_products _burn_products;
 
     public:
-        material_type();
+        material_type() noexcept;
+
+        material_type( material_type const & ) noexcept = default;
+        material_type &operator=( material_type const & ) noexcept = default;
+
+        material_type( material_type && ) noexcept = default;
+        material_type &operator=( material_type && ) noexcept = default;
 
         void load( const JsonObject &jsobj, std::string_view src );
         static void finalize_all();

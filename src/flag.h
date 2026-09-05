@@ -456,7 +456,13 @@ class json_flag
         std::vector<std::pair<flag_id, mod_id>> src;
         bool was_loaded = false;
 
-        json_flag() = default;
+        json_flag() noexcept = default;
+
+        json_flag( json_flag const & ) noexcept = default;
+        json_flag &operator=( json_flag const & ) noexcept = default;
+
+        json_flag( json_flag && ) noexcept = default;
+        json_flag &operator=( json_flag && ) noexcept = default;
 
         /** Fetches flag definition (or null flag if not found) */
         static const json_flag &get( const std::string &id );

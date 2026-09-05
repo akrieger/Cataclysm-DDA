@@ -336,7 +336,7 @@ enchantment_id enchantment::load_inline_enchantment( const JsonValue &jv,
         enchantment inline_enchant;
         inline_enchant.load( jv.get_object(), src, inline_id );
         mod_tracker::assign_src( inline_enchant, src );
-        spell_factory.insert( inline_enchant );
+        spell_factory.insert( std::move( inline_enchant ) );
         return enchantment_id( inline_id );
     } else {
         jv.throw_error( "Enchantment needs to be either string or enchantment object." );

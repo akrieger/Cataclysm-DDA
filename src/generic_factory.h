@@ -139,6 +139,8 @@ const my_class &string_id<my_class>::obj() const
 template<typename T>
 class generic_factory
 {
+        static_assert( std::is_nothrow_move_constructible_v<T>,
+                       "type must be nothrow moveable because vector resize is slow otherwise." );
     public:
         virtual ~generic_factory() = default;
 
@@ -354,17 +356,15 @@ class generic_factory
         void load( const JsonObject &jo, const std::string &src ) {
             static const std::string abstract_member_name( "abstract" );
 
-            T def;
-
-            if( !handle_inheritance( def, jo, src ) ) {
-                return;
-            }
             if( jo.has_string( id_member_name ) ) {
+                T def;
+                if( !handle_inheritance( def, jo, src ) ) {
+                    return;
+                }
                 def.id = string_id<T>( jo.get_string( id_member_name ) );
                 mod_tracker::assign_src( def, src );
                 def.load( jo, src );
-                insert( def );
-
+                insert( std::move( def ) );
             } else if( jo.has_array( id_member_name ) ) {
                 for( JsonValue e : jo.get_array( id_member_name ) ) {
                     T def;
@@ -376,10 +376,13 @@ class generic_factory
                     // def is a local stack object; virtual dispatch is fine here.
                     // NOLINTNEXTLINE(clang-analyzer-optin.cplusplus.VirtualCall)
                     def.load( jo, src );
-                    insert( def );
+                    insert( std::move( def ) );
                 }
 
-            } else if( !jo.has_string( abstract_member_name ) ) {
+            } else if( jo.has_string( abstract_member_name ) ) {
+                T def;
+                handle_inheritance( def, jo, src );
+            } else {
                 jo.throw_error( string_format( "must specify either '%s' or '%s'",
                                                abstract_member_name, id_member_name ) );
             }
@@ -389,7 +392,7 @@ class generic_factory
          * The new object replaces any existing object of the same id.
          * The function returns the actual object reference.
          */
-        T &insert( const T &obj ) {
+        T &insert( T &&obj ) {
             // this invalidates `_cid` cache for all previously added string_ids,
             // but! it's necessary to invalidate cache for all possibly cached "missed" lookups
             // (lookups for not-yet-inserted elements)
@@ -400,13 +403,13 @@ class generic_factory
             if( iter != map.end() ) {
                 mod_tracker::check_duplicate_entries( obj, list[iter->second.to_i()] );
                 T &result = list[iter->second.to_i()];
-                result = obj;
+                result = std::move( obj );
                 result.id.set_cid_version( iter->second.to_i(), version );
                 return result;
             }
 
             const int_id<T> cid( list.size() );
-            list.push_back( obj );
+            list.emplace_back( std::move( obj ) );
 
             T &result = list.back();
             result.id.set_cid_version( cid.to_i(), version );

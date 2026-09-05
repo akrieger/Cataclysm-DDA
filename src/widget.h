@@ -251,8 +251,15 @@ class widget
         std::vector<const widget_clause *> get_clauses() const;
 
     public:
-        widget() = default;
+        widget() noexcept = default;
+
         explicit widget( const widget_id &id ) : id( id ) {}
+
+        widget( widget const & ) noexcept = default;
+        widget &operator=( widget const & ) noexcept = default;
+
+        widget( widget && ) noexcept = default;
+        widget &operator=( widget && ) noexcept = default;
 
         // Attributes from JSON
         // ----

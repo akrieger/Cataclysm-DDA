@@ -25,6 +25,14 @@ enum class creature_size : int;
 class butchery_requirements
 {
     public:
+        butchery_requirements() noexcept = default;
+
+        butchery_requirements( const butchery_requirements & ) noexcept = default;
+        butchery_requirements &operator=( const butchery_requirements & ) noexcept = default;
+
+        butchery_requirements( butchery_requirements && ) noexcept = default;
+        butchery_requirements &operator=( butchery_requirements && ) noexcept = default;
+
         bool was_loaded = false;
         string_id<butchery_requirements> id;
         std::vector<std::pair<string_id<butchery_requirements>, mod_id>> src;

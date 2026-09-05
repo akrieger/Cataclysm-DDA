@@ -55,6 +55,14 @@ struct enum_traits<fault_severity> {
 class fault_fix
 {
     public:
+        fault_fix() noexcept = default;
+
+        fault_fix( fault_fix const & ) noexcept = default;
+        fault_fix &operator=( fault_fix const & ) noexcept = default;
+
+        fault_fix( fault_fix && ) noexcept = default;
+        fault_fix &operator=( fault_fix && ) noexcept = default;
+
         fault_fix_id id = fault_fix_id::NULL_ID();
         translation name;
         translation success_msg; // message to print on applying successfully
@@ -87,6 +95,14 @@ class fault_fix
 class fault
 {
     public:
+        fault() noexcept = default;
+
+        fault( fault const & ) noexcept = default;
+        fault &operator=( fault const & ) noexcept = default;
+
+        fault( fault && ) noexcept = default;
+        fault &operator=( fault && ) noexcept = default;
+
         fault_id id = fault_id::NULL_ID();
         std::string name() const;
         std::string type() const; // use a set of types?

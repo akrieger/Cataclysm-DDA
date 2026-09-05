@@ -182,6 +182,14 @@ extern const field_type_str_id fd_web;
 
 struct field_type {
     public:
+        field_type() noexcept = default;
+
+        field_type( field_type const & ) noexcept = default;
+        field_type &operator=( field_type const & ) noexcept = default;
+
+        field_type( field_type && ) noexcept = default;
+        field_type &operator=( field_type && ) noexcept = default;
+
         void load( const JsonObject &jo, std::string_view src );
         void finalize();
         void check() const;

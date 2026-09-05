@@ -77,7 +77,13 @@ class move_mode
         static void finalize_all();
         static void reset();
 
-        move_mode() = default;
+        move_mode() noexcept = default;
+
+        move_mode( move_mode const & ) noexcept = default;
+        move_mode &operator=( move_mode const & ) noexcept = default;
+
+        move_mode( move_mode && ) noexcept = default;
+        move_mode &operator=( move_mode && ) noexcept = default;
 
         // name: walk, run, crouch, prone
         std::string name() const;

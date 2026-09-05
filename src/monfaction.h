@@ -50,6 +50,14 @@ void load_monster_faction( const JsonObject &jo, const std::string &src );
 class monfaction
 {
     public:
+        monfaction() noexcept = default;
+
+        monfaction( monfaction const & ) noexcept = default;
+        monfaction &operator=( monfaction const & ) noexcept = default;
+
+        monfaction( monfaction && ) noexcept = default;
+        monfaction &operator=( monfaction && ) noexcept = default;
+
         // returns attitude towards the other faction
         // @see attitude_rec how attitude calculation works in regards to base_faction
         mf_attitude attitude( const mfaction_id &other ) const;

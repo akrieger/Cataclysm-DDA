@@ -129,7 +129,14 @@ class npc_class
         std::map<spell_id, int> _starting_spells;
         std::map<bionic_id, int> bionic_list;
         std::vector<proficiency_id> _starting_proficiencies;
-        npc_class();
+
+        npc_class() noexcept;
+
+        npc_class( npc_class const & ) noexcept = default;
+        npc_class &operator=( npc_class const & ) noexcept = default;
+
+        npc_class( npc_class && ) noexcept = default;
+        npc_class &operator=( npc_class && ) noexcept = default;
 
         std::string get_name() const;
         std::string get_job_description() const;

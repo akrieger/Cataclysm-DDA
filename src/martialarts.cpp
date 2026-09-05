@@ -952,7 +952,7 @@ std::string ma_requirements::get_description( bool buff ) const
     return dump;
 }
 
-ma_technique::ma_technique()
+ma_technique::ma_technique() noexcept
 {
     crit_tec = false;
     crit_ok = false;
@@ -986,7 +986,7 @@ bool ma_technique::is_valid_character( const Character &u ) const
     return reqs.is_valid_character( u );
 }
 
-ma_buff::ma_buff()
+ma_buff::ma_buff() noexcept
     : buff_duration( 1_turns )
 {
     max_stacks = 1; // total number of stacks this buff can have
@@ -1157,7 +1157,7 @@ std::string ma_buff::get_description( bool passive ) const
     return dump;
 }
 
-martialart::martialart()
+martialart::martialart() noexcept
 {
     leg_block = -1;
     arm_block = -1;

@@ -50,6 +50,14 @@ struct bodygraph_info {
 };
 
 struct bodygraph {
+    bodygraph() noexcept = default;
+
+    bodygraph( const bodygraph & ) noexcept = default;
+    bodygraph &operator=( const bodygraph & ) noexcept = default;
+
+    bodygraph( bodygraph && ) noexcept = default;
+    bodygraph &operator=( bodygraph && ) noexcept = default;
+
     bodygraph_id id;
     std::optional<bodypart_id> parent_bp;
     std::optional<bodygraph_id> mirror;

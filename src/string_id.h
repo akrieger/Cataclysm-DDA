@@ -219,13 +219,20 @@ public:
 
     // string_view is not implicitly convertible to std::string, so need a
     // separate constructor for that
-    explicit string_id( const std::string_view id ) : string_id( std::string( id ) ) {}
+    explicit string_id( const std::string_view id ) noexcept : string_id( std::string( id ) ) {}
     /**
      * Default constructor constructs an empty id string.
      * Note that this id class does not enforce empty id strings (or any specific string at all)
      * to be special. Every string (including the empty one) may be a valid id.
      */
-    string_id() : _id() {} // NOLINT(clang-analyzer-optin.cplusplus.UninitializedObject)
+    string_id() noexcept : _id() {} // NOLINT(clang-analyzer-optin.cplusplus.UninitializedObject)
+
+    string_id( string_id const & ) noexcept = default;
+    string_id( string_id && ) noexcept = default;
+
+    string_id &operator=( string_id const & ) noexcept = default;
+    string_id &operator=( string_id && ) noexcept = default;
+
     /**
      * Comparison, only useful when the id is used in std::map or std::set as key.
      * Guarantees total order, but DOESN'T guarantee the same order after process restart!
@@ -309,7 +316,7 @@ public:
      * Returns a null id whose `string_id<T>::is_null()` must always return true. See @ref is_null.
      * Specializations are defined in string_id_null_ids.cpp to avoid instantiation ordering issues.
      */
-    static const string_id<T> &NULL_ID();
+    static const string_id<T> &NULL_ID() noexcept;
     /**
      * Returns whether this represents the id of the null-object (in which case it's the null-id).
      * Note that not all types assigned to T may have a null-object. As such, there won't be a

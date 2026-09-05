@@ -18,6 +18,14 @@ template <typename T> class generic_factory;
 
 struct character_modifier {
     public:
+        character_modifier() noexcept = default;
+
+        character_modifier( character_modifier const & ) noexcept = default;
+        character_modifier &operator=( character_modifier const & ) noexcept = default;
+
+        character_modifier( character_modifier && ) noexcept = default;
+        character_modifier &operator=( character_modifier && ) noexcept = default;
+
         enum mod_type {
             NONE,
             ADD,

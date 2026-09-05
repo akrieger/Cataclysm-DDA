@@ -33,9 +33,12 @@ class anatomy
         std::vector<std::pair<anatomy_id, mod_id>> src;
         bool was_loaded = false;
 
-        anatomy() = default;
-        anatomy( const anatomy & ) = default;
-        anatomy &operator=( const anatomy & ) = default;
+        anatomy() noexcept = default;
+        anatomy( const anatomy & ) noexcept  = default;
+        anatomy &operator=( const anatomy & ) noexcept = default;
+        anatomy( anatomy && ) noexcept = default;
+        anatomy &operator=( anatomy && ) noexcept = default;
+
         explicit anatomy( const std::vector<bodypart_id> &parts );
 
         /** Returns a random body_part token. main_parts_only will limit it to arms, legs, torso, and head. */

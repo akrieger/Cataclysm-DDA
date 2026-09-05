@@ -163,7 +163,13 @@ struct tech_effect_data {
 class ma_technique
 {
     public:
-        ma_technique();
+        ma_technique() noexcept;
+
+        ma_technique( ma_technique const & ) noexcept = default;
+        ma_technique &operator=( ma_technique const & ) noexcept = default;
+
+        ma_technique( ma_technique && ) noexcept = default;
+        ma_technique &operator=( ma_technique && ) noexcept = default;
 
         void load( const JsonObject &jo, std::string_view src );
         static void verify_ma_techniques();
@@ -249,7 +255,13 @@ class ma_technique
 class ma_buff
 {
     public:
-        ma_buff();
+        ma_buff() noexcept;
+
+        ma_buff( const ma_buff & ) noexcept = default;
+        ma_buff &operator=( const ma_buff & ) noexcept = default;
+
+        ma_buff( ma_buff && ) noexcept = default;
+        ma_buff &operator=( ma_buff && ) noexcept = default;
 
         // utility function so to prevent duplicate buff copies, we use this
         // instead of add_disease (since all buffs have the same distype)
@@ -329,7 +341,13 @@ class ma_buff
 class martialart
 {
     public:
-        martialart();
+        martialart() noexcept;
+
+        martialart( martialart const & ) noexcept = default;
+        martialart &operator=( martialart const & ) noexcept = default;
+
+        martialart( martialart && ) noexcept = default;
+        martialart &operator=( martialart && ) noexcept = default;
 
         static void finalize_all();
 

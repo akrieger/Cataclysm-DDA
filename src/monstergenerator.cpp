@@ -485,7 +485,7 @@ void MonsterGenerator::finalize_mtypes()
 
     // now add the fake monsters to the mon_templates
     for( mtype &mon : extra_mtypes ) {
-        mon_templates->insert( mon );
+        mon_templates->insert( std::move( mon ) );
     }
 }
 

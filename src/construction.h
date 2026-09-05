@@ -36,6 +36,14 @@ struct partial_con {
 };
 
 struct construction {
+        construction() noexcept = default;
+
+        construction( construction const & ) noexcept = default;
+        construction &operator=( construction const & ) noexcept = default;
+
+        construction( construction && ) noexcept = default;
+        construction &operator=( construction && ) noexcept = default;
+
         // Construction type category
         construction_category_id category;
         // Which group does this construction belong to.

@@ -1367,6 +1367,15 @@ struct item_melee_damage {
 };
 
 struct itype {
+        itype() noexcept = default;
+
+        itype( itype const & ) noexcept = default;
+        itype &operator=( itype const & ) noexcept = default;
+
+        itype( itype && ) noexcept = default;
+        itype &operator=( itype && ) noexcept = default;
+
+
         friend class Item_factory;
         friend struct mod_tracker;
 

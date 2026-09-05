@@ -499,7 +499,7 @@ struct oter_type_t {
         std::vector<oter_id> directional_peers;
         std::string connect_group; // Group for connection when rendering overmap tiles
 
-        void register_terrain( const oter_t &peer, size_t n, size_t max_n );
+        void register_terrain( oter_t &&peer, size_t n, size_t max_n );
 };
 
 template<>
@@ -768,8 +768,15 @@ struct special_placement_result;
 class overmap_special
 {
     public:
-        overmap_special() = default;
+        overmap_special() noexcept = default;
         overmap_special( const overmap_special_id &, const overmap_special_terrain & );
+
+        overmap_special( overmap_special const & ) noexcept = default;
+        overmap_special &operator=( overmap_special const & ) noexcept = default;
+
+        overmap_special( overmap_special && ) noexcept = default;
+        overmap_special &operator=( overmap_special && ) noexcept = default;
+
         overmap_special_subtype get_subtype() const {
             return subtype_;
         }

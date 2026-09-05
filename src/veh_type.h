@@ -275,6 +275,14 @@ class vpart_variant
 class vpart_info
 {
     public:
+        vpart_info() noexcept = default;
+
+        vpart_info( vpart_info const & ) noexcept = default;
+        vpart_info &operator=( vpart_info const & ) noexcept = default;
+
+        vpart_info( vpart_info && ) noexcept = default;
+        vpart_info &operator=( vpart_info && ) noexcept = default;
+
         vpart_id id;
 
         void load( const JsonObject &jo, std::string_view src );

@@ -34,6 +34,14 @@ struct omt_types_parameters {
 };
 
 struct recipe_group_data {
+    recipe_group_data() noexcept = default;
+
+    recipe_group_data( recipe_group_data const & ) noexcept = default;
+    recipe_group_data &operator=( recipe_group_data const & ) noexcept = default;
+
+    recipe_group_data( recipe_group_data && ) noexcept = default;
+    recipe_group_data &operator=( recipe_group_data && ) noexcept = default;
+
     group_id id;
     std::vector<std::pair<group_id, mod_id>> src;
     std::string building_type = "NONE";
