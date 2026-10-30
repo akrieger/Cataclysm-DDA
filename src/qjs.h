@@ -135,13 +135,13 @@ class value
         }
 
         // Explicit copies.
-        value clone() const& {
+        value clone() const & {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone()&& {
+        value clone() && {
             return std::move( *this );
         }
 
@@ -250,17 +250,63 @@ template<typename R, typename ... Args>
 struct wrapper<R( Args... )> : type_erasing_wrapper {
     using Callable = R( Args... );
     static constexpr int arity = sizeof...( Args );
-
 };
+
+template<typename T, typename DecayT = std::decay_t<T>>
+JSValue wrap_return_value( T && t )
+{
+    if constexpr( std::is_integral_v<DecayT> ) {
+
+    } else if constexpr( std::is_floating_point_v<DecayT> ) {
+
+    } else if constexpr( std::is_constructible_v<std::string_view, DecayT> ) {
+
+    }
+}
 
 template<typename C, typename R, typename ... Args>
-struct wrapper<R( C::* )( Args... )> : type_erasing_wrapper {
+struct value_member_fn_wrapper : type_erasing_wrapper {
     using Callable = R( C::* )( Args... );
     static constexpr int arity = sizeof...( Args );
+
+    JSValue call( JSContext *ctx, void *this_val, R( C::*func )( Args... ), int argc,
+                  JSValueConst *argv ) {
+        static_cast<C *>( this_val )->*func( argc, argv );
+    }
 };
 
-template<typename>
+template<typename C, typename ... Args>
+struct void_member_fn_wrapper : type_erasing_wrapper {
+    using Callable = void ( C::* )( Args... );
+    static constexpr int arity = sizeof...( Args );
+
+    JSValue call2( JSContext *ctx, void *this_val, void ( C::*func )( Args... ), int argc,
+                   JSValueConst *argv ) {
+        ( static_cast<C *>( this_val )->*func )( 0, "argv" );
+        return JS_NULL;
+    }
+};
+
+template<typename T>
+struct carrier {
+    using type = T;
+};
+
+template<typename C, typename ... Args>
+constexpr auto deduce_wrapper_from_member( void ( C::* )( Args... ) )
+{
+    return carrier<void_member_fn_wrapper<C, Args...>> {};
+}
+
+template<typename C, typename R, typename ... Args>
+constexpr auto deduce_wrapper_from_member( R( C::* )( Args... ) )
+{
+    return carrier<value_member_fn_wrapper<C, R, Args...>> {};
+}
+
+template<typename Clazz>
 struct proto {
+    using Class = Clazz;
     static JSClassID clsid;
     static std::vector<JSCFunctionListEntry> bindings;
     static std::vector<type_erasing_wrapper *> funcs;
@@ -277,23 +323,25 @@ struct proto {
 };
 
 #define CAT(x, y) x##y
+#define CAT2(x, y) CAT(x, y)
+#define CAT3(x, y, z) CAT2(x, CAT2(y, z))
 
-#define  BIND(cls, func) BIND1(cls, func, __COUNTER__)
-#define BIND1(cls, func, counter) BIND2(cls, func, CAT(_binder, counter))
-#define BIND2(cls, func, binder) \
-    struct binder : wrapper<decltype(&cls::func)> { \
+#define  BIND(func) BIND1(func, __COUNTER__)
+#define BIND1(func, counter) BIND2(func, CAT3(func, _binder, counter))
+#define BIND2(func, binder) \
+    struct binder : decltype( deduce_wrapper_from_member( &decltype( proto_ )::Class::foo ) )::type { \
         binder() { \
-            proto_.push(#func, arity_v(&cls::func), this); \
+            proto_.push(#func, arity_v(&decltype(proto_)::Class::func), this); \
         } \
         virtual JSValue call(JSContext* ctx, void* this_val, int argc, JSValueConst* argv) \
         { \
-            return static_cast<cls*>(this_val)->func(argc, argv); \
+            return call(ctx, this_val, &decltype(proto_)::Class::func, argc, argv); \
         } \
     }; \
     static binder b##counter;
 
 #define BINDABLE(cls) \
-    private: \
+    protected: \
     static proto<cls> proto_; \
     public:
 
@@ -301,5 +349,14 @@ struct bound {
     BINDABLE( bound );
 
     void foo( int, std::string );
-    BIND( bound, foo );
+    struct foo_binder4 : decltype( deduce_wrapper_from_member( &decltype( proto_ )::Class::foo ) )
+    ::type {
+        foo_binder4() {
+            proto_.push( "foo", arity_v( &decltype( proto_ )::Class::foo ), this );
+        }
+        virtual JSValue call( JSContext *ctx, void *this_val, int argc, JSValue *argv ) {
+            return call2( ctx, this_val, &decltype( proto_ )::Class::foo, argc, argv );
+        }
+    };
+    static foo_binder4 bcounter;;
 };
