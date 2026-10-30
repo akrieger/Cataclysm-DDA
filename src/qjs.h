@@ -129,13 +129,13 @@ class value
         }
 
         // Explicit copies.
-        value clone() const & {
+        value clone() const& {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone() && {
+        value clone()&& {
             return std::move( *this );
         }
 

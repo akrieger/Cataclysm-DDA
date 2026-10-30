@@ -29,6 +29,7 @@
 #include "mod_tracker.h"
 #include "npc.h"
 #include "output.h"
+#include "perf.h"
 #include "profession.h"
 #include "scenario.h"
 #include "string_formatter.h"
@@ -247,6 +248,7 @@ void effect_on_conditions::queue_effect_on_condition( time_duration duration,
 static void process_eocs( queued_eocs &eoc_queue, std::vector<effect_on_condition_id> &eoc_vector,
                           dialogue &d )
 {
+    cata_timer eoc_timer{ "process_eocs" };
     static int reentrancy_depth = 0;
     ++reentrancy_depth;
 
@@ -356,6 +358,7 @@ bool effect_on_condition::activate( dialogue &d, bool require_callstack_check ) 
         trace_start = std::chrono::steady_clock::now();
     }
     bool retval = false;
+    cata_timer eoc_timer{ id.str() };
     if( require_callstack_check ) {
         d.amend_callstack( "EOC: " + id.str() );
         if( d.get_callstack().size() > 5000 ) {
