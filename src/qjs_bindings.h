@@ -133,15 +133,7 @@ struct member_function_wrapper<Binding, ArityTester, MemFn> : type_erasing_wrapp
         std::integral_constant<int, find_min_arity<ArityTester, ArgsTuple, max_arity>()>::value;
     virtual JSValue call( JSContext *ctx, void *this_val, int argc,
                           JSValueConst *argv ) noexcept override {
-        if( argc < min_arity ) {
-            return JS_ThrowTypeError( ctx, "Not enough args, expected %d-%d, got %d", min_arity, max_arity,
-                                      argc );
-        }
-        try {
-            return call( ctx, static_cast<C *>( this_val ), argc, argv, std::make_index_sequence<min_arity>() );
-        } catch( ... ) {
-
-        }
+        return call( ctx, static_cast<C *>( this_val ), argc, argv, std::make_index_sequence<min_arity>() );
     }
 
 private:
@@ -211,7 +203,8 @@ struct proto_base {
         type_erasing_wrapper *fn
     ) noexcept;
 
-    static JSValue call_( type_erasing_wrapper *fn, JSContext *ctx, void *this_val, int argc,
+    static JSValue call_( type_erasing_wrapper *fn, JSContext *ctx, void *this_val, int min_arity,
+                          int argc,
                           JSValueConst *argv ) noexcept;
 };
 
@@ -224,7 +217,8 @@ struct proto : proto_base {
 
     static JSValue call( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
                          int magic ) noexcept {
-        return call_( funcs[magic], ctx, JS_GetOpaque( this_val, clsid ), argc, argv );
+        return call_( funcs[magic], ctx, JS_GetOpaque( this_val, clsid ), bindings[magic].u.func.length,
+                      argc, argv );
     }
 
     static void push( std::string_view name, int argc, type_erasing_wrapper *fn ) noexcept {

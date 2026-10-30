@@ -48,14 +48,19 @@ void proto_base::push_erased(
 }
 
 
-JSValue proto_base::call_( type_erasing_wrapper *fn, JSContext *ctx, void *this_val, int argc,
+JSValue proto_base::call_( type_erasing_wrapper *fn, JSContext *ctx, void *this_val, int min_arity,
+                           int argc,
                            JSValueConst *argv ) noexcept
 {
+    if( argc < min_arity ) {
+        return JS_ThrowTypeError( ctx, "Not enough args, expected at least %d, got %d", min_arity,
+                                  argc );
+    }
     try {
         return fn->call( ctx, this_val, argc, argv );
     } catch( ... ) {
-        qjs::context *qctx = static_cast<qjs::context *>( JS_GetContextOpaque( ctx ) );
-        //qctx->set_uncatchable_exception(std::current_exception());
+        //qjs::context *qctx = static_cast<qjs::context *>( JS_GetContextOpaque( ctx ) );
+        //qctx->set_ffi_exn(std::current_exception());
     }
     return JS_EXCEPTION;
 }
@@ -112,8 +117,8 @@ void Console::init()
     force_to_back = true;
 }
 
-static auto f = +[]( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
-                     int magic ) -> JSValue
+static auto f = +[]( JSContext *, JSValueConst, int argc, JSValueConst *argv,
+                     int ) -> JSValue
 {
     if( argc != 2 ) {
         debugmsg( "fail" );
@@ -166,8 +171,8 @@ export const f2 = () => {
         JSValue exn = JS_GetException( c->get() );
         JSValue m = JS_GetPropertyStr( c->get(), exn, "message" );
         JSValue s = JS_GetPropertyStr( c->get(), exn, "stack" );
-        auto sm = JS_ToCString( c->get(), m );
-        auto ss = JS_ToCString( c->get(), s );
+        // auto sm = JS_ToCString( c->get(), m );
+        // auto ss = JS_ToCString( c->get(), s );
         JS_FreeValue( c->get(), exn ); // Free the exception object
         JS_FreeValue( c->get(), s ); // Free the exception object
         JS_FreeValue( c->get(), m ); // Free the exception object
@@ -178,8 +183,8 @@ export const f2 = () => {
         auto exn = JS_GetException( c->get() );
         JSValue m = JS_GetPropertyStr( c->get(), exn, "message" );
         JSValue s = JS_GetPropertyStr( c->get(), exn, "stack" );
-        auto sm = JS_ToCString( c->get(), m );
-        auto ss = JS_ToCString( c->get(), s );
+        //auto sm = JS_ToCString( c->get(), m );
+        //auto ss = JS_ToCString( c->get(), s );
         JS_FreeValue( c->get(), exn ); // Free the exception object
         JS_FreeValue( c->get(), s ); // Free the exception object
         JS_FreeValue( c->get(), m ); // Free the exception object
@@ -222,7 +227,7 @@ exn value::to_exception() const &
     return clone().to_exception();
 }
 
-exn value::to_exception() && {
+exn value::to_exception()&& {
     if( !JS_IsException( v ) )
     {
         // idk throw?
@@ -235,7 +240,7 @@ string value::to_string() const &
     return clone().to_string();
 }
 
-string value::to_string() && {
+string value::to_string()&& {
     if( !JS_IsString( v ) )
     {
         // idk throw?

@@ -1,3 +1,5 @@
+#define QJS_BUILD_LIBC 1
+
 #if defined(QJS_BUILD_LIBC) && defined(__linux__) && !defined(_GNU_SOURCE)
 #define _GNU_SOURCE
 #endif
