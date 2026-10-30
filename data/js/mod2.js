@@ -1,4 +1,4 @@
-import {test} from "Game";
+import { test } from "Game";
 
-let foo = test("string");
+let foo: string = test("string", "hello");
 console.log(foo);
