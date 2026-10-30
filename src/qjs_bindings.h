@@ -2,13 +2,88 @@
 #ifndef CATA_SRC_QJS_BINDINGS_H
 #define CATA_SRC_QJS_BINDINGS_H
 
+#include <stdexcept>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 #include <qjs/quickjs.h>
 
 #include "cata_compiler_support.h"
-#include "qjs.h"
+
+template<typename T, std::enable_if_t<std::is_floating_point_v<T>>* = nullptr>
+inline T from_js( JSContext *ctx, JSValueConst v )
+{
+    T ret{};
+    // JS_IsNumber => int or float
+    if( JS_IsNumber( v ) ) {
+        double res = 0.0;
+        // JS_ToFloat64 handles ints, floats, but not bigints. Sigh.
+        int failed = JS_ToFloat64( ctx, &res, v );
+        if( failed ) {
+            // do still more evil
+            throw std::runtime_error( "Failed to convert to int." );
+        }
+        ret = static_cast<T>( res );
+    } else if( JS_IsBigInt( v ) ) {
+        int64_t res = 0;
+        int failed = JS_ToBigInt64( ctx, &res, v );
+        if( failed ) {
+            // do still more evil
+            throw std::runtime_error( "Failed to convert to int." );
+        }
+        ret = static_cast<T>( res );
+    }
+
+    return ret;
+}
+
+template<typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
+inline T from_js( JSContext *ctx, JSValueConst v )
+{
+    // need to check convertibility and set a VM error
+    if( !JS_IsNumber( v ) && !JS_IsBigInt( v ) ) {
+        // do more different evil
+        throw std::runtime_error( "Non number binding argument" );
+    }
+    int64_t res = 0;
+    // JS_ToInt64Ext *does* handle ints, floats, and bigints
+    int failed = JS_ToInt64Ext( ctx, &res, v );
+    if( failed ) {
+        // do still more evil
+        throw std::runtime_error( "Failed to convert to int." );
+    }
+    return static_cast<T>( res );
+}
+
+template<typename T, std::enable_if_t<std::is_same_v<T, std::string>>* = nullptr>
+inline T from_js( JSContext *ctx, JSValueConst v )
+{
+    // need to check convertibility and set a VM error
+    if( !JS_IsString( v ) ) {
+        // not the right error
+        throw std::runtime_error( "Non string binding argument" );
+    }
+    size_t len;
+    const char *str = JS_ToCStringLen( ctx, &len, v );
+    std::string s{ str, len };
+    JS_FreeCString( ctx, str );
+    return s;
+}
+
+template<typename T, std::enable_if_t<std::is_integral_v<std::decay_t<T>>>* = nullptr>
+                                      inline JSValue to_js( JSContext *ctx, T && t )
+{
+    // need to switch off size and signedness to call appropriate bigint ctor,
+    // or else just forbid >32bit ints in the vm
+    return JS_NewNumber( ctx, t );
+}
+
+template<typename T, std::enable_if_t<std::is_same_v<std::decay_t<T>, std::string>>* = nullptr>
+inline JSValue to_js( JSContext *ctx, T && t )
+{
+    return JS_NewStringLen( ctx, t.data(), t.size() );
+}
 
 // Finding the maximum required number of arguments a function accepts is easy. It's just
 // the size of the ...Args parameter pack. Finding the *minimum* is hard for two reasons.
@@ -49,70 +124,6 @@ struct type_erasing_wrapper {
 template<typename Binding, typename ArityTester, auto MemFn>
 struct member_function_wrapper;
 
-template<typename T, std::enable_if_t<std::is_floating_point_v<T>>* = nullptr>
-inline T from_js( JSContext *ctx, JSValueConst v )
-{
-    // need to check convertibility and set a VM error
-    if( !JS_IsNumber( v ) ) {
-        // do more different evil
-        throw std::runtime_error( "Non number binding argument" );
-    }
-    // Annoyingly need to manually handle int and bigint inputs.
-    double res = 0.0;
-    int failed = JS_ToFloat64( ctx, &res, v );
-    if( failed ) {
-        // do still more evil
-        throw std::runtime_error( "Failed to convert to int." );
-    }
-    return static_cast<T>( res );
-}
-
-template<typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
-inline T from_js( JSContext *ctx, JSValueConst v )
-{
-    // need to check convertibility and set a VM error
-    if( !JS_IsNumber( v ) ) {
-        // do more different evil
-        throw std::runtime_error( "Non number binding argument" );
-    }
-    int64_t res = 0;
-    int failed = JS_ToInt64Ext( ctx, &res, v );
-    if( failed ) {
-        // do still more evil
-        throw std::runtime_error( "Failed to convert to int." );
-    }
-    return static_cast<T>( res );
-}
-
-template<typename T, std::enable_if_t<std::is_same_v<T, std::string>>* = nullptr>
-inline T from_js( JSContext *ctx, JSValueConst v )
-{
-    // need to check convertibility and set a VM error
-    if( !JS_IsString( v ) ) {
-        // not the right error
-        throw std::runtime_error( "Non string binding argument" );
-    }
-    size_t len;
-    const char *str = JS_ToCStringLen( ctx, &len, v );
-    std::string s{ str, len };
-    JS_FreeCString( ctx, str );
-    return s;
-}
-
-template<typename T, std::enable_if_t<std::is_integral_v<std::decay_t<T>>>* = nullptr>
-                                      inline JSValue to_js( JSContext *ctx, T && t )
-{
-    // need to switch off size and signedness to call appropriate bigint ctor,
-    // or else just forbid >32bit ints in the vm
-    return JS_NewNumber( ctx, t );
-}
-
-template<typename T, std::enable_if_t<std::is_same_v<std::decay_t<T>, std::string>>* = nullptr>
-inline JSValue to_js( JSContext *ctx, T && t )
-{
-    return JS_NewStringLen( ctx, t.data(), t.size() );
-}
-
 template<typename Binding, typename ArityTester,
          typename C, typename R, typename... Args, R( C::* MemFn )( Args... )>
 struct member_function_wrapper<Binding, ArityTester, MemFn> : type_erasing_wrapper {
@@ -123,10 +134,14 @@ struct member_function_wrapper<Binding, ArityTester, MemFn> : type_erasing_wrapp
     virtual JSValue call( JSContext *ctx, void *this_val, int argc,
                           JSValueConst *argv ) noexcept override {
         if( argc < min_arity ) {
-            // DO SOMETHING EVIL
-            return JS_UNDEFINED;
+            return JS_ThrowTypeError( ctx, "Not enough args, expected %d-%d, got %d", min_arity, max_arity,
+                                      argc );
         }
-        return call( ctx, static_cast<C *>( this_val ), argc, argv, std::make_index_sequence<min_arity>() );
+        try {
+            return call( ctx, static_cast<C *>( this_val ), argc, argv, std::make_index_sequence<min_arity>() );
+        } catch( ... ) {
+
+        }
     }
 
 private:
@@ -195,6 +210,9 @@ struct proto_base {
         qjs::generic_magic call,
         type_erasing_wrapper *fn
     ) noexcept;
+
+    static JSValue call_( type_erasing_wrapper *fn, JSContext *ctx, void *this_val, int argc,
+                          JSValueConst *argv ) noexcept;
 };
 
 template<typename Clazz>
@@ -206,7 +224,7 @@ struct proto : proto_base {
 
     static JSValue call( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
                          int magic ) noexcept {
-        return funcs[magic]->call( ctx, JS_GetOpaque( this_val, clsid ), argc, argv );
+        return call_( funcs[magic], ctx, JS_GetOpaque( this_val, clsid ), argc, argv );
     }
 
     static void push( std::string_view name, int argc, type_erasing_wrapper *fn ) noexcept {

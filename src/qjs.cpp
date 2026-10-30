@@ -47,6 +47,19 @@ void proto_base::push_erased(
     funcs.emplace_back( fn );
 }
 
+
+JSValue proto_base::call_( type_erasing_wrapper *fn, JSContext *ctx, void *this_val, int argc,
+                           JSValueConst *argv ) noexcept
+{
+    try {
+        return fn->call( ctx, this_val, argc, argv );
+    } catch( ... ) {
+        qjs::context *qctx = static_cast<qjs::context *>( JS_GetContextOpaque( ctx ) );
+        //qctx->set_uncatchable_exception(std::current_exception());
+    }
+    return JS_EXCEPTION;
+}
+
 namespace qjs
 {
 
@@ -209,7 +222,7 @@ exn value::to_exception() const &
     return clone().to_exception();
 }
 
-exn value::to_exception()&& {
+exn value::to_exception() && {
     if( !JS_IsException( v ) )
     {
         // idk throw?
@@ -222,7 +235,7 @@ string value::to_string() const &
     return clone().to_string();
 }
 
-string value::to_string()&& {
+string value::to_string() && {
     if( !JS_IsString( v ) )
     {
         // idk throw?
