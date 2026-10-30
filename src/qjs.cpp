@@ -20,6 +20,8 @@ struct bound {
 };
 
 PROTO( bound );
+BOUND( bound, foo );
+BOUND( bound, bar );
 
 void proto_base::push_erased(
     std::vector<JSCFunctionListEntry> &bindings,
