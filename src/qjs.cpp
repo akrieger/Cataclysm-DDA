@@ -18,7 +18,6 @@ struct bound {
     }
 };
 
-PROTO( bound );
 BIND( bound, foo );
 BIND( bound, bar );
 BIND( bound, baz );
@@ -112,6 +111,7 @@ cataimgui::bounds Console::get_bounds()
 
 void Console::draw_controls()
 {
+    proto<bound>::__proto.bindings[0].u.func.cfunc.generic( nullptr, {}, 2, nullptr );
     ImGui::ShowDemoWindow();
     //draw_lorem( stuff );
 }
@@ -232,7 +232,7 @@ exn value::to_exception() const &
     return clone().to_exception();
 }
 
-exn value::to_exception()&& {
+exn value::to_exception() && {
     if( !JS_IsException( v ) )
     {
         // idk throw?
@@ -245,7 +245,7 @@ string value::to_string() const &
     return clone().to_string();
 }
 
-string value::to_string()&& {
+string value::to_string() && {
     if( !JS_IsString( v ) )
     {
         // idk throw?
@@ -253,21 +253,21 @@ string value::to_string()&& {
     return string( std::move( *this ) );
 }
 
-JSCFunctionListEntry js_cfunc_def( const char *name, int length, generic_cfunc func1 ) noexcept
+JSCFunctionListEntry js_cfunc_def( const char *name, int length, JSCFunction func1 ) noexcept
 {
     JSCFunctionListEntry entry;
     entry.name = name;
     entry.prop_flags = JS_PROP_WRITABLE | JS_PROP_CONFIGURABLE;
     entry.def_type = JS_DEF_CFUNC;
+    entry.magic = 0;
     entry.u.func.length = length;
     entry.u.func.cproto = JS_CFUNC_generic;
-    entry.u.func.cfunc.generic_magic = 0;
     entry.u.func.cfunc.generic = func1;
     return entry;
 
 }
 
-JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, generic_magic func1,
+JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, JSCFunctionMagic func1,
         int magic ) noexcept
 {
     JSCFunctionListEntry entry;
