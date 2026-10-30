@@ -135,13 +135,13 @@ class value
         }
 
         // Explicit copies.
-        value clone() const& {
+        value clone() const & {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone()&& {
+        value clone() && {
             return std::move( *this );
         }
 
@@ -315,63 +315,74 @@ struct member_function_wrapper<Binding, MemFn> : type_erasing_wrapper {
         }
 };
 
-struct proto_base {
-    static JSClassID clsid;
-    static std::vector<JSCFunctionListEntry> bindings;
-    static std::vector<type_erasing_wrapper *> funcs;
-
-    static JSValue call( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
-                         int magic ) {
-        return funcs[magic]->call( ctx, JS_GetOpaque( this_val, clsid ), argc, argv );
-    }
-
-    static void push( std::string_view name, int argc, type_erasing_wrapper *fn ) {
-        bindings.emplace_back(
-            qjs::js_cfunc_magic_def(
-                name.data(),
-                argc,
-                &proto_base::call,
-                funcs.size()
-            )
-        );
-        funcs.emplace_back( fn );
-    }
+struct proto_base
+{
+    static void push_erased(
+        std::vector<JSCFunctionListEntry>& bindings,
+        std::vector<type_erasing_wrapper*>& funcs,
+        std::string_view name,
+        int argc,
+        qjs::generic_magic call,
+        type_erasing_wrapper* fn
+    );
 };
 
 template<typename Clazz>
 struct proto : proto_base {
     using Class = Clazz;
+    static JSClassID clsid;
+    static std::vector<JSCFunctionListEntry> bindings;
+    static std::vector<type_erasing_wrapper*> funcs;
+
+    static JSValue call(JSContext* ctx, JSValueConst this_val, int argc, JSValueConst* argv,
+        int magic)
+    {
+        return funcs[magic]->call(ctx, JS_GetOpaque(this_val, clsid), argc, argv);
+    }
+
+    static void push(std::string_view name, int argc, type_erasing_wrapper* fn)
+    {
+        push_erased(
+            bindings,
+            funcs,
+            name,
+            argc,
+            &proto::call,
+            fn);
+    }
 };
 
 // *INDENT-OFF
-#define BIND(func) \
-    struct func##_binding : member_function_wrapper< \
-        func##_binding, \
-    &decltype(__proto)::Class::func \
-    > { \
-        func##_binding() { __proto.push(#func, min_arity, this); } \
-        /* The below gnarly template funk is a hairball of SFINAE helpers for determining the minimum */ \
-        /* and maximum number of arguments a function can be invoked with. */ \
-        /* This is the 'good' test function. If and only if the decltype expression is well formed */ \
-        /* will the overload exist and be callable. The comma operator inside the decltype means the */ \
-        /* computed return type will be std::true_type and have ::value = true. */ \
-        template<typename... Args> \
-        static auto test(int) \
+#define BIND(func)                                                                                              \
+    struct func##_binding : member_function_wrapper<                                                            \
+        func##_binding,                                                                                         \
+    /**/&decltype(__proto)::Class::func                                                                         \
+    > {                                                                                                         \
+        func##_binding() { __proto.push(#func, min_arity, this); }                                              \
+        /* The below gnarly template funk is a hairball of SFINAE helpers for determining the minimum */        \
+        /* and maximum number of arguments a function can be invoked with. */                                   \
+        /* This is the 'good' test function. If and only if the decltype expression is well formed */           \
+        /* will the overload exist and be callable. The comma operator inside the decltype means the */         \
+        /* computed return type will be std::true_type and have ::value = true. */                              \
+        /* This overload is preferred over the other because it is a more specific match under normal*/         \
+        /* overload resolution rules. */                                                                        \
+        template<typename... Args>                                                                              \
+        static auto test(int)                                                                                   \
         -> decltype(std::declval<decltype(__proto)::Class&>().func(std::declval<Args>()...), std::true_type{}); \
-        /* The bad overload matches anything because of the ... argument. So whenever test(int) is not */ \
-        /* selected, i.e. when SFINAE removes it because the func call cannot succeed with that many args, */ \
-        /* then we get std::false_type as the type and callable then is false. */ \
-        template<typename...> \
-        static auto test(...) -> std::false_type; \
-        /* true if C.func(Args...) is well formed, false otherwise. */ \
-        template<typename... Args> \
-        static constexpr bool is_callable_with_v = decltype(test<Args...>(0))::value; \
-        template<typename... Args> \
-        static decltype(auto) call(decltype(__proto)::Class& this_val, Args&&... args) \
-        { \
-            return this_val.func(std::forward<Args>(args)...); \
-        } \
-    }; \
+        /* The bad overload matches anything because of the ... argument. So whenever test(int) is not */       \
+        /* selected, i.e. when SFINAE removes it because the func call cannot succeed with that many args, */   \
+        /* then we get std::false_type as the type and callable then is false. */                               \
+        template<typename...>                                                                                   \
+        static auto test(...) -> std::false_type;                                                               \
+        /* true if C.func(Args...) is well formed, false otherwise. */                                          \
+        template<typename... Args>                                                                              \
+        static constexpr bool is_callable_with_v = decltype(test<Args...>(0))::value;                           \
+        template<typename... Args>                                                                              \
+        static decltype(auto) call(decltype(__proto)::Class& val, Args&&... args)                               \
+        {                                                                                                       \
+            return val.func(std::forward<Args>(args)...);                                                       \
+        }                                                                                                       \
+    };                                                                                                          \
     static inline func##_binding __##func##_binder;
 // *INDENT-ON
 
@@ -384,4 +395,6 @@ struct bound {
     BINDABLE( bound );
     void foo( int, std::string, int = 0 );
     BIND( foo );
+    std::string bar(std::string, int, double = 0.0, std::string = "");
+    BIND(bar);
 };

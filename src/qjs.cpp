@@ -6,6 +6,25 @@
 #include "input_context.h"
 #include "ui_manager.h"
 
+void proto_base::push_erased(
+    std::vector<JSCFunctionListEntry>& bindings,
+    std::vector<type_erasing_wrapper*>& funcs,
+    std::string_view name,
+    int argc,
+    qjs::generic_magic call,
+    type_erasing_wrapper* fn)
+{
+    bindings.emplace_back(
+        qjs::js_cfunc_magic_def(
+            name.data(),
+            argc,
+            call,
+            funcs.size()
+        )
+    );
+    funcs.emplace_back(fn);
+}
+
 namespace qjs
 {
 
