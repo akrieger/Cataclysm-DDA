@@ -10,9 +10,11 @@
 #include <qjs/quickjs.h>
 
 #include "cata_compiler_support.h"
+#include "qjs.h"
 
-template<typename T, std::enable_if_t<std::is_floating_point_v<T>>* = nullptr>
-inline T from_js( JSContext *ctx, JSValueConst v )
+template<typename T>
+inline auto from_js( JSContext *ctx,
+                     JSValueConst v ) -> std::enable_if_t<std::is_floating_point_v<T>, T>
 {
     T ret{};
     // JS_IsNumber => int or float
@@ -38,8 +40,8 @@ inline T from_js( JSContext *ctx, JSValueConst v )
     return ret;
 }
 
-template<typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
-inline T from_js( JSContext *ctx, JSValueConst v )
+template<typename T>
+inline auto from_js( JSContext *ctx, JSValueConst v ) -> std::enable_if_t<std::is_integral_v<T>, T>
 {
     // need to check convertibility and set a VM error
     if( !JS_IsNumber( v ) && !JS_IsBigInt( v ) ) {
@@ -56,20 +58,9 @@ inline T from_js( JSContext *ctx, JSValueConst v )
     return static_cast<T>( res );
 }
 
-template<typename T, std::enable_if_t<std::is_same_v<T, std::string>>* = nullptr>
-inline T from_js( JSContext *ctx, JSValueConst v )
-{
-    // need to check convertibility and set a VM error
-    if( !JS_IsString( v ) ) {
-        // not the right error
-        throw std::runtime_error( "Non string binding argument" );
-    }
-    size_t len;
-    const char *str = JS_ToCStringLen( ctx, &len, v );
-    std::string s{ str, len };
-    JS_FreeCString( ctx, str );
-    return s;
-}
+template<typename T>
+extern auto from_js( JSContext *ctx,
+                     JSValueConst v ) -> std::enable_if_t<std::is_same_v<T, std::string>, std::string>;
 
 template<typename T, std::enable_if_t<std::is_integral_v<std::decay_t<T>>>* = nullptr>
                                       inline JSValue to_js( JSContext *ctx, T && t )
@@ -79,8 +70,9 @@ template<typename T, std::enable_if_t<std::is_integral_v<std::decay_t<T>>>* = nu
     return JS_NewNumber( ctx, t );
 }
 
-template<typename T, std::enable_if_t<std::is_same_v<std::decay_t<T>, std::string>>* = nullptr>
-inline JSValue to_js( JSContext *ctx, T && t )
+template<typename T>
+inline auto to_js( JSContext *ctx,
+                   T &&t ) -> std::enable_if_t<std::is_same_v<std::decay_t<T>, std::string>, JSValue>
 {
     return JS_NewStringLen( ctx, t.data(), t.size() );
 }
