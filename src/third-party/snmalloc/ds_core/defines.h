@@ -17,7 +17,7 @@
  * `inline` and complains if you specify `SNMALLOC_FAST_PATH` and `inline`.
  */
 #  define SNMALLOC_FAST_PATH_INLINE ALWAYSINLINE
-#  if _MSC_VER >= 1927 && _MSVC_LANG >= 201703L
+#  if _MSC_VER >= 1927 && _MSVC_LANG > 201703L
 #    define SNMALLOC_FAST_PATH_LAMBDA [[msvc::forceinline]]
 #  else
 #    define SNMALLOC_FAST_PATH_LAMBDA
@@ -56,6 +56,14 @@
 #  else
 #    define SNMALLOC_REQUIRE_CONSTINIT
 #  endif
+#endif
+
+// Non-template API functions use SNMALLOC_API for their linkage specifier.
+// Normally inline; can be overridden to NOINLINE (via SNMALLOC_API_NOINLINE)
+// to produce strong definitions in a standalone compilation unit.
+#ifndef SNMALLOC_API
+#  define SNMALLOC_API SNMALLOC_USED_FUNCTION SNMALLOC_FAST_PATH_INLINE
+#  define SNMALLOC_API_SLOW SNMALLOC_USED_FUNCTION inline
 #endif
 
 /*
@@ -123,8 +131,11 @@ namespace snmalloc
   static constexpr bool Debug = true;
 #endif
 
-  // Forwards reference so that the platform can define how to handle errors.
+  // Forward references so that the platform can define how to handle
+  // errors and messages.  Definitions are provided in pal/pal.h once
+  // DefaultPal is known.
   [[noreturn]] SNMALLOC_COLD void error(const char* const str);
+  void message_impl(const char* const str);
 } // namespace snmalloc
 
 #define TOSTRING(expr) TOSTRING2(expr)
@@ -213,21 +224,21 @@ namespace snmalloc
 
 namespace snmalloc
 {
+  template<typename... Args>
+  SNMALLOC_FAST_PATH_INLINE void UNUSED(Args&&...)
+  {}
+
   /**
-   * Forward declaration so that this can be called before the pal header is
-   * included.
+   * Forward declaration so that this can be called before helpers.h is
+   * included (e.g. in SNMALLOC_ASSERT macros expanded inside bits.h).
    */
   template<size_t BufferSize = 1024, typename... Args>
   [[noreturn]] inline void report_fatal_error(Args... args);
 
   /**
-   * Forward declaration so that this can be called before the pal header is
+   * Forward declaration so that this can be called before helpers.h is
    * included.
    */
   template<size_t BufferSize = 1024, typename... Args>
   inline void message(Args... args);
-
-  template<typename... Args>
-  SNMALLOC_FAST_PATH_INLINE void UNUSED(Args&&...)
-  {}
 } // namespace snmalloc
