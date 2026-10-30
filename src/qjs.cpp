@@ -59,8 +59,8 @@ JSValue proto_base::call_( type_erasing_wrapper *fn, JSContext *ctx, void *this_
     try {
         return fn->call( ctx, this_val, argc, argv );
     } catch( ... ) {
-        //qjs::context *qctx = static_cast<qjs::context *>( JS_GetContextOpaque( ctx ) );
-        //qctx->set_ffi_exn(std::current_exception());
+        qjs::context *qctx = static_cast<qjs::context *>( JS_GetContextOpaque( ctx ) );
+        qctx->set_ffi_exn( std::current_exception() );
     }
     return JS_EXCEPTION;
 }

@@ -118,7 +118,7 @@ struct type_erasing_wrapper {
     protected:
         virtual ~type_erasing_wrapper();
     public:
-        virtual JSValue call( JSContext *ctx, void *this_val, int argc, JSValueConst *argv ) noexcept = 0;
+        virtual JSValue call( JSContext *ctx, void *this_val, int argc, JSValueConst *argv ) = 0;
 };
 
 template<typename Binding, typename ArityTester, auto MemFn>
@@ -132,7 +132,7 @@ struct member_function_wrapper<Binding, ArityTester, MemFn> : type_erasing_wrapp
     static constexpr int min_arity =
         std::integral_constant<int, find_min_arity<ArityTester, ArgsTuple, max_arity>()>::value;
     virtual JSValue call( JSContext *ctx, void *this_val, int argc,
-                          JSValueConst *argv ) noexcept override {
+                          JSValueConst *argv ) override {
         return call( ctx, static_cast<C *>( this_val ), argc, argv, std::make_index_sequence<min_arity>() );
     }
 
@@ -145,7 +145,7 @@ private:
             void *this_val,
             int argc,
             JSValueConst *argv,
-            std::index_sequence<I...> ) noexcept {
+            std::index_sequence<I...> ) {
         return switch_arity<min_arity>( ctx, static_cast<C *>( this_val ), argc, argv,
                                         from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>( ctx, argv[I] )... );
     }
@@ -164,7 +164,7 @@ private:
             C *this_val,
             int argc,
             JSValueConst *argv,
-            ArgsSlice &&...args ) noexcept {
+            ArgsSlice &&...args ) {
         if( argc <= N || N == max_arity ) {
             return call_( ctx, this_val, std::forward<ArgsSlice>( args )... );
         }
@@ -179,7 +179,7 @@ private:
     CATA_FORCEINLINE static JSValue call_(
             JSContext *ctx,
             C *this_val,
-            ArgsSlice &&...args ) noexcept {
+            ArgsSlice &&...args ) {
         if constexpr( std::is_void_v<R> ) {
             Binding::call( *this_val, std::forward<ArgsSlice>( args )... );
             return JS_UNDEFINED;
@@ -239,6 +239,7 @@ struct proto : proto_base {
     /* member_function_wrapper definition, otherwise the compiler gets its knickers in a twist with */          \
     /* self-referential recursive constexpr functions and otherwise is sad. */                                  \
     struct func##_arity_tester {                                                                                \
+        using cls = decltype(__proto)::Class;                                                                   \
         /* The below gnarly template funk is a hairball of SFINAE helpers for determining the minimum */        \
         /* and maximum number of arguments a function can be invoked with. */                                   \
         /* This is the 'good' test function. If and only if the decltype expression is well formed */           \
@@ -246,9 +247,10 @@ struct proto : proto_base {
         /* computed return type will be std::true_type and have ::value = true. */                              \
         /* This overload is preferred over the other because it is a more specific match under normal*/         \
         /* overload resolution rules. */                                                                        \
-        template<typename... Args>                                                                              \
-        static auto test(int)                                                                                   \
-        -> decltype(std::declval<decltype(__proto)::Class&>().func(std::declval<Args>()...), std::true_type{}); \
+        template<                                                                                               \
+                typename ...Args,                                                                               \
+                typename = std::enable_if_t<std::is_invocable_v<decltype(&cls::func), cls, Args...>>>           \
+        static auto test(int) -> std::true_type{};                                                              \
         /* The bad overload matches anything because of the ... argument. So whenever test(int) is not */       \
         /* selected, i.e. when SFINAE removes it because the func call cannot succeed with that many args, */   \
         /* then we get std::false_type as the type and callable then is false. */                               \
@@ -264,16 +266,10 @@ struct proto : proto_base {
     /**/&decltype(__proto)::Class::func                                                                         \
     > {                                                                                                         \
         func##_binding() noexcept;                                                                              \
-        template<typename... Args>                                                                              \
-        CATA_FORCEINLINE static decltype(auto) call(decltype(__proto)::Class& val, Args&&... args) noexcept                      \
+        template<typename ...Args>                                                                              \
+        CATA_FORCEINLINE static decltype(auto) call(decltype(__proto)::Class& val, Args&&... args)              \
         {                                                                                                       \
-            try {                                                                                               \
-                return val.func(std::forward<Args>(args)...);                                                   \
-            } catch(...) {                                                                                      \
-                if constexpr (!std::is_void_v<decltype(val.func(std::forward<Args>(args)...))>) {               \
-                    return decltype(val.func(std::forward<Args>(args)...)){};                                   \
-                }                                                                                               \
-            }                                                                                                   \
+            return val.func(std::forward<Args>(args)...);                                                       \
         }                                                                                                       \
     };                                                                                                          \
     static func##_binding __##func##_binder
@@ -291,7 +287,7 @@ struct proto : proto_base {
     std::vector<type_erasing_wrapper *> proto<cls>::funcs{}
 
 #define BOUND(cls, func)                                                                      \
-    cls::func##_binding cls::__##func##_binder;                                               \
-    cls::func##_binding::func##_binding() noexcept { __proto.push(#func, min_arity, this); }
+    cls::func##_binding::func##_binding() noexcept { __proto.push(#func, min_arity, this); }  \
+    cls::func##_binding cls::__##func##_binder
 
 #endif // CATA_SRC_QJS_BINDINGS_H
