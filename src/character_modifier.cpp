@@ -168,7 +168,8 @@ void character_modifier::load( const JsonObject &jo, std::string_view )
 float Character::manipulator_score( const std::map<bodypart_str_id, bodypart> &body,
                                     bp_type type, int override_encumb, int override_wounds ) const
 {
-    std::map<bp_type, std::vector<std::pair<bodypart, float>>> bodypart_groups;
+    std::array<std::vector<std::pair<std::reference_wrapper<const bodypart>, float>>, static_cast<size_t>( enum_traits<bp_type>::last )>
+            bodypart_groups{};
     std::vector<float> score_groups;
     const bool required_type = type != bp_type::num_types;
     const bool local_effect = has_flag( flag_EFFECT_LIMB_SCORE_MOD_LOCAL );
@@ -176,48 +177,54 @@ float Character::manipulator_score( const std::map<bodypart_str_id, bodypart> &b
         if( required_type ) {
             for( const auto &bp_type : id.first->limbtypes ) {
                 if( bp_type.first == type ) {
-                    bodypart_groups[ bp_type.first ].emplace_back( id.second, bp_type.second );
+                    bodypart_groups[static_cast<size_t>( bp_type.first ) ].emplace_back( std::cref( id.second ),
+                            bp_type.second );
                 }
             }
         } else if( id.first->primary_limb_type() != bp_type::num_types ) {
             const bp_type primary_type = id.first->primary_limb_type();
             const auto primary_limb = id.first->limbtypes.find( primary_type );
             if( primary_limb != id.first->limbtypes.end() ) {
-                bodypart_groups[ primary_type ].emplace_back( id.second, primary_limb->second );
+                bodypart_groups[ static_cast<size_t>( primary_type ) ].emplace_back( std::cref( id.second ),
+                        primary_limb->second );
             }
         }
     }
-    for( auto &part : bodypart_groups ) {
+    size_t parts_idx = 0;
+    for( auto &parts : bodypart_groups ) {
         float total = 0.0f;
-        std::sort( part.second.begin(), part.second.end(),
-        []( const std::pair<bodypart, float> &a, const std::pair<bodypart, float> &b ) {
-            return a.first.get_limb_score_max( limb_score_manip ) * a.second <
-                   b.first.get_limb_score_max( limb_score_manip ) * b.second;
+        std::sort( parts.begin(), parts.end(),
+                   []( const std::pair<std::reference_wrapper<const bodypart>, float> &a,
+        const std::pair<std::reference_wrapper<const bodypart>, float> &b ) {
+            return a.first.get().get_limb_score_max( limb_score_manip ) * a.second <
+                   b.first.get().get_limb_score_max( limb_score_manip ) * b.second;
         } );
-        for( const std::pair<bodypart, float> &id : part.second ) {
+        for( const std::pair< std::reference_wrapper<const bodypart>, float> &id : parts ) {
             float local_mul = 1.0f;
             // Calculate local effect modifiers
             if( local_effect ) {
-                for( const effect &local : get_effects_from_bp( id.first.get_id() ) ) {
+                for( const effect &local : get_effects_from_bp( id.first.get().get_id() ) ) {
                     if( local.has_flag( flag_EFFECT_LIMB_SCORE_MOD_LOCAL ) ) {
                         float temp = local.get_limb_score_mod( limb_score_manip, resists_effect( local ) );
                         local_mul *= temp;
                         if( temp != 1.0f ) {
                             add_msg_debug( debugmode::DF_CHARACTER,
                                            "Local limb score modifier %s for manipulation score on BP %s found, effect multiplier %.1f",
-                                           local.disp_name(), id.first.get_id()->name, local_mul );
+                                           local.disp_name(), id.first.get().get_id()->name, local_mul );
                         }
                     }
                 }
             }
-            total = std::min( total + id.first.get_limb_score( *this, limb_score_manip, -1, override_encumb,
+            total = std::min( total + id.first.get().get_limb_score( *this, limb_score_manip, -1,
+                              override_encumb,
                               override_wounds ) * id.second * local_mul,
-                              id.first.get_limb_score_max( limb_score_manip ) * local_mul * id.second );
+                              id.first.get().get_limb_score_max( limb_score_manip ) * local_mul * id.second );
         }
         add_msg_debug( debugmode::DF_CHARACTER,
                        "Manipulation score of bodypart group %s %.1f",
-                       io::enum_to_string<bp_type>( part.first ), total );
+                       io::enum_to_string<bp_type>( static_cast<bp_type>( parts_idx ) ), total );
         score_groups.emplace_back( total );
+        ++parts_idx;
     }
     const auto score_groups_max = std::max_element( score_groups.begin(), score_groups.end() );
 
