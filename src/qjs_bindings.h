@@ -123,7 +123,7 @@ struct js_ffi {
 
     // *INDENT-OFF*
     // astyle loses its shit over all this template stuff
-    template<size_t ...I, size_t N = sizeof...(I)>
+    template<size_t ...I>
     CATA_FORCEINLINE static JSValue ffi(
         JSContext* ctx,
         void* this_val,
