@@ -146,8 +146,12 @@ private:
             int argc,
             JSValueConst *argv,
             std::index_sequence<I...> ) {
-        return switch_arity<min_arity>( ctx, static_cast<C *>( this_val ), argc, argv,
-                                        from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>( ctx, argv[I] )... );
+        if constexpr (min_arity == max_arity) {
+            return call_(ctx, static_cast<C*>(this_val), from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+        } else {
+            return switch_arity<min_arity>(ctx, static_cast<C*>(this_val), argc, argv,
+                from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+        }
     }
 
     // N is the number of args in ...args
