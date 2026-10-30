@@ -13,9 +13,13 @@ struct bound {
     BIND( foo );
     std::string bar( std::string const &s, int );
     BIND( bar );
-    int baz( int, int );
+    int baz( int x, int y ) {
+        return x + y;
+    }
     BIND( baz );
-    int quux( int, int );
+    int quux( int x, int y ) {
+        return x - y;
+    }
     BIND( quux );
 };
 
@@ -41,7 +45,7 @@ void proto_base::push_erased(
     std::vector<JSCFunctionListEntry> &bindings,
     std::string_view name,
     int argc,
-    qjs::generic_cfunc fn ) noexcept
+    qjs::generic_cfunc fn )
 {
     bindings.emplace_back(
         qjs::js_cfunc_def(
@@ -57,7 +61,7 @@ JSValue proto_base::call_erased( JSContext *ctx, JSValueConst this_val,
                                  int argc,
                                  JSValueConst *argv,
                                  int min_arity,
-                                 qjs::generic_cfunc fn ) noexcept
+                                 qjs::generic_cfunc fn )
 {
     if( argc < min_arity ) {
         return JS_ThrowTypeError( ctx, "Not enough args, expected at least %d, got %d", min_arity,
@@ -234,7 +238,7 @@ exn value::to_exception() const &
     return clone().to_exception();
 }
 
-exn value::to_exception() && {
+exn value::to_exception()&& {
     if( !JS_IsException( v ) )
     {
         // idk throw?
@@ -247,7 +251,7 @@ string value::to_string() const &
     return clone().to_string();
 }
 
-string value::to_string() && {
+string value::to_string()&& {
     if( !JS_IsString( v ) )
     {
         // idk throw?

@@ -88,7 +88,7 @@ struct arity_tester {
     /* overload resolution rules. It only exists if func is invokable with Args */
     template <
         typename ...Args,
-        typename = std::enable_if_t<std::is_invocable_v<decltype(Func), Args...> >>
+        typename = std::enable_if_t<std::is_invocable_v<decltype( Func ), Args...> >>
     static auto test( int ) -> std::true_type;
     /* The bad overload matches anything because of the ... argument. So whenever test(int) is */
     /* removed by SFINAE then we get std::false_type as the type and callable then is false. */
@@ -141,7 +141,7 @@ struct member_function_wrapper<MemFn> {
 
     // *INDENT-OFF*
     // astyle loses its shit over all this template stuff
-    template<size_t ...I>
+    template<size_t ...I, size_t N = sizeof...(I)>
     CATA_FORCEINLINE static JSValue call(
             JSContext *ctx,
             C *this_val,
@@ -150,36 +150,17 @@ struct member_function_wrapper<MemFn> {
             std::index_sequence<I...> ) {
         // This would be nice, sadly its c++26
         // auto&& [...args] = std::forward_as_tuple(from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
-        if constexpr (min_arity == max_arity) {
+        if constexpr (min_arity == max_arity || N == max_arity) {
             return call_binding(ctx, this_val, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
         } else {
-            return switch_arity(ctx, this_val, argc, argv, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+            if (argc == N) {
+                return call_binding(ctx, this_val, from_js<std::decay_t<std::tuple_element_t<I, ArgsTuple>>>(ctx, argv[I])...);
+            }
+            if constexpr (N < max_arity) {
+                return call(ctx, this_val, argc, argv, std::make_index_sequence<N + 1>());
+            }
+            return JS_UNDEFINED;
         }
-    }
-
-    // N is the number of args in ...args
-    // argc is the number of args in argv
-    // We recursively call switch_arity with increasingly more args from argv converted
-    // with from_js until we hit argc or max_arity. Then we forward to call_binding.
-    // With the right inlining, some compilers (like clang) can elide
-    // all the recursive calls and just unwrap exactly the right number of args in one
-    // clean block of code, directly into the appropriate argument slots for the underlying
-    // bound function. Just nice clean code.
-    template<typename ...ArgsSlice, size_t N = sizeof...(ArgsSlice)>
-    CATA_FORCEINLINE static JSValue switch_arity(
-            JSContext *ctx,
-            C *this_val,
-            int argc,
-            JSValueConst *argv,
-            ArgsSlice &&...args ) {
-        if( argc <= N || N == max_arity ) {
-            return call_binding( ctx, this_val, std::forward<ArgsSlice>( args )... );
-        }
-        if constexpr( N < max_arity ) {
-            return switch_arity( ctx, this_val, argc, argv, std::forward<ArgsSlice>( args )...,
-                                            from_js<std::decay_t<std::tuple_element_t<N, ArgsTuple>>>( ctx, argv[N] ) );
-        }
-        return JS_UNDEFINED;
     }
 
     template<typename ...ArgsSlice>
@@ -210,17 +191,17 @@ struct proto_base {
         std::string_view name,
         int argc,
         qjs::generic_cfunc fn
-    ) noexcept;
+    );
 
     static JSValue call_erased( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
-                                int min_arity, qjs::generic_cfunc fn ) noexcept;
+                                int min_arity, qjs::generic_cfunc fn );
 };
 
 template<typename Clazz>
 struct proto : proto_base {
     using Class = Clazz;
 
-    void push( std::string_view name, int argc, qjs::generic_cfunc fn ) noexcept {
+    void push( std::string_view name, int argc, qjs::generic_cfunc fn ) {
         push_erased(
             bindings,
             name,
@@ -233,7 +214,7 @@ struct proto : proto_base {
 // *INDENT-OFF*
 #define BIND(func)                                                                                              \
     struct func##_binding : member_function_wrapper<&decltype(__proto)::Class::func> {                          \
-        func##_binding() noexcept;                                                                              \
+        func##_binding();                                                                              \
     };                                                                                                          \
     static func##_binding __##func##_binder
 
@@ -242,7 +223,7 @@ struct proto : proto_base {
 #define PROTO(cls) proto<cls> cls::__proto
 
 #define BOUND(cls, func)                                                                                                                               \
-    cls::func##_binding::func##_binding() noexcept {                                                                                                   \
+    cls::func##_binding::func##_binding() {                                                                                                   \
         __proto.push(                                                                                                                                  \
             #func,                                                                                                                                     \
             min_arity,                                                                                                                                 \
