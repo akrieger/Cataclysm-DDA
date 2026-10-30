@@ -336,7 +336,9 @@ struct new_field {
             // required to handle invalid values, so just skip it
             return result;
         }
-        for( const cata_variant &v : transformation.function( it->second ) ) {
+        std::vector<cata_variant> results = transformation.function( it->second );
+        result.reserve( results.size() );
+        for( const cata_variant &v : results ) {
             result.push_back( data );
             result.back().emplace( new_field_name, v );
         }
