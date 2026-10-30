@@ -145,7 +145,7 @@ struct js_ffi {
         if constexpr (N == max_arity) {
             return invoke(ctx, this_val, std::forward<Args>(args)...);
         }
-        if (argc == N) {
+        if (N == max_arity) {
             return invoke(ctx, this_val, std::forward<Args>(args)...);
         }
         if constexpr (N < max_arity) {
