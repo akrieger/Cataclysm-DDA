@@ -135,13 +135,13 @@ class value
         }
 
         // Explicit copies.
-        value clone() const & {
+        value clone() const& {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone() && {
+        value clone()&& {
             return std::move( *this );
         }
 
@@ -220,3 +220,21 @@ extern JSCFunctionListEntry js_cfunc_magic_def( const char *name, int length, ge
         int magic );
 
 }
+
+template<typename T>
+struct proto {
+    static JSClassID clsid;
+    static std::vector<JSCFunctionListEntry> funcs;
+
+    static JSValue call( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
+                         int magic ) {
+        static_cast<T *>( JS_GetOpaque( this_val, clsid ) )->call( argc, argv, magic );
+    }
+
+    void push();
+};
+
+struct bound {
+    static proto<bound> proto;
+
+};
