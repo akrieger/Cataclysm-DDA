@@ -147,13 +147,13 @@ class value
         }
 
         // Explicit copies.
-        value clone() const& {
+        value clone() const & {
             if( ctx ) {
                 JS_DupValue( ctx->get(), v );
             }
             return value{ ctx, v };
         }
-        value clone()&& {
+        value clone() && {
             return std::move( *this );
         }
 
@@ -225,8 +225,14 @@ class exn : value
         }
 };
 
+using generic_cfunc = JSCFunction;
 using generic_magic = JSValue( * )( JSContext *ctx, JSValueConst this_val, int argc,
                                     JSValueConst *argv, int magic );
+
+extern JSCFunctionListEntry js_cfunc_def(
+    const char *name,
+    int length,
+    generic_cfunc func1 ) noexcept;
 
 extern JSCFunctionListEntry js_cfunc_magic_def(
     const char *name,

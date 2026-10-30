@@ -138,12 +138,7 @@ struct member_function_wrapper<MemFn> {
     static constexpr int max_arity = sizeof...( Args );
     static constexpr int min_arity =
         std::integral_constant<int, find_min_arity<arity_tester<MemFn>, std::tuple<C, Args...>, max_arity>()>::value;
-    static JSValue call( JSContext *ctx, C *this_val, int argc,
-                         JSValueConst *argv ) {
-        return call( ctx, this_val, argc, argv, std::make_index_sequence<min_arity>() );
-    }
 
-private:
     // *INDENT-OFF*
     // astyle loses its shit over all this template stuff
     template<size_t ...I>
@@ -210,15 +205,13 @@ using type_erased_wrapper = JSValue( * )( JSContext *, void *, int, JSValueConst
 struct proto_base {
     static void push_erased(
         std::vector<JSCFunctionListEntry> &bindings,
-        std::vector<type_erased_wrapper> &funcs,
         std::string_view name,
         int argc,
-        qjs::generic_magic call,
-        type_erased_wrapper fn
+        qjs::generic_cfunc fn
     ) noexcept;
 
-    static JSValue call_erased( type_erased_wrapper fn, JSContext *ctx, void *this_val, int min_arity,
-                                int argc, JSValueConst *argv ) noexcept;
+    static JSValue call_erased( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
+                                int min_arity, qjs::generic_cfunc fn ) noexcept;
 };
 
 template<typename Clazz>
@@ -226,48 +219,56 @@ struct proto : proto_base {
     using Class = Clazz;
     static JSClassID clsid;
     static std::vector<JSCFunctionListEntry> bindings;
-    static std::vector<type_erased_wrapper> funcs;
 
-    static JSValue call( JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv,
-                         int magic ) noexcept {
-        return call_erased( funcs[magic], ctx, JS_GetOpaque( this_val, clsid ),
-                            bindings[magic].u.func.length,
-                            argc, argv );
-    }
-
-    static void push( std::string_view name, int argc, type_erased_wrapper fn ) noexcept {
+    static void push( std::string_view name, int argc, qjs::generic_cfunc fn ) noexcept {
         push_erased(
             bindings,
-            funcs,
             name,
             argc,
-            &proto::call,
             fn
         );
     }
 };
 
-// *INDENT-OFF
+/*
+static JSValue call(JSContext* ctx, JSValueConst this_val, int argc, JSValueConst* argv,
+    int magic) noexcept
+{
+    return call_erased(funcs[magic], ctx, JS_GetOpaque(this_val, clsid),
+        bindings[magic].u.func.length,
+        argc, argv);
+}
+*/
+
+// *INDENT-OFF*
 #define BIND(func)                                                                                              \
     struct func##_binding : member_function_wrapper<&decltype(__proto)::Class::func> {                          \
         func##_binding() noexcept;                                                                              \
     };                                                                                                          \
     static func##_binding __##func##_binder
-// *INDENT-ON
 
 #define BINDABLE(cls) static proto<cls> __proto
 
-#define PROTO(cls) \
-    proto<cls> cls::__proto; \
-    template<> \
-    JSClassID proto<cls>::clsid = {}; \
-    template<> \
-    std::vector<JSCFunctionListEntry> proto<cls>::bindings{}; \
-    template<> \
-    std::vector<type_erased_wrapper> proto<cls>::funcs{}
+#define PROTO(cls)                                            \
+    proto<cls> cls::__proto;                                  \
+    template<>                                                \
+    JSClassID proto<cls>::clsid = {};                         \
+    template<>                                                \
+    std::vector<JSCFunctionListEntry> proto<cls>::bindings{};
 
-#define BOUND(cls, func)                                                                      \
-    cls::func##_binding::func##_binding() noexcept { __proto.push(#func, min_arity, [](JSContext *ctx, void *this_val, int argc, JSValueConst* argv){ return call(ctx, static_cast<cls*>(this_val), argc, argv);}); }  \
+#define BOUND(cls, func)                                                                                          \
+    cls::func##_binding::func##_binding() noexcept {                                                              \
+        __proto.push(                                                                                             \
+            #func,                                                                                                \
+            min_arity,                                                                                            \
+            [](JSContext *ctx, JSValueConst this_val, int argc, JSValueConst* argv){ \
+                return __proto.call_erased(ctx, this_val, argc, argv, min_arity, [](JSContext *ctx, JSValueConst this_val, int argc, JSValueConst* argv){    \
+                    return call(ctx, static_cast<cls*>(JS_GetOpaque(this_val, __proto.clsid)), argc, argv, std::make_index_sequence<min_arity>()); \
+                });                                                                                                     \
+            }\
+        );                                                                                                        \
+    }                                                                                                             \
     cls::func##_binding cls::__##func##_binder
+// *INDENT-ON*
 
 #endif // CATA_SRC_QJS_BINDINGS_H
